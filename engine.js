@@ -86,7 +86,8 @@
       if (path === 'book' || path === 'quote') return T.flows[path];
       return { text: ['message'], call: ['call'], callback: ['callback'] }[path] || [];
     }
-    function stepDef(id) { return T.steps[id] || { type: id }; }
+    var BUILTIN = { message: 'Text ' + B.name, call: 'The office is open', callback: OPEN ? 'We will call you back' : 'The office is closed right now' };
+    function stepDef(id) { return T.steps[id] || { type: id, title: BUILTIN[id] || '' }; }
     function visible() {
       return flowFor(S.path).filter(function (id) {
         var d = stepDef(id);
@@ -117,6 +118,11 @@
       return { text: lo === hi ? '$' + lo : '$' + lo + ' to $' + hi, note: 'Includes everything shown. Final price confirmed by text.' };
     }
 
+    function bookRange() {
+      var lo = null, hi = null;
+      T.flows.book.forEach(function (id) { var d = T.steps[id]; if (!d || d.type !== 'choice' || lo !== null) return; d.options.forEach(function (o) { if (!o.price) return; lo = lo === null ? o.price[0] : Math.min(lo, o.price[0]); hi = hi === null ? o.price[1] : Math.max(hi, o.price[1]); }); });
+      return lo === null ? null : [lo, hi];
+    }
     function dayList() {
       var n = bizNow(B), out = [];
       var base = new Date();
@@ -149,7 +155,9 @@
       return (d.today ? 'Today' : d.dow + ' ' + d.num) + ', ' + S.time.toLowerCase();
     }
     function digits() { return S.phone.replace(/\D/g, ''); }
+    function prettyPhone() { var d = digits().replace(/^1(?=\d{10}$)/, ''); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : S.phone; }
     function inArea() { return !B.zips.length || B.zips.some(function (z) { return S.zip.indexOf(z) === 0; }); }
+    function hasZipStep() { return flowFor(S.path).indexOf('zip') > -1; }
     function contactOk() { return S.name.trim().length > 1 && digits().length >= 10; }
     function valid(id) {
       if (!id) return false;
@@ -157,7 +165,8 @@
       if (d.type === 'service') return !!S.svc;
       if (d.type === 'choice') return !!S.ans[id];
       if (d.type === 'time') return !!(S.day && S.time);
-      if (d.type === 'contact') return contactOk() && /^\d{5}$/.test(S.zip) && inArea();
+      if (d.type === 'zip') return /^\d{5}$/.test(S.zip) && inArea();
+      if (d.type === 'contact') return contactOk() && (hasZipStep() || (/^\d{5}$/.test(S.zip) && inArea()));
       if (d.type === 'message') return contactOk() && S.msg.trim().length >= 3;
       if (d.type === 'callback') return contactOk() && !!S.cb;
       return true;
@@ -211,6 +220,7 @@
         var order = OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call'];
         return '<h3>How can we help?</h3><div class="grid2">' + order.map(function (k) {
           var t = T.tiles[k], title = t.title, desc = t.desc;
+          if (k === 'book' && t.priced && B.showPrices) { var rg = bookRange(); if (rg) desc = t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
           if (k === 'call') { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; }
           return '<button class="tile" data-act="start" data-v="' + k + '"><div class="pic">' + ic(k === 'call' && !OPEN ? 'phone-incoming' : t.icon) + '</div><div class="lab"><span class="t">' + title + '</span><span class="d">' + desc + '</span></div></button>';
         }).join('') + '</div>';
@@ -220,6 +230,12 @@
       if (d.type === 'time' && S.svc && S.svc.mode === 'estimate') title = d.estimateTitle || title;
       var h = '<h3>' + esc(title) + '</h3>';
 
+      if (d.type === 'zip') {
+        var zipOk = /^\d{5}$/.test(S.zip);
+        h += '<p class="sub">So we can check that ' + esc(B.name) + ' comes to you.</p><div class="card zipcard"><div class="fld"><label for="zp0">ZIP code</label><input id="zp0" class="zipbig" data-in="zip" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></div>' +
+          '<p class="okmsg" id="zok"' + (zipOk && inArea() ? '' : ' hidden') + '>' + ic('circle-check') + 'Good news, we cover that area.</p>' +
+          '<p class="warn" id="oa"' + (zipOk && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not cover that ZIP yet. They serve ' + esc(B.area) + '. <a href="tel:+1' + B.phoneDigits + '">Call to ask</a></p></div>';
+      }
       if (d.type === 'service') {
         var many = T.services.length > 4;
         h += '<div class="' + (many ? 'grid3' : 'grid2') + '">' + T.services.map(function (s) {
@@ -258,8 +274,8 @@
       }
       if (d.type === 'contact') {
         h += '<div class="card">' + contactFields(1) +
-          '<div class="fld"><label for="zp">' + (T.noun === 'pickup' ? 'Pickup ZIP code' : 'ZIP code') + '</label><input id="zp" class="zip" data-in="zip" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></div>' +
-          '<p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet. They cover ' + esc(B.area) + '.</p>' +
+          (hasZipStep() ? '' : '<div class="fld"><label for="zp">' + (T.noun === 'pickup' ? 'Pickup ZIP code' : 'ZIP code') + '</label><input id="zp" class="zip" data-in="zip" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></div>') +
+          (hasZipStep() ? '' : '<p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet. They cover ' + esc(B.area) + '.</p>') +
           '<p class="fine">By sending, you agree that ' + esc(B.name) + ' may text you about this request. Message and data rates may apply. Reply STOP to opt out.</p></div>';
       }
       if (d.type === 'message') {
@@ -278,8 +294,8 @@
     }
 
     function doneHtml() {
-      var D = S.done, who = esc(S.name.trim().split(' ')[0] || 'there'), ph = esc(S.phone);
-      var title, text, foot = OPEN ? 'They usually reply within ' + B.replyMins + ' minutes.' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect a text shortly after.';
+      var D = S.done, who = esc(S.name.trim().split(' ')[0] || 'there'), ph = esc(prettyPhone());
+      var title, text, foot = (OPEN ? 'They usually reply within ' + B.replyMins + ' minutes.' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect a text shortly after.') + (S.path === 'book' ? ' Need to change something? Just reply to the text.' : '');
       if (S.path === 'book') { title = S.svc.mode === 'estimate' ? 'Walkthrough requested, ' + who : 'Request sent, ' + who; text = esc(B.name) + ' will text ' + ph + ' to confirm ' + (B.timeMode === 'slots' ? 'your booking.' : 'the exact time.'); }
       else if (S.path === 'quote') { title = 'Price request sent, ' + who; text = esc(B.name) + ' will text your price to ' + ph + '.'; foot = 'Photos usually get you an exact number instead of a range.'; }
       else if (S.path === 'text') { title = 'Text sent'; text = esc(B.name) + ' will reply to ' + ph + '.'; }
@@ -289,6 +305,7 @@
       visible().forEach(function (id) { var dd = stepDef(id); if (dd.type === 'choice') { var o = optOf(id); if (o) rows.push([dd.sum || dd.title, o.short || o.label]); } });
       var extras = T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [];
       if (extras.length) rows.push(['Extras', extras.join(', ')]);
+      if (S.details.trim()) rows.push(['Details', S.details.trim().length > 70 ? S.details.trim().slice(0, 67) + '...' : S.details.trim()]);
       if (S.photos.length) rows.push(['Photos', S.photos.length + ' attached']);
       if (whenText()) rows.push(['When', whenText()]);
       var p = priceInfo(); if (p && S.path !== 'text' && S.path !== 'callback') rows.push(['Estimate', p.text]);
@@ -329,6 +346,8 @@
       if (btn) btn.disabled = !valid(id);
       var oa = document.getElementById('oa');
       if (oa) oa.hidden = !(/^\d{5}$/.test(S.zip) && !inArea());
+      var zok = document.getElementById('zok');
+      if (zok) zok.hidden = !(/^\d{5}$/.test(S.zip) && inArea());
     }
 
     function advance() {
@@ -345,7 +364,7 @@
       var el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
       var act = el.getAttribute('data-act'), v = el.getAttribute('data-v');
       if (act === 'start') { S.path = v === 'call' ? (OPEN ? 'call' : 'callback') : v; S.idx = 0; render(); }
-      else if (act === 'svc') { S.svc = svcById(v); S.ans = {}; S.addons = {}; S.idx = 0; advance(); }
+      else if (act === 'svc') { S.svc = svcById(v); S.ans = {}; S.addons = {}; advance(); }
       else if (act === 'opt') { S.ans[el.getAttribute('data-s')] = v; render(); }
       else if (act === 'addon') { S.addons[v] = !S.addons[v]; render(); }
       else if (act === 'day') { S.day = v; S.time = null; render(); }
@@ -353,7 +372,7 @@
       else if (act === 'cb') { S.cb = v; render(); }
       else if (act === 'callback') { S.path = 'callback'; S.idx = 0; render(); }
       else if (act === 'next') { if (valid(cur())) advance(); }
-      else if (act === 'back') { if (S.idx === 0) { S.path = null; S.svc = null; } else S.idx--; render(); }
+      else if (act === 'back') { if (S.idx === 0) { S.path = null; S.svc = null; } else { S.idx--; if (stepDef(cur()).type === 'service') S.svc = null; } render(); }
       else if (act === 'photos') { var f = document.getElementById('ph'); if (f) f.click(); }
       else if (act === 'restart') { fresh(); render(); }
       else if (act === 'close') { post('dbw:close'); fresh(); render(); }
@@ -368,9 +387,12 @@
       Array.prototype.slice.call(e.target.files || [], 0, 10 - S.photos.length).forEach(function (f) { S.photos.push(URL.createObjectURL(f)); });
       render();
     });
+    app.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('input[data-in]') && valid(cur())) { e.preventDefault(); advance(); } });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && CLOSABLE) { post('dbw:close'); fresh(); render(); } });
 
-    if (params.get('start')) { S.path = params.get('start'); }
+    var st0 = params.get('start');
+    if (/^(book|quote|text)$/.test(st0 || '')) S.path = st0;
+    else if (st0 === 'call') S.path = OPEN ? 'call' : 'callback';
     render();
     post('dbw:ready');
   }

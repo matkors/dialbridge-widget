@@ -7,7 +7,7 @@ window.DBW_TEMPLATES = {
     illustration: 'truck',
     defaults: { open: '07:00', close: '18:00', days: [1, 2, 3, 4, 5, 6], replyMins: 15, showPrices: true, timeMode: 'window' },
     tiles: {
-      book: { title: 'Book a pickup', desc: 'Choose what is going and when.', icon: 'truck' },
+      book: { title: 'Book a pickup', desc: 'Choose what is going and when.', priced: 'From {min}. Full truck up to {max}.', icon: 'truck' },
       quote: { title: 'Get a price first', desc: 'Send details and photos.', icon: 'tag' },
       text: { title: 'Text a question', desc: 'Replies come by text.', icon: 'message-square-text' },
       call: { title: 'Call the office', desc: '', icon: 'phone' }
@@ -21,10 +21,11 @@ window.DBW_TEMPLATES = {
       { id: 'estate', label: 'Whole property', hint: 'Estates, move-outs', icon: 'house', mode: 'estimate' }
     ],
     flows: {
-      book: ['service', 'size', 'property', 'time', 'contact'],
-      quote: ['service', 'size', 'property', 'contact']
+      book: ['zip', 'service', 'size', 'property', 'time', 'contact'],
+      quote: ['zip', 'service', 'size', 'property', 'contact']
     },
     steps: {
+      zip: { type: 'zip', title: 'Where is the pickup?' },
       service: { type: 'service', title: 'What needs to go?' },
       size: {
         type: 'choice', ui: 'truck', title: 'How much of the truck?', sum: 'Load', showIf: ['request', 'book'], photos: true,
@@ -48,7 +49,7 @@ window.DBW_TEMPLATES = {
     illustration: 'sparkles',
     defaults: { open: '08:00', close: '18:00', days: [1, 2, 3, 4, 5, 6], replyMins: 20, showPrices: true, timeMode: 'slots' },
     tiles: {
-      book: { title: 'Book a cleaning', desc: 'See your price and pick a time.', icon: 'sparkles' },
+      book: { title: 'Book a cleaning', desc: 'See your price and pick a time.', priced: 'See your price now. From {min}.', icon: 'sparkles' },
       quote: { title: 'Get a quote', desc: 'For bigger or custom jobs.', icon: 'clipboard-list' },
       text: { title: 'Text a question', desc: 'Replies come by text.', icon: 'message-square-text' },
       call: { title: 'Call the office', desc: '', icon: 'phone' }
@@ -60,10 +61,11 @@ window.DBW_TEMPLATES = {
       { id: 'office', label: 'Office or commercial', hint: 'Walkthrough first', icon: 'building-2', mode: 'estimate' }
     ],
     flows: {
-      book: ['service', 'bedrooms', 'bathrooms', 'frequency', 'addons', 'space', 'time', 'contact'],
-      quote: ['service', 'bedrooms', 'bathrooms', 'space', 'contact']
+      book: ['zip', 'service', 'bedrooms', 'bathrooms', 'frequency', 'addons', 'space', 'time', 'contact'],
+      quote: ['zip', 'service', 'bedrooms', 'bathrooms', 'space', 'contact']
     },
     steps: {
+      zip: { type: 'zip', title: 'Where is the home?' },
       service: { type: 'service', title: 'What kind of cleaning?' },
       bedrooms: {
         type: 'choice', ui: 'grid', title: 'How many bedrooms?', sum: 'Bedrooms', showIf: ['book'],
@@ -126,10 +128,11 @@ window.DBW_TEMPLATES = {
       { id: 'install', label: 'New system', hint: 'Replace AC, furnace or heat pump', icon: 'house', mode: 'estimate' }
     ],
     flows: {
-      book: ['service', 'urgent', 'age', 'install', 'time', 'contact'],
-      quote: ['service', 'age', 'install', 'contact']
+      book: ['zip', 'service', 'urgent', 'age', 'install', 'time', 'contact'],
+      quote: ['zip', 'service', 'age', 'install', 'contact']
     },
     steps: {
+      zip: { type: 'zip', title: 'Where is the home?' },
       service: { type: 'service', title: 'What do you need help with?' },
       urgent: {
         type: 'choice', ui: 'list', title: 'Is anyone without heat or cooling right now?', sum: 'Urgency', showIf: ['book'],

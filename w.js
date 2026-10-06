@@ -39,14 +39,15 @@
     if (prefetched) return; prefetched = true;
     var l = document.createElement('link'); l.rel = 'prefetch'; l.href = src; document.head.appendChild(l);
   }
-  function open() {
+  function open(start) {
     if (overlay) return;
+    var url = src + (/^(book|quote|text|call)$/.test(start || '') ? '&start=' + start : '');
     lastFocus = document.activeElement;
     var mobile = window.matchMedia('(max-width: 760px)').matches;
     overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483001;background:rgba(26,29,33,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s';
     frame = document.createElement('iframe');
-    frame.src = src;
+    frame.src = url;
     frame.title = 'Book online';
     frame.setAttribute('allow', 'camera');
     frame.style.cssText = mobile
@@ -73,7 +74,7 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 
   var btn = root.querySelector('button');
-  btn.addEventListener('click', open);
+  btn.addEventListener('click', function () { open(); });
   btn.addEventListener('mouseenter', prefetch);
   setTimeout(prefetch, 3000);
 
@@ -89,5 +90,8 @@
     });
   }
   if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+  // Links like yoursite.com/?book or /#book (or ?book=quote) open the widget straight away, for ads and social bios.
+  var auto = new URLSearchParams(location.search).get('book');
+  if (auto !== null || location.hash === '#book') setTimeout(function () { open(auto); }, 300);
   window.DialBridgeWidget = { open: open, close: close };
 })();
