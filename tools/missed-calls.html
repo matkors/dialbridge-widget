@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Missed Call Cost Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"DialBridge","url":"https://dialbridge.ai"}}</script>
 <link rel="stylesheet" href="tools.css">
+<style>.sticky{display:none}@media (max-width:860px){.sticky{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-radius:14px;background:var(--ink);color:#f1f2ea;text-decoration:none;font-size:15px;box-shadow:0 10px 30px rgba(0,0,0,.25)}.sticky b{color:#fff;font-size:17px}.sticky span{color:#ed805c;font-weight:700;font-size:13.5px}.foot{padding-bottom:96px}}</style>
 </head>
 <body>
 <header class="bar"><a class="logo" href="https://dialbridge.ai/">DialBridge</a><span>Free tools for home service businesses</span></header>
@@ -31,7 +32,7 @@
       <div class="f"><label for="job">Average job value ($)</label><input id="job" inputmode="numeric" value="350"></div>
     </form>
 
-    <div class="card res" aria-live="polite">
+    <div class="card res" id="res" aria-live="polite">
       <p class="k">You're likely losing</p>
       <p class="big" id="month">$0</p>
       <p class="per">a month</p>
@@ -57,6 +58,7 @@
     <p>Calls per week × 4.33 weeks = calls a month. Of those, the share you miss, then the share of missed callers who go elsewhere, gives lost callers. Lost callers × your booking rate = lost jobs, and lost jobs × average job value = lost revenue. Trade presets are rough starting points, not industry data. Change any number to match your business.</p>
   </section>
 </main>
+<a class="sticky" id="sticky" href="#res">Losing about <b id="stickyNum">$0</b> a month <span>See the math</span></a>
 <footer class="foot">DialBridge · Mahwah, NJ · Free tools for home service businesses</footer>
 <script>
 (function(){
@@ -74,11 +76,12 @@
   function calc(){
     var calls=num('calls')*4.33, missed=Math.min(num('missed'),100)/100, lost=Math.min(num('lost'),100)/100, close=Math.min(num('close'),100)/100, job=num('job');
     var lostCallers=calls*missed*lost, jobs=lostCallers*close, month=jobs*job;
-    $('month').textContent=money(month); $('year').textContent=money(Math.round(month)*12);
+    $('month').textContent=money(month); $('stickyNum').textContent=money(month); $('year').textContent=money(Math.round(month)*12);
     $('jobs').textContent=jobs<10?jobs.toFixed(1):Math.round(jobs); $('callsLost').textContent=Math.round(lostCallers);
     $('math').innerHTML='<span>'+Math.round(calls)+' calls a month</span><span>× '+Math.round(missed*100)+'% missed</span><span>× '+Math.round(lost*100)+'% go elsewhere</span><span>× '+Math.round(close*100)+'% would book</span><span>× '+money(job)+' a job</span>';
   }
   calc();
+  if('IntersectionObserver' in window){new IntersectionObserver(function(e){$('sticky').style.visibility=e[0].isIntersecting?'hidden':'visible';}).observe($('res'));}
 })();
 </script>
 </body>
