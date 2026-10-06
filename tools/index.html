@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>DialBridge Free Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tools.css">
+<style>
+.list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding-bottom:20px}
+.t{display:flex;flex-direction:column;gap:8px;padding:22px;border:1px solid var(--line);border-radius:16px;background:#fff;text-decoration:none}
+.t:hover{border-color:var(--ink)}
+.t b{font-size:19px;letter-spacing:-.01em}
+.t span{font-size:14.5px;color:var(--mute)}
+.t em{margin-top:auto;padding-top:8px;font-style:normal;font-size:13px;font-weight:700;color:var(--acc-d)}
+.memo{max-width:760px;padding:16px 20px;border-left:3px solid var(--acc);background:#fff;border-radius:0 12px 12px 0;font-size:14.5px;color:#3d443a}
+@media (max-width:860px){.list{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="bar"><a class="logo" href="https://dialbridge.ai/">DialBridge</a><span>Free tools for home service businesses</span></header>
+<main class="w">
+  <section class="hero"><p class="k">Free tools</p><h1>Small tools that answer the questions owners actually search.</h1>
+  <p class="lede">Each one gives a real answer with no signup, then points to the free Lost Job Report.</p></section>
+  <div class="list">
+    <a class="t" href="missed-calls.html"><b>Missed call cost calculator</b><span>Calls a week, share missed, close rate and job value become a monthly dollar figure, with the math shown.</span><em>Target search: missed call cost calculator</em></a>
+    <a class="t" href="review-link.html"><b>Google review link and QR card</b><span>Direct review link, QR code, printable card and three review request texts.</span><em>Target search: google review link generator</em></a>
+    <a class="t" href="junk-pricing.html"><b>Junk removal pricing calculator</b><span>Crew, dump fees and truck costs become a price sheet from a single item to a full truck.</span><em>Target search: junk removal pricing calculator</em></a>
+  </div>
+  <p class="memo"><b>Internal note:</b> these are previews in DialBridge's colors and font. To go live they move to dialbridge.ai/tools/, drop the noindex tag, and get linked from the matching guides. Each already has WebApplication schema and a tagged link to the Lost Job Report (utm_source=dialbridge_tools), so leads from them show up separately in n8n.</p>
+</main>
+<footer class="foot">DialBridge · Mahwah, NJ · Free tools for home service businesses</footer>
+</body>
+</html>

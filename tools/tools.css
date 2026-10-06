@@ -1,0 +1,56 @@
+/* DialBridge free tools. Palette and type taken from dialbridge.ai (Manrope, warm off-white, green-black ink, orange). */
+:root{--bg:#f5f4ef;--ink:#20251f;--mute:#5d6255;--line:#dadfcf;--soft:#eeeee6;--card:#fff;--acc:#f35427;--acc-d:#c43d17;--good:#2f6b3a}
+*{box-sizing:border-box}
+body{margin:0;font-family:Manrope,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button,input,select,textarea{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px clamp(16px,4vw,48px);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:19px;letter-spacing:-.02em;text-decoration:none}
+.bar span{font-size:14px;color:var(--mute)}
+.w{max-width:1120px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+.hero{padding:52px 0 28px;max-width:760px}
+.k{margin:0 0 8px;font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--acc-d)}
+h1{margin:0 0 12px;font-size:clamp(32px,5vw,50px);line-height:1.06;letter-spacing:-.03em;font-weight:800;text-wrap:balance}
+.lede{margin:0;font-size:18px;color:var(--mute);max-width:620px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}
+form.card{display:flex;flex-direction:column;gap:20px}
+.f{display:flex;flex-direction:column;gap:8px}
+.f label,.lbl{font-size:14px;font-weight:700}
+.f input:not([type=range]):not([type=checkbox]),.f select,.f textarea{width:100%;padding:11px 13px;border:1px solid #c9cfc2;border-radius:10px;font-size:16px;background:#fff}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.rng{display:grid;grid-template-columns:1fr 84px;gap:12px;align-items:center}
+input[type=range]{accent-color:var(--acc);width:100%}
+.hint{margin:0;font-size:13px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 13px;border:1px solid #c9cfc2;border-radius:30px;background:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.chip:hover{border-color:var(--ink)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.res{position:sticky;top:20px;display:flex;flex-direction:column;gap:6px;background:var(--ink);color:#f1f2ea;border-color:var(--ink)}
+.res .k{color:#ed805c}
+.big{margin:0;font-size:clamp(46px,7vw,68px);font-weight:800;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums}
+.per{margin:0 0 14px;color:#c9cfc2;font-size:16px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:16px 0;border-top:1px solid #3a4238;border-bottom:1px solid #3a4238}
+.stats b{display:block;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.stats span{font-size:13px;color:#c9cfc2}
+.math{display:flex;flex-wrap:wrap;gap:6px;padding:14px 0 4px}
+.math span{padding:4px 9px;border-radius:7px;background:#2d342b;font-size:12.5px;color:#dadfcf;font-variant-numeric:tabular-nums}
+.cta{display:flex;flex-direction:column;gap:12px;margin-top:12px;padding:16px;border-radius:12px;background:#2d342b}
+.cta p{margin:0;font-size:14.5px;color:#dadfcf}
+.cta b{color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;height:46px;padding:0 20px;border-radius:10px;background:var(--acc);color:#fff;font-weight:700;text-decoration:none;border:0;cursor:pointer;font-size:15px}
+.btn:hover{background:var(--acc-d)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid #c9cfc2}
+.btn.ghost:hover{border-color:var(--ink);background:#fff}
+.prose{max-width:720px;padding:48px 0 24px}
+.prose h2{margin:28px 0 10px;font-size:24px;letter-spacing:-.02em}
+.prose li{margin-bottom:10px}
+.prose p,.prose li{color:#3d443a}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line);font-size:15px}
+th{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+td.num,th.num{text-align:right}
+.foot{margin-top:40px;padding:24px clamp(16px,4vw,48px) 40px;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}
+@media (max-width:860px){.grid{grid-template-columns:1fr}.res{position:static}.hero{padding-top:32px}}
+@media print{.bar,.hero,.foot,.noprint,form.card{display:none!important}body{background:#fff}}

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Google Review Link and QR Card</title>
+<meta name="description" content="Free tool: turn your Google Business Profile into a direct review link, a QR code and a printable review card, plus ready-to-send review request texts.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Google Review Link and QR Card Generator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"DialBridge","url":"https://dialbridge.ai"}}</script>
+<link rel="stylesheet" href="tools.css">
+<style>
+.status{margin:0;padding:10px 12px;border-radius:9px;font-size:14px}
+.status.ok{background:#e8f1e6;color:var(--good)}
+.status.bad{background:#fbe9e2;color:var(--acc-d)}
+.help{font-size:14px;color:var(--mute)}
+.help ol{margin:6px 0 0;padding-left:20px}
+.outlink{display:flex;gap:8px}
+.outlink input{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--soft);font:13px ui-monospace,Consolas,monospace;color:var(--mute)}
+.small{height:42px;padding:0 14px;font-size:14px}
+.cardwrap{display:flex;justify-content:center;padding:8px 0}
+.rcard{width:340px;max-width:100%;padding:26px 24px;border-radius:18px;background:#fff;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;color:var(--ink)}
+.rcard .stars{color:#FBBC05;font-size:26px;letter-spacing:4px;line-height:1}
+.rcard h3{margin:0;font-size:24px;letter-spacing:-.02em;line-height:1.15}
+.rcard p{margin:0;font-size:14px;color:var(--mute)}
+.rcard .qrbox{padding:10px;border:1px solid var(--line);border-radius:12px}
+.rcard .bn{font-weight:800;font-size:17px}
+.rcard .g{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--mute)}
+.tpl{display:flex;flex-direction:column;gap:12px}
+.tpl .t{padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.tpl .t b{display:block;margin-bottom:6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+.tpl .t p{margin:0 0 10px;font-size:15px;white-space:pre-wrap}
+.res2{display:flex;flex-direction:column;gap:16px}
+@media print{body *{visibility:hidden}.rcard,.rcard *{visibility:visible}.rcard{position:absolute;left:50%;top:40px;transform:translateX(-50%);border:1px solid #999}}
+</style>
+</head>
+<body>
+<header class="bar"><a class="logo" href="https://dialbridge.ai/">DialBridge</a><span>Free tools for home service businesses</span></header>
+<main class="w">
+  <section class="hero">
+    <p class="k">Free review tool</p>
+    <h1>Get a direct Google review link, a QR code and a card to hand out.</h1>
+    <p class="lede">Paste your review link or Place ID. You get a link that opens straight to the review box, a QR code for your truck or invoice, a printable card and three texts to send after a job.</p>
+  </section>
+  <section class="grid">
+    <form class="card" id="f" autocomplete="off" onsubmit="return false">
+      <div class="f"><label for="biz">Business name</label><input id="biz" value="Harbor Haul"></div>
+      <div class="f"><label for="src">Your Google review link or Place ID</label><input id="src" placeholder="https://g.page/r/... or ChIJ..." value=""></div>
+      <p class="status" id="st" hidden></p>
+      <div class="help"><b>Where to find it</b><ol>
+        <li>Search your business name on Google while signed in to the owner account.</li>
+        <li>In your Business Profile panel, click <b>Ask for reviews</b> (sometimes <b>Get more reviews</b>).</li>
+        <li>Copy the link and paste it above.</li></ol>
+        <p style="margin:8px 0 0">No owner access? Look up your Place ID with <a href="https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder" target="_blank" rel="noopener">Google's free Place ID Finder</a>.</p></div>
+      <div class="f"><label for="tech">Who did the job (for the texts)</label><input id="tech" value="Mike"></div>
+    </form>
+    <div class="res2">
+      <div class="card"><div class="f"><span class="lbl">Your review link</span><div class="outlink"><input id="out" readonly placeholder="Paste a link or Place ID first"><button class="btn small" type="button" id="copyLink">Copy</button></div></div></div>
+      <div class="card"><div class="cardwrap"><div class="rcard" id="rcard">
+        <div class="stars" aria-hidden="true">★★★★★</div>
+        <h3>How did we do?</h3>
+        <p>Scan to leave a quick Google review. It takes 30 seconds and helps a local business a lot.</p>
+        <div class="qrbox" id="qr"></div>
+        <div class="bn" id="bn">Harbor Haul</div>
+        <div class="g">Thank you for choosing us</div>
+      </div></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap" class="noprint"><button class="btn" type="button" id="print">Print the card</button><button class="btn ghost" type="button" id="dl">Download QR (PNG)</button></div></div>
+    </div>
+  </section>
+  <section class="prose">
+    <h2>Three review request texts</h2>
+    <div class="tpl" id="tpl"></div>
+    <h2>When to ask</h2>
+    <p>Ask within two hours of finishing the job, while the customer is still happy and the crew's name is fresh. Send the text from the business number, not a personal phone, and never offer anything in exchange for a review: Google's rules ban incentives, and reviews that break them can be removed.</p>
+    <div class="cta" style="background:var(--ink);margin-top:24px"><p><b>See how your reviews stack up.</b> The free Lost Job Report compares your Google profile and reviews with the businesses ranking above you.</p><a class="btn" href="https://dialbridge.ai/lost-job-report/?utm_source=dialbridge_tools&amp;utm_medium=referral&amp;utm_campaign=review_link_tool">Get my free report</a></div>
+  </section>
+</main>
+<footer class="foot">DialBridge · Mahwah, NJ · Free tools for home service businesses</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var link='';
+  function parse(v){
+    v=v.trim(); if(!v) return {ok:false,msg:''};
+    var m=v.match(/placeid=([A-Za-z0-9_-]{10,})/);
+    if(m) return {ok:true,url:'https://search.google.com/local/writereview?placeid='+m[1],msg:'Place ID found. This link opens the review box directly.'};
+    if(/^ChIJ[A-Za-z0-9_-]{10,}$/.test(v)) return {ok:true,url:'https://search.google.com/local/writereview?placeid='+v,msg:'Built your direct review link from the Place ID.'};
+    if(/^https?:\/\/(g\.page\/r\/|maps\.app\.goo\.gl\/|search\.google\.com\/local\/writereview|www\.google\.com\/maps\/place\/.*\/review|g\.co\/kgs\/)/.test(v)) return {ok:true,url:v,msg:'Looks like a Google review link. Test it once on your phone before printing.'};
+    if(/^https?:\/\/(www\.)?google\.[a-z.]+\/maps/.test(v)) return {ok:false,msg:'That is a Maps page link, not a review link. Use "Ask for reviews" in your Business Profile, or paste your Place ID.'};
+    return {ok:false,msg:'That does not look like a Google review link or Place ID. See "Where to find it" below.'};
+  }
+  function texts(name,tech,url){
+    var u=url||'[your review link]';
+    return [
+      ['Right after the job','Hi, it\'s '+name+'. Thanks for having '+tech+' out today! If you have 30 seconds, a quick Google review would mean a lot to our small team: '+u],
+      ['Next day follow-up','Hi, '+name+' here. Hope everything looks good after yesterday. Would you mind sharing how it went? '+u+' Thank you!'],
+      ['Repeat customer','Thanks for coming back to '+name+' again! If we earned it, a short Google review helps neighbors find us: '+u]
+    ];
+  }
+  function render(){
+    var name=$('biz').value.trim()||'Your business', tech=$('tech').value.trim()||'our crew', p=parse($('src').value);
+    var st=$('st'); st.hidden=!p.msg; st.textContent=p.msg||''; st.className='status '+(p.ok?'ok':'bad');
+    link=p.ok?p.url:''; $('out').value=link; $('bn').textContent=name;
+    $('qr').innerHTML='';
+    if(window.QRCode) new QRCode($('qr'),{text:link||'https://dialbridge.ai/',width:170,height:170,correctLevel:QRCode.CorrectLevel.M});
+    $('qr').style.opacity=link?1:.25;
+    $('tpl').innerHTML=texts(name,tech,link).map(function(t,i){return '<div class="t"><b>'+t[0]+'</b><p id="t'+i+'"></p><button class="btn ghost small" type="button" data-t="'+i+'">Copy text</button></div>';}).join('');
+    texts(name,tech,link).forEach(function(t,i){$('t'+i).textContent=t[1];});
+  }
+  function copy(text,btn){try{navigator.clipboard.writeText(text);}catch(e){}var o=btn.textContent;btn.textContent='Copied';setTimeout(function(){btn.textContent=o;},1200);}
+  $('f').addEventListener('input',render);
+  $('copyLink').addEventListener('click',function(){if(link)copy(link,this);});
+  $('tpl').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(b)copy($('t'+b.getAttribute('data-t')).textContent,b);});
+  $('print').addEventListener('click',function(){window.print();});
+  $('dl').addEventListener('click',function(){var c=$('qr').querySelector('canvas');if(!c||!link)return;var a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='google-review-qr.png';a.click();});
+  render();
+})();
+</script>
+</body>
+</html>

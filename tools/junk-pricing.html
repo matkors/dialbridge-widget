@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Junk Removal Pricing Calculator</title>
+<meta name="description" content="Free junk removal pricing calculator: enter your crew, dump fees and truck costs to get a price for every load size, from a single item to a full truck.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Junk Removal Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"DialBridge","url":"https://dialbridge.ai"}}</script>
+<link rel="stylesheet" href="tools.css">
+<style>
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sheet{background:#fff;color:var(--ink);border-radius:14px;overflow:hidden;margin-top:6px}
+.sheet td,.sheet th{padding:10px 12px}
+.sheet tr:last-child td{border-bottom:0}
+.sheet .p{font-weight:800;font-size:17px}
+.bar2{display:block;height:6px;border-radius:3px;background:var(--acc);margin-top:5px}
+.res .note{margin:10px 0 0;font-size:13px;color:#c9cfc2}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="bar"><a class="logo" href="https://dialbridge.ai/">DialBridge</a><span>Free tools for home service businesses</span></header>
+<main class="w">
+  <section class="hero">
+    <p class="k">Free calculator</p>
+    <h1>Junk removal pricing calculator</h1>
+    <p class="lede">Enter what a job really costs you. You get a price for every load size, from one couch to a full truck, at the profit margin you choose.</p>
+  </section>
+  <section class="grid">
+    <form class="card" id="f" autocomplete="off" onsubmit="return false">
+      <div class="two">
+        <div class="f"><label for="crew">Crew size</label><input id="crew" inputmode="numeric" value="2"></div>
+        <div class="f"><label for="wage">Cost per worker per hour ($)</label><input id="wage" inputmode="decimal" value="25"></div>
+      </div>
+      <p class="hint" style="margin-top:-10px">Include payroll taxes and workers' comp, not just the hourly wage.</p>
+      <div class="two">
+        <div class="f"><label for="hours">Hours for a full truck job</label><input id="hours" inputmode="decimal" value="3"></div>
+        <div class="f"><label for="tons">Tons in a full truck</label><input id="tons" inputmode="decimal" value="1.75"></div>
+      </div>
+      <p class="hint" style="margin-top:-10px">Loading, driving and the dump run. Tons depend on your truck and what you haul; weigh tickets tell you.</p>
+      <div class="two">
+        <div class="f"><label for="dump">Dump fee per ton ($)</label><input id="dump" inputmode="decimal" value="95"></div>
+        <div class="f"><label for="truck">Truck cost per full job ($)</label><input id="truck" inputmode="decimal" value="45"></div>
+      </div>
+      <p class="hint" style="margin-top:-10px">Check your transfer station's posted rate. Truck cost is fuel, tires and wear.</p>
+      <div class="f"><label for="over">Overhead per job ($)</label><input id="over" inputmode="decimal" value="40"><p class="hint">Insurance, marketing, software, phone, divided by jobs per month.</p></div>
+      <div class="f"><label for="margin">Profit margin you want (%)</label><div class="rng"><input type="range" id="marginR" min="10" max="60" value="35" aria-label="Margin slider"><input id="margin" inputmode="numeric" value="35"></div></div>
+    </form>
+    <div class="card res" aria-live="polite">
+      <p class="k">Your price sheet</p>
+      <div class="sheet"><table><thead><tr><th>Load</th><th class="num">Your cost</th><th class="num">Charge</th><th class="num">Profit</th></tr></thead><tbody id="rows"></tbody></table></div>
+      <p class="note">Prices end in 9 and include labor, dump fees, truck and overhead. Most haulers also add fees for mattresses, tires, paint and appliances with refrigerant.</p>
+      <div class="cta"><p><b>Show these prices online.</b> Customers who see a price range book faster. DialBridge can put your price sheet into a "Book online" button on your website and Google profile.</p><a class="btn" href="https://dialbridge.ai/?utm_source=dialbridge_tools&amp;utm_medium=referral&amp;utm_campaign=junk_pricing_calculator">See how it works</a></div>
+    </div>
+  </section>
+  <section class="prose">
+    <h2>How the prices are worked out</h2>
+    <p>Every job pays for a fixed setup (about 45 minutes of crew time to drive there, walk the job and get to the dump) plus a share of a full truck's loading time, dump weight and truck cost. Overhead is added once per job. The total is divided by one minus your margin, then rounded up to the next price ending in 9.</p>
+    <h2>Check it against your market</h2>
+    <p>Compare your sheet with two or three local competitors who publish prices. If your full-truck price is far above theirs, the usual fixes are a cheaper dump, a bigger truck, or a second crew member who cuts loading time.</p>
+  </section>
+</main>
+<footer class="foot">DialBridge · Mahwah, NJ · Free tools for home service businesses</footer>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var LOADS=[['Single item',0.06],['1/8 truck',0.125],['1/4 truck',0.25],['1/2 truck',0.5],['3/4 truck',0.75],['Full truck',1]];
+  function n(id){var v=parseFloat(String($(id).value).replace(/[^0-9.]/g,''));return isNaN(v)?0:v;}
+  var money=function(x){return '$'+Math.round(x).toLocaleString('en-US');};
+  function up9(x){return Math.ceil((x+1)/10)*10-1;}
+  function calc(){
+    var crew=n('crew'),wage=n('wage'),hours=n('hours'),tons=n('tons'),dump=n('dump'),truck=n('truck'),over=n('over'),m=Math.min(n('margin'),90)/100;
+    var setup=0.75, rows='', fullPrice=0;
+    var data=LOADS.map(function(l){
+      var f=l[1], h=setup+f*Math.max(hours-setup,0);
+      var cost=crew*wage*h + tons*f*dump + truck*(0.4+0.6*f) + over;
+      var price=up9(cost/(1-m));
+      return {name:l[0],cost:cost,price:price};
+    });
+    fullPrice=data[data.length-1].price||1;
+    data.forEach(function(d){rows+='<tr><td>'+d.name+'<span class="bar2" style="width:'+Math.max(4,Math.round(d.price/fullPrice*100))+'%"></span></td><td class="num">'+money(d.cost)+'</td><td class="num p">'+money(d.price)+'</td><td class="num">'+money(d.price-d.cost)+'</td></tr>';});
+    $('rows').innerHTML=rows;
+  }
+  $('marginR').addEventListener('input',function(){$('margin').value=this.value;calc();});
+  $('margin').addEventListener('input',function(){$('marginR').value=n('margin');});
+  $('f').addEventListener('input',calc);
+  calc();
+})();
+</script>
+</body>
+</html>

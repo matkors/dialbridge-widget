@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Missed Call Cost Calculator</title>
+<meta name="description" content="Free calculator for home service businesses: see how much money missed calls cost you each month, from your own call volume, close rate and job value.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Missed Call Cost Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"DialBridge","url":"https://dialbridge.ai"}}</script>
+<link rel="stylesheet" href="tools.css">
+</head>
+<body>
+<header class="bar"><a class="logo" href="https://dialbridge.ai/">DialBridge</a><span>Free tools for home service businesses</span></header>
+<main class="w">
+  <section class="hero">
+    <p class="k">Free calculator</p>
+    <h1>What do missed calls cost your business?</h1>
+    <p class="lede">Put in your own numbers. The math is shown under the result, so you can check every step.</p>
+  </section>
+
+  <section class="grid">
+    <form class="card" id="f" autocomplete="off">
+      <div class="f"><span class="lbl">Your trade</span><div class="chips" id="trades"></div></div>
+      <div class="f"><label for="calls">New customer calls per week</label><div class="rng"><input type="range" id="callsR" min="5" max="150" value="30" aria-label="Calls per week slider"><input id="calls" inputmode="numeric" value="30"></div></div>
+      <div class="f"><label for="missed">Calls you miss (%)</label><div class="rng"><input type="range" id="missedR" min="0" max="80" value="25" aria-label="Missed percent slider"><input id="missed" inputmode="numeric" value="25"></div><p class="hint">On a job, driving, after hours. Check your phone's recent calls for a week if you're not sure.</p></div>
+      <div class="f"><label for="lost">Missed callers who call someone else (%)</label><div class="rng"><input type="range" id="lostR" min="0" max="100" value="60" aria-label="Lost callers slider"><input id="lost" inputmode="numeric" value="60"></div><p class="hint">People who don't leave a voicemail or wait for a call back.</p></div>
+      <div class="f"><label for="close">Calls that become a booked job (%)</label><div class="rng"><input type="range" id="closeR" min="5" max="100" value="50" aria-label="Close rate slider"><input id="close" inputmode="numeric" value="50"></div></div>
+      <div class="f"><label for="job">Average job value ($)</label><input id="job" inputmode="numeric" value="350"></div>
+    </form>
+
+    <div class="card res" aria-live="polite">
+      <p class="k">You're likely losing</p>
+      <p class="big" id="month">$0</p>
+      <p class="per">a month</p>
+      <div class="stats">
+        <div><b id="year">$0</b><span>a year</span></div>
+        <div><b id="jobs">0</b><span>jobs a month</span></div>
+        <div><b id="callsLost">0</b><span>lost callers a month</span></div>
+      </div>
+      <div class="math" id="math"></div>
+      <div class="cta"><p><b>Want your real numbers?</b> The free Lost Job Report checks your Google profile, reviews and how you show up in ChatGPT, then gives you a growth plan.</p>
+        <a class="btn" href="https://dialbridge.ai/lost-job-report/?utm_source=dialbridge_tools&amp;utm_medium=referral&amp;utm_campaign=missed_call_calculator">Get my free report</a></div>
+    </div>
+  </section>
+
+  <section class="prose">
+    <h2>Three ways to stop losing missed calls</h2>
+    <ol>
+      <li><b>Text back within a minute.</b> Set up an automatic text to every missed call: "Sorry we missed you, this is Mike from Harbor Haul. What can we help with?" Most callers reply to a text faster than they wait for a call back.</li>
+      <li><b>Let people book without calling.</b> A "Book online" button on your website and Google profile catches the people who search at 9 PM, when nobody answers the phone.</li>
+      <li><b>Answer every call, even on a job.</b> A trained receptionist or an AI receptionist picks up, gets the job details and books the visit while your hands are full.</li>
+    </ol>
+    <h2>How the math works</h2>
+    <p>Calls per week × 4.33 weeks = calls a month. Of those, the share you miss, then the share of missed callers who go elsewhere, gives lost callers. Lost callers × your booking rate = lost jobs, and lost jobs × average job value = lost revenue. Trade presets are rough starting points, not industry data. Change any number to match your business.</p>
+  </section>
+</main>
+<footer class="foot">DialBridge · Mahwah, NJ · Free tools for home service businesses</footer>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var TR=[['Junk removal',350],['House cleaning',180],['HVAC repair',450],['Plumbing',400],['Pressure washing',350],['Landscaping',250]];
+  $('trades').innerHTML=TR.map(function(t,i){return '<button type="button" class="chip'+(i===0?' on':'')+'" data-v="'+t[1]+'">'+t[0]+'</button>';}).join('');
+  $('trades').addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;[].forEach.call($('trades').children,function(c){c.classList.toggle('on',c===b);});$('job').value=b.getAttribute('data-v');calc();});
+  ['calls','missed','lost','close'].forEach(function(k){
+    $(k+'R').addEventListener('input',function(){$(k).value=$(k+'R').value;calc();});
+    $(k).addEventListener('input',function(){var v=parseFloat($(k).value)||0;$(k+'R').value=v;calc();});
+  });
+  $('job').addEventListener('input',calc);
+  var money=function(n){return '$'+Math.round(n).toLocaleString('en-US');};
+  function num(id){var v=parseFloat(String($(id).value).replace(/[^0-9.]/g,''));return isNaN(v)?0:v;}
+  function calc(){
+    var calls=num('calls')*4.33, missed=Math.min(num('missed'),100)/100, lost=Math.min(num('lost'),100)/100, close=Math.min(num('close'),100)/100, job=num('job');
+    var lostCallers=calls*missed*lost, jobs=lostCallers*close, month=jobs*job;
+    $('month').textContent=money(month); $('year').textContent=money(Math.round(month)*12);
+    $('jobs').textContent=jobs<10?jobs.toFixed(1):Math.round(jobs); $('callsLost').textContent=Math.round(lostCallers);
+    $('math').innerHTML='<span>'+Math.round(calls)+' calls a month</span><span>× '+Math.round(missed*100)+'% missed</span><span>× '+Math.round(lost*100)+'% go elsewhere</span><span>× '+Math.round(close*100)+'% would book</span><span>× '+money(job)+' a job</span>';
+  }
+  calc();
+})();
+</script>
+</body>
+</html>
