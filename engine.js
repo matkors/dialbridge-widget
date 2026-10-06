@@ -36,13 +36,14 @@
 
   function loadConfig() {
     if (params.get('c')) {
-      try { return Promise.resolve(build(b64dec(params.get('c')))); } catch (e) { return Promise.reject(e); }
+      // Link-based demo configs can never send data anywhere: submitUrl only comes from our own flows/*.json files.
+      try { var dc = b64dec(params.get('c')); delete dc.submitUrl; dc.demo = true; return Promise.resolve(build(dc)); } catch (e) { return Promise.reject(e); }
     }
     var slug = (params.get('b') || 'harbor-haul').replace(/[^a-z0-9-]/g, '');
     return fetch('flows/' + slug + '.json', { cache: 'no-cache' }).then(function (r) {
       if (!r.ok) throw new Error('not found');
       return r.json();
-    }).then(build);
+    }).then(function (j) { return build(Object.assign({ slug: slug }, j)); });
   }
 
   /* ---------- time helpers ---------- */
@@ -350,12 +351,46 @@
       if (zok) zok.hidden = !(/^\d{5}$/.test(S.zip) && inArea());
     }
 
+    function payload(reqId) {
+      var answers = {};
+      visible().forEach(function (id) {
+        var d = stepDef(id);
+        if (d.type === 'choice') { var o = optOf(id); if (o) answers[d.sum || id] = o.short || o.label; }
+      });
+      var p = priceInfo();
+      return {
+        requestId: reqId, business: B.slug || B.name, businessName: B.name, path: S.path,
+        service: S.svc ? S.svc.label : null, mode: S.svc ? S.svc.mode : null, answers: answers,
+        extras: T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [],
+        details: S.details.trim() || null, message: S.msg.trim() || null, callbackTime: S.cb,
+        day: S.day, window: S.time, when: whenText() || null, priceShown: p ? p.text : null,
+        name: S.name.trim(), phone: digits(), zip: S.zip || null, photosCount: S.photos.length,
+        smsConsentText: 'By sending, you agree that ' + B.name + ' may text you about this request. Message and data rates may apply. Reply STOP to opt out.',
+        page: document.referrer || location.href, submittedAt: new Date().toISOString()
+      };
+    }
+    function finish() {
+      var reqId = (B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000);
+      var done = function () { S.done = { id: reqId }; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id }); render(); };
+      // Demos have no submitUrl, so nothing leaves the page. A real business config points this at its intake webhook.
+      if (!B.submitUrl || !/^https:\/\//.test(B.submitUrl)) return done();
+      var btn = document.getElementById('next');
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+      var ctl = window.AbortController ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 10000);
+      fetch(B.submitUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload(reqId)), signal: ctl ? ctl.signal : undefined })
+        .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error(r.status); done(); })
+        .catch(function () {
+          clearTimeout(timer);
+          if (btn) { btn.disabled = false; btn.textContent = 'Try again'; }
+          var body = document.querySelector('.m-body');
+          if (body && !document.getElementById('sendErr')) body.insertAdjacentHTML('beforeend', '<p class="warn" id="sendErr">That did not go through. Try again, or call ' + esc(B.name) + ' at <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a>.</p>');
+        });
+    }
     function advance() {
       var steps = visible();
-      if (S.idx >= steps.length - 1) {
-        S.done = { id: (B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000) };
-        post('dbw:submit', { path: S.path, service: S.svc && S.svc.id });
-      } else S.idx++;
+      if (S.idx >= steps.length - 1) return finish();
+      S.idx++;
       render();
     }
     function post(type, data) { try { if (EMBED && parent !== window) parent.postMessage(Object.assign({ type: type }, data || {}), '*'); } catch (e) { } }
