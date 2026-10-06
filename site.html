@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sample contractor site</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#0E6650;--on-brand:#fff;--ink:#1A1D21;--mute:#5E6470;--line:#ECEEF1}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif;color:var(--ink);background:#fff}
+a{color:inherit}
+.demo-bar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:9px 16px;background:#1A1D21;color:#E7E9EC;font-size:13px}
+.demo-bar a{color:#fff;font-weight:600}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px clamp(16px,5vw,64px);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px}
+.mark{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:var(--brand);color:var(--on-brand);font-weight:700}
+nav{display:flex;align-items:center;gap:28px;font-size:15px}
+nav a{text-decoration:none}
+nav .tel{font-weight:600}
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;padding:72px clamp(16px,5vw,64px) 56px;align-items:center}
+.hero h1{margin:0 0 18px;font-size:clamp(34px,5vw,54px);line-height:1.05;letter-spacing:-.025em;text-wrap:balance}
+.hero p{margin:0 0 28px;font-size:18px;line-height:1.55;color:var(--mute);max-width:470px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.b1{display:inline-flex;align-items:center;height:50px;padding:0 22px;border-radius:10px;background:var(--brand);color:var(--on-brand);font-weight:600;text-decoration:none;border:0;font:inherit;font-weight:600;cursor:pointer}
+.b2{display:inline-flex;align-items:center;height:50px;padding:0 22px;border-radius:10px;border:1.5px solid var(--line);font-weight:600;text-decoration:none}
+.visual{height:400px;border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 85%,#000),var(--brand));display:flex;align-items:center;justify-content:center;color:var(--on-brand);position:relative;overflow:hidden}
+.visual svg{width:150px;height:150px;stroke-width:1.1;opacity:.9}
+.visual::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.18),transparent 45%)}
+.strip{display:flex;gap:36px;flex-wrap:wrap;padding:26px clamp(16px,5vw,64px);border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:15px;color:var(--mute)}
+.strip b{color:var(--ink)}
+.svcs{padding:56px clamp(16px,5vw,64px) 120px}
+.svcs h2{margin:0 0 22px;font-size:28px;letter-spacing:-.015em}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.c{padding:20px;border:1px solid var(--line);border-radius:14px}
+.c svg{width:26px;height:26px;color:var(--brand)}
+.c h3{margin:12px 0 4px;font-size:17px}
+.c p{margin:0;font-size:14px;color:var(--mute);line-height:1.45}
+@media (max-width:800px){.hero{grid-template-columns:1fr;padding-top:40px}.visual{height:220px}nav a:not(.tel){display:none}}
+</style>
+</head>
+<body>
+<div class="demo-bar">This is a pretend website to show the DialBridge booking widget. Click the button at the bottom right, or <a href="#" id="openw">open it here</a>.</div>
+<header><div class="logo"><span class="mark" id="mark">H</span><span id="bname">Business</span></div>
+<nav><a href="#svcs">Services</a><a href="#svcs">Reviews</a><a class="tel" id="tel" href="#">(201) 555-0148</a></nav></header>
+<section class="hero"><div><h1 id="h1">Loading…</h1><p id="lede"></p><div class="btns"><button class="b1" id="heroBook">Book online</button><a class="b2" id="heroCall" href="#">Call us</a></div></div>
+<div class="visual" id="visual"></div></section>
+<div class="strip" id="strip"></div>
+<section class="svcs" id="svcs"><h2>What we do</h2><div class="cards" id="cards"></div></section>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js"></script>
+<script src="templates.js"></script>
+<script>
+(function(){
+  var p=new URLSearchParams(location.search);
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+  function dec(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))));}
+  var cfg=(p.get('c')||'').replace(/[^A-Za-z0-9_-]/g,''), slug=(p.get('b')||'harbor-haul').replace(/[^a-z0-9-]/g,'');
+  var load=cfg?Promise.resolve(dec(cfg)):fetch('flows/'+slug+'.json').then(function(r){return r.json();});
+  var COPY={
+    junk:{h1:'Junk removal in {area}, priced before we show up.',lede:'Furniture, appliances and full cleanouts. Same-day pickups when the truck has room.',label:'Book a pickup'},
+    cleaning:{h1:'A clean home without the back-and-forth.',lede:'See your price in a minute and pick a time that works. Weekly, every two weeks or one time.',label:'Book a cleaning'},
+    hvac:{h1:'Heating and cooling repair, booked in a minute.',lede:'Pick an arrival window online, day or night. Free in-home estimates on new systems.',label:'Book a repair'}
+  };
+  load.then(function(b){
+    var T=window.DBW_TEMPLATES[b.trade]||window.DBW_TEMPLATES.junk, C=COPY[b.trade]||COPY.junk;
+    var brand=/^#[0-9a-fA-F]{6}$/.test(b.brand||'')?b.brand:'#0E6650';
+    document.documentElement.style.setProperty('--brand',brand);
+    var c=[1,3,5].map(function(i){var v=parseInt(brand.substr(i,2),16)/255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});
+    document.documentElement.style.setProperty('--on-brand',(0.2126*c[0]+0.7152*c[1]+0.0722*c[2])>0.45?'#1A1D21':'#fff');
+    document.title=b.name+' | '+T.trade;
+    document.getElementById('bname').textContent=b.name;
+    document.getElementById('mark').textContent=(b.name||'B').trim()[0].toUpperCase();
+    var tel='tel:+1'+String(b.phone||'').replace(/\D/g,'');
+    var t=document.getElementById('tel'); t.textContent=b.phone; t.href=tel;
+    document.getElementById('heroCall').href=tel;
+    document.getElementById('h1').textContent=C.h1.replace('{area}',b.area||'your area');
+    document.getElementById('lede').textContent=C.lede;
+    document.getElementById('heroBook').textContent=C.label;
+    document.getElementById('visual').innerHTML='<i data-lucide="'+T.illustration+'"></i>';
+    document.getElementById('strip').innerHTML=(b.rating?'<span><b>'+esc(b.rating)+' stars</b> from '+esc(b.reviews)+' Google reviews</span>':'')+'<span>Serving <b>'+esc(b.area||'your area')+'</b></span><span><b>Book online</b> any time, day or night</span>';
+    document.getElementById('cards').innerHTML=T.services.map(function(s){return '<div class="c"><i data-lucide="'+s.icon+'"></i><h3>'+esc(s.label)+'</h3><p>'+esc(s.hint)+'</p></div>';}).join('');
+    if(window.lucide) lucide.createIcons();
+    var sc=document.createElement('script');
+    sc.src='w.js'; sc.async=true;
+    if(cfg) sc.setAttribute('data-config',cfg); else sc.setAttribute('data-business',slug);
+    sc.setAttribute('data-color',brand); sc.setAttribute('data-label',C.label);
+    document.body.appendChild(sc);
+    var go=function(e){e.preventDefault(); if(window.DialBridgeWidget) DialBridgeWidget.open();};
+    document.getElementById('openw').addEventListener('click',go);
+    document.getElementById('heroBook').addEventListener('click',go);
+  });
+})();
+</script>
+</body>
+</html>

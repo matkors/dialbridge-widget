@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>DialBridge Booking Widget</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1A1D21;--mute:#5E6470;--line:#E3E6EA;--soft:#F5F6F8;--g:#0E6650}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif;color:var(--ink);background:#fff;line-height:1.5}
+.w{max-width:1040px;margin:0 auto;padding:0 20px}
+header{padding:56px 0 36px}
+.k{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--g)}
+h1{margin:10px 0 14px;font-size:clamp(32px,5vw,48px);line-height:1.06;letter-spacing:-.025em;max-width:760px;text-wrap:balance}
+.lede{margin:0;font-size:18px;color:var(--mute);max-width:640px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.b{display:inline-flex;align-items:center;height:48px;padding:0 20px;border-radius:10px;font-weight:600;text-decoration:none;border:1.5px solid var(--line);color:var(--ink)}
+.b.p{background:var(--g);border-color:var(--g);color:#fff}
+h2{margin:0 0 16px;font-size:24px;letter-spacing:-.015em}
+section{padding:36px 0;border-top:1px solid var(--line)}
+.demos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.d{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.d .top{display:flex;align-items:center;gap:10px;padding:18px;color:#fff}
+.d .top b{font-size:17px}
+.d .top span{font-size:13px;opacity:.85;display:block}
+.d .body{display:flex;flex-direction:column;gap:8px;padding:16px 18px 18px;font-size:14.5px;color:var(--mute);flex:1}
+.d .links{display:flex;gap:8px;margin-top:auto;padding-top:8px;flex-wrap:wrap}
+.d .links a{font-size:14px;font-weight:600;color:var(--ink);padding:8px 12px;border:1px solid var(--line);border-radius:8px;text-decoration:none}
+.d .links a:first-child{background:var(--soft)}
+pre{margin:0;padding:16px;border-radius:12px;background:#15181C;color:#E6E8EB;font:13px/1.5 ui-monospace,Consolas,monospace;overflow-x:auto}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+ul{margin:0;padding-left:20px}
+li{margin-bottom:7px}
+.ok li::marker{content:"✓  ";color:var(--g);font-weight:700}
+.nx li::marker{content:"→  ";color:var(--mute)}
+.note{font-size:14px;color:var(--mute)}
+footer{padding:28px 0 48px;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}
+@media (max-width:820px){.demos,.cols{grid-template-columns:1fr}header{padding-top:36px}}
+</style>
+</head>
+<body>
+<div class="w">
+<header>
+  <div class="k">DialBridge · Working prototype</div>
+  <h1>A "Book online" button for home service websites, plus a booking page for their Google profile.</h1>
+  <p class="lede">Customers pick a service, see a price range, choose a day and a time window, and leave their number. The owner gets the request by text. One app serves every business; a new client is a few settings, not new code.</p>
+  <div class="cta"><a class="b p" href="new.html">Build a demo for any business</a><a class="b" href="site.html?b=harbor-haul">See it on a website</a></div>
+</header>
+
+<section>
+  <h2>Three live demos</h2>
+  <div class="demos">
+    <div class="d"><div class="top" style="background:#0E6650"><div><b>Harbor Haul</b><span>Junk removal</span></div></div>
+      <div class="body">Load size on a truck gauge with live price ranges, optional photos, arrival windows, free walkthrough for whole-property jobs.<div class="links"><a href="site.html?b=harbor-haul">On a website</a><a href="book.html?b=harbor-haul">Booking page</a></div></div></div>
+    <div class="d"><div class="top" style="background:#1F4FD1"><div><b>Sparkle &amp; Co.</b><span>House cleaning</span></div></div>
+      <div class="body">Bedrooms and bathrooms, recurring discounts, add-ons and exact appointment times. Commercial jobs route to a walkthrough.<div class="links"><a href="site.html?b=sparkle-and-co">On a website</a><a href="book.html?b=sparkle-and-co">Booking page</a></div></div></div>
+    <div class="d"><div class="top" style="background:#C8211B"><div><b>Comfort Air</b><span>Heating and cooling</span></div></div>
+      <div class="body">Repairs with a visit fee, flat-price tune-ups, an "urgent? call now" prompt, and free in-home estimates for new systems.<div class="links"><a href="site.html?b=comfort-air">On a website</a><a href="book.html?b=comfort-air">Booking page</a></div></div></div>
+  </div>
+  <p class="note">The demos are fictional businesses. Nothing is sent when you submit; the backend comes next.</p>
+</section>
+
+<section>
+  <h2>How a client installs it</h2>
+  <pre>&lt;script async src="https://matviykorsunskiy.me/dialbridge-widget/w.js" data-business="harbor-haul" data-color="#0E6650"&gt;&lt;/script&gt;</pre>
+  <p class="note">Works on WordPress, Wix, Squarespace, Webflow and Duda. For builders that block floating buttons (like GoDaddy), drop in <code>&lt;div data-dialbridge-inline="harbor-haul"&gt;&lt;/div&gt;</code> instead. With no website at all, the booking page link goes on Google and Facebook.</p>
+</section>
+
+<section class="cols">
+  <div><h2>Working now</h2><ul class="ok">
+    <li>Three trade templates driven by one engine</li>
+    <li>Book, get a price, text a question, call or request a call back</li>
+    <li>Live price ranges, discounts and add-ons</li>
+    <li>Open and closed hours change the menu and the copy</li>
+    <li>Service area check by ZIP</li>
+    <li>Phone full screen, desktop centered popup, keyboard and Escape to close</li>
+    <li>Embed script isolated from the host site's styles</li>
+    <li>Demo builder with booking link, install code and QR code</li>
+  </ul></div>
+  <div><h2>Next to build</h2><ul class="nx">
+    <li>Save requests and text the owner and customer (Twilio, toll-free first)</li>
+    <li>Owner inbox to confirm, reply and mark jobs won</li>
+    <li>Real availability and a job limit per arrival window</li>
+    <li>Send requests into Jobber, Housecall Pro, GoHighLevel or Google Calendar</li>
+    <li>Follow-up text when someone leaves halfway, review request after the job</li>
+    <li>Short links like book.dialbridge.ai/harbor-haul</li>
+  </ul></div>
+</section>
+<footer>DialBridge · Mahwah, NJ · Prototype for internal review</footer>
+</div>
+</body>
+</html>

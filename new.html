@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Widget Demo Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1A1D21;--mute:#5E6470;--line:#E1E4E8;--soft:#F4F5F7;--accent:#0E6650}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif;color:var(--ink);background:var(--soft)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;background:#fff;border-bottom:1px solid var(--line)}
+.top b{font-size:17px}
+.top a{font-size:14px;color:var(--mute);text-decoration:none}
+.wrap{display:grid;grid-template-columns:400px 1fr;gap:24px;padding:24px;max-width:1500px;margin:0 auto}
+form,.out{display:flex;flex-direction:column;gap:14px;padding:20px;background:#fff;border:1px solid var(--line);border-radius:14px}
+h2{margin:0;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+.f{display:flex;flex-direction:column;gap:6px}
+.f label{font-size:13px;font-weight:600}
+.f input,.f select{width:100%;padding:10px 12px;border:1px solid #D5D9DE;border-radius:9px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
+.f input:focus,.f select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sw{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sw button{width:30px;height:30px;border-radius:8px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer}
+.sw input[type=color]{width:44px;height:34px;padding:2px;border-radius:8px}
+.hint{margin:0;font-size:12.5px;color:var(--mute);line-height:1.45}
+.chk{display:flex;align-items:center;gap:8px;font-size:14px}
+.prices{display:flex;flex-direction:column;gap:8px}
+.pr{display:grid;grid-template-columns:1fr 84px 84px;gap:8px;align-items:center;font-size:13.5px}
+.pr input{padding:8px 9px;border:1px solid #D5D9DE;border-radius:8px;font:inherit;font-size:14px;width:100%}
+.right{display:flex;flex-direction:column;gap:18px;min-width:0}
+.prev{height:660px;border-radius:22px;overflow:hidden;box-shadow:0 20px 60px rgba(16,24,40,.14);background:#fff}
+.prev iframe{width:100%;height:100%;border:0}
+.out{display:grid;grid-template-columns:1fr 170px;gap:18px;align-items:start}
+.links{display:flex;flex-direction:column;gap:12px;min-width:0}
+.ln{display:flex;flex-direction:column;gap:6px}
+.ln span{font-size:13px;font-weight:600}
+.ln .row{display:flex;gap:8px}
+.ln input,.ln textarea{flex:1;min-width:0;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:12.5px/1.4 ui-monospace,Consolas,monospace;color:var(--mute);background:var(--soft)}
+.ln textarea{height:62px;resize:none}
+.b{flex-shrink:0;padding:0 14px;height:38px;border:1px solid var(--line);border-radius:8px;background:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center}
+.b.p{background:var(--accent);border-color:var(--accent);color:#fff}
+.qr{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12.5px;color:var(--mute);text-align:center}
+#qr{padding:8px;background:#fff;border:1px solid var(--line);border-radius:10px}
+#qr img,#qr canvas{display:block}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);padding:10px 16px;border-radius:10px;background:var(--ink);color:#fff;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;padding:16px}.out{grid-template-columns:1fr}.prev{height:640px}}
+</style>
+</head>
+<body>
+<div class="top"><b>Booking widget demo builder</b><a href="./">How it works</a></div>
+<div class="wrap">
+<form id="f" autocomplete="off">
+  <h2>The business</h2>
+  <div class="f"><label for="name">Business name</label><input id="name" value="Harbor Haul"></div>
+  <div class="two">
+    <div class="f"><label for="trade">Trade</label><select id="trade"><option value="junk">Junk removal</option><option value="cleaning">House cleaning</option><option value="hvac">Heating and cooling</option></select></div>
+    <div class="f"><label for="phone">Phone</label><input id="phone" value="(201) 555-0148"></div>
+  </div>
+  <div class="f"><label>Brand color</label><div class="sw" id="sw"><input type="color" id="brand" value="#0E6650" aria-label="Pick any color"></div></div>
+  <div class="two">
+    <div class="f"><label for="area">Service area</label><input id="area" value="Bergen and Passaic County"></div>
+    <div class="f"><label for="zips">ZIPs start with</label><input id="zips" value="07"></div>
+  </div>
+  <div class="two">
+    <div class="f"><label for="rating">Google rating</label><input id="rating" inputmode="decimal" value="4.9"></div>
+    <div class="f"><label for="reviews">Google reviews</label><input id="reviews" inputmode="numeric" value="212"></div>
+  </div>
+  <h2>Schedule</h2>
+  <div class="two">
+    <div class="f"><label for="open">Opens</label><input id="open" type="time" value="07:00"></div>
+    <div class="f"><label for="close">Closes</label><input id="close" type="time" value="18:00"></div>
+  </div>
+  <div class="f"><label for="timeMode">Customers pick</label><select id="timeMode"><option value="">Trade default</option><option value="window">An arrival window (owner confirms)</option><option value="slots">An exact time</option></select></div>
+  <label class="chk"><input type="checkbox" id="showPrices" checked> Show price ranges</label>
+  <div id="priceBox"><h2 style="margin-bottom:10px">Prices</h2><div class="prices" id="prices"></div></div>
+  <p class="hint">Copy the name, rating and reviews from their Google profile before you walk in. Everything updates live on the right.</p>
+</form>
+<div class="right">
+  <div class="prev"><iframe id="pv" title="Widget preview"></iframe></div>
+  <div class="out">
+    <div class="links">
+      <div class="ln"><span>Their booking page (for Google, Facebook, texts)</span><div class="row"><input id="lHosted" readonly><button class="b" data-copy="lHosted" type="button">Copy</button><a class="b p" id="oHosted" target="_blank" rel="noopener">Open</a></div></div>
+      <div class="ln"><span>Their website with the button on it</span><div class="row"><input id="lSite" readonly><button class="b" data-copy="lSite" type="button">Copy</button><a class="b p" id="oSite" target="_blank" rel="noopener">Open</a></div></div>
+      <div class="ln"><span>Install code (one line, any website)</span><div class="row"><textarea id="lCode" readonly></textarea><button class="b" data-copy="lCode" type="button">Copy</button></div></div>
+      <p class="hint">Demo links carry the settings inside the link. Once the backend exists, each client gets a short link like book.dialbridge.ai/harbor-haul and real texts.</p>
+    </div>
+    <div class="qr"><div id="qr"></div>Scan to open their booking page on a phone</div>
+  </div>
+</div>
+</div>
+<div class="toast" id="toast">Copied</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="templates.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var base=location.href.replace(/[^/]*$/,'');
+  var SW=['#0E6650','#1F4FD1','#C8211B','#1A1D21','#E8590C','#7048E8','#0B7285','#F2B705'];
+  SW.forEach(function(c){var b=document.createElement('button');b.type='button';b.style.background=c;b.title=c;b.onclick=function(){$('brand').value=c;update();};$('sw').insertBefore(b,$('brand'));});
+  var LABEL={junk:'Book a pickup',cleaning:'Book a cleaning',hvac:'Book a repair'};
+  var prices={};
+  function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+  function priceRows(){
+    var T=window.DBW_TEMPLATES[$('trade').value], h='';
+    Object.keys(T.steps).forEach(function(sid){var st=T.steps[sid];(st.options||[]).forEach(function(o){if(!o.price)return;var k=sid+'.'+o.id,v=prices[k]||o.price;
+      h+='<div class="pr"><span>'+(st.sum||sid)+': '+(o.short||o.label)+'</span><input data-k="'+k+'" data-i="0" inputmode="numeric" value="'+v[0]+'" aria-label="Low"><input data-k="'+k+'" data-i="1" inputmode="numeric" value="'+v[1]+'" aria-label="High"></div>';});});
+    $('prices').innerHTML=h||'<p class="hint">This trade uses fixed fees set per service.</p>';
+  }
+  $('prices').addEventListener('input',function(e){var k=e.target.getAttribute('data-k');if(!k)return;var T=window.DBW_TEMPLATES[$('trade').value],p=k.split('.'),def=T.steps[p[0]].options.filter(function(o){return o.id===p[1];})[0].price;var cur=(prices[k]||def).slice();cur[+e.target.getAttribute('data-i')]=parseInt(e.target.value,10)||0;prices[k]=cur;update();});
+  var timer, qr;
+  function update(){
+    clearTimeout(timer);
+    timer=setTimeout(function(){
+      var tr=$('trade').value, own={};
+      Object.keys(prices).forEach(function(k){ if(window.DBW_TEMPLATES[tr].steps[k.split('.')[0]]) own[k]=prices[k]; });
+      var cfg={trade:tr,name:$('name').value.trim()||'Your Business',phone:$('phone').value.trim(),brand:$('brand').value,area:$('area').value.trim()||'your area',
+        zips:$('zips').value.split(/[ ,]+/).filter(Boolean),open:$('open').value||undefined,close:$('close').value||undefined,showPrices:$('showPrices').checked};
+      if($('timeMode').value) cfg.timeMode=$('timeMode').value;
+      var r=parseFloat($('rating').value), n=parseInt($('reviews').value,10);
+      if(r&&n){cfg.rating=r;cfg.reviews=n;}
+      if(Object.keys(own).length) cfg.prices=own;
+      var c=enc(cfg), hosted=base+'book.html?c='+c, site=base+'site.html?c='+c;
+      $('pv').src=base+'book.html?embed=1&inline=1&c='+c;
+      $('lHosted').value=hosted; $('oHosted').href=hosted;
+      $('lSite').value=site; $('oSite').href=site;
+      $('lCode').value='<script async src="'+base+'w.js" data-config="'+c+'" data-color="'+cfg.brand+'" data-label="'+LABEL[tr]+'"><\/script>';
+      $('priceBox').style.display=$('showPrices').checked?'':'none';
+      $('qr').innerHTML=''; if(window.QRCode) new QRCode($('qr'),{text:hosted,width:140,height:140,correctLevel:QRCode.CorrectLevel.L});
+    },250);
+  }
+  var DEF={junk:['Harbor Haul','(201) 555-0148','#0E6650'],cleaning:['Sparkle & Co. Cleaning','(973) 555-0172','#1F4FD1'],hvac:['Comfort Air Heating & Cooling','(973) 555-0119','#C8211B']};
+  $('trade').addEventListener('change',function(){var d=DEF[$('trade').value]; if(Object.keys(DEF).some(function(k){return DEF[k][0]===$('name').value;})){$('name').value=d[0];$('phone').value=d[1];$('brand').value=d[2];} priceRows(); update();});
+  $('f').addEventListener('input',update);
+  document.querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){var el=$(b.getAttribute('data-copy'));el.select();try{navigator.clipboard.writeText(el.value);}catch(e){document.execCommand('copy');}var t=$('toast');t.classList.add('on');setTimeout(function(){t.classList.remove('on');},1200);});});
+  priceRows(); update();
+})();
+</script>
+</body>
+</html>
