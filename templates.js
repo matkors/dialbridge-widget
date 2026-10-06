@@ -31,10 +31,10 @@ window.DBW_TEMPLATES = {
         type: 'choice', ui: 'truck', title: 'How much of the truck?', sum: 'Load', showIf: ['request', 'book'], photos: true,
         note: 'One truck holds about 6 pickup loads',
         options: [
-          { id: 'few', label: 'A few items', short: 'Few items', frac: 0.12, price: [99, 149] },
-          { id: 'quarter', label: 'Quarter truck', short: '1/4 truck', frac: 0.25, price: [179, 249] },
-          { id: 'half', label: 'Half truck', short: '1/2 truck', frac: 0.5, price: [299, 399] },
-          { id: 'full', label: 'Full truck', short: 'Full truck', frac: 1, price: [499, 649] }
+          { id: 'few', label: 'A few items', short: 'Few items', frac: 0.12, price: [99, 179] },
+          { id: 'quarter', label: 'Quarter truck', short: '1/4 truck', frac: 0.25, price: [199, 279] },
+          { id: 'half', label: 'Half truck', short: '1/2 truck', frac: 0.5, price: [349, 449] },
+          { id: 'full', label: 'Full truck', short: 'Full truck', frac: 1, price: [599, 799] }
         ]
       },
       property: { type: 'details', title: 'Tell us about the property', showIf: ['estimate'], placeholder: '3 bedroom house, full basement, moving out by the 30th', photos: true },
