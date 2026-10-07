@@ -84,7 +84,7 @@
     if (hostLine && !EMBED) hostLine.innerHTML = '<b>' + esc(B.name) + '</b><span>Serving ' + esc(B.area) + ' · <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a></span>';
 
     var S;
-    function fresh() { S = { path: null, idx: 0, svc: null, ans: {}, addons: {}, details: '', photos: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', msg: '', cb: null, done: null }; }
+    function fresh() { S = { path: null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', msg: '', cb: null, done: null }; }
     fresh();
 
     function flowFor(path) {
@@ -112,6 +112,17 @@
     var LABELS = { zip: ['Location', 'map-pin'], service: ['Service', 'clipboard-list'], details: ['Details', 'camera'], time: ['Schedule', 'clock'], contact: ['Contact', 'user-round'], message: ['Message', 'message-square-text'], call: ['Call', 'phone'], callback: ['Call back', 'phone-incoming'] };
 
     function svcById(id) { return T.services.filter(function (s) { return s.id === id; })[0]; }
+    // Several picks (junk removal) act as one combined service: any walkthrough-only pick makes the whole job a walkthrough.
+    function combined() {
+      var list = S.svcs.map(svcById).filter(Boolean);
+      if (!list.length) return null;
+      if (list.length === 1) return list[0];
+      return {
+        id: S.svcs.join('+'), label: list.map(function (x) { return x.label; }).join(', '),
+        mode: list.some(function (x) { return x.mode === 'estimate'; }) ? 'estimate' : list[0].mode,
+        heavy: list.some(function (x) { return x.heavy; }), icon: list[0].icon
+      };
+    }
     function optOf(stepId) { var d = T.steps[stepId]; return d && d.options && d.options.filter(function (o) { return o.id === S.ans[stepId]; })[0]; }
 
     function priceInfo() {
@@ -130,7 +141,7 @@
       }
       if (m !== 1) { lo = Math.round(lo * m / 5) * 5; hi = Math.round(hi * m / 5) * 5; }
       lo += alo; hi += ahi;
-      return { text: lo === hi ? '$' + lo : '$' + lo + ' to $' + hi, note: T.priceNote || 'Based on your answers. Final price confirmed before we start.' };
+      return { text: lo === hi ? '$' + lo : '$' + lo + ' to $' + hi, note: (S.svc.heavy ? 'Dirt, concrete and rock are priced by weight, so the final price may be higher. ' : '') + (T.priceNote || 'Based on your answers. Final price confirmed before we start.') };
     }
     function bookRange() {
       var lo = null, hi = null;
@@ -241,9 +252,10 @@
       }
       h += '<h3>' + esc(title) + '</h3>';
       if (d.type === 'service') {
-        h += '<div class="tiles" style="--n:' + Math.min(T.services.length, 6) + '">' + T.services.map(function (s) {
-          var on = S.svc && S.svc.id === s.id;
-          var tag = s.mode === 'estimate' ? 'Free estimate' : s.fixed ? '$' + s.fixed : s.fee ? '$' + s.fee + ' visit' : '';
+        if (T.multiService && d.multiHint) h += '<p class="lede">' + esc(d.multiHint) + '</p>';
+        h += '<div class="tiles" style="--n:' + (T.services.length <= 6 ? T.services.length : 5) + '">' + T.services.map(function (s) {
+          var on = S.svcs.indexOf(s.id) > -1;
+          var tag = s.mode === 'estimate' ? 'Free estimate' : s.fixed ? '$' + s.fixed : s.fee ? '$' + s.fee + ' visit' : s.heavy ? 'By weight' : '';
           return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + s.id + '" aria-pressed="' + !!on + '"><span class="tbox">' + (on ? '<span class="tick">' + ic('check') + '</span>' : '') + (s.image ? '<img alt="" src="' + esc(s.image) + '">' : '<span class="blob"></span>' + ic(s.icon)) + '</span><span class="tl">' + esc(s.label) + '</span>' + (tag && B.showPrices ? '<span class="tt">' + tag + '</span>' : '') + '</button>';
         }).join('') + '</div>';
       }
@@ -316,7 +328,7 @@
       else if (S.path === 'text') { title = 'Message sent'; text = esc(B.name) + ' will reply to ' + ph + ' by text.'; }
       else { title = 'Call back requested'; text = esc(B.name) + ' will call ' + ph + ' ' + esc((S.cb || 'soon').toLowerCase()) + '.'; foot = 'Save ' + esc(B.phone) + ' so you know it is them.'; }
       var rows = [];
-      if (S.svc) rows.push(['Service', S.svc.label]);
+      if (S.svc) rows.push([S.svcs.length > 1 ? 'Items' : 'Service', S.svc.label]);
       visible().forEach(function (id) { var dd = stepDef(id); if (dd.type === 'choice') { var o = optOf(id); if (o) rows.push([dd.sum || dd.title, o.short || o.label]); } });
       var extras = T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [];
       if (extras.length) rows.push(['Extras', extras.join(', ')]);
@@ -380,7 +392,7 @@
       var p = priceInfo();
       return {
         requestId: reqId, business: B.slug || B.name, businessName: B.name, path: S.path,
-        service: S.svc ? S.svc.label : null, mode: S.svc ? S.svc.mode : null, answers: answers,
+        service: S.svc ? S.svc.label : null, services: S.svcs.map(function (id) { var x = svcById(id); return x ? x.label : id; }), mode: S.svc ? S.svc.mode : null, answers: answers,
         extras: T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [],
         details: S.details.trim() || null, message: S.msg.trim() || null, callbackTime: S.cb,
         day: S.day, window: S.time, when: whenText() || null, priceShown: p ? p.text : null,
@@ -417,7 +429,14 @@
       var el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
       var act = el.getAttribute('data-act'), v = el.getAttribute('data-v');
       if (act === 'start') { S.path = v === 'call' ? (OPEN ? 'call' : 'callback') : v; S.idx = 0; render(); }
-      else if (act === 'svc') { S.svc = svcById(v); S.ans = {}; S.addons = {}; render(nextBlockAfter('service')); }
+      else if (act === 'svc') {
+        var before = S.svc ? S.svc.mode : null;
+        if (T.multiService) { var at = S.svcs.indexOf(v); if (at > -1) S.svcs.splice(at, 1); else S.svcs.push(v); }
+        else S.svcs = [v];
+        S.svc = combined();
+        if (!T.multiService || !S.svc || S.svc.mode !== before) { S.ans = {}; S.addons = {}; }
+        render(T.multiService ? 'service' : nextBlockAfter('service'));
+      }
       else if (act === 'opt') { var sid = el.getAttribute('data-s'); var first = !S.ans[sid]; S.ans[sid] = v; render(first ? nextBlockAfter(sid) || sid : sid); }
       else if (act === 'addon') { S.addons[v] = !S.addons[v]; render('addons'); }
       else if (act === 'tmode') { S.tmode = v; render(); }
@@ -426,7 +445,7 @@
       else if (act === 'cb') { S.cb = v; render(); }
       else if (act === 'callback') { S.path = 'callback'; S.idx = 0; render(); }
       else if (act === 'next') { if (screenValid(curScreen())) advance(); }
-      else if (act === 'back') { if (S.idx === 0) { S.path = null; S.svc = null; S.ans = {}; } else S.idx--; render(); }
+      else if (act === 'back') { if (S.idx === 0) { S.path = null; S.svc = null; S.svcs = []; S.ans = {}; } else S.idx--; render(); }
       else if (act === 'photos') { var f = document.getElementById('ph'); if (f) f.click(); }
       else if (act === 'restart') { fresh(); render(); }
       else if (act === 'close') { post('dbw:close'); fresh(); render(); }

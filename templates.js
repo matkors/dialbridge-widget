@@ -13,12 +13,16 @@ window.DBW_TEMPLATES = {
       text: { title: 'Text a question', desc: 'Replies come by text.', icon: 'message-square-text' },
       call: { title: 'Call the office', desc: '', icon: 'phone' }
     },
+    multiService: true,
     services: [
       { id: 'furniture', label: 'Furniture', hint: 'Couches, beds, dressers', icon: 'sofa', mode: 'request' },
       { id: 'appliances', label: 'Appliances', hint: 'Fridges, washers, AC units', icon: 'refrigerator', mode: 'request' },
-      { id: 'garage', label: 'Garage cleanout', hint: 'Garages and basements', icon: 'warehouse', mode: 'request' },
-      { id: 'yard', label: 'Yard waste', hint: 'Branches, brush, sheds', icon: 'trees', mode: 'request' },
+      { id: 'trash', label: 'Trash and bags', hint: 'Bagged trash, boxes, clutter', icon: 'trash-2', mode: 'request' },
+      { id: 'wood', label: 'Wood and planks', hint: 'Lumber, pallets, old decking', icon: 'layers', mode: 'request' },
+      { id: 'yard', label: 'Yard waste', hint: 'Branches, brush, leaves', icon: 'trees', mode: 'request' },
       { id: 'reno', label: 'Renovation debris', hint: 'Drywall, flooring, cabinets', icon: 'hammer', mode: 'request' },
+      { id: 'heavy', label: 'Dirt and concrete', hint: 'Soil, rock, bricks', icon: 'mountain', mode: 'request', heavy: true },
+      { id: 'garage', label: 'Garage or basement', hint: 'Mixed items, full cleanout', icon: 'warehouse', mode: 'request' },
       { id: 'estate', label: 'Whole property', hint: 'Estates, move-outs', icon: 'house', mode: 'estimate' }
     ],
     flows: {
@@ -27,9 +31,9 @@ window.DBW_TEMPLATES = {
     },
     steps: {
       zip: { type: 'zip', title: 'Where is the pickup?' },
-      service: { type: 'service', title: 'What needs to go?' },
+      service: { type: 'service', title: 'What needs to go?', multiHint: 'Pick everything that applies. Mixed loads are normal.' },
       size: {
-        type: 'choice', ui: 'truck', title: 'How much of the truck?', sum: 'Load', showIf: ['request', 'book'], photos: true,
+        type: 'choice', ui: 'truck', title: 'How much of the truck, for everything?', sum: 'Load', showIf: ['request', 'book'], photos: true,
         note: 'One truck holds about 6 pickup loads',
         options: [
           { id: 'few', label: 'A few items', short: 'Few items', frac: 0.12, price: [99, 179] },
