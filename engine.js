@@ -32,6 +32,10 @@
       var opt = st && st.options && st.options.filter(function (o) { return o.id === parts[1]; })[0];
       if (opt) opt.price = p.prices[k];
     });
+    if (Array.isArray(p.hideServices) && p.hideServices.length) {
+      var keep = t.services.filter(function (x) { return p.hideServices.indexOf(x.id) < 0; });
+      if (keep.length) t.services = keep;
+    }
     t.biz = b;
     return t;
   }
@@ -403,7 +407,12 @@
     }
     function finish() {
       var reqId = (B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000);
-      var done = function () { S.done = { id: reqId }; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id }); render(); };
+      var done = function () {
+        S.done = { id: reqId }; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id });
+        // Demo only: hand the booking to the DialBridge dashboard demo on the same site, so it shows up in the owner inbox.
+        if (B.demo) { try { var q = JSON.parse(localStorage.getItem('dbx_inbox_queue') || '[]'); q.push(payload(reqId)); localStorage.setItem('dbx_inbox_queue', JSON.stringify(q.slice(-20))); } catch (e) { } }
+        render();
+      };
       // Demos have no submitUrl, so nothing leaves the page. A real business config points this at its intake webhook.
       if (!B.submitUrl || !/^https:\/\//.test(B.submitUrl)) return done();
       var btn = document.getElementById('next');
