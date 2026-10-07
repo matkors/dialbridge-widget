@@ -43,7 +43,7 @@
     if (overlay) return;
     var url = src + (/^(book|quote|text|call)$/.test(start || '') ? '&start=' + start : '');
     lastFocus = document.activeElement;
-    var mobile = window.matchMedia('(max-width: 760px)').matches;
+    var mobile = window.matchMedia('(max-width: 640px)').matches;
     overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483001;background:rgba(26,29,33,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s';
     frame = document.createElement('iframe');
@@ -51,8 +51,8 @@
     frame.title = 'Book online';
     frame.setAttribute('allow', 'camera');
     frame.style.cssText = mobile
-      ? 'width:100%;height:100%;border:0;background:#F7F8F9'
-      : 'width:min(1020px,96vw);height:min(660px,92vh);border:0;border-radius:22px;background:#F7F8F9;box-shadow:0 30px 80px rgba(0,0,0,.35);transform:translateY(8px) scale(.98);transition:transform .2s';
+      ? 'width:100%;height:100%;border:0;background:#fff'
+      : 'width:min(600px,96vw);height:min(720px,92vh);border:0;border-radius:8px;background:#fff;box-shadow:0 30px 80px rgba(0,0,0,.35);transform:translateY(8px) scale(.98);transition:transform .2s';
     overlay.appendChild(frame);
     document.body.appendChild(overlay);
     host.style.display = 'none';

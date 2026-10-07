@@ -4,6 +4,7 @@ window.DBW_TEMPLATES = {
   junk: {
     trade: 'Junk removal',
     noun: 'pickup',
+    priceNote: 'Loading, hauling and disposal included. Final price confirmed on site.',
     illustration: 'truck',
     defaults: { open: '07:00', close: '18:00', days: [1, 2, 3, 4, 5, 6], replyMins: 15, showPrices: true, timeMode: 'window' },
     tiles: {
@@ -46,6 +47,7 @@ window.DBW_TEMPLATES = {
   cleaning: {
     trade: 'House cleaning',
     noun: 'cleaning',
+    priceNote: 'Based on your home. Final price confirmed by text before the visit.',
     illustration: 'sparkles',
     defaults: { open: '08:00', close: '18:00', days: [1, 2, 3, 4, 5, 6], replyMins: 20, showPrices: true, timeMode: 'slots' },
     tiles: {
