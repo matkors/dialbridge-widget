@@ -58,7 +58,7 @@ h2{margin:0;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:v
   <h2>The business</h2>
   <div class="f"><label for="name">Business name</label><input id="name" value="Harbor Haul"></div>
   <div class="two">
-    <div class="f"><label for="trade">Trade</label><select id="trade"><option value="junk">Junk removal</option><option value="cleaning">House cleaning</option><option value="hvac">Heating and cooling</option></select></div>
+    <div class="f"><label for="trade">Trade</label><select id="trade"><option value="junk">Junk removal</option><option value="cleaning">House cleaning</option><option value="hvac">Heating and cooling</option><option value="detailing">Mobile detailing</option></select></div>
     <div class="f"><label for="phone">Phone</label><input id="phone" value="(201) 555-0148"></div>
   </div>
   <div class="f"><label>Brand color</label><div class="sw" id="sw"><input type="color" id="brand" value="#0E6650" aria-label="Pick any color"></div></div>
@@ -102,7 +102,7 @@ h2{margin:0;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:v
   var base=location.href.replace(/[^/]*$/,'');
   var SW=['#0E6650','#1F4FD1','#C8211B','#1A1D21','#E8590C','#7048E8','#0B7285','#F2B705'];
   SW.forEach(function(c){var b=document.createElement('button');b.type='button';b.style.background=c;b.title=c;b.onclick=function(){$('brand').value=c;update();};$('sw').insertBefore(b,$('brand'));});
-  var LABEL={junk:'Book a pickup',cleaning:'Book a cleaning',hvac:'Book a repair'};
+  var LABEL={junk:'Book a pickup',cleaning:'Book a cleaning',hvac:'Book a repair',detailing:'Book a detail'};
   var prices={};
   function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
   function priceRows(){
@@ -133,7 +133,7 @@ h2{margin:0;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:v
       $('qr').innerHTML=''; if(window.QRCode) new QRCode($('qr'),{text:hosted,width:140,height:140,correctLevel:QRCode.CorrectLevel.L});
     },250);
   }
-  var DEF={junk:['Harbor Haul','(201) 555-0148','#0E6650'],cleaning:['Sparkle & Co. Cleaning','(973) 555-0172','#1F4FD1'],hvac:['Comfort Air Heating & Cooling','(973) 555-0119','#C8211B']};
+  var DEF={junk:['Harbor Haul','(201) 555-0148','#0E6650'],cleaning:['Sparkle & Co. Cleaning','(973) 555-0172','#1F4FD1'],hvac:['Comfort Air Heating & Cooling','(973) 555-0119','#C8211B'],detailing:['Shine Mobile Detailing','(201) 555-0161','#0675BC']};
   $('trade').addEventListener('change',function(){var d=DEF[$('trade').value]; if(Object.keys(DEF).some(function(k){return DEF[k][0]===$('name').value;})){$('name').value=d[0];$('phone').value=d[1];$('brand').value=d[2];} priceRows(); update();});
   $('f').addEventListener('input',update);
   document.querySelectorAll('[data-copy]').forEach(function(b){b.addEventListener('click',function(){var el=$(b.getAttribute('data-copy'));el.select();try{navigator.clipboard.writeText(el.value);}catch(e){document.execCommand('copy');}var t=$('toast');t.classList.add('on');setTimeout(function(){t.classList.remove('on');},1200);});});

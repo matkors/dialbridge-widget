@@ -1,6 +1,56 @@
 /* Trade templates. A business = one template + its own overrides (name, color, phone, hours, area, prices).
    Steps are shown or skipped with showIf against the chosen service's mode: book | request | estimate. */
 window.DBW_TEMPLATES = {
+  detailing: {
+    trade: 'Mobile detailing',
+    noun: 'detail',
+    priceNote: 'We come to you. Final price confirmed when we see the vehicle.',
+    illustration: 'car',
+    defaults: { open: '09:00', close: '17:00', days: [1, 2, 3, 4, 5, 6], replyMins: 15, showPrices: true, timeMode: 'slots' },
+    tiles: {
+      book: { title: 'Book a detail', desc: 'Pick a package and a time.', priced: 'See your price now. From {min}.', icon: 'car' },
+      quote: { title: 'Ceramic or paint quote', desc: 'Send photos, get a price.', icon: 'shield-check' },
+      text: { title: 'Text a question', desc: 'Replies come by text.', icon: 'message-square-text' },
+      call: { title: 'Call us', desc: '', icon: 'phone' }
+    },
+    services: [
+      { id: 'full', label: 'Full detail', hint: 'Inside and out', icon: 'car', mode: 'book' },
+      { id: 'interior', label: 'Interior detail', hint: 'Seats, carpets, dash, glass', icon: 'armchair', mode: 'book', mult: 0.65 },
+      { id: 'exterior', label: 'Exterior detail', hint: 'Hand wash, wheels, wax', icon: 'droplets', mode: 'book', mult: 0.45 },
+      { id: 'wax', label: 'Wax and polish', hint: 'Shine and protection', icon: 'sparkles', mode: 'book', mult: 0.6 },
+      { id: 'ceramic', label: 'Ceramic coating', hint: 'Years of protection', icon: 'shield-check', mode: 'estimate' },
+      { id: 'paint', label: 'Paint correction', hint: 'Swirls and scratches out', icon: 'paintbrush', mode: 'estimate' }
+    ],
+    flows: {
+      book: ['zip', 'service', 'size', 'addons', 'vehicle', 'time', 'contact'],
+      quote: ['zip', 'service', 'size', 'vehicle', 'contact']
+    },
+    steps: {
+      zip: { type: 'zip', title: 'Where is the car?' },
+      service: { type: 'service', title: 'What does it need?' },
+      size: {
+        type: 'choice', ui: 'grid', title: 'What are we detailing?', sum: 'Vehicle',
+        options: [
+          { id: 'sedan', label: 'Car or coupe', short: 'Car', price: [179, 219] },
+          { id: 'suv', label: 'SUV or small truck', short: 'SUV / small truck', price: [209, 249] },
+          { id: 'large', label: 'Large truck or van', short: 'Large truck / van', price: [239, 289] }
+        ]
+      },
+      addons: {
+        type: 'addons', title: 'Anything extra?', showIf: ['book'], optional: true,
+        options: [
+          { id: 'pet', label: 'Pet hair removal', icon: 'paw-print', add: [40, 40] },
+          { id: 'odor', label: 'Odor treatment', icon: 'wind', add: [50, 50] },
+          { id: 'engine', label: 'Engine bay clean', icon: 'cog', add: [40, 40] },
+          { id: 'lights', label: 'Headlight restoration', icon: 'lightbulb', add: [60, 60] }
+        ]
+      },
+      vehicle: { type: 'details', title: 'Tell us about the vehicle', showIf: ['estimate'], placeholder: '2021 black Tahoe, light swirls on the hood, daily driver', photos: true },
+      time: { type: 'time', title: 'Pick a day and time', estimateTitle: 'Pick a time for a free inspection' },
+      contact: { type: 'contact', title: 'Where should we come?', askAddress: true }
+    }
+  },
+
   junk: {
     trade: 'Junk removal',
     noun: 'pickup',

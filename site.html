@@ -62,7 +62,8 @@ nav .tel{font-weight:600}
   var COPY={
     junk:{h1:'Junk removal in {area}, priced before we show up.',lede:'Furniture, appliances and full cleanouts. Same-day pickups when the truck has room.',label:'Book a pickup'},
     cleaning:{h1:'A clean home without the back-and-forth.',lede:'See your price in a minute and pick a time that works. Weekly, every two weeks or one time.',label:'Book a cleaning'},
-    hvac:{h1:'Heating and cooling repair, booked in a minute.',lede:'Pick an arrival window online, day or night. Free in-home estimates on new systems.',label:'Book a repair'}
+    hvac:{h1:'Heating and cooling repair, booked in a minute.',lede:'Pick an arrival window online, day or night. Free in-home estimates on new systems.',label:'Book a repair'},
+    detailing:{h1:'Mobile detailing that comes to you.',lede:'Pick your package, see your price, and book a time. We bring everything to your driveway or office.',label:'Book a detail'}
   };
   load.then(function(b){
     var T=window.DBW_TEMPLATES[b.trade]||window.DBW_TEMPLATES.junk, C=COPY[b.trade]||COPY.junk;
@@ -79,7 +80,8 @@ nav .tel{font-weight:600}
     document.getElementById('h1').textContent=C.h1.replace('{area}',b.area||'your area');
     document.getElementById('lede').textContent=C.lede;
     document.getElementById('heroBook').textContent=C.label;
-    document.getElementById('visual').innerHTML='<i data-lucide="'+T.illustration+'"></i>';
+    if(/^https:\/\//.test(b.hero||'')){var v=document.getElementById('visual');v.style.background='center/cover no-repeat url("'+b.hero.replace(/["()]/g,'')+'")';v.innerHTML='';}
+    else document.getElementById('visual').innerHTML='<i data-lucide="'+T.illustration+'"></i>';
     document.getElementById('strip').innerHTML=(b.rating?'<span><b>'+esc(b.rating)+' stars</b> from '+esc(b.reviews)+' Google reviews</span>':'')+'<span>Serving <b>'+esc(b.area||'your area')+'</b></span><span><b>Book online</b> any time, day or night</span>';
     document.getElementById('cards').innerHTML=T.services.map(function(s){return '<div class="c"><i data-lucide="'+s.icon+'"></i><h3>'+esc(s.label)+'</h3><p>'+esc(s.hint)+'</p></div>';}).join('');
     if(window.lucide) lucide.createIcons();

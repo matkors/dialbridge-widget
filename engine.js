@@ -32,6 +32,7 @@
       var opt = st && st.options && st.options.filter(function (o) { return o.id === parts[1]; })[0];
       if (opt) opt.price = p.prices[k];
     });
+    if (p.serviceImages && typeof p.serviceImages === 'object') t.services.forEach(function (x) { var u = p.serviceImages[x.id]; if (typeof u === 'string' && /^https:\/\//.test(u)) x.image = u; });
     if (Array.isArray(p.hideServices) && p.hideServices.length) {
       var keep = t.services.filter(function (x) { return p.hideServices.indexOf(x.id) < 0; });
       if (keep.length) t.services = keep;
@@ -88,7 +89,7 @@
     if (hostLine && !EMBED) hostLine.innerHTML = '<b>' + esc(B.name) + '</b><span>Serving ' + esc(B.area) + ' · <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a></span>';
 
     var S;
-    function fresh() { S = { path: null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', msg: '', cb: null, done: null }; }
+    function fresh() { S = { path: null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', msg: '', cb: null, done: null }; }
     fresh();
 
     function flowFor(path) {
@@ -202,7 +203,7 @@
       if (d.type === 'choice') return !!S.ans[id];
       if (d.type === 'time') return !!(S.day && S.time);
       if (d.type === 'zip') return zipOk();
-      if (d.type === 'contact') return contactOk() && (hasZipStep() || zipOk());
+      if (d.type === 'contact') return contactOk() && (!d.askAddress || S.addr.trim().length > 4) && (hasZipStep() || zipOk());
       if (d.type === 'message') return contactOk() && S.msg.trim().length >= 3;
       if (d.type === 'callback') return contactOk() && !!S.cb;
       if (d.type === 'call') return false;
@@ -215,7 +216,7 @@
     function headerHtml() {
       var brand = B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt="' + esc(B.name) + '">' : '<span class="wordmark">' + esc(B.name) + '</span>';
       var sub = 'Book online' + (B.rating ? ' <span class="dot">·</span> ' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ' reviews)' : '');
-      return '<header class="hd"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
+      return '<header class="hd' + (B.logo ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
         (CLOSABLE ? '<button class="x" data-act="close" aria-label="Close">' + ic('x') + '</button>' : '') + '</header>';
     }
     function stepperHtml() {
@@ -297,7 +298,7 @@
         }
       }
       if (d.type === 'contact') {
-        h += nameFields(1) + (hasZipStep() ? '' : '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>') +
+        h += nameFields(1) + (d.askAddress ? '<label class="fld"><span>Address where the vehicle will be <em>*</em></span><input data-in="addr" autocomplete="street-address" placeholder="123 Main St, Slidell" value="' + esc(S.addr) + '"></label>' : '') + (hasZipStep() ? '' : '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>') +
           '<p class="fine">By sending, you agree that ' + esc(B.name) + ' may text you about this request. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>';
       }
       if (d.type === 'message') {
@@ -400,7 +401,7 @@
         extras: T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [],
         details: S.details.trim() || null, message: S.msg.trim() || null, callbackTime: S.cb,
         day: S.day, window: S.time, when: whenText() || null, priceShown: p ? p.text : null,
-        name: S.name.trim(), phone: digits(), zip: S.zip || null, photosCount: S.photos.length,
+        name: S.name.trim(), phone: digits(), zip: S.zip || null, address: S.addr.trim() || null, photosCount: S.photos.length,
         smsConsentText: 'By sending, you agree that ' + B.name + ' may text you about this request. Message and data rates may apply. Reply STOP to opt out.',
         page: document.referrer || location.href, submittedAt: new Date().toISOString()
       };
