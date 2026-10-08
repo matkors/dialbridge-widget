@@ -74,6 +74,7 @@ nav .tel{font-weight:600}
     document.title=b.name+' | '+T.trade;
     document.getElementById('bname').textContent=b.name;
     document.getElementById('mark').textContent=(b.name||'B').trim()[0].toUpperCase();
+    if(/^https:\/\//.test(b.logo||'')){var m=document.getElementById('mark');m.outerHTML='<img src="'+esc(b.logo)+'" alt="'+esc(b.name)+'" style="height:52px;width:auto">';}
     var tel='tel:+1'+String(b.phone||'').replace(/\D/g,'');
     var t=document.getElementById('tel'); t.textContent=b.phone; t.href=tel;
     document.getElementById('heroCall').href=tel;
