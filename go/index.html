@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Online Booking for Junk Removal | DialBridge</title>
+<meta name="description" content="A fast website where customers price and book their junk pickup online. Live in 7 days.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f4ef;--paper:#fbfaf6;--ink:#20251f;--ink2:#3b4238;--mute:#6c7068;--line:#e3e1d8;--line2:#d6d3c8;--accent:#f35427;--accent-ink:#c93d14;--deep:#232a22;--sage:#e6e9dc;--mono:'JetBrains Mono',ui-monospace,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.draft{background:var(--deep);color:#e9ece4;font-size:13px;text-align:center;padding:8px 16px}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+.logo{font-weight:800;font-size:21px;letter-spacing:-.02em;text-decoration:none}
+.logo span{color:var(--accent)}
+.call{font-weight:600;font-size:15px;text-decoration:none;border-bottom:1.5px solid var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+h1,h2,h3{letter-spacing:-.03em;line-height:1.05;margin:0;font-weight:700;text-wrap:balance}
+h1{font-size:clamp(38px,6vw,64px)}
+h2{font-size:clamp(30px,4vw,44px)}
+h3{font-size:20px;letter-spacing:-.02em;line-height:1.2}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:54px;padding:0 24px;border-radius:9px;background:var(--accent);color:#fff;font:700 16px Manrope,sans-serif;text-decoration:none;border:0;cursor:pointer}
+.btn:hover{background:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line2)}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;padding:30px 0 56px}
+.hero p.lede{font-size:19px;color:var(--ink2);margin:18px 0 26px}
+.price{font-size:14px;color:var(--mute);margin-top:12px}
+.price b{color:var(--ink)}
+.video{position:relative;border-radius:16px;overflow:hidden;background:var(--deep);aspect-ratio:4/5;max-height:560px;box-shadow:0 30px 60px -30px rgba(0,0,0,.45)}
+.video img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:.55}
+.video .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:78px;height:78px;border-radius:50%;background:var(--accent);display:grid;place-items:center}
+.video .play::after{content:"";border-left:22px solid #fff;border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:6px}
+.video .lab{position:absolute;left:16px;right:16px;bottom:16px;color:#fff;font-size:14px;background:rgba(0,0,0,.45);border-radius:10px;padding:10px 12px}
+section{padding:64px 0;border-top:1px solid var(--line)}
+.demo{display:grid;grid-template-columns:1fr 600px;gap:44px;align-items:center}
+.frame{width:100%;max-width:600px;height:720px;border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 24px 50px -30px rgba(0,0,0,.35)}
+.frame iframe{width:100%;height:100%;border:0}
+.list{list-style:none;padding:0;margin:20px 0 0}
+.list li{padding:12px 0;border-top:1px solid var(--line);display:flex;gap:12px}
+.list li::before{content:"+";color:var(--accent);font-weight:800}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.step{background:var(--paper);border:1px solid var(--line2);border-radius:14px;padding:22px}
+.step .n{font-family:var(--mono);font-size:13px;color:var(--mute)}
+.step p{color:var(--ink2);font-size:15px;margin:8px 0 0}
+.ex{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}
+.ex a{display:block;background:var(--paper);border:1px solid var(--line2);border-radius:14px;overflow:hidden;text-decoration:none}
+.ex a div{padding:14px 16px;font-weight:600}
+.ex a small{display:block;font-weight:500;color:var(--mute);font-size:13px}
+.ex img{aspect-ratio:600/420;object-fit:cover;object-position:top;border-bottom:1px solid var(--line)}
+.offer{background:var(--deep);color:#eef0e8;border-radius:20px;padding:44px;display:grid;grid-template-columns:1.1fr 1fr;gap:36px;align-items:center}
+.offer .amt{font-size:60px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.offer .amt small{font-size:18px;font-weight:600;color:#b9c0af;letter-spacing:0}
+.offer p{color:#c7cdbd}
+.offer .btn.ghost{color:#eef0e8;border-color:#56604f}
+.g{border:1.5px dashed #6c7a63;border-radius:12px;padding:14px 16px;margin-top:18px;font-size:15px}
+details{border-top:1px solid var(--line2);padding:16px 0}
+details:last-child{border-bottom:1px solid var(--line2)}
+summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::after{content:"+";color:var(--mute);font-size:22px;line-height:1}
+details[open] summary::after{content:"\2212"}
+details p{color:var(--ink2);margin:8px 0 0;font-size:15.5px}
+.sticky{display:none}
+footer{padding:36px 0;color:var(--mute);font-size:14px}
+@media (max-width:900px){
+  .hero,.demo,.offer{grid-template-columns:1fr}
+  .steps,.ex{grid-template-columns:1fr}
+  .frame{height:680px}
+  .offer{padding:28px}
+  .sticky{display:flex;position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(245,244,239,.96);border-top:1px solid var(--line2);gap:10px;z-index:20}
+  .sticky .btn{flex:1;height:50px;font-size:15px}
+  body{padding-bottom:76px}
+}
+</style>
+</head>
+<body>
+<div class="draft"><b>Draft funnel page.</b> Not linked or advertised. Video, guarantee and price need your OK.</div>
+<div class="wrap">
+  <header><a class="logo" href="#">dialbridge<span>.</span>ai</a><a class="call" href="https://cal.com/dialbridge.ai/discovery-call">Book a 10-min call</a></header>
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow">For junk removal owners</div>
+      <h1 style="margin-top:16px">Let customers price and book their pickup online.</h1>
+      <p class="lede">A fast website with a Book online button. Customers pick what's going, see a price range and choose a time. You get a text with the job, the price shown and their number.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn" href="#demo">Try it like a customer</a>
+        <a class="btn ghost" href="https://cal.com/dialbridge.ai/discovery-call">Book a 10-minute call</a>
+      </div>
+      <div class="price"><b>$199 setup &middot; $199/month</b> &middot; month to month &middot; we set it all up</div>
+    </div>
+    <div class="video" role="img" aria-label="Founder video placeholder">
+      <img src="../product/img/junk-multi.png" alt="">
+      <div class="play"></div>
+      <div class="lab">60-second walkthrough with Matviy: a customer books a half-truck pickup in 20 seconds. (To film.)</div>
+    </div>
+  </div>
+</div>
+
+<section id="demo">
+  <div class="wrap demo">
+    <div>
+      <div class="eyebrow">Try it</div>
+      <h2 style="margin-top:14px">This is what your customer sees at 9 PM.</h2>
+      <p style="color:var(--ink2);margin-top:14px">Tap through a real pickup. Mixed loads are normal, so they can pick furniture, appliances and bags together and still get a price range. Whole-house cleanouts switch to a free walkthrough.</p>
+      <ul class="list">
+        <li>Your services, your prices, your service area by ZIP</li>
+        <li>Only the arrival windows you actually have open</li>
+        <li>A text to you the second a request comes in</li>
+        <li>Confirmation and reminders to the customer, in their time zone</li>
+      </ul>
+    </div>
+    <div class="frame"><iframe src="../book.html?b=harbor-haul&amp;start=book" title="Live booking demo for a sample junk removal company" loading="lazy"></iframe></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">How it works</div>
+    <h2 style="margin-top:14px">One short call from you. We do the rest.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">01 &middot; 15 minutes</div><h3 style="margin-top:8px">Tell us your prices</h3><p>Load sizes, what you won't take, your area and hours. We pull your photos and reviews from Google.</p></div>
+      <div class="step"><div class="n">02 &middot; about a week</div><h3 style="margin-top:8px">We build it</h3><p>A fast website and your booking page, with your logo, your colors and your real prices.</p></div>
+      <div class="step"><div class="n">03 &middot; you approve</div><h3 style="margin-top:8px">Go live</h3><p>We add the Book button to your Google profile and your site. Requests start coming to your phone.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Sample sites</div>
+    <h2 style="margin-top:14px">Click around. These are samples we built to show the booking flow.</h2>
+    <div class="ex">
+      <a href="../site.html?b=harbor-haul" target="_blank" rel="noopener"><img src="../product/img/site-button.png" alt="Sample junk removal website"><div>Harbor Haul<small>Junk removal sample</small></div></a>
+      <a href="../site.html?b=deluxe-detail" target="_blank" rel="noopener"><img src="../product/img/site-popup.png" alt="Sample mobile detailing website"><div>Deluxe Details demo<small>Mobile detailing demo</small></div></a>
+      <a href="../book.html?b=sparkle-and-co" target="_blank" rel="noopener"><img src="../product/img/cleaning-menu.png" alt="Sample cleaning booking page"><div>Sparkle &amp; Co.<small>Cleaning booking page sample</small></div></a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap offer">
+    <div>
+      <div class="eyebrow" style="color:#a9b19f">The offer</div>
+      <div class="amt" style="margin-top:12px">$199<small>/month</small></div>
+      <p style="margin-top:6px">$199 one-time setup. Website, booking page, reminders, your inbox and Google profile cleanup. Cancel any month.</p>
+      <div class="g"><b>Live in 7 days, or your first month is free.</b> <span style="color:#a9b19f">(Draft: only if we can always deliver it.)</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <a class="btn" href="https://cal.com/dialbridge.ai/discovery-call">Book a 10-minute call</a>
+      <a class="btn ghost" href="../product/#build">See my own booking page first</a>
+      <p style="font-size:14px;margin:4px 0 0">We're setting this up for a handful of junk removal companies this month, so each one gets our full attention.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap" style="max-width:760px">
+    <div class="eyebrow">Questions</div>
+    <h2 style="margin-top:14px;margin-bottom:18px">Owners usually ask.</h2>
+    <details><summary>I already have a website. Do I need a new one?</summary><p>No. If you like your site, we add the booking button to it. If it's slow or outdated, the new site is included.</p></details>
+    <details><summary>Do I keep my phone number?</summary><p>Yes. Your number stays on the site and the Call button. Booking just adds a way to reach you when you can't pick up.</p></details>
+    <details><summary>What if someone books a job I can't do?</summary><p>Jobs come in as requests you confirm, so you stay in control. Whole-house cleanouts go to a free walkthrough instead of a price.</p></details>
+    <details><summary>Do I own my domain?</summary><p>Yes. The domain is yours. If you ever leave, it goes with you.</p></details>
+    <details><summary>Am I locked in?</summary><p>No. Month to month, cancel any time.</p></details>
+  </div>
+</section>
+<footer><div class="wrap">&copy; 2026 Dial Bridge LLC &middot; Mahwah, NJ &middot; Draft funnel page</div></footer>
+<div class="sticky"><a class="btn" href="#demo">Try it</a><a class="btn ghost" href="https://cal.com/dialbridge.ai/discovery-call" style="background:#fff">Book a call</a></div>
+</body>
+</html>
