@@ -10,7 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="../product/build.css">
+<link rel="stylesheet" href="dash.css">
 <script src="../dbx.js"></script>
+<script>try{var t=localStorage.getItem("dbx_theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -42,6 +44,7 @@
   <symbol id="eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
   <symbol id="tag" viewBox="0 0 24 24"><path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
   <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
   <symbol id="copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
 </svg>
 
@@ -182,28 +185,41 @@
 <section class="view" id="v-app">
   <div class="app">
     <aside class="side">
-      <a class="logo" href="#app/home">dialbridge<span>.</span>ai</a>
-      <div class="biz"><span class="av" id="bizAv">H</span><div><b id="bizName">Haul Pros</b><span id="bizPlan">Booking Widget</span></div></div>
-      <nav class="nav">
-        <a href="#app/setup" data-pg="setup" id="navSetup"><svg class="i"><use href="#spark"/></svg>Setup</a>
+      <a class="biz" href="#app/settings"><span class="av" id="bizAv">H</span><div><b id="bizName">Haul Pros</b><span id="bizPlan">Booking Widget</span></div></a>
+      <nav class="nav" aria-label="Dashboard">
+        <a href="#app/setup" data-pg="setup" id="navSetup"><svg class="i"><use href="#spark"/></svg>Setup<span class="cnt" id="setupCnt"></span></a>
         <a href="#app/home" data-pg="home"><svg class="i"><use href="#home"/></svg>Home</a>
-        <a href="#app/leads" data-pg="leads"><svg class="i"><use href="#inbox"/></svg>Leads<span class="n">3</span></a>
-        <a href="#app/bookings" data-pg="bookings" class="hide-m"><svg class="i"><use href="#cal"/></svg>Bookings</a>
+        <a href="#app/leads" data-pg="leads"><svg class="i"><use href="#inbox"/></svg>Leads<span class="n" id="leadsN">3</span></a>
+        <a href="#app/bookings" data-pg="bookings"><svg class="i"><use href="#cal"/></svg>Bookings</a>
         <a href="#app/reviews" data-pg="reviews"><svg class="i"><use href="#star"/></svg>Reviews</a>
         <a href="#app/traffic" data-pg="traffic"><svg class="i"><use href="#chart"/></svg>Traffic</a>
-        <p class="sec">Setup</p>
-        <a href="#app/widget" data-pg="widget"><svg class="i"><use href="#widget"/></svg>Booking widget</a>
-        <a href="#app/settings" data-pg="settings" class="hide-m"><svg class="i"><use href="#gear"/></svg>Settings</a>
+        <span class="nav-gap"></span>
+        <a href="#app/widget" data-pg="widget"><svg class="i"><use href="#widget"/></svg>Booking page</a>
       </nav>
       <div class="side-b">
-        <div class="trialbox"><b>Free trial: 14 days left</b><span id="trialEnd">Ends Oct 23</span><i><b></b></i></div>
-        <div class="me"><span class="av" id="meAv">M</span><span id="meName">Matt</span></div>
+        <div class="trial"><span id="trialTx">Trial: 14 days left</span><i><b id="trialBar"></b></i></div>
+        <a href="#app/settings" data-pg="settings" class="nav-s"><svg class="i"><use href="#gear"/></svg>Settings</a>
+        <div class="me"><span class="av" id="meAv">M</span><span id="meName">Matt</span><button class="theme-b" type="button" data-theme-toggle aria-label="Switch light or dark mode"><svg class="i"><use href="#moon"/></svg></button></div>
       </div>
     </aside>
     <div class="main">
-      <header class="top"><h1 id="pgTitle">Home</h1><div class="search"><svg class="i"><use href="#search"/></svg>Search leads<kbd>/</kbd></div><a class="btn sm ghost" href="#app/widget" id="topShare"><svg class="i"><use href="#eye"/></svg>Preview booking page</a></header>
+      <header class="top"><h1 id="pgTitle">Home</h1><a class="top-link" id="topView" href="#app/widget">View my booking page<svg class="i"><use href="#up"/></svg></a></header>
       <div class="page" id="page"></div>
     </div>
+    <nav class="tabbar" aria-label="Dashboard">
+      <a href="#app/home" data-pg="home"><svg class="i"><use href="#home"/></svg>Home</a>
+      <a href="#app/leads" data-pg="leads"><svg class="i"><use href="#inbox"/></svg>Leads<span class="n" id="leadsN2">3</span></a>
+      <a href="#app/bookings" data-pg="bookings"><svg class="i"><use href="#cal"/></svg>Bookings</a>
+      <a href="#app/widget" data-pg="widget"><svg class="i"><use href="#widget"/></svg>My page</a>
+      <button type="button" id="moreBtn"><svg class="i"><use href="#dots"/></svg>More</button>
+    </nav>
+    <div class="sheet" id="moreSheet" hidden><div class="sheet-box"><span class="sheet-grab"></span>
+      <a href="#app/setup" data-pg="setup" id="moreSetup"><svg class="i"><use href="#spark"/></svg>Setup</a>
+      <a href="#app/reviews" data-pg="reviews"><svg class="i"><use href="#star"/></svg>Reviews</a>
+      <a href="#app/traffic" data-pg="traffic"><svg class="i"><use href="#chart"/></svg>Traffic</a>
+      <a href="#app/settings" data-pg="settings"><svg class="i"><use href="#gear"/></svg>Settings</a>
+      <button type="button" data-theme-toggle><svg class="i"><use href="#moon"/></svg><span>Dark mode</span></button>
+    </div></div>
   </div>
 </section>
 

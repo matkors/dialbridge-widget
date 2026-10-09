@@ -67,6 +67,7 @@
     var h = (location.hash || '#signup').slice(1), parts = h.split('/');
     if (LIVE && !token() && parts[0] !== 'signup' && parts[0] !== 'login') { location.hash = '#signup'; return; }
     if (parts[0] === 'app' && !S.paid) { location.hash = S.trade ? '#plan' : '#signup'; return; }
+    document.documentElement.setAttribute('data-mode', parts[0] === 'app' ? 'app' : 'funnel');
     if (parts[0] === 'signup' || parts[0] === 'login') { show('v-signup'); authView(parts[0] === 'login' ? 'login' : 'signup'); }
     else if (parts[0] === 'onb') { show('v-onb'); onb(+parts[1] || 0); }
     else if (parts[0] === 'plan') { show('v-plan'); paywall(); }
@@ -436,25 +437,46 @@
     { n: 'Lauren Nguyen', t: 'Hot tub removal', a: 'Wayne 07470', w: 'Free estimate', p: 'Estimate', s: 'sch', src: 'Booking page', ago: '4d' }
   ];
   var PILL = { new: ['new', 'New'], sch: ['sch', 'Scheduled'], won: ['won', 'Booked'], lost: ['lost', 'Lost'] };
-  var TITLES = { setup: 'Setup', home: 'Home', leads: 'Leads', bookings: 'Bookings', reviews: 'Reviews', traffic: 'Traffic', widget: 'Booking widget', settings: 'Settings' };
+  var TITLES = { setup: 'Setup', home: 'Home', leads: 'Leads', bookings: 'Bookings', reviews: 'Reviews', traffic: 'Traffic', widget: 'Booking page', settings: 'Settings' };
   function app(pg) {
     if (pg === 'test') { S.tested = true; save(); window.open('../book.html?c=' + previewSrc().split('?c=')[1].split('&')[0], '_blank'); toast('Booking page opened in a new tab. Book something and watch it land in Leads.'); location.replace('#app/home'); return; }
     if (!TITLES[pg]) pg = 'home';
-    $$('.nav a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-pg') === pg); });
+    $$('.nav a, .nav-s, .tabbar a, .sheet-box a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-pg') === pg); });
+    $('#moreBtn').classList.toggle('on', ['reviews', 'traffic', 'settings', 'setup'].indexOf(pg) > -1);
+    $('#moreSheet').hidden = true;
     $('#pgTitle').textContent = TITLES[pg];
     $('#bizName').textContent = BIZ(); $('#bizAv').textContent = BIZ().charAt(0).toUpperCase(); $('#bizAv').style.background = S.brand;
     $('#bizPlan').textContent = S.plan === 'full' ? 'Website + Reviews' : 'Booking Widget';
     $('#meName').textContent = S.name || 'You'; $('#meAv').textContent = (S.name || 'Y').charAt(0).toUpperCase();
-    $('#trialEnd').textContent = 'Ends ' + md(END) + ', then $' + price() + '/mo';
+    var left = Math.max(0, Math.ceil((END - Date.now()) / 864e5));
+    $('#trialTx').textContent = 'Trial: ' + left + ' days left'; $('#trialBar').style.width = Math.round((14 - left) / 14 * 100) + '%';
+    var reply = leadCounts().reply; $('#leadsN').textContent = S.widgetDone && reply ? reply : ''; $('#leadsN2').textContent = S.widgetDone && reply ? reply : '';
+    $('#setupCnt').textContent = S.widgetDone ? '' : (S.wzDone || 0) + ' of 4';
+    $('#navSetup').hidden = !!S.widgetDone; $('#moreSetup').hidden = !!S.widgetDone;
+    $('#topView').href = previewSrc().replace('&embed=1&inline=1&builder=1', ''); $('#topView').target = '_blank';
     var P = $('#page'), html = PAGES[pg](), lock = gateFor(pg);
-    $$('.nav a').forEach(function (a) { var k = a.getAttribute('data-pg'); a.classList.toggle('locked', !!gateFor(k)); });
-    var ns = $('#navSetup'); if (ns) ns.hidden = !!S.widgetDone;
+    $$('.nav a, .tabbar a').forEach(function (a) { var k = a.getAttribute('data-pg'); a.classList.toggle('locked', !!gateFor(k)); });
     P.innerHTML = lock ? '<div class="gate"><div class="gate-blur" aria-hidden="true" inert>' + html + '</div>' + lock + '</div>' : html;
     var first0 = lock ? $('.gate-blur > *', P) : P.firstElementChild; if (first0) first0.classList.add('on');
     if (pg === 'widget') wizard();
     if (pg === 'leads') leadsInit();
-    var lt = $('#later'); if (lt) lt.addEventListener('click', function () { S.hideGuide = true; save(); app('home'); toast('Setup guide hidden. It is still under Booking widget.'); });
+    if (pg === 'settings') settingsInit();
   }
+  // Light / dark: follows the phone or computer until the owner picks one.
+  function theme() { try { return localStorage.getItem('dbx_theme') || 'system'; } catch (e) { return 'system'; } }
+  function isDark() { var t = theme(); return t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches); }
+  function setTheme(t) {
+    try { if (t === 'system') localStorage.removeItem('dbx_theme'); else localStorage.setItem('dbx_theme', t); } catch (e) { }
+    if (t === 'system') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
+    themeIcons();
+  }
+  function themeIcons() { var d = isDark(); $$('[data-theme-toggle] use').forEach(function (u) { u.setAttribute('href', d ? '#sun' : '#moon'); }); $$('[data-theme-toggle] span').forEach(function (x) { x.textContent = d ? 'Light mode' : 'Dark mode'; }); }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('[data-theme-toggle]')) { setTheme(isDark() ? 'light' : 'dark'); $('#moreSheet').hidden = true; return; }
+    if (e.target.closest('#moreBtn')) { $('#moreSheet').hidden = false; return; }
+    if (e.target.id === 'moreSheet') $('#moreSheet').hidden = true;
+  });
+  themeIcons();
   // What each page is for, said plainly on its locked card.
   var GATE_TX = {
     home: ['Home', 'New requests, upcoming jobs and what came in after hours, all in one place.'],
@@ -464,7 +486,6 @@
     reviews: ['Reviews', 'Your Google rating and the review requests we send after each job.']
   };
   function gateFor(pg) {
-    if (pg === 'reviews' && S.plan !== 'full') return upsellReviews();
     if (S.widgetDone || !GATE_TX[pg]) return '';
     var t = GATE_TX[pg];
     return '<div class="gate-card"><span class="gate-ic">' + I('lock') + '</span><h3>' + t[0] + ' opens after setup</h3><p>' + t[1] + '</p>' +
@@ -497,7 +518,7 @@
         '<p>Most owners are live in about 10 minutes. Pick the way that suits you.</p></div>' +
         '<div class="su-choices">' +
         '<a class="su-card" href="#app/widget"><span class="su-ic">' + I('widget') + '</span><b>Set it up myself</b><span>We walk you through it step by step. About 10 minutes.</span><span class="btn dark">Start setup ' + I('arw') + '</span></a>' +
-        '<a class="su-card" href="' + esc(DBX.setupCallUrl || '#') + '" data-setupcall' + (DBX.setupCallUrl ? ' target="_blank" rel="noopener"' : '') + '><span class="su-ic">' + I('phone') + '</span><b>Set it up with us</b><span>A free 20-minute call. We set everything up with you and put it on your website and Google profile.</span><span class="btn">Book a free call ' + I('arw') + '</span></a>' +
+        '<a class="su-card" href="' + esc(DBX.setupCallUrl || '#') + '" data-setupcall' + (DBX.setupCallUrl ? ' target="_blank" rel="noopener"' : '') + '><span class="su-ic">' + I('phone') + '</span><b>Set it up with us</b><span>A free 20-minute call. We set everything up with you and put it on your website and Google profile.</span><span class="btn dark">Book a free call ' + I('arw') + '</span></a>' +
         '</div>' +
         '<div class="su-steps"><p>What you\'ll set up</p><ol>' + steps.map(function (st, i) { return '<li' + (S.widgetDone ? ' class="done"' : '') + '><span class="su-n">' + (S.widgetDone ? I('chk') : i + 1) + '</span><span class="su-si">' + I(st[0]) + '</span><div><b>' + st[1] + '</b><span>' + st[2] + '</span></div></li>'; }).join('') + '</ol></div>' +
         '<p class="su-foot">Your other pages open as soon as your booking page is set up. Free until ' + md(END) + '.</p></div>' +
@@ -505,33 +526,16 @@
         '<aside class="su-prev"><div class="wz-prev"><div class="card"><div class="bar"><i></i><i></i><i></i><span>book.dialbridge.ai/' + slug() + '</span></div><iframe src="' + previewSrc() + '" title="Your booking page" loading="lazy"></iframe></div><p>This is what your customers will see. You can tap through it.</p></div></aside></div>';
     },
     home: function () {
-      var w = S.widgetDone, full = S.plan === 'full', tasks = [
-        { d: true, t: 'Create your account', s: 'Welcome aboard', m: '' },
-        { d: w, t: 'Set up your booking widget', s: 'Services, prices, hours and your look', m: '10 min', h: '#app/widget', b: 'Start setup' },
-        { d: !!S.tested, t: 'Send yourself a test booking', s: 'See exactly what your customers see, and get the text', m: '1 min', h: w ? '#app/test' : '', b: 'Try it' },
-        { d: false, t: 'Put it on your website and Google', s: 'Copy one line, or send it to your web person', m: '5 min', h: w ? '#app/widget/4' : '', b: 'Add it now' },
-        { d: false, t: 'Turn on Google review requests', s: full ? 'Ask every customer after the job' : 'Included in Website + Reviews', m: '2 min', h: '#app/reviews', b: full ? 'Turn on' : 'See plan' },
-        { d: false, t: 'Get your first booking', s: 'Share your link on Facebook or text it to a past customer', m: '', h: '', b: '' }
-      ];
-      var done = tasks.filter(function (t) { return t.d; }), todo = tasks.filter(function (t) { return !t.d; }), pct = Math.round(done.length / tasks.length * 100), cur = todo[0];
-      var row = function (t) {
-        var isCur = t === cur, can = !!t.h;
-        return '<li class="task' + (t.d ? ' done' : '') + (isCur ? ' cur' : '') + (!t.d && !can && !isCur ? ' locked' : '') + '"><i>' + I('chk') + '</i><div><b>' + esc(t.t) + '</b><span>' + esc(t.s) + '</span></div>' +
-          (t.d ? '<small class="dn">Done</small>' : can ? '<span class="tr">' + (t.m ? '<small>' + t.m + '</small>' : '') + '<a class="btn sm' + (isCur ? '' : ' ghost') + '" href="' + t.h + '">' + t.b + '</a></span>' : (t.m ? '<small>' + t.m + '</small>' : '')) + '</li>';
-      };
-      var headline = pct >= 50 ? 'More than halfway there!' : pct > 20 ? 'Nice start, ' + esc(first()) + '!' : 'Welcome to DialBridge';
-      return '<div class="pg"><div class="hello"><h2>' + greet() + ', ' + esc(first()) + '</h2><p>' + (w ? 'Your booking page is live. 3 new leads are waiting for a reply.' : 'Let us get ' + esc(BIZ()) + ' ready to take bookings. It takes about 15 minutes.') + '</p></div>' +
-        (S.hideGuide ? '' : '<div class="card guide"><div class="guide-l"><div class="gbanner"><div><b>' + headline + '</b><span>' + todo.length + ' steps left</span></div>' + ring(done.length, tasks.length) + '</div>' +
-          '<p class="gsec">To do</p><ol class="tasks">' + todo.map(row).join('') + '</ol>' +
-          '<details class="gdone"><summary>Already done (' + done.length + ')</summary><ol class="tasks">' + done.map(row).join('') + '</ol></details>' +
-          '<button class="link" type="button" id="later" style="font-size:13px;margin:8px 0 0 12px">I will finish later</button></div>' +
-          '<div class="guide-r"><img src="img/widget.webp" alt="Your booking widget" width="900" height="660"><p>' + (w ? 'Live at book.dialbridge.ai/' + slug() : 'This is what customers will see. Make it yours in the setup.') + '</p>' +
-          (w ? '' : '<div class="helpcall"><b>Want us to set it up with you?</b><span>Free 20-minute call. We add your services, prices and hours, and put the button on your website and Google profile.</span><a class="btn sm" href="' + esc(DBX.setupCallUrl || '#') + '" data-setupcall' + (DBX.setupCallUrl ? ' target="_blank" rel="noopener"' : '') + '>Book a free setup call</a></div>') + '</div></div>') +
-        '<div class="sample">' + I('info') + 'Sample data below. Your real numbers show up here after your first booking.</div>' +
-        '<div class="kpis"><div class="card kpi"><span>' + I('inbox') + 'New leads</span><b>34</b><small class="up">' + I('up') + '21% vs last month</small></div><div class="card kpi"><span>' + I('cal') + 'Booked jobs</span><b>18</b><small class="mute">$10,686 in jobs</small></div><div class="card kpi"><span>' + I('phone') + 'Reply time</span><b>19 min</b><small class="mute">Goal: 15 min</small></div><div class="card kpi"><span>' + I('star') + 'Google rating</span><b>4.9</b><small class="mute">212 reviews</small></div></div>' +
-        '<div class="grid2"><div class="card"><div class="card-h"><h3>Booking requests</h3><span>Last 14 days</span></div><div class="chart">' + barsChart() + '<div class="legend"><span><i style="background:#1d221c"></i>Business hours</span><span><i style="background:#f35427"></i>After hours, would have gone to voicemail</span></div></div></div>' +
-        '<div class="card"><div class="card-h"><h3>Needs your attention</h3><a class="link" href="#app/leads" style="font-size:13px">See all</a></div><ul class="feed">' +
-        LEADS.slice(0, 5).map(function (l) { return '<li><span class="fi">' + I(l.s === 'won' ? 'cal' : l.p ? 'inbox' : 'msg') + '</span><div><b>' + esc(l.n) + '</b><span>' + esc(l.t) + ' · ' + l.ago + ' ago</span></div><span class="pill ' + PILL[l.s][0] + '">' + PILL[l.s][1] + '</span></li>'; }).join('') + '</ul></div></div></div>';
+      var c = leadCounts(), up = LEADS.filter(function (l) { return l.s === 'sch'; });
+      return '<div class="pg"><h2 class="ttl">' + greet() + ', ' + esc(first()) + '<span class="tag-s">Sample data</span></h2>' +
+        '<p class="lead-p">' + (c.reply ? '<b>' + c.reply + ' requests need a reply.</b> ' : 'You\'re all caught up. ') + up.length + ' jobs coming up this week.</p>' +
+        '<div class="stats"><div><span>New requests</span><b>34</b><small class="up">+21% vs last month</small></div><div><span>Booked jobs</span><b>18</b><small>$10,686 in jobs</small></div>' +
+        '<div><span>Came in after hours</span><b>41%</b><small>14 of 34 requests</small></div><div><span>Average reply</span><b>19 min</b><small>Goal: under 15 min</small></div></div>' +
+        '<div class="g2"><div class="box"><div class="box-h"><h3>Needs a reply</h3><a href="#app/leads">Open leads</a></div><ul class="rows">' +
+        LEADS.filter(function (l) { return l.s === 'new'; }).map(function (l) { return '<li><a href="#app/leads"><i class="dot"></i><div class="m"><b>' + esc(l.n) + '</b><span>' + esc(l.t) + '</span></div><span class="e">' + l.ago + '</span></a></li>'; }).join('') + '</ul></div>' +
+        '<div class="box"><div class="box-h"><h3>Coming up</h3><a href="#app/bookings">All bookings</a></div><ul class="rows">' +
+        up.map(function (l) { var m = /^(\w{3}) (\w{3}) (\d+)/.exec(l.w) || []; return '<li><a href="#app/bookings"><span class="when"><b>' + (m[1] || '') + '</b><span>' + (m[3] || '') + '</span></span><div class="m"><b>' + esc(l.n) + '</b><span>' + esc(l.t) + ' · ' + esc(l.w.replace(/^\w{3} \w{3} \d+,? ?/, '') || 'Time to confirm') + '</span></div><span class="e">' + esc(l.p || '') + '</span></a></li>'; }).join('') + '</ul></div></div>' +
+        '<div class="box" style="margin-top:16px"><div class="box-h"><h3>Booking requests, last 14 days</h3><span>34 total</span></div><div class="hm-chart">' + barsChart2() + '</div></div></div>';
     },
     leads: function () {
       var c = leadCounts();
@@ -540,39 +544,86 @@
         '<div class="inbox" id="ibox"><div class="ib-list" id="ibList"></div><div class="ib-d" id="ibD"></div></div></div>';
     },
     bookings: function () {
-      var up = LEADS.filter(function (l) { return l.s === 'sch' || l.s === 'won' || /Oct/.test(l.w); });
-      return '<div class="pg"><div class="hello"><h2>Bookings</h2><p>What\'s on the schedule.</p></div><div class="sample">' + I('info') + 'Sample bookings.</div><div class="card" style="margin-top:14px"><div class="card-h"><h3>Upcoming</h3><span>Next 7 days</span></div><ul class="feed">' +
-        up.map(function (l) { return '<li><span class="fi">' + I('cal') + '</span><div><b>' + esc(l.w) + '</b><span>' + esc(l.n) + ' · ' + esc(l.t) + ' · ' + esc(l.a) + '</span></div><span class="pill ' + PILL[l.s][0] + '">' + (l.p || PILL[l.s][1]) + '</span></li>'; }).join('') + '</ul></div></div>';
+      var up = LEADS.filter(function (l) { return l.s === 'sch' || l.s === 'won'; });
+      var days = {}; up.forEach(function (l) { var d = (/^(\w{3} \w{3} \d+)/.exec(l.w) || [, 'To schedule'])[1]; (days[d] = days[d] || []).push(l); });
+      return '<div class="pg"><p class="lead-p" style="margin:0"><b>' + up.length + ' jobs on the schedule.</b> Times are in your time zone.<span class="tag-s">Sample data</span></p>' +
+        '<div class="box" style="margin-top:16px;padding:6px 12px 10px">' + Object.keys(days).map(function (d) {
+          return '<p class="bk-day">' + esc(d) + '</p><ul class="rows" style="padding:0">' + days[d].map(function (l) {
+            var tm = l.w.replace(/^\w{3} \w{3} \d+,? ?/, '') || 'Time to confirm';
+            return '<li><a href="#app/leads"><span class="bk-time">' + esc(tm) + '</span><div class="m"><b>' + esc(l.n) + '</b><span>' + esc(l.t) + ' · ' + esc(l.a) + '</span></div><span class="e"><b>' + esc(l.p || '') + '</b><span class="st-t' + (l.s === 'won' ? ' ok' : '') + '">' + (l.s === 'won' ? 'Done' : 'Scheduled') + '</span></span></a></li>';
+          }).join('') + '</ul>';
+        }).join('') + '</div></div>';
     },
     reviews: function () {
-      var R = [['Sofia N.', 5, 'Fast, friendly crew. Fair price and they swept up after.', '2d'], ['Luis B.', 5, 'Booked online at night, they showed up the next morning. Super easy.', '4d'], ['Jenna P.', 5, 'Price was exactly what the website said.', '1w'], ['Mark T.', 4, 'Great job, came a little late but texted ahead.', '2w']];
-      return '<div class="pg"><div class="hello"><h2>Reviews</h2><p>Your Google rating and the requests we send after each job.</p></div>' +
-        (S.plan !== 'full' ? '<div class="upsell">' + I('star') + '<div><b>Get more 5-star reviews automatically</b><span>Every customer gets a review request by text after the job. Included in Website + Reviews + Booking Widget.</span></div><a class="btn" href="../product/?call=1">Book a call</a></div>' : '') +
-        '<div class="sample">' + I('info') + 'Sample reviews.</div><div class="rv-top"><div class="card rv-score"><b>4.9</b><div class="st">★★★★★</div><span>212 Google reviews</span><div class="bars">' +
-        [[5, 92], [4, 6], [3, 1], [2, 0], [1, 1]].map(function (x) { return '<div><span>' + x[0] + '</span><i><b style="width:' + x[1] + '%"></b></i><span>' + x[1] + '%</span></div>'; }).join('') +
-        '</div></div><div class="card"><div class="card-h"><h3>Latest reviews</h3><span>From Google</span></div><ul class="rv-list">' +
-        R.map(function (r) { return '<li><div class="who"><b>' + r[0] + '</b><span class="st">' + '★★★★★'.slice(0, r[1]) + '</span><small>' + r[3] + ' ago</small></div><p>' + esc(r[2]) + '</p></li>'; }).join('') + '</ul></div></div></div>';
+      if (S.plan !== 'full') return '<div class="pg"><div class="pitch"><div><h2>Get more 5-star Google reviews without asking</h2><p>Part of the Website + Review Automation plan.</p><ul>' +
+        '<li>' + I('chk') + '<span>After every job, the customer gets a text with a one-tap review link.</span></li>' +
+        '<li>' + I('chk') + '<span>More reviews move you up on Google Maps, so new customers find you first.</span></li>' +
+        '<li>' + I('chk') + '<span>New reviews show up here, and you reply in one tap.</span></li></ul>' +
+        '<p class="plan-l"><b>$199/month</b> with a new website built to book jobs. We set it all up on one short call.</p>' +
+        '<button class="btn" type="button" data-upgrade>Upgrade with a quick call ' + I('arw') + '</button></div>' +
+        '<div class="phone-m"><p class="pm-h">What your customer gets after the job</p><div class="bubble">Hi Dana, thanks for choosing ' + esc(BIZ()) + '! Mind leaving us a quick review? It helps a small business a lot. g.page/review<small>Sent 2 hours after the job</small></div>' +
+        '<div class="gcard"><b>' + esc(BIZ()) + '</b><span class="stars">★★★★★</span> New 5-star review</div></div></div></div>';
+      var R = [['Sofia N.', 5, 'Fast, friendly crew. Fair price and they swept up after.', '2d'], ['Luis B.', 5, 'Booked online at night, they showed up the next morning. Super easy.', '4d'], ['Jenna P.', 5, 'On time and careful with the stairs.', '1w'], ['Mark T.', 4, 'Good job, a little later than the window but they texted first.', '2w']];
+      return '<div class="pg"><div class="stats" style="margin-top:0"><div><span>Google rating</span><b>4.9 <span class="stars" style="font-size:16px">★</span></b><small>212 reviews</small></div><div><span>New this month</span><b>+8</b><small class="up">+3 vs last month</small></div>' +
+        '<div><span>Requests sent</span><b>41</b><small>After booked jobs</small></div><div><span>Left a review</span><b>20%</b><small>8 of 41</small></div></div>' +
+        '<div class="g21"><div class="box"><div class="box-h"><h3>Latest reviews</h3><span>From Google<span class="tag-s">Sample</span></span></div><ul class="rows">' +
+        R.map(function (r) { return '<li class="rv-row"><div><div class="m"><b>' + r[0] + ' <span class="stars">' + '★★★★★'.slice(0, r[1]) + '</span><small>' + r[3] + ' ago</small></b><p>' + esc(r[2]) + '</p></div></div></li>'; }).join('') + '</ul></div>' +
+        '<div class="box"><div class="box-h"><h3>Review requests</h3></div><div class="setrow"><div><b>Text after every booked job</b><span>2 hours after you mark it done</span></div><button type="button" class="tog on" aria-label="Review requests on"></button></div>' +
+        '<div class="bubble">Hi Dana, thanks for choosing ' + esc(BIZ()) + '! Mind leaving us a quick review? It helps a small business a lot.<small>What customers get</small></div></div></div></div>';
     },
     traffic: function () {
-      var F = [['Booking page views', 412, 100], ['Started a booking', 96, 23], ['Sent a request', 34, 8], ['Booked jobs', 18, 4]];
-      return '<div class="pg"><div class="hello"><h2>Traffic</h2><p>Who sees your booking page and how many book.</p></div><div class="sample">' + I('info') + 'Sample data.</div>' +
-        '<div class="kpis"><div class="card kpi"><span>Page views</span><b>412</b><small class="up">' + I('up') + '14%</small></div><div class="card kpi"><span>Started a booking</span><b>96</b><small class="mute">23% of views</small></div><div class="card kpi"><span>Requests</span><b>34</b><small class="mute">8% of views</small></div><div class="card kpi"><span>After hours</span><b>41%</b><small class="mute">of requests</small></div></div>' +
-        '<div class="grid2"><div class="card"><div class="card-h"><h3>From view to booked job</h3><span>Last 30 days</span></div><div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px">' +
-        F.map(function (f) { return '<div><div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:600"><span>' + f[0] + '</span><span>' + f[1] + '</span></div><div style="height:10px;margin-top:6px;border-radius:5px;background:#f0efe9;overflow:hidden"><div style="height:100%;width:' + Math.max(2, f[2]) + '%;border-radius:5px;background:var(--accent)"></div></div></div>'; }).join('') +
-        '</div></div><div class="card"><div class="card-h"><h3>Where requests come from</h3></div><ul class="feed">' +
-        [['Website', 14, 'globe'], ['Google profile', 11, 'pin'], ['Facebook', 7, 'msg'], ['Missed-call text', 2, 'phone']].map(function (s) { return '<li><span class="fi">' + I(s[2]) + '</span><div><b>' + s[0] + '</b><span>' + Math.round(s[1] / 34 * 100) + '% of requests</span></div><b>' + s[1] + '</b></li>'; }).join('') + '</ul></div></div></div>';
+      var F = [['Visited your booking page', 412], ['Opened the booking form', 168], ['Started a booking', 61], ['Sent a request', 34]];
+      var SRC = [['Google', 169, 15], ['Your website', 115, 11], ['Facebook', 70, 5], ['Instagram', 37, 2], ['Direct link', 21, 1]];
+      return '<div class="pg"><p class="lead-p" style="margin:0"><b>Last 30 days:</b> 412 people saw your booking page and 34 sent a request.<span class="tag-s">Sample data</span></p>' +
+        '<div class="stats"><div><span>Visits</span><b>412</b><small class="up">+18% vs last month</small></div><div><span>Opened the form</span><b>168</b><small>41% of visits</small></div><div><span>Requests</span><b>34</b><small>8.3% of visits</small></div><div><span>After hours</span><b>14</b><small>Requests outside 8 AM to 6 PM</small></div></div>' +
+        '<div class="g2"><div class="box"><div class="box-h"><h3>From visit to booking</h3></div><div class="funnel">' +
+        F.map(function (f) { return '<div class="fr"><span>' + f[0] + '</span><i><b style="width:' + Math.max(3, f[1] / F[0][1] * 100) + '%"></b></i><em>' + f[1] + '</em></div>'; }).join('') + '</div></div>' +
+        '<div class="box"><div class="box-h"><h3>Where visitors come from</h3><span>Requests</span></div><ul class="rows">' +
+        SRC.map(function (x) { return '<li><div><div class="m"><b>' + x[0] + '</b><span>' + x[1] + ' visits</span><span class="srcbar"><b style="width:' + x[1] / SRC[0][1] * 100 + '%"></b></span></div><span class="e"><b>' + x[2] + '</b></span></div></li>'; }).join('') + '</ul></div></div>' +
+        '<div class="box" style="margin-top:16px"><div class="box-h"><h3>Where your booking page is live</h3><a href="#app/widget/4">Add it somewhere</a></div><ul class="rows">' +
+        [['Your website', true, 'Button on every page'], ['Google profile', true, 'Book online link'], ['Facebook page', false, 'Not added yet'], ['Instagram bio', false, 'Not added yet']].map(function (x) { return '<li><div><i class="live-dot' + (x[1] ? ' on' : '') + '"></i><div class="m"><b>' + x[0] + '</b><span>' + x[2] + '</span></div></div></li>'; }).join('') + '</ul></div>' +
+        '<p class="foot-note">Counts visits to pages that have your booking button, and to your booking link. It doesn\'t track the rest of your website.</p></div>';
     },
     widget: function () {
-      return '<div class="pg"><div class="hello"><h2>Set up your booking widget</h2><p>Your changes show in the preview right away.</p></div><div class="wz">' +
+      return '<div class="pg"><p class="lead-p" style="margin:0">Your changes show in the preview right away.</p><div class="wz">' +
         '<ol class="card wz-steps" id="wzSteps">' + [['Hours and area', 'When and where you work'], ['Services and prices', 'What customers can book'], ['Your look', 'Logo and color'], ['Go live', 'Website, Google, social']].map(function (s, i) { return '<li data-s="' + (i + 1) + '"><button type="button"><i>' + (i + 1) + '</i><div><b>' + s[0] + '</b><span>' + s[1] + '</span></div></button></li>'; }).join('') + '</ol>' +
         '<div class="card wz-form" id="wzForm"></div>' +
         '<div class="wz-prev"><div class="card"><div class="bar"><i></i><i></i><i></i><span id="wzUrl">book.dialbridge.ai/' + slug() + '</span></div><iframe id="wzFrame" title="Your booking widget preview"></iframe></div><p>Live preview. Tap through it like a customer.</p></div></div></div>';
     },
     settings: function () {
-      return '<div class="pg"><div class="hello"><h2>Settings</h2><p>Your account, business and billing.</p></div><div class="grid2"><div class="card"><div class="card-h"><h3>Business</h3></div><div style="padding:18px;display:flex;flex-direction:column;gap:12px"><label class="field">Business name<input class="in" value="' + esc(BIZ()) + '"></label><label class="field">Where you work<input class="in" value="' + esc(S.area) + '" placeholder="Bergen County, NJ"></label><label class="field">Your mobile <em>new bookings are texted here</em><input class="in" placeholder="(201) 555-0148"></label></div></div>' +
-        '<div class="card"><div class="card-h"><h3>Plan and billing</h3><span>Managed by Stripe</span></div><div style="padding:18px"><b style="font-size:17px">' + (S.plan === 'full' ? 'Website + Reviews + Booking Widget' : 'Booking Widget') + '</b><p style="margin:4px 0 0;color:var(--mute)">Free trial until ' + md(END) + ', then $' + price() + '/month</p><p style="margin:14px 0 0;font-size:14px">Visa ending in 4242</p><div style="display:flex;gap:8px;margin-top:16px"><button class="btn sm ghost" type="button">Update card</button><button class="btn sm ghost" type="button">Cancel trial</button></div></div></div></div></div>';
+      var t = theme();
+      return '<div class="pg set">' +
+        '<div class="set-sec"><h3>Business</h3><div class="box"><label class="fld"><span>Business name</span><input class="in" id="setBiz" value="' + esc(BIZ()) + '"></label>' +
+        '<label class="fld"><span>Where you work</span><input class="in" id="setArea" value="' + esc(S.area) + '" placeholder="Bergen County, NJ"></label>' +
+        '<label class="fld"><span>Your mobile</span><input class="in" id="setPhone" type="tel" value="' + esc(fmtPhone(S.phone)) + '" placeholder="(201) 555-0148"></label></div></div>' +
+        '<div class="set-sec"><h3>Notifications</h3><div class="box"><div class="setrow"><div><b>Text me when someone books</b><span>' + (S.phone ? 'To ' + esc(fmtPhone(S.phone)) : 'Add your mobile above') + '</span></div><button type="button" class="tog on" aria-label="Booking texts on"></button></div>' +
+        '<div class="setrow"><div><b>Email me too</b><span>' + esc(S.email || 'Your email') + '</span></div><button type="button" class="tog on" aria-label="Booking emails on"></button></div></div></div>' +
+        '<div class="set-sec"><h3>Plan and billing</h3><div class="box"><div class="setrow"><div><b>' + (S.plan === 'full' ? 'Website + Review Automation + Booking Widget' : 'Booking Widget') + '</b><span>Free until ' + md(END) + ', then $' + price() + '/month. Cancel anytime.</span></div>' +
+        '<a class="btn sm ghost" id="billBtn" href="' + esc(DBX.billingUrl || '#') + '"' + (DBX.billingUrl ? ' target="_blank" rel="noopener"' : '') + '>Manage billing</a></div>' +
+        (S.plan === 'full' ? '' : '<div class="setrow"><div><b>Want a new website and review requests?</b><span>Website + Review Automation + Booking Widget, $199/month</span></div><button class="btn sm ghost" type="button" data-upgrade>See the plan</button></div>') + '</div></div>' +
+        '<div class="set-sec"><h3>Appearance</h3><div class="box"><div class="setrow"><div><b>Theme</b><span>Match my phone follows your phone or computer</span></div><div class="seg" id="themeSeg">' +
+        [['system', 'Match my phone'], ['light', 'Light'], ['dark', 'Dark']].map(function (o) { return '<button type="button" data-t="' + o[0] + '"' + (t === o[0] ? ' class="on"' : '') + '>' + o[1] + '</button>'; }).join('') + '</div></div></div></div>' +
+        '<div class="set-sec"><div class="box"><div class="setrow"><div><b>Log out</b><span>' + esc(S.email || '') + '</span></div><button class="btn sm ghost" type="button" id="logoutBtn">Log out</button></div></div></div></div>';
     }
   };
+  function settingsInit() {
+    $('#themeSeg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; setTheme(b.getAttribute('data-t')); $$('#themeSeg button').forEach(function (x) { x.classList.toggle('on', x === b); }); });
+    $$('.set .tog').forEach(function (tg) { tg.addEventListener('click', function () { tg.classList.toggle('on'); toast('Saved'); }); });
+    var saveF = function () {
+      S.biz = $('#setBiz').value.trim() || S.biz; S.area = $('#setArea').value.trim(); var ph = $('#setPhone').value; if (phoneOk(ph)) S.phone = ph.replace(/\D/g, '').slice(-10);
+      save(); sync({ businessName: S.biz, phone: S.phone || undefined }); $('#bizName').textContent = BIZ(); toast('Saved');
+    };
+    ['#setBiz', '#setArea', '#setPhone'].forEach(function (id) { $(id).addEventListener('change', saveF); });
+    $('#billBtn').addEventListener('click', function (e) { if (!DBX.billingUrl) { e.preventDefault(); toast('Demo: billing opens Stripe\'s page once it is connected'); } });
+    $('#logoutBtn').addEventListener('click', function () { if (LIVE) api('/v1/acct/logout', 'POST', {}); setToken(''); location.hash = '#login'; });
+  }
+  // 14 days of requests, after-hours ones in orange
+  function barsChart2() {
+    var d = [[3, 1], [2, 2], [4, 1], [3, 0], [5, 2], [2, 1], [1, 1], [4, 2], [3, 1], [2, 0], [4, 2], [3, 1], [5, 3], [2, 1]];
+    var mx = 8;
+    return '<div class="bars2">' + d.map(function (x) { return '<i title="' + (x[0] + x[1]) + ' requests"><b style="height:' + x[0] / mx * 100 + '%"></b><b class="ah" style="height:' + x[1] / mx * 100 + '%"></b></i>'; }).join('') + '</div>' +
+      '<div class="bars2-l"><span>2 weeks ago</span><span>Today</span></div><div class="legend2"><span><i></i>During business hours</span><span><i class="ah"></i>After hours, would have gone to voicemail</span></div>';
+  }
   /* leads interaction */
   // ---- Leads inbox ----
   var ibView = 'reply', ibSel = 0;
@@ -695,7 +746,7 @@
     if (t.closest('#wzCall')) { location.href = '../product/?call=1'; return; }
     if (t.closest('#wzPrev')) { wzStep--; wzRender(); return; }
     if (t.closest('#wzNext')) {
-      if (wzStep < 4) { wzStep++; wzRender(); $('.main').scrollTo && scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); return; }
+      if (wzStep < 4) { S.wzDone = Math.max(S.wzDone || 0, wzStep); save(); wzStep++; wzRender(); $('.main').scrollTo && scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); return; }
       if (S.widgetDone) { location.hash = '#app/home'; return; }
       S.widgetDone = true; save(); track('WidgetPublished', {}, true); wzRender();
       modal('<div class="okc">' + I('chk') + '</div><h3>Your booking page is live</h3><p>Customers can book ' + esc(BIZ()) + ' at book.dialbridge.ai/' + slug() + '. Add the button to your website and the link to Google to start getting bookings.</p><button class="btn" type="button" data-close>Got it</button>');
