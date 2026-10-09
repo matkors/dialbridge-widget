@@ -532,11 +532,10 @@
         LEADS.slice(0, 5).map(function (l) { return '<li><span class="fi">' + I(l.s === 'won' ? 'cal' : l.p ? 'inbox' : 'msg') + '</span><div><b>' + esc(l.n) + '</b><span>' + esc(l.t) + ' · ' + l.ago + ' ago</span></div><span class="pill ' + PILL[l.s][0] + '">' + PILL[l.s][1] + '</span></li>'; }).join('') + '</ul></div></div></div>';
     },
     leads: function () {
-      return '<div class="pg"><div class="hello"><h2>Leads</h2><p>3 new requests waiting. Fast replies win the job.</p></div><div class="sample">' + I('info') + 'Sample leads. Real ones arrive here and by text the moment someone books.</div>' +
-        '<div class="kpis"><div class="card kpi"><span>Needs a reply</span><b>3</b><small class="mute">Oldest: 1 hour</small></div><div class="card kpi"><span>Booked this week</span><b>2</b><small class="up">' + I('up') + '$698 in jobs</small></div><div class="card kpi"><span>Came in after hours</span><b>41%</b><small class="mute">You would have missed these</small></div><div class="card kpi"><span>Average reply time</span><b>19 min</b><small class="mute">Goal: 15 min</small></div></div>' +
-        '<div class="card leads"><div class="leads-l"><div class="tabs"><button class="on">All 8</button><button>New 3</button><button>Scheduled 2</button><button>Booked 2</button><button>Lost 1</button></div><div id="lrows">' +
-        LEADS.map(function (l, i) { return '<div class="lrow' + (i ? '' : ' on') + '" data-i="' + i + '"><b>' + (l.s === 'new' ? '<span style="color:var(--accent)">● </span>' : '') + esc(l.n) + '</b><small>' + l.ago + '</small><span>' + esc(l.t) + '</span><span class="pill ' + PILL[l.s][0] + '" style="justify-self:end">' + PILL[l.s][1] + '</span></div>'; }).join('') +
-        '</div></div><div class="ld" id="ld"></div></div></div>';
+      var c = leadCounts();
+      return '<div class="pg ib-pg"><div class="ib-top"><p class="ib-sum">' + (c.reply ? '<b>' + c.reply + ' waiting for a reply.</b> Oldest: 1 hour.' : 'You\'re all caught up.') + '<span class="ib-sample">Sample leads</span></p>' +
+        '<div class="ib-views" id="ibViews">' + [['reply', 'Needs reply'], ['sch', 'Scheduled'], ['closed', 'Closed']].map(function (v) { return '<button type="button" data-v="' + v[0] + '"' + (v[0] === ibView ? ' class="on"' : '') + '>' + v[1] + ' <span>' + c[v[0]] + '</span></button>'; }).join('') + '</div></div>' +
+        '<div class="inbox" id="ibox"><div class="ib-list" id="ibList"></div><div class="ib-d" id="ibD"></div></div></div>';
     },
     bookings: function () {
       var up = LEADS.filter(function (l) { return l.s === 'sch' || l.s === 'won' || /Oct/.test(l.w); });
@@ -573,17 +572,63 @@
     }
   };
   /* leads interaction */
+  // ---- Leads inbox ----
+  var ibView = 'reply', ibSel = 0;
+  var VIEW = { new: 'reply', sch: 'sch', won: 'closed', lost: 'closed' };
+  function leadCounts() { var c = { reply: 0, sch: 0, closed: 0 }; LEADS.forEach(function (l) { c[VIEW[l.s]]++; }); return c; }
+  function ibRows() {
+    var rows = LEADS.map(function (l, i) { return [l, i]; }).filter(function (x) { return VIEW[x[0].s] === ibView; });
+    if (!rows.length) return '<p class="ib-empty">Nothing here right now.</p>';
+    if (!rows.some(function (x) { return x[1] === ibSel; })) ibSel = rows[0][1];
+    return rows.map(function (x) {
+      var l = x[0], i = x[1], unread = l.s === 'new';
+      var end = l.s === 'won' ? '<em class="st ok">Booked' + (l.p && /\$/.test(l.p) ? ' ' + esc(l.p.split(' ')[0]) : '') + '</em>' : l.s === 'lost' ? '<em class="st">Lost</em>' : '';
+      return '<button type="button" class="ib-row' + (i === ibSel ? ' on' : '') + (unread ? ' unread' : '') + '" data-i="' + i + '">' +
+        '<span class="r1">' + (unread ? '<i class="dot"></i>' : '') + '<b>' + esc(l.n) + '</b>' + (l.ah ? '<span class="mk" title="Came in after hours">' + I('moon') + '</span>' : '') + '<small>' + l.ago + '</small></span>' +
+        '<span class="r2">' + esc(l.t) + (l.w && !/estimate|question/i.test(l.w) ? ' · ' + esc(l.w.replace(/^[A-Z][a-z]{2} /, '').replace(/ to /, '-')) : '') + end + '</span></button>';
+    }).join('');
+  }
+  var STATUS = { new: 'New', sch: 'Scheduled', won: 'Booked', lost: 'Lost' };
   function leadDetail(i) {
-    var l = LEADS[i];
-    $('#ld').innerHTML = '<div class="ld-h"><h3>' + esc(l.n) + '</h3><span class="pill ' + PILL[l.s][0] + '">' + PILL[l.s][1] + '</span><a class="btn sm ghost" href="#">' + I('phone') + 'Call</a></div><p style="margin:4px 0 0;color:var(--mute);font-size:14px">(201) 555-0' + (140 + i) + ' · ' + esc(l.a) + (l.ah ? ' · <b style="color:var(--accent-ink)">' + I('moon') + ' booked after hours</b>' : '') + '</p>' +
-      '<div class="facts"><div><span>Job</span><b>' + esc(l.t) + '</b></div><div><span>When</span><b>' + esc(l.w) + '</b></div><div><span>Price shown</span><b>' + esc(l.p || 'None') + '</b></div><div><span>Source</span><b>' + esc(l.src) + '</b></div><div><span>Received</span><b>' + l.ago + ' ago</b></div><div><span>Photos</span><b>' + (i % 2 ? 'None' : '2 attached') + '</b></div></div>' +
-      '<div class="reply"><div class="chips"><button type="button">Confirm time</button><button type="button">Send price</button><button type="button">Ask for photos</button><button type="button">On the way</button></div><textarea placeholder="Text ' + esc(l.n.split(' ')[0]) + '..."></textarea><div class="rb"><span>Sends from your business number</span><button class="btn sm" type="button" id="sendTx">Send text</button></div></div>' +
-      '<div style="display:flex;gap:8px;margin-top:14px"><button class="btn sm ghost" type="button">' + I('cal') + 'Mark scheduled</button><button class="btn sm ghost" type="button">' + I('chk') + 'Mark booked</button><button class="btn sm ghost" type="button">Mark lost</button></div>';
+    var l = LEADS[i], fn = l.n.split(' ')[0], ph = '(201) 555-0' + (140 + i);
+    var photos = i % 2 ? '' : '<div class="rq-ph"><img src="../img/tiles/junk-book.webp" alt=""><img src="../img/tiles/junk-hero.webp" alt=""></div>';
+    var thread = l.s === 'sch' || l.s === 'won' ? '<div class="msg us"><p>Hi ' + esc(fn) + ', this is Mike from ' + esc(BIZ()) + '. You\'re all set for ' + esc(l.w) + '. We\'ll text when we\'re on the way.</p><small>You · ' + (l.s === 'won' ? '1d ago' : '4h ago') + '</small></div>' : '';
+    $('#ibD').innerHTML =
+      '<div class="ib-dh"><button class="ib-back" type="button" aria-label="Back to leads">' + I('back') + '</button><div class="who"><h3>' + esc(l.n) + '</h3><p>' + ph + ' · ' + esc(l.a) + '</p></div>' +
+        '<a class="btn sm ghost" href="tel:' + ph.replace(/\D/g, '') + '">' + I('phone') + 'Call</a>' +
+        '<div class="stsel"><button type="button" class="stbtn" id="stBtn">' + STATUS[l.s] + '<svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button><div class="stmenu" id="stMenu" hidden>' + ['sch', 'won', 'lost', 'new'].filter(function (k) { return k !== l.s; }).map(function (k) { return '<button type="button" data-st="' + k + '">' + ({ sch: 'Mark scheduled', won: 'Mark booked', lost: 'Mark lost', new: 'Move back to new' })[k] + '</button>'; }).join('') + '</div></div></div>' +
+      '<div class="ib-thread">' + (/question/i.test(l.w) ? '<div class="msg them"><p>' + esc(l.t.replace(/^"|"$/g, '')) + '</p><small>' + esc(fn) + ' · ' + esc(l.src) + ' · ' + l.ago + ' ago</small></div>' :
+        '<div class="rq"><p class="rq-k">Booking request · ' + esc(l.src) + ' · ' + l.ago + ' ago' + (l.ah ? ' · <span class="ah">' + I('moon') + 'after hours</span>' : '') + '</p>' +
+          '<dl><div><dt>Job</dt><dd>' + esc(l.t) + '</dd></div><div><dt>When</dt><dd>' + esc(l.w) + '</dd></div>' + (l.p ? '<div><dt>Price shown</dt><dd>' + esc(l.p) + '</dd></div>' : '') + '</dl>' + photos + '</div>') +
+        thread +
+      '</div>' +
+      '<div class="ib-comp"><textarea id="ibTx" rows="2" placeholder="Text ' + esc(fn) + '..."></textarea><div class="tpl" id="tpl" hidden>' +
+        ['Confirm the time', 'Send the price', 'Ask for photos', 'On the way'].map(function (t) { return '<button type="button">' + t + '</button>'; }).join('') + '</div>' +
+        '<div class="cb"><button type="button" class="link" id="tplBtn">Templates</button><span>From your business number</span><button class="btn sm" type="button" id="sendTx">Send text</button></div></div>';
   }
   function leadsInit() {
-    leadDetail(0);
-    $('#lrows').addEventListener('click', function (e) { var r = e.target.closest('.lrow'); if (!r) return; $$('.lrow').forEach(function (x) { x.classList.toggle('on', x === r); }); leadDetail(+r.getAttribute('data-i')); });
-    $('#ld').addEventListener('click', function (e) { var c = e.target.closest('.chips button'); if (c) $('textarea', $('#ld')).value = { 'Confirm time': 'Hi! You\'re all set for the time you picked. We\'ll text when we\'re on the way.', 'Send price': 'Thanks for the details! Your price is $199 to $279, confirmed on site.', 'Ask for photos': 'Could you text a couple of photos of the items? It helps us give an exact price.', 'On the way': 'We\'re on the way, about 20 minutes out.' }[c.textContent]; if (e.target.closest('#sendTx')) toast('Demo: text not sent'); });
+    $('#ibList').innerHTML = ibRows(); leadDetail(ibSel);
+    var open = function (i) { ibSel = i; $$('.ib-row').forEach(function (x) { x.classList.toggle('on', +x.getAttribute('data-i') === i); }); leadDetail(i); $('#ibox').classList.add('show-d'); };
+    $('#ibViews').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; ibView = b.getAttribute('data-v'); $$('#ibViews button').forEach(function (x) { x.classList.toggle('on', x === b); }); $('#ibList').innerHTML = ibRows(); leadDetail(ibSel); });
+    $('#ibList').addEventListener('click', function (e) { var r = e.target.closest('.ib-row'); if (r) open(+r.getAttribute('data-i')); });
+    $('#ibD').addEventListener('click', function (e) {
+      if (e.target.closest('.ib-back')) { $('#ibox').classList.remove('show-d'); return; }
+      if (e.target.closest('#stBtn')) { var m = $('#stMenu'); m.hidden = !m.hidden; return; }
+      var st = e.target.closest('[data-st]');
+      if (st) {
+        var l = LEADS[ibSel], to = st.getAttribute('data-st'); l.s = to;
+        var nextI = LEADS.map(function (x, i) { return [x, i]; }).filter(function (x) { return VIEW[x[0].s] === ibView; })[0];
+        var c = leadCounts(); $$('#ibViews button').forEach(function (b) { $('span', b).textContent = c[b.getAttribute('data-v')]; });
+        $('#ibList').innerHTML = ibRows();
+        toast(STATUS[to] === 'New' ? 'Moved back to new' : 'Marked ' + STATUS[to].toLowerCase() + (nextI ? '. Next: ' + nextI[0].n : ''));
+        if (nextI) open(nextI[1]); else leadDetail(ibSel);
+        return;
+      }
+      if (e.target.closest('#tplBtn')) { var t = $('#tpl'); t.hidden = !t.hidden; return; }
+      var tb = e.target.closest('#tpl button');
+      if (tb) { var l2 = LEADS[ibSel]; $('#ibTx').value = { 'Confirm the time': 'Hi ' + l2.n.split(' ')[0] + '! You\'re all set for ' + l2.w + '. We\'ll text when we\'re on the way.', 'Send the price': 'Thanks for the details! Your price is ' + (l2.p || '$199 to $279') + ', confirmed on site.', 'Ask for photos': 'Could you text a couple of photos? It helps us give you an exact price.', 'On the way': 'We\'re on the way, about 20 minutes out.' }[tb.textContent]; $('#tpl').hidden = true; $('#ibTx').focus(); return; }
+      if (e.target.closest('#sendTx')) toast('Demo: text not sent');
+    });
   }
   /* widget wizard */
   var SVC = { junk: [['furniture', 'Furniture', 99], ['appliances', 'Appliances', 99], ['trash', 'Trash and bags', 99], ['yard', 'Yard waste', 99], ['reno', 'Renovation debris', 149], ['heavy', 'Dirt and concrete', 199], ['garage', 'Garage or basement', 199], ['estate', 'Whole property', 0]],
