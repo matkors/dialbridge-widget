@@ -42,6 +42,7 @@
       var keep = t.services.filter(function (x) { return p.hideServices.indexOf(x.id) < 0; });
       if (keep.length) t.services = keep;
     }
+    if (p.tradeLabel) t.trade = String(p.tradeLabel).slice(0, 40);   // their own words, e.g. "Barbershop"
     t.biz = b;
     return t;
   }
@@ -336,7 +337,7 @@
     }
 
     // Photos for the first screen (free Unsplash licence, files in img/tiles, credits in img/tiles/CREDITS.json).
-    var TRADE = { junk: 'junk', cleaning: 'cleaning', detailing: 'detailing', hvac: 'hvac' }[B.trade] || 'junk';
+    var TRADE = { junk: 'junk', cleaning: 'cleaning', detailing: 'detailing', hvac: 'hvac', general: 'general', appointments: 'appointments' }[B.trade] || 'junk';
     var IMG = { book: 'img/tiles/' + TRADE + '-book.webp', quote: 'img/tiles/quote.webp', text: 'img/tiles/text.webp', call: 'img/tiles/call.webp' };
     function sideHtml() {
       var area = B.area && B.area !== 'your area' ? B.area : '';
@@ -344,7 +345,7 @@
       var photo = /^https:\/\//.test(B.hero || '') ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
       return '<aside class="side" aria-hidden="true"><div class="sb"><img alt="" src="' + esc(photo) + '"><div class="st">' +
         (B.logo ? '<span class="slogo"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname">' + esc(B.name) + '</span>') +
-        '<h2>' + esc(head) + '</h2><p>Tell us what you need, see your price and pick a time.</p></div>' +
+        '<h2>' + esc(head) + '</h2><p>' + esc(T.sideLine || 'Tell us what you need, see your price and pick a time.') + '</p></div>' +
         '<div class="sinfo"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span>' +
         '<span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span>' +
         (B.rating ? '<span><b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</span>' : '') + '</div></div></aside>';

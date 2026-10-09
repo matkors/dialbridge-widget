@@ -166,6 +166,69 @@ window.DBW_TEMPLATES = {
     }
   },
 
+  // Any business that prices after seeing the job: no price list, just a request with details and photos.
+  general: {
+    trade: 'Local services',
+    noun: 'visit',
+    priceNote: 'We reply with a price after we see the details.',
+    sideLine: 'Tell us what you need and we reply with a price.',
+    illustration: 'clipboard',
+    defaults: { open: '08:00', close: '18:00', days: [1, 2, 3, 4, 5, 6], replyMins: 15, showPrices: false, timeMode: 'window' },
+    tiles: {
+      book: { title: 'Request a quote', desc: 'Tell us what you need. We reply with a price.', icon: 'clipboard-list' },
+      quote: { title: 'Send photos for a price', desc: 'The fastest way to an exact price.', icon: 'camera' },
+      text: { title: 'Text a question', desc: 'Replies come by text.', icon: 'message-square-text' },
+      call: { title: 'Call us', desc: '', icon: 'phone' }
+    },
+    services: [
+      { id: 'job', label: 'A job or project', hint: 'Tell us what needs doing', icon: 'clipboard-list', mode: 'estimate' },
+      { id: 'visit', label: 'A service visit', hint: 'Repairs, upkeep, check-ups', icon: 'wrench', mode: 'estimate' },
+      { id: 'other', label: 'Something else', hint: 'Ask us anything', icon: 'message-square-text', mode: 'estimate' }
+    ],
+    flows: {
+      book: ['zip', 'service', 'details', 'time', 'contact'],
+      quote: ['zip', 'service', 'details', 'contact']
+    },
+    steps: {
+      zip: { type: 'zip', title: 'Where is the job?' },
+      service: { type: 'service', title: 'What do you need?' },
+      details: { type: 'details', title: 'Tell us about it', showIf: ['estimate'], placeholder: 'What needs doing, roughly how big, and anything we should know', photos: true },
+      time: { type: 'time', title: 'When works for you?', estimateTitle: 'When would you like us to come by?' },
+      contact: { type: 'contact', title: 'Where should we text you?', askAddress: true }
+    }
+  },
+
+  // Customers come to you (or book a fixed slot): barbers, salons, studios, mechanics.
+  appointments: {
+    trade: 'Appointments',
+    noun: 'appointment',
+    priceNote: 'Prices are per appointment.',
+    sideLine: 'Pick a service and a time that works for you.',
+    illustration: 'calendar',
+    defaults: { open: '09:00', close: '18:00', days: [2, 3, 4, 5, 6], replyMins: 15, showPrices: true, timeMode: 'slots' },
+    tiles: {
+      book: { title: 'Book an appointment', desc: 'Pick a service and a time.', priced: 'From {min}.', icon: 'calendar-check' },
+      quote: { title: 'Ask a question first', desc: 'We reply by text.', icon: 'message-square-text' },
+      text: { title: 'Text a question', desc: 'Replies come by text.', icon: 'message-square-text' },
+      call: { title: 'Call us', desc: '', icon: 'phone' }
+    },
+    services: [
+      { id: 'standard', label: 'Standard appointment', hint: 'Our most booked service', icon: 'calendar-check', mode: 'book', fixed: 40 },
+      { id: 'long', label: 'Longer appointment', hint: 'More time, more detail', icon: 'calendar-clock', mode: 'book', fixed: 70 },
+      { id: 'consult', label: 'Free consultation', hint: 'Talk it through first', icon: 'message-square-text', mode: 'book' }
+    ],
+    flows: {
+      book: ['service', 'time', 'contact'],
+      quote: ['service', 'details', 'contact']
+    },
+    steps: {
+      service: { type: 'service', title: 'What would you like to book?' },
+      details: { type: 'details', title: 'What would you like to ask?', placeholder: 'Your question', photos: false },
+      time: { type: 'time', title: 'Pick a day and time' },
+      contact: { type: 'contact', title: 'Where should we text your confirmation?' }
+    }
+  },
+
   hvac: {
     trade: 'Heating and cooling',
     noun: 'service visit',

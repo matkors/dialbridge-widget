@@ -493,14 +493,16 @@
   var PAGES = {
     setup: function () {
       var steps = [['clock', 'Hours and area', 'When you work and where you go'], [S.mode === 'estimate' ? 'msg' : 'tag', S.mode === 'estimate' ? 'What you quote' : 'Services and prices', S.mode === 'estimate' ? 'The jobs customers can ask about' : 'What customers can book'], ['spark', 'Your look', 'Logo and color'], ['globe', 'Go live', 'Website, Google profile and social']];
-      return '<div class="pg setup"><div class="su-hello"><p class="su-k">' + (S.widgetDone ? 'All set' : 'Your trial has started') + '</p><h2>Welcome, ' + esc(first()) + '. Let\'s get ' + esc(BIZ()) + ' taking bookings.</h2>' +
+      return '<div class="pg setup"><div class="su-main"><div class="su-hello"><p class="su-k">' + (S.widgetDone ? 'All set' : 'Your trial has started') + '</p><h2>Welcome, ' + esc(first()) + '. Let\'s get ' + esc(BIZ()) + ' taking bookings.</h2>' +
         '<p>Most owners are live in about 10 minutes. Pick the way that suits you.</p></div>' +
         '<div class="su-choices">' +
         '<a class="su-card" href="#app/widget"><span class="su-ic">' + I('widget') + '</span><b>Set it up myself</b><span>We walk you through it step by step. About 10 minutes.</span><span class="btn dark">Start setup ' + I('arw') + '</span></a>' +
         '<a class="su-card" href="' + esc(DBX.setupCallUrl || '#') + '" data-setupcall' + (DBX.setupCallUrl ? ' target="_blank" rel="noopener"' : '') + '><span class="su-ic">' + I('phone') + '</span><b>Set it up with us</b><span>A free 20-minute call. We set everything up with you and put it on your website and Google profile.</span><span class="btn">Book a free call ' + I('arw') + '</span></a>' +
         '</div>' +
         '<div class="su-steps"><p>What you\'ll set up</p><ol>' + steps.map(function (st, i) { return '<li' + (S.widgetDone ? ' class="done"' : '') + '><span class="su-n">' + (S.widgetDone ? I('chk') : i + 1) + '</span><span class="su-si">' + I(st[0]) + '</span><div><b>' + st[1] + '</b><span>' + st[2] + '</span></div></li>'; }).join('') + '</ol></div>' +
-        '<p class="su-foot">Your other pages open as soon as your booking page is set up. Free until ' + md(END) + '.</p></div>';
+        '<p class="su-foot">Your other pages open as soon as your booking page is set up. Free until ' + md(END) + '.</p></div>' +
+        // their own booking page, live, so the empty side of the screen shows what they're setting up
+        '<aside class="su-prev"><div class="wz-prev"><div class="card"><div class="bar"><i></i><i></i><i></i><span>book.dialbridge.ai/' + slug() + '</span></div><iframe src="' + previewSrc() + '" title="Your booking page" loading="lazy"></iframe></div><p>This is what your customers will see. You can tap through it.</p></div></aside></div>';
     },
     home: function () {
       var w = S.widgetDone, full = S.plan === 'full', tasks = [
@@ -634,14 +636,21 @@
   var SVC = { junk: [['furniture', 'Furniture', 99], ['appliances', 'Appliances', 99], ['trash', 'Trash and bags', 99], ['yard', 'Yard waste', 99], ['reno', 'Renovation debris', 149], ['heavy', 'Dirt and concrete', 199], ['garage', 'Garage or basement', 199], ['estate', 'Whole property', 0]],
     cleaning: [['standard', 'Standard clean', 129], ['deep', 'Deep clean', 229], ['move', 'Move in or out', 279], ['office', 'Office', 0]],
     detailing: [['full', 'Full detail', 179], ['interior', 'Interior detail', 119], ['exterior', 'Exterior detail', 89], ['ceramic', 'Ceramic coating', 0]],
-    hvac: [['repair', 'Repair visit', 89], ['tuneup', 'Tune-up', 129], ['install', 'New system', 0]] };
+    hvac: [['repair', 'Repair visit', 89], ['tuneup', 'Tune-up', 129], ['install', 'New system', 0]],
+    general: [['job', 'A job or project', 0], ['visit', 'A service visit', 0], ['other', 'Something else', 0]],
+    appointments: [['standard', 'Standard appointment', 40], ['long', 'Longer appointment', 70], ['consult', 'Free consultation', 0]] };
   var COLORS = ['#0E6650', '#1F5FAD', '#C2410C', '#B91C1C', '#0F766E', '#7A4E1D', '#1F2937', '#E8A200'];
   var wzStep = 1;
   function slug() { return (BIZ().toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40)) || 'your-business'; }
-  function trade() { return SVC[S.trade] ? S.trade : 'junk'; }
+  // Which widget template: their trade when we have one, otherwise by how they price.
+  function trade() {
+    if (S.mode === 'appointments' && S.trade !== 'detailing') return 'appointments';
+    if (SVC[S.trade] && S.trade !== 'other') return S.trade;
+    return S.mode === 'appointments' ? 'appointments' : 'general';
+  }
   function previewSrc() {
     var hide = SVC[trade()].filter(function (x) { return S.svc[x[0]] === false; }).map(function (x) { return x[0]; });
-    var cfg = { trade: trade(), name: BIZ(), phone: '(201) 555-0148', brand: S.brand, area: S.area || 'your area', zips: [], open: S.open, close: S.close, hideServices: hide };
+    var cfg = { trade: trade(), tradeLabel: S.tradeLabel || undefined, name: BIZ(), phone: '(201) 555-0148', brand: S.brand, area: S.area || 'your area', zips: [], open: S.open, close: S.close, hideServices: hide };
     return '../book.html?c=' + btoa(unescape(encodeURIComponent(JSON.stringify(cfg)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') + '&embed=1&inline=1&builder=1';
   }
   var reloadT = null;
