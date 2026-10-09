@@ -168,8 +168,10 @@ h3{font-size:21px;letter-spacing:-.02em;line-height:1.2}
 .stage.finale .owner-phone .notif{opacity:1;transform:none;transition-delay:1.05s}
 
 /* ---------- sections ---------- */
-.trades{display:flex;align-items:center;justify-content:center;gap:10px 12px;flex-wrap:wrap;padding:40px 0 0}
-.chip{display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;background:var(--paper);box-shadow:0 0 0 1px var(--line);font-size:14.5px;font-weight:600;color:var(--ink2)}
+.trades{display:flex;justify-content:center;flex-wrap:wrap;gap:10px 34px;margin:44px auto 0;padding:0;list-style:none;color:var(--mute);font-size:15px;font-weight:600}
+.trades li{display:flex;align-items:center;gap:9px}
+.trades svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+.checks .sm{display:none}
 section.s{padding:112px 0}
 .shead{display:grid;grid-template-columns:1.15fr 1fr;gap:48px;align-items:end;margin-bottom:52px}
 .shead p{color:var(--ink2);margin:0;font-size:17px;max-width:470px}
@@ -433,11 +435,22 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .nav .wrap{height:60px}
   .nav .btn{display:none}
   .hero{padding-top:40px}
-  .hero h1{font-size:40px}
+  .hero h1{font-size:clamp(28px,8.3vw,36px);letter-spacing:-.035em}
+  .hero h1 .ln{white-space:nowrap}
+  .hero .sub{font-size:16.5px;margin-top:14px}
+  .checks{flex-wrap:nowrap;gap:12px;font-size:13px}
+  .checks li:nth-child(3){display:flex}
+  .checks .lg{display:none}.checks .sm{display:inline}
+  .rail{flex-wrap:nowrap;gap:6px;margin-bottom:14px}
+  .rail button{padding:0 5px;gap:0;flex-shrink:0;font-size:13.5px}
+  .rail button .lb{display:none}
+  .rail button.on{padding:0 14px 0 6px;gap:8px}
+  .rail button.on .lb{display:inline}
+  .stage{height:560px;min-height:0;padding:22px 12px}
+  .arr{display:none}
+  .trades{display:grid;grid-template-columns:repeat(2,auto);justify-content:center;gap:12px 28px;font-size:14px;margin-top:36px}
   .hero .sub{font-size:17px}
   .quick{flex-wrap:wrap;padding:6px}
-  .checks{font-size:13px;gap:6px 14px}
-  .checks li:nth-child(3){display:none}
   .quick input{flex-basis:calc(100% - 50px)}
   .quick .btn{flex:1 1 100%}
   .stage-wrap{margin-top:44px}
@@ -447,7 +460,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .stage{margin-inline:-20px;border-radius:0;padding:28px 12px 36px}
   .wcard{border-radius:16px}
   .owner-phone{width:200px}
-  .stage{padding-bottom:84px}
   .arr{top:auto;bottom:20px;margin-top:0;width:42px;height:42px}
   .arr.prev{left:calc(50% - 52px)}.arr.next{right:calc(50% - 52px)}
   section.s{padding:76px 0}
@@ -505,18 +517,18 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <button class="btn" type="submit">Build my booking page <svg class="arw"><use href="#arw"/></svg></button>
     </form>
     <ul class="checks">
-      <li><svg><use href="#chk"/></svg>Free preview, no sign-up</li>
-      <li><svg><use href="#chk"/></svg>Works with your current website</li>
-      <li><svg><use href="#chk"/></svg>Month to month</li>
+      <li><svg><use href="#chk"/></svg><span class="lg">Free preview, no sign-up</span><span class="sm">Free preview</span></li>
+      <li><svg><use href="#chk"/></svg><span class="lg">Works with your current website</span><span class="sm">Any website</span></li>
+      <li><svg><use href="#chk"/></svg><span class="lg">Month to month</span><span class="sm">Month to month</span></li>
     </ul>
 
     <div class="stage-wrap" id="demo">
       <div class="rail" id="rail" role="tablist" aria-label="Booking steps">
-        <button role="tab" data-s="0"><span class="k">1</span>On their website</button>
-        <button role="tab" data-s="1"><span class="k">2</span>Pick the job</button>
-        <button role="tab" data-s="2"><span class="k">3</span>See the price</button>
-        <button role="tab" data-s="3"><span class="k">4</span>Book a time</button>
-        <button role="tab" data-s="4"><span class="k">5</span>You get a text</button>
+        <button role="tab" data-s="0"><span class="k">1</span><span class="lb">On their website</span></button>
+        <button role="tab" data-s="1"><span class="k">2</span><span class="lb">Pick the job</span></button>
+        <button role="tab" data-s="2"><span class="k">3</span><span class="lb">See the price</span></button>
+        <button role="tab" data-s="3"><span class="k">4</span><span class="lb">Book a time</span></button>
+        <button role="tab" data-s="4"><span class="k">5</span><span class="lb">You get a text</span></button>
       </div>
       <div class="stage" id="stage">
         <button class="arr prev" id="dPrev" type="button" aria-label="Previous step"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -539,10 +551,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     </div>
   </section>
 
-  <div class="trades">
-    <span class="eyebrow" style="margin-right:6px">Built for</span>
-    <span class="chip">Junk removal</span><span class="chip">Cleaning</span><span class="chip">Mobile detailing</span><span class="chip">HVAC</span><span class="chip">Landscaping</span><span class="chip">Pressure washing</span>
-  </div>
+  <ul class="trades" aria-label="Built for"><li><svg viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62L18.3 8.38A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Junk removal</li><li><svg viewBox="0 0 24 24"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15v4M17 17h4"/></svg>Cleaning</li><li><svg viewBox="0 0 24 24"><path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M9.5 17h5M3 12h18"/></svg>Mobile detailing</li><li><svg viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/><path d="m9.5 4.5 2.5 2 2.5-2M9.5 19.5l2.5-2 2.5 2"/></svg>HVAC</li><li><svg viewBox="0 0 24 24"><path d="M7 20h10"/><path d="M12 20V10"/><path d="M12 10C12 6 9 4 5 4c0 4 3 6 7 6zM12 13c0-3.5 3-5.5 7-5.5 0 3.5-3 5.5-7 5.5z"/></svg>Landscaping</li><li><svg viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Pressure washing</li></ul>
 </div>
 
 <div class="band" id="texts" style="margin-top:96px">
@@ -1020,8 +1029,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     if (e.source === frame.contentWindow) {
       if (e.data.type === 'dbw:ready' && readyRes) { readyRes(); readyRes = null; }
       if (e.data.type === 'dbw:height' && e.data.h > 0) {
-        var max = innerWidth < 640 ? 600 : 640;
-        frame.style.height = Math.max(440, Math.min(Math.round(e.data.h), max)) + 'px';
+        var max = innerWidth < 640 ? 470 : 640;
+        frame.style.height = Math.max(innerWidth < 640 ? 400 : 440, Math.min(Math.round(e.data.h), max)) + 'px';
       }
     }
   });
@@ -1030,8 +1039,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   var SITE = { w: 1280, h: 800, k: 1 };
   function sizeSite() {
     var sw = stage.clientWidth, sh = stage.clientHeight, mob = sw < 640;
-    SITE.w = mob ? 390 : 1280; SITE.h = mob ? 720 : 800;
-    var maxW = mob ? Math.min(sw - 24, 360) : Math.min(sw - 120, 940), maxH = sh - (mob ? 40 : 70) - 34;
+    SITE.w = mob ? 390 : 1280; SITE.h = mob ? 640 : 800;
+    var maxW = mob ? Math.min(sw - 48, 290) : Math.min(sw - 120, 940), maxH = sh - (mob ? 48 : 70) - 34;
     SITE.k = Math.min(maxW / SITE.w, maxH / SITE.h);
     sframe.style.width = SITE.w + 'px'; sframe.style.height = SITE.h + 'px'; sframe.style.transform = 'scale(' + SITE.k + ')';
     bview.style.width = Math.round(SITE.w * SITE.k) + 'px'; bview.style.height = Math.round(SITE.h * SITE.k) + 'px';
