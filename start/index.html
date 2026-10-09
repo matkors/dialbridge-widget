@@ -71,7 +71,7 @@
     <aside class="auth-r">
       <div class="auth-chips"><span>14 days free</span><span>Cancel anytime</span><span>Live in 10 minutes</span></div>
       <blockquote>“Customers see the price and book the job at 10 PM. I wake up to booked pickups instead of voicemails.”<cite>What we built DialBridge to do for junk removal, cleaning and detailing owners</cite></blockquote>
-      <div class="auth-shot"><img src="img/dash.webp" alt="DialBridge dashboard with booking requests, reviews and traffic" width="2560" height="1600" decoding="async"></div>
+      <div class="auth-shot" id="authShot" role="img" aria-label="DialBridge dashboard with booking requests, reviews and traffic"><iframe src="./?preview=1#app/leads" tabindex="-1" aria-hidden="true" scrolling="no" loading="lazy" title="DialBridge dashboard"></iframe></div>
     </aside>
   </div>
 </section>
@@ -183,5 +183,6 @@
 <div class="toast" id="toast"><svg class="i"><use href="#chk"/></svg><span id="toastTx"></span></div>
 <span class="demo-tag">Demo: nothing is saved, sent or charged</span>
 <script src="app.js"></script>
+<script>(function(){var b=document.getElementById('authShot');if(!b)return;var f=b.querySelector('iframe');function fit(){var k=b.clientWidth/1280;f.style.transform='scale('+k+')';}fit();addEventListener('resize',fit);})();</script>
 </body>
 </html>

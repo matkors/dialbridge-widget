@@ -15,7 +15,13 @@
   var S = { email: '', name: '', biz: '', area: '', trade: '', reach: [], miss: '', calls: '', goal: '', plan: 'widget', paid: false, widgetDone: false, brand: '#0E6650', logo: null, svc: {}, days: [1, 2, 3, 4, 5, 6], open: '08:00', close: '18:00' };
   try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { }
   var q0 = new URLSearchParams(location.search).get('biz'); if (q0 && !S.biz) S.biz = q0.slice(0, 60);
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
+  // ?preview=1: a read-only live dashboard with sample data, used as the product shot on the sign-up page
+  var PREVIEW = /[?&]preview=1/.test(location.search);
+  if (PREVIEW) {
+    S = { email: 'matt@haulpros.com', name: 'Matt', biz: 'Haul Pros Junk Removal', area: 'Bergen County, NJ', trade: 'junk', reach: ['calls'], miss: 'vm', calls: '1', goal: 'jobs', plan: 'widget', paid: true, widgetDone: true, brand: '#0E6650', logo: null, svc: {}, days: [1, 2, 3, 4, 5, 6], open: '08:00', close: '18:00' };
+    document.documentElement.classList.add('preview');
+  }
+  function save() { if (PREVIEW) return; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
   var first = function () { return (S.name || 'there').split(' ')[0]; };
   var BIZ = function () { return S.biz || 'Your business'; };
   var price = function () { return S.plan === 'full' ? 199 : 99; };
