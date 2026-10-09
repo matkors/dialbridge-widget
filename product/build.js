@@ -1,6 +1,6 @@
 /* "Build my booking page" flow for the product page (done-for-you).
-   1 build (labor-illusion checklist) -> 2 live preview + customize -> 3 offer + setup-call calendar
-   -> 4 details (contact + quick fit taps) -> 5 booked.
+   1 build (labor-illusion checklist) -> 2 their live booking page + offer + setup-call calendar
+   -> 3 details (contact + quick fit taps) -> 4 booked. No editing: we set it up with them on the call.
    Nothing is sent anywhere until SUBMIT_URL is set, and the calendar shows generated times until a real
    calendar is connected (SLOTS_URL). Meta pixel events fire only if the page has fbq loaded:
    ViewContent when the preview is built; on booking: Schedule, Lead (value by fit: 5 / 25 / 60) and
@@ -25,35 +25,27 @@
   var el = document.createElement('div');
   el.className = 'bld'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Build your booking page');
   el.innerHTML =
-    '<div class="bld-top"><span class="logo">dialbridge<span>.</span>ai</span><div class="bld-prog" aria-hidden="true"><i></i><i></i><i></i><i></i></div><button class="bld-x" type="button" aria-label="Close">' + ic('<path d="M6 6l12 12M18 6 6 18"/>') + '</button></div>' +
+    '<div class="bld-top"><span class="logo">dialbridge<span>.</span>ai</span><div class="bld-prog" aria-hidden="true"><i></i><i></i><i></i></div><button class="bld-x" type="button" aria-label="Close">' + ic('<path d="M6 6l12 12M18 6 6 18"/>') + '</button></div>' +
     '<div class="bld-body">' +
     // 1 build
     '<section class="bstep" data-s="1"><div class="bbuild"><p class="eyebrow">Building your booking page</p><div class="bname" data-name></div><ul class="blist">' +
     ['Adding your business name and colors', 'Setting up your services', 'Adding price ranges customers see', 'Opening your schedule'].map(function (t) { return '<li><span class="dot">' + CHECK + '</span>' + t + '</li>'; }).join('') +
     '</ul></div></section>' +
-    // 2 preview
-    '<section class="bstep" data-s="2"><div class="bwrap bprev"><div class="bpv"><span class="tag2">Live preview</span><div class="card"><iframe title="Your booking page preview" id="bFrame"></iframe></div><p class="try"><i></i>It works. Tap through it like a customer would.</p></div>' +
-    '<div class="bside"><div><p class="eyebrow">Your booking page</p><h2 style="margin-top:12px">Here it is, <span data-name></span>.</h2><p class="bsub">This is what we\'ll set up for you. Change anything you like.</p></div>' +
-    '<label class="bfield">Business name<input id="bName" maxlength="60"></label>' +
-    '<label class="bfield">What you do<select id="bTrade">' + Object.keys(TRADES).map(function (k) { return '<option value="' + k + '">' + TRADES[k] + '</option>'; }).join('') + '</select></label>' +
-    '<div class="bfield">Brand color<div class="swatches" id="bSw">' + COLORS.map(function (c) { return '<button type="button" data-c="' + c + '" style="background:' + c + '" aria-label="Color ' + c + '"></button>'; }).join('') + '<label aria-label="Pick any color"><input type="color" id="bCol"></label></div></div>' +
-    '<label class="bfield">Where you work<input id="bArea" placeholder="Bergen County, NJ" maxlength="60"><small>Shown to customers so they know you cover them.</small></label>' +
-    '<div class="bcta"><button class="btn" type="button" data-go="3">Start my free 2-week trial ' + ARW + '</button><div class="bnote"><span>' + CHECK + 'We set it up for you</span><span>' + CHECK + 'No card needed</span></div></div>' +
-    '</div></div></section>' +
-    // 3 offer + calendar
-    '<section class="bstep" data-s="3"><div class="bwrap boffer">' +
-    '<div class="bdeal"><p class="eyebrow">Your free trial</p><h2 style="margin-top:12px">2 weeks free.<br>We set it all up.</h2>' +
+    // 2 their page + offer + setup-call calendar
+    '<section class="bstep" data-s="2"><div class="bwrap boffer">' +
+    '<div class="bpv"><span class="tag2">Your booking page</span><div class="card"><iframe title="Your booking page preview" id="bFrame"></iframe></div><p class="try"><i></i>It works. Tap through it like a customer would.</p></div>' +
+    '<div class="bright"><div class="bdeal"><p class="eyebrow">Your free trial</p><h2 style="margin-top:10px">2 weeks free.<br>We set it all up for <span data-name></span>.</h2>' +
     '<ul class="bget">' +
-    ['We build your booking page with your services, prices and hours', 'We put it on your website, Google, Facebook and Instagram', 'Your 2 free weeks start the day it goes live', 'No card today. Cancel anytime by text'].map(function (t) { return '<li><span>' + CHECK + '</span>' + t + '</li>'; }).join('') +
-    '</ul>' +
-    '<div class="bstat"><b>41%</b><p>of online bookings come in after hours, when nobody is answering the phone.<small>Published data from large home-service booking platforms</small></p></div>' +
-    '<p class="bprice">After your trial: from <b>$99/month</b>. Month to month.</p></div>' +
+    ['Your services, prices and hours, on your website, Google, Facebook and Instagram', 'Your 2 free weeks start the day it goes live', 'No card today. Cancel anytime by text'].map(function (t) { return '<li><span>' + CHECK + '</span>' + t + '</li>'; }).join('') +
+    '</ul></div>' +
     '<div class="bcal"><div class="bcal-hd"><span class="bcal-ic">' + ic('<path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/>') + '</span><div><b>Pick a time for your setup call</b><span>15 minutes by phone. We build it, you just say yes.</span></div></div>' +
     '<div class="bdays" id="bDays"></div><div class="bslots" id="bSlots"></div><p class="btz" id="bTz"></p>' +
     '<button class="btn" type="button" id="bTo4" disabled>Continue ' + ARW + '</button></div>' +
+    '<div class="bstat"><b>41%</b><p>of online bookings come in after hours, when nobody is answering the phone.<small>Published data from large home-service booking platforms</small></p></div>' +
+    '<p class="bprice">After your trial: from <b>$99/month</b>. Month to month.</p></div>' +
     '</div></section>' +
     // 4 details
-    '<section class="bstep" data-s="4"><div class="bnarrow"><p class="eyebrow">Almost done</p><h2 style="margin-top:12px">Where should we call you?</h2>' +
+    '<section class="bstep" data-s="3"><div class="bnarrow"><p class="eyebrow">Almost done</p><h2 style="margin-top:12px">Where should we call you?</h2>' +
     '<div class="bwhen" id="bWhen"></div>' +
     '<form class="bform" id="bForm" novalidate>' +
     '<div class="two"><label class="bfield">First name<input id="fFirst" autocomplete="given-name" required></label><label class="bfield">Mobile<input id="fMobile" type="tel" inputmode="tel" autocomplete="tel" placeholder="(201) 555-0148" required></label></div>' +
@@ -67,9 +59,9 @@
     '<div class="brec" id="bRec" hidden></div>' +
     '<p class="berr" id="bErr"></p>' +
     '<p class="bfine">By booking you agree that DialBridge may call or text you about your setup. Message and data rates may apply. Reply STOP to opt out.</p>' +
-    '<div class="bnav"><button class="bback" type="button" data-go="3">Back</button><button class="btn" type="submit" id="bSubmit">Book my setup call ' + ARW + '</button></div></form></div></section>' +
+    '<div class="bnav"><button class="bback" type="button" data-go="2">Back</button><button class="btn" type="submit" id="bSubmit">Book my setup call ' + ARW + '</button></div></form></div></section>' +
     // 5 booked
-    '<section class="bstep" data-s="5"><div class="bnarrow bdone"><div class="ok">' + CHECK + '</div><h2>You\'re booked, <span data-first></span>.</h2>' +
+    '<section class="bstep" data-s="4"><div class="bnarrow bdone"><div class="ok">' + CHECK + '</div><h2>You\'re booked, <span data-first></span>.</h2>' +
     '<div class="bwhen big" id="bWhen2"></div><p class="bsub" id="bDoneSub"></p>' +
     '<ul class="btl" id="bTl"></ul>' +
     '<a class="btn ghost" id="bGcal" target="_blank" rel="noopener">Add to Google Calendar</a>' +
@@ -134,13 +126,13 @@
   function show(n) {
     cur = n;
     $$('.bstep').forEach(function (s) { s.classList.toggle('on', +s.getAttribute('data-s') === n); });
-    $$('.bld-prog i').forEach(function (p, i) { p.classList.toggle('done', i < n - 1 || n === 5); });
+    $$('.bld-prog i').forEach(function (p, i) { p.classList.toggle('done', i < n - 1 || n === 4); });
     $('.bld-body').scrollTop = 0;
-    if (n === 3) renderCal();
-    if (n === 4) { $('#bWhen').innerHTML = callCard(true); setTimeout(function () { $('#fFirst').focus(); }, 300); }
+    if (n === 2) renderCal();
+    if (n === 3) { $('#bWhen').innerHTML = callCard(true); setTimeout(function () { $('#fFirst').focus(); }, 300); }
   }
   function callCard(edit) {
-    return '<span class="bw-ic">' + ic('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>') + '</span><div><b>' + esc(whenText(S.slot)) + '</b><span>15-minute setup call by phone</span></div>' + (edit ? '<button type="button" class="bback" data-go="3">Change</button>' : '');
+    return '<span class="bw-ic">' + ic('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>') + '</span><div><b>' + esc(whenText(S.slot)) + '</b><span>15-minute setup call by phone</span></div>' + (edit ? '<button type="button" class="bback" data-go="2">Change</button>' : '');
   }
   function names() { $$('[data-name]').forEach(function (n) { n.textContent = S.name; }); }
   var tReload = null;
@@ -153,7 +145,6 @@
       frame.onload = function () { setTimeout(function () { frame.classList.remove('fade'); }, 150); };
     }, now ? 0 : 450);
   }
-  function swatch() { $$('#bSw button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-c').toLowerCase() === S.brand.toLowerCase()); }); }
 
   async function build() {
     show(1); names();
@@ -221,13 +212,12 @@
     $('#bTl').innerHTML = steps.map(function (x) { return '<li><i></i><div><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></div></li>'; }).join('');
     var g = function (ms) { return new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); };
     $('#bGcal').href = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('DialBridge setup call: ' + S.name) + '&dates=' + g(S.slot) + '/' + g(S.slot + 15 * 60e3) + '&details=' + encodeURIComponent('15-minute call to set up your booking page. We will call you.');
-    show(5);
+    show(4);
   }
 
   /* ---------- events ---------- */
   el.addEventListener('click', function (e) {
     var go = e.target.closest('[data-go]'); if (go && !go.disabled) { show(+go.getAttribute('data-go')); return; }
-    var sw = e.target.closest('#bSw button'); if (sw) { S.brand = sw.getAttribute('data-c'); swatch(); preview(); return; }
     var dy = e.target.closest('.bday'); if (dy) { dayIdx = +dy.getAttribute('data-day'); renderCal(); return; }
     var sl = e.target.closest('.bslot'); if (sl) { S.slot = +sl.getAttribute('data-t'); renderCal(); return; }
     var o = e.target.closest('.opt');
@@ -238,18 +228,13 @@
       recUpdate(q === 'site' || q === 'calls');
     }
   });
-  $('#bTo4').addEventListener('click', function () { if (S.slot) show(4); });
+  $('#bTo4').addEventListener('click', function () { if (S.slot) show(3); });
   $('.bld-x').addEventListener('click', close);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && el.classList.contains('on')) close(); });
-  $('#bName').addEventListener('input', function (e) { S.name = e.target.value.trim() || 'Your Business'; names(); preview(); });
-  $('#bTrade').addEventListener('change', function (e) { S.trade = e.target.value; preview(true); });
-  $('#bCol').addEventListener('input', function (e) { S.brand = e.target.value; swatch(); preview(); });
-  $('#bArea').addEventListener('input', function (e) { S.area = e.target.value.trim(); preview(); });
   $('#bForm').addEventListener('submit', submit);
 
   function open(name) {
     S.name = (name || '').trim() || 'Your Business'; S.trade = guessTrade(S.name);
-    $('#bName').value = S.name; $('#bTrade').value = S.trade; swatch();
     last = document.activeElement;
     el.classList.add('on'); document.documentElement.style.overflow = 'hidden';
     requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add('show'); }); });

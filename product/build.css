@@ -194,3 +194,21 @@
   .bdays{grid-template-columns:repeat(6,minmax(48px,1fr));overflow-x:auto}
   .bslots{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+
+/* merged offer screen: their page left, deal + calendar right */
+.boffer{grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:40px}
+.boffer .bpv{position:sticky;top:0}
+.boffer .bpv iframe{height:620px}
+.bright{display:flex;flex-direction:column;gap:20px}
+.bright .bdeal h2{font-size:clamp(28px,3vw,38px)}
+.bright .bget{margin-top:16px;gap:9px}
+.bright .bget li{font-size:15px}
+.bright .bstat{margin-top:0}
+.bright .bprice{margin:0}
+@media (max-width:900px){
+  .boffer{display:flex;flex-direction:column;gap:22px}
+  .boffer .bpv{position:relative}
+  .boffer .bpv iframe{height:440px}
+  .bright{display:contents}
+  .bright .bdeal{order:-1}
+}
