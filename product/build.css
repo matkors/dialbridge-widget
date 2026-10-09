@@ -139,3 +139,58 @@
   .bnav .btn{flex:1}
 }
 @media (prefers-reduced-motion:reduce){.bstep.on,.blist li .dot,.bdone .ok{animation:none!important}}
+
+/* 3. offer + setup-call calendar */
+.boffer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:48px;align-items:start}
+.bdeal h2{font-size:clamp(32px,3.8vw,46px)}
+.bget{list-style:none;margin:24px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}
+.bget li{display:grid;grid-template-columns:26px 1fr;gap:12px;font-size:16.5px;line-height:1.4}
+.bget li span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#e6f2ea;color:var(--ok)}
+.bget li svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.bstat{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin-top:26px;padding:18px 20px;border-radius:18px;background:var(--deep);color:#eef0e8}
+.bstat b{font-size:46px;font-weight:800;letter-spacing:-.04em;line-height:1;color:#c9d6b8}
+.bstat p{margin:0;font-size:15px;line-height:1.4}
+.bstat small{display:block;margin-top:4px;font-size:11.5px;color:#a9b19f}
+.bprice{margin:18px 0 0;color:var(--mute);font-size:14.5px}
+.bprice b{color:var(--ink)}
+.bcal{display:flex;flex-direction:column;gap:16px;padding:22px;border-radius:22px;background:var(--white);box-shadow:0 0 0 1px var(--line),0 24px 50px -30px rgba(32,37,31,.4)}
+.bcal-hd{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center}
+.bcal-hd b{display:block;font-size:17px;letter-spacing:-.01em}
+.bcal-hd span{font-size:13.5px;color:var(--mute)}
+.bcal-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:linear-gradient(#ff7a4d,var(--accent));color:#fff}
+.bcal-ic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bdays{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.bday{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 0;border:0;border-radius:12px;background:var(--soft,#f5f4ef);box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;font-family:Manrope,sans-serif;color:var(--ink);transition:box-shadow .15s,background-color .15s,transform .12s var(--ease)}
+.bday small{font-size:11px;color:var(--mute);font-weight:600}
+.bday b{font-size:19px;font-weight:700}
+.bday:hover{box-shadow:inset 0 0 0 1px #b9b5a8}
+.bday:active{transform:scale(.96)}
+.bday.on{background:var(--ink);box-shadow:none;color:#fff}
+.bday.on small{color:#c7cdbd}
+.bslots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-height:212px;overflow-y:auto;padding:2px}
+.bslot{height:42px;border:0;border-radius:10px;background:var(--white);box-shadow:inset 0 0 0 1px var(--line2);font:600 14px Manrope,sans-serif;color:var(--ink);cursor:pointer;transition:box-shadow .15s,background-color .15s,transform .12s var(--ease)}
+.bslot:hover{box-shadow:inset 0 0 0 1px var(--accent)}
+.bslot:active{transform:scale(.96)}
+.bslot.on{background:#fff4ef;box-shadow:inset 0 0 0 2px var(--accent);color:var(--accent-ink)}
+.btz{margin:-4px 0 0;font-size:12.5px;color:var(--mute)}
+.bcal .btn{height:52px}
+
+/* 4. details */
+.bwhen{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;margin-top:18px;padding:12px 14px;border-radius:14px;background:var(--white);box-shadow:0 0 0 1px var(--line)}
+.bwhen b{display:block;font-size:15px}
+.bwhen span{font-size:13px;color:var(--mute)}
+.bw-ic{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:#fff1ea;color:var(--accent-ink)}
+.bw-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bwhen.big{grid-template-columns:40px 1fr;max-width:440px;margin:18px auto 0;text-align:left}
+.bqh{margin:8px 0 -6px;font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.bdone .btn.ghost{margin-top:4px}
+
+@media (max-width:900px){.boffer{grid-template-columns:minmax(0,1fr);gap:28px}}
+@media (max-width:640px){
+  .bdeal h2{font-size:32px}
+  .bget li{font-size:15.5px}
+  .bstat b{font-size:38px}
+  .bcal{padding:16px;margin-inline:-4px}
+  .bdays{grid-template-columns:repeat(6,minmax(48px,1fr));overflow-x:auto}
+  .bslots{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
