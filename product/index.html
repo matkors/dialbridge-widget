@@ -307,6 +307,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .rcard .app{width:34px;height:34px}
   .flat{width:250px;top:40px}
 }
+.rscene .flat{display:none}
+.rscene .rcards{bottom:calc(50% - 155px)}
+.rscene .rglow{bottom:calc(50% - 200px);width:460px;height:200px;background:radial-gradient(closest-side,rgba(243,84,39,.16),transparent)}
+.rscene{background:radial-gradient(60% 55% at 50% 55%,#fff,rgba(255,255,255,.6) 70%,rgba(255,255,255,.3))}
+@media (max-width:640px){.rscene{height:440px}.rscene .rcards{bottom:calc(50% - 140px)}}
 /* owner flow scene: widget -> inbox -> phone */
 #owner{padding-top:72px}
 .oshead{grid-template-columns:1.5fr 1fr;margin-bottom:28px}
