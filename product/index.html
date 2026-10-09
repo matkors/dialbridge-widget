@@ -538,6 +538,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *, .rscene *, .flow *, .gscene *)),:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::before,:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
 </style>
+<link rel="stylesheet" href="build.css">
 </head>
 <body>
 <script>document.documentElement.classList.add('js');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro');</script>
@@ -571,9 +572,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <button class="btn" type="submit">Build my booking page <svg class="arw"><use href="#arw"/></svg></button>
     </form>
     <ul class="checks">
-      <li><svg><use href="#chk"/></svg><span class="lg">Free preview, no sign-up</span><span class="sm">Free preview</span></li>
-      <li><svg><use href="#chk"/></svg><span class="lg">Works with your current website</span><span class="sm">Any website</span></li>
-      <li><svg><use href="#chk"/></svg><span class="lg">Month to month</span><span class="sm">Month to month</span></li>
+      <li><svg><use href="#chk"/></svg><span class="lg">Free for 2 weeks</span><span class="sm">2 weeks free</span></li>
+      <li><svg><use href="#chk"/></svg><span class="lg">No card needed</span><span class="sm">No card</span></li>
+      <li><svg><use href="#chk"/></svg><span class="lg">Set up for you</span><span class="sm">Set up for you</span></li>
     </ul>
 
     <div class="stage-wrap" id="demo">
@@ -761,7 +762,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
         <span class="tag">Already have a site you like</span>
         <h3 style="margin-top:16px">Booking Widget</h3>
         <div class="amt">$99<small>/month</small></div>
-        <div style="color:var(--mute);font-size:14px">No setup fee. Month to month.</div>
+        <div style="color:var(--mute);font-size:14px">Free for 2 weeks. No setup fee. Month to month.</div>
         <ul>
           <li><svg><use href="#chk"/></svg>Book online button on your current website</li>
           <li><svg><use href="#chk"/></svg>Your services, photos and price ranges</li>
@@ -769,13 +770,13 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           <li><svg><use href="#chk"/></svg>Every request in your inbox, with an email alert</li>
           <li><svg><use href="#chk"/></svg>We set it up for you</li>
         </ul>
-        <a class="btn ghost" href="#top">Start with a free preview <svg class="arw"><use href="#arw"/></svg></a>
+        <a class="btn ghost" href="#top">Start my free trial <svg class="arw"><use href="#arw"/></svg></a>
       </div>
       <div class="plan main">
         <span class="tag">Most owners pick this</span>
         <h3 style="margin-top:16px">Website + Review Automation + Booking Widget</h3>
         <div class="amt">$199<small>/month</small></div>
-        <div style="color:var(--mute);font-size:14px">No setup fee. Month to month.</div>
+        <div style="color:var(--mute);font-size:14px">Free for 2 weeks. No setup fee. Month to month.</div>
         <ul>
           <li><svg><use href="#chk"/></svg>A new, fast website built to book jobs</li>
           <li><svg><use href="#chk"/></svg>Automatic Google review requests after every job</li>
@@ -784,7 +785,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           <li><svg><use href="#chk"/></svg>A text to you for every new request</li>
           <li><svg><use href="#chk"/></svg>We set it all up. One short call from you.</li>
         </ul>
-        <a class="btn" href="#top">Start with a free preview <svg class="arw"><use href="#arw"/></svg></a>
+        <a class="btn" href="#top">Start my free trial <svg class="arw"><use href="#arw"/></svg></a>
       </div>
     </div>
   </div>
@@ -1332,12 +1333,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   function enc(o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
   quick.addEventListener('submit', function (e) {
     e.preventDefault();
-    var name = document.getElementById('qName').value.trim() || 'Your Business';
-    var n = name.toLowerCase();
-    var trade = /clean|maid|janitor/.test(n) ? 'cleaning' : /detail|auto|car wash/.test(n) ? 'detailing' : /hvac|heat|cool|air|furnace/.test(n) ? 'hvac' : 'junk';
-    open(BASE + 'book.html?c=' + enc({ trade: trade, name: name, phone: '(201) 555-0148', brand: '#0E6650', area: 'your area', zips: [] }));
+    if (window.DBXBuild) window.DBXBuild.open(document.getElementById('qName').value);
   });
 })();
 </script>
+<script src="build.js"></script>
 </body>
 </html>
