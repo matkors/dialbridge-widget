@@ -1,7 +1,8 @@
 /* "Build my booking page" flow for the product page.
    1 build (labor-illusion checklist) -> 2 live preview + customize -> 3 fit questions + plan -> 4 contact -> 5 done.
    Nothing is sent anywhere until SUBMIT_URL is set. Meta pixel events fire only if the page has fbq loaded:
-   ViewContent when the preview is built, Lead (value by fit) for every trial start, plus QualifiedTrial for good fits. */
+   ViewContent when the preview is built, Lead (value by fit: 5 / 25 / 60) for every claim, plus QualifiedLead for good fits.
+   Optimize ads on Lead until QualifiedLead reaches ~50 a week (see research/funnel-research.md). */
 (function () {
   'use strict';
   var SUBMIT_URL = '';            // intake webhook (https). Empty = demo mode: nothing leaves the page.
@@ -14,7 +15,7 @@
   var CHECK = ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
   var esc = function (t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 
-  var S = { name: '', trade: 'junk', brand: COLORS[0], area: '', phone: '', site: null, source: null, jobs: null, setup: 'dfy', first: '', mobile: '', email: '', url: '' };
+  var S = { name: '', trade: 'junk', brand: COLORS[0], area: '', phone: '', site: null, calls: null, miss: null, setup: 'dfy', first: '', mobile: '', email: '', url: '' };
 
   var el = document.createElement('div');
   el.className = 'bld'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Build your booking page');
@@ -35,10 +36,10 @@
     '<div class="bcta"><button class="btn" type="button" data-go="3">Start my free 2-week trial <svg class="arw"><use href="#arw"/></svg></button><div class="bnote"><span>' + CHECK.replace('<svg', '<svg') + 'No card needed</span><span>' + CHECK + 'Cancel anytime</span></div></div>' +
     '</div></div></section>' +
     // 3 fit + plan
-    '<section class="bstep" data-s="3"><div class="bnarrow"><p class="eyebrow">2 quick questions</p><h2 style="margin-top:12px">Let\'s set up your trial.</h2><p class="bsub">So we set it up the right way for your business.</p><div class="bq">' +
+    '<section class="bstep" data-s="3"><div class="bnarrow"><p class="eyebrow">3 quick questions</p><h2 style="margin-top:12px">Let\'s set up your trial.</h2><p class="bsub">So we set it up the right way for your business.</p><div class="bq">' +
     '<div><h3>Do you have a website?</h3><div class="opts" data-q="site"><button class="opt" data-v="yes">Yes</button><button class="opt" data-v="no">No</button><button class="opt" data-v="old">Yes, but it\'s outdated</button></div></div>' +
-    '<div><h3>How many jobs do you do in a typical week?</h3><div class="opts" data-q="jobs"><button class="opt" data-v="low">1 to 5</button><button class="opt" data-v="mid">6 to 15</button><button class="opt" data-v="high">16 or more</button></div></div>' +
-    '<div><h3>How do most customers find you?</h3><div class="opts" data-q="source"><button class="opt" data-v="google">Google</button><button class="opt" data-v="referral">Word of mouth</button><button class="opt" data-v="social">Facebook or Instagram</button><button class="opt" data-v="ads">Paid ads</button></div></div>' +
+    '<div><h3>About how many calls or quote requests do you get in a normal week?</h3><div class="opts" data-q="calls"><button class="opt" data-v="0">0 to 5</button><button class="opt" data-v="1">6 to 15</button><button class="opt" data-v="2">16 to 40</button><button class="opt" data-v="3">40+</button></div></div>' +
+    '<div><h3>When you\'re on a job and a new call comes in, what usually happens?</h3><div class="opts" data-q="miss"><button class="opt" data-v="answer">I answer it</button><button class="opt" data-v="vm">It goes to voicemail</button><button class="opt" data-v="later">I call back later</button><button class="opt" data-v="office">Someone in the office answers</button></div></div>' +
     '<div><h3>How do you want to get set up?</h3><div class="opts big" data-q="setup"><button class="opt on" data-v="dfy"><b>Set it up for me</b><small>We add your services, prices and hours and put it on your site. One 15-minute call.</small><span class="rc">Most owners pick this</span></button><button class="opt" data-v="self"><b>I\'ll set it up myself</b><small>We text you a link to your setup page and install code. About 10 minutes.</small></button></div></div>' +
     '</div><div class="brec" id="bRec"></div>' +
     '<div class="bnav"><button class="bback" type="button" data-go="2">Back</button><button class="btn" type="button" data-go="4" id="bTo4" disabled>Continue <svg class="arw"><use href="#arw"/></svg></button></div></div></section>' +
@@ -62,18 +63,19 @@
 
   function enc(o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
   function guessTrade(n) { n = n.toLowerCase(); return /clean|maid|janitor/.test(n) ? 'cleaning' : /detail|auto|car wash|mobile wash/.test(n) ? 'detailing' : /hvac|heat|cool|air|furnace|plumb/.test(n) ? 'hvac' : 'junk'; }
-  function track(ev, data, custom) { try { if (window.fbq) window.fbq(custom ? 'trackCustom' : 'track', ev, data || {}); } catch (e) { } try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: 'dbx_' + ev }, data || {})); } catch (e) { } }
+  function track(ev, data, custom, eventId) { try { if (window.fbq) window.fbq(custom ? 'trackCustom' : 'track', ev, data || {}, eventId ? { eventID: eventId } : undefined); } catch (e) { } try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: 'dbx_' + ev }, data || {})); } catch (e) { } }
 
   // fit score: does this business already get enough demand for a booking widget to pay off?
   function fit() {
     var s = 0;
-    s += { yes: 35, old: 25, no: 0 }[S.site] || 0;
-    s += { low: 5, mid: 25, high: 35 }[S.jobs] || 0;
-    s += { google: 25, ads: 25, social: 15, referral: 5 }[S.source] || 0;
+    s += { yes: 30, old: 20, no: 0 }[S.site] || 0;
+    s += [0, 25, 35, 40][+S.calls] || 0;
+    s += { vm: 25, later: 25, answer: 10, office: 5 }[S.miss] || 0;
     return s;   // 0 to 95
   }
   function tier() { var f = fit(); return f >= 60 ? 'A' : f >= 35 ? 'B' : 'C'; }
-  function plan() { return S.site === 'yes' ? 'widget' : 'full'; }
+  // the widget only converts demand they already have: no site, an outdated site or very few calls -> the plan that builds demand
+  function plan() { return S.site === 'yes' && S.calls !== '0' ? 'widget' : 'full'; }
 
   function show(n) {
     cur = n;
@@ -113,12 +115,12 @@
   }
 
   function recUpdate(pulse) {
-    var ok = S.site && S.jobs && S.source;
+    var ok = S.site && S.calls && S.miss;
     $('#bTo4').disabled = !ok;
     var full = plan() === 'full';
     var r = $('#bRec');
     r.innerHTML = '<span class="ic">' + (full ? ic('<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/>') : ic('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>')) + '</span>' +
-      '<div><b>' + (full ? 'Website + Review Automation + Booking Widget' : 'Booking Widget') + '</b><span>' + (S.site ? (full ? (S.site === 'no' ? 'You need a site for customers to book on. We build it.' : 'We rebuild your site to book jobs, plus Google review requests.') : 'Goes on the website you already have.') : 'Answer above to see your plan.') + '</span></div>' +
+      '<div><b>' + (full ? 'Website + Review Automation + Booking Widget' : 'Booking Widget') + '</b><span>' + (!S.site ? 'Answer above to see your plan.' : !full ? 'Goes on the website you already have.' : S.site === 'no' ? 'You need a site for customers to book on. We build it.' : S.calls === '0' ? 'More Google reviews and a site that ranks bring the calls first.' : 'We rebuild your site to book jobs, plus Google review requests.') + '</span></div>' +
       '<div class="pr">' + (full ? '$199' : '$99') + '<span style="font-size:13px;font-weight:600;color:var(--mute)">/mo</span><small>Free for 2 weeks</small></div>';
     if (pulse) { r.classList.remove('pulse'); r.offsetWidth; r.classList.add('pulse'); }
   }
@@ -132,8 +134,8 @@
     var err = !S.first ? 'Please add your first name.' : S.mobile.length !== 10 ? 'Please add a 10-digit mobile number.' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.email) ? 'Please add a valid email.' : '';
     var box = $('#bErr'); box.textContent = err; box.classList.toggle('on', !!err);
     if (err) return;
-    var t = tier(), value = { A: 100, B: 40, C: 10 }[t];
-    var payload = { business: S.name, trade: S.trade, brand: S.brand, area: S.area, website: S.url || null, hasWebsite: S.site, jobsPerWeek: S.jobs, source: S.source, setup: S.setup, plan: plan(), fit: fit(), tier: t,
+    var t = tier(), value = { A: 60, B: 25, C: 5 }[t];
+    var payload = { business: S.name, trade: S.trade, brand: S.brand, area: S.area, website: S.url || null, hasWebsite: S.site, callsPerWeek: ['0-5', '6-15', '16-40', '40+'][+S.calls], whenOnAJob: S.miss, setup: S.setup, plan: plan(), fit: fit(), tier: t,
       firstName: S.first, mobile: S.mobile, email: S.email, consentText: $('.bfine').textContent, page: location.href, utm: utm(), submittedAt: new Date().toISOString() };
     var btn = $('#bSubmit');
     if (/^https:\/\//.test(SUBMIT_URL)) {
@@ -146,9 +148,10 @@
         box.textContent = 'That did not go through. Please try again, or text us at (916) 644-7495.'; box.classList.add('on'); return;
       }
     } else $('#bDemo').hidden = false;
-    // every trial start is a Lead (value by fit); good fits also fire QualifiedTrial so ads can optimize for them
-    track('Lead', { value: value, currency: 'USD', content_name: plan(), lead_tier: t });
-    if (t !== 'C') track('QualifiedTrial', { value: value, currency: 'USD', plan: plan(), lead_tier: t }, true);
+    // every claim is a Lead (value by fit); good fits also fire QualifiedLead so ads can move to it once there is volume
+    var evid = 'dbx-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8); payload.eventId = evid;   // same id goes to the server for CAPI dedupe
+    track('Lead', { value: value, currency: 'USD', content_name: plan(), lead_tier: t }, false, evid);
+    if (t !== 'C') track('QualifiedLead', { value: value, currency: 'USD', plan: plan(), lead_tier: t }, true);
     done();
   }
 
@@ -157,8 +160,8 @@
     var dfy = S.setup === 'dfy', full = plan() === 'full';
     $('#bDoneSub').textContent = dfy ? 'We\'ll text you at the number you gave us within 1 business hour to set up ' + S.name + '.' : 'We\'ll text you a link to your setup page within 1 business hour.';
     var steps = dfy
-      ? [['Today', 'A quick 15-minute call: your services, prices and hours.'], [full ? 'Within 5 days' : 'Within 48 hours', full ? 'Your new website and booking page go live, with review requests on.' : 'Your Book online button goes live on your website.'], ['Your 2 free weeks start', 'They start the day it goes live, so you see real bookings before you pay.'], ['Day 14', 'Keep it for ' + (full ? '$199' : '$99') + '/month, or cancel. No card until then.']]
-      : [['Today', 'We text you your setup link.'], ['10 minutes', 'Add your services and prices, then paste one line on your site.'], ['Your 2 free weeks start', 'They start the day it goes live.'], ['Day 14', 'Keep it for $99/month, or cancel.']];
+      ? [['Today', 'A quick 15-minute call: your services, prices and hours.'], [full ? 'Within 5 days' : 'Within 48 hours', full ? 'Your new website and booking page go live, with review requests on.' : 'Your Book online button goes live on your website.'], ['Your 2 free weeks start', 'They start the day it goes live, so you see real bookings before you pay.'], ['Day 14', 'Keep it for ' + (full ? '$199' : '$99') + '/month, or cancel by text.']]
+      : [['Today', 'We text you your setup link.'], ['10 minutes', 'Add your services and prices, then paste one line on your site.'], ['Your 2 free weeks start', 'They start the day it goes live.'], ['Day 14', 'Keep it for $99/month, or cancel by text.']];
     $('#bTl').innerHTML = steps.map(function (x) { return '<li><i></i><div><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></div></li>'; }).join('');
     var call = $('#bCall'); call.href = CALL_URL; call.parentNode.hidden = !dfy;
     show(5);
@@ -173,7 +176,7 @@
       var q = o.parentNode.getAttribute('data-q');
       [].forEach.call(o.parentNode.children, function (x) { x.classList.toggle('on', x === o); });
       S[q] = o.getAttribute('data-v');
-      recUpdate(q === 'site');
+      recUpdate(q === 'site' || q === 'calls');
     }
   });
   $('.bld-x').addEventListener('click', close);
