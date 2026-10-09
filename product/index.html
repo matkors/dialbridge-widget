@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Online Booking for Home Service Businesses | DialBridge</title>
-<meta name="description" content="A Book online button for your website and Google profile. Customers pick the job, see a price range and choose a time. You get a text.">
+<meta name="description" content="Online booking for home service businesses. Customers see the price and book in under a minute. You get a text.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
@@ -265,8 +265,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .pill svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .rtext .rlede{line-height:1.9}
 .rlede{color:var(--ink2);max-width:460px;margin:18px 0 0;font-size:17.5px}
-.rscene{position:relative;height:540px;border-radius:28px;background:radial-gradient(65% 70% at 50% 85%,#fff,rgba(255,255,255,.75) 55%,rgba(255,255,255,.35));box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 30px 60px -40px rgba(32,37,31,.35);overflow:hidden}
-.rcards{position:absolute;z-index:3;left:50%;bottom:205px;width:min(400px,calc(100% - 40px));transform:translateX(-50%);display:flex;flex-direction:column;gap:12px}
+.rscene{position:relative;height:600px;border-radius:28px;background:radial-gradient(65% 70% at 50% 85%,#fff,rgba(255,255,255,.75) 55%,rgba(255,255,255,.35));box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 30px 60px -40px rgba(32,37,31,.35);overflow:hidden}
+.rcards{position:absolute;z-index:3;left:50%;bottom:300px;width:min(400px,calc(100% - 40px));transform:translateX(-50%);display:flex;flex-direction:column;gap:12px}
 .rcard{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start;padding:13px 15px;border-radius:20px;background:rgba(246,246,246,.92);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 1px 1px rgba(0,0,0,.04),0 12px 28px -12px rgba(32,37,31,.32);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Manrope,sans-serif;color:#111;font-size:14px;line-height:1.35;text-align:left;transition:transform .7s var(--ease),opacity .55s var(--ease),filter .55s var(--ease)}
 .rcard .app{width:38px;height:38px;border-radius:9px;background:linear-gradient(#5ff777,#1ec337);display:grid;place-items:center}
 .rcard .app svg{width:24px;height:24px;fill:#fff}
@@ -276,21 +276,25 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .rcard.enter{opacity:0;transform:translateY(90px) scale(.8);filter:blur(6px)}
 .rcard.leave{opacity:0;transform:translateY(-24px) scale(1.06);filter:blur(8px)}
 /* a phone lying flat, seen from the front; texts rise out of it */
-.flat{position:absolute;z-index:1;left:50%;bottom:-300px;width:250px;transform:translateX(-50%)}
-.flat .iphone{box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 0 0 1px #0b0b0c,0 -10px 40px -10px rgba(32,37,31,.25)}
+.flat{position:absolute;z-index:1;left:50%;bottom:-262px;width:270px;transform:translateX(-50%)}
+.flat .scr{background:radial-gradient(90% 60% at 25% 8%,#ffd9bf,rgba(255,217,191,0) 60%),radial-gradient(80% 70% at 85% 30%,#f58a5c,rgba(245,138,92,0) 70%),linear-gradient(170deg,#f6a57c 0%,#d9603a 38%,#5b3a4e 72%,#22202b 100%)}
+.flat .scr::after{content:"";position:absolute;inset:0;z-index:3;background:linear-gradient(115deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,.06) 28%,rgba(255,255,255,0) 42%);pointer-events:none}
+.flat .iphone .lock small{opacity:.95;text-shadow:0 1px 8px rgba(0,0,0,.15)}
+.flat .iphone .lock b{text-shadow:0 2px 20px rgba(0,0,0,.18)}
+.flat .iphone{box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),inset 0 2px 0 rgba(255,255,255,.25),0 0 0 1px #0b0b0c,0 -20px 50px -16px rgba(32,37,31,.35)}
 .flat .iphone .lock{top:13%}
 .flat .scr{transition:filter .4s var(--ease)}
-.flat .scr.dim{filter:brightness(.5)}
+.flat .scr.dim{filter:brightness(.82) saturate(.9)}
 .flat-shadow{display:none}
-.rglow{position:absolute;z-index:2;left:50%;bottom:120px;width:340px;height:120px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(95,247,119,.35),transparent);opacity:0;transition:opacity .5s var(--ease)}
+.rglow{position:absolute;z-index:2;left:50%;bottom:250px;width:360px;height:130px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(255,170,120,.45),transparent);opacity:0;transition:opacity .5s var(--ease)}
 .rglow.on{opacity:1}
 @media (max-width:1000px){.rsplit{grid-template-columns:minmax(0,1fr)}.rtext{order:-1}}
 @media (max-width:640px){
-  .rscene{height:470px;margin-inline:-6px}
-  .rcards{bottom:175px;gap:10px}
+  .rscene{height:540px;margin-inline:-6px}
+  .rcards{bottom:250px;gap:8px}
   .rcard{font-size:13px;padding:11px 13px;grid-template-columns:34px 1fr;gap:10px}
   .rcard .app{width:34px;height:34px}
-  .flat{width:220px;bottom:-280px}
+  .flat{width:220px;bottom:-232px}
 }
 /* owner flow scene: widget -> inbox -> phone */
 .flow{position:relative;display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr) 240px;gap:56px;align-items:center;padding:56px 48px;border-radius:28px;background:radial-gradient(70% 90% at 50% 0%,#fff,rgba(255,255,255,.4) 70%),var(--paper);box-shadow:inset 0 0 0 1px var(--line),0 30px 60px -40px rgba(32,37,31,.35);overflow:hidden}
@@ -363,6 +367,55 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .fp{width:230px;margin:0 auto}
   .irow:nth-child(n+4){display:none}
 }
+/* reviews scene */
+.gscene{position:relative;height:540px;border-radius:28px;background:radial-gradient(70% 70% at 40% 30%,#fff,rgba(255,255,255,.6) 70%);box-shadow:inset 0 0 0 1px var(--line),0 30px 60px -40px rgba(32,37,31,.35);overflow:hidden}
+.gchat{position:absolute;left:50%;top:50%;width:min(330px,calc(100% - 48px));display:flex;flex-direction:column;gap:12px;transform:translate(-50%,-50%);transition:transform .7s var(--ease),opacity .5s var(--ease),filter .5s}
+.gbub,.glink{opacity:0;transform:translateY(24px) scale(.96);transition:opacity .5s var(--ease),transform .7s var(--ease)}
+.gbub{padding:14px 18px;border-radius:22px 22px 22px 6px;background:#e9e9eb;color:#111;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Manrope,sans-serif;font-size:15px;line-height:1.4}
+.glink{border-radius:20px;overflow:hidden;background:#e9e9eb;box-shadow:0 1px 0 rgba(0,0,0,.03);transition:opacity .5s var(--ease),transform .7s var(--ease),box-shadow .2s}
+.gimg{position:relative;height:150px;padding:16px 18px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;color:#fff;background:radial-gradient(80% 90% at 75% 20%,#2c8a6c,#0E6650 60%,#0a4a3a)}
+.gtruck{position:absolute;right:18px;top:16px;width:58px;height:58px;fill:none;stroke:rgba(255,255,255,.85);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.gst{color:#ffd166;letter-spacing:3px;font-size:18px}
+.gimg b{font-size:19px;letter-spacing:-.01em}
+.gimg span{font-size:12.5px;opacity:.88}
+.gfoot{padding:12px 16px}
+.gfoot b{display:block;font-size:14.5px;color:#111}
+.gfoot span{font-size:12.5px;color:#6b6b6b}
+.gscene.s1 .gbub,.gscene.s2 .glink{opacity:1;transform:none}
+.gscene.s2 .gbub{opacity:1;transform:none}
+.glink.press{transform:scale(.97)!important}
+.gscene.s3 .gchat{transform:translate(-50%,-50%) scale(.9);opacity:0;filter:blur(6px)}
+.gsheet{position:absolute;left:50%;top:50%;width:min(340px,calc(100% - 48px));padding:20px 20px 18px;border-radius:22px;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.06),0 30px 60px -24px rgba(32,37,31,.4);transform:translate(-50%,-40%) scale(.94);opacity:0;transition:transform .7s var(--ease),opacity .5s var(--ease),filter .5s;font-family:Roboto,-apple-system,'Segoe UI',Manrope,sans-serif}
+.gscene.s3 .gsheet{opacity:1;transform:translate(-50%,-50%)}
+.gscene.s4 .gsheet{opacity:0;transform:translate(-50%,-62%) scale(.92);filter:blur(6px)}
+.gsh{display:flex;gap:12px;align-items:center}
+.gsh b{display:block;font-size:16px}
+.gsh span{font-size:12.5px;color:#6b6b6b}
+.gG{display:grid;place-items:center;width:38px;height:38px;flex-shrink:0;border-radius:50%;background:#fff;box-shadow:0 0 0 1px #e3e3e3;font:700 19px/1 Arial,sans-serif;color:#4285f4}
+.gstars{display:flex;justify-content:center;gap:10px;margin:22px 0 16px}
+.gstars i{font-style:normal;font-size:38px;line-height:1;color:#dadce0;transition:color .2s,transform .35s cubic-bezier(.34,1.56,.64,1)}
+.gstars i.on{color:#fbbc04;transform:scale(1.18)}
+.gstars i.set{transform:none}
+.gtext{min-height:58px;padding:10px 12px;border:1px solid #dadce0;border-radius:10px;font-size:14px;line-height:1.4;color:#202124}
+.gtext em{display:inline-block;width:1.5px;height:16px;margin-left:1px;vertical-align:-3px;background:#1a73e8;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.gpost{display:block;margin:14px 0 0 auto;height:38px;padding:0 22px;border:0;border-radius:999px;background:#1a73e8;color:#fff;font:600 14px Roboto,-apple-system,'Segoe UI',sans-serif;transition:transform .12s var(--ease)}
+.gpost.press{transform:scale(.94)}
+.gresult{position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:20px;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.06),0 30px 60px -24px rgba(32,37,31,.4);transform:translate(-50%,-30%) scale(.9);opacity:0;transition:transform .8s var(--ease),opacity .5s var(--ease);white-space:nowrap}
+.gscene.s4 .gresult{opacity:1;transform:translate(-50%,-50%)}
+.gresult b{display:block;font-size:16px}
+.gresult > div > span{display:flex;align-items:center;gap:6px;font-size:14px;color:#5f6368}
+.gresult em{font-style:normal;color:#202124;font-weight:600}
+.gresult i{font-style:normal;color:#fbbc04;letter-spacing:1px}
+.gcount{position:relative;display:inline-block;overflow:hidden;height:1.3em;line-height:1.3em;vertical-align:bottom;font-variant-numeric:tabular-nums;color:#202124;font-weight:600}
+.gcount span{display:block;transition:transform .5s var(--ease),opacity .4s}
+.gcount span.out{position:absolute;left:0;top:0;transform:translateY(-100%);opacity:0}
+.gcount span.in{transform:translateY(100%);opacity:0}
+.gresult strong{padding:4px 10px;border-radius:999px;background:#e6f4ea;color:#137333;font-size:13px;opacity:0;transform:scale(.6);transition:opacity .3s,transform .45s cubic-bezier(.34,1.56,.64,1)}
+.gresult strong.on{opacity:1;transform:none}
+.pill.stars{color:#e8a200;letter-spacing:2px}
+.gscene .cursor{z-index:6}
+@media (max-width:640px){.gscene{height:470px;margin-inline:-6px}.gimg{height:130px}.gstars i{font-size:32px}}
 @media (max-width:1180px){
   .stage.finale .wcard{transform:scale(.94);opacity:.35;filter:saturate(.4)}
   .owner-phone{left:50%;top:auto;bottom:28px;width:230px;transform:translate(-50%,60px)}
@@ -417,7 +470,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .mbar.on{transform:none}
   .mbar .btn{flex:1;height:46px}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *, .rscene *, .flow *)),:where(*:not(.stage *, .rscene *, .flow *))::before,:where(*:not(.stage *, .rscene *, .flow *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *, .rscene *, .flow *, .gscene *)),:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::before,:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -434,7 +487,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 <header class="nav" id="nav">
   <div class="wrap">
     <a class="logo" href="#">dialbridge<span>.</span>ai</a>
-    <nav class="links" aria-label="Sections"><a href="#demo">How it works</a><a href="#texts">Reminders</a><a href="#owner">Your inbox</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+    <nav class="links" aria-label="Sections"><a href="#demo">How it works</a><a href="#texts">Reminders</a><a href="#reviews">Reviews</a><a href="#owner">Your inbox</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
     <a class="btn dark sm" href="#top">Build my booking page <svg class="arw"><use href="#arw"/></svg></a>
   </div>
 </header>
@@ -444,7 +497,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   <section class="hero" aria-labelledby="h1">
     <span class="badge"><i></i>Online booking for home service businesses</span>
     <h1 id="h1"><span class="ln"><span>Let them book the job.</span></span><span class="ln"><span><em>Even at 10 PM.</em></span></span></h1>
-    <p class="sub">A Book online button for your website and Google profile. Customers pick the job, see the price and book a time.</p>
+    <p class="sub">Customers see the price and book in under a minute. You get a text.</p>
     <form class="quick" id="quick" autocomplete="off">
       <label for="qName" class="sr">Your business name</label>
       <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
@@ -516,6 +569,39 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     </div>
   </section>
 </div>
+
+<section class="s" id="reviews">
+  <div class="wrap split rsplit">
+    <div class="gscene" id="gscene" role="img" aria-label="Animation: a customer gets a review request by text, taps it, gives five stars and the business's Google review count goes up">
+      <div class="gchat" id="gchat" aria-hidden="true">
+        <div class="gbub">Hi Dana, thanks for choosing Harbor Haul! Mind leaving us a quick Google review? It helps a small business a lot.</div>
+        <div class="glink" id="glink">
+          <div class="gimg"><svg class="gtruck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62L18.3 8.38A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+            <div class="gst">&#9733;&#9733;&#9733;&#9733;&#9733;</div><b>Your pickup is done!</b><span>Thanks for choosing Harbor Haul.</span></div>
+          <div class="gfoot"><b>Leave a review for Harbor Haul</b><span>g.page/harborhaul</span></div>
+        </div>
+      </div>
+      <div class="gsheet" id="gsheet" aria-hidden="true">
+        <div class="gsh"><span class="gG">G</span><div><b>Harbor Haul</b><span>Posting publicly as Dana L.</span></div></div>
+        <div class="gstars" id="gstars"><i>&#9733;</i><i>&#9733;</i><i>&#9733;</i><i>&#9733;</i><i>&#9733;</i></div>
+        <div class="gtext" id="gtext"><span></span><em></em></div>
+        <button class="gpost" id="gpost" tabindex="-1">Post</button>
+      </div>
+      <div class="gresult" id="gresult" aria-hidden="true">
+        <span class="gG">G</span>
+        <div><b>Harbor Haul</b><span><em>4.9</em> <i>&#9733;&#9733;&#9733;&#9733;&#9733;</i> <span class="gcount" id="gcount"><span>212</span></span> reviews</span></div>
+        <strong id="gplus">+1</strong>
+      </div>
+      <div class="cursor gone" id="gcursor" aria-hidden="true"><span class="rip"></span><svg viewBox="0 0 24 24"><path d="M4 2.5 19.5 12l-6.6 1.6 3.9 7.2-2.6 1.4-3.9-7.2L5.6 19z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+    </div>
+    <div class="rv rtext">
+      <p class="flabel"><span class="fi"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></span>Google reviews</p>
+      <h2 style="margin-top:16px">Turn happy customers into Google reviews.</h2>
+      <p class="rlede">After every job, customers get a <span class="pill"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>review request by text</span> with a one-tap link.</p>
+      <p class="rlede">More <span class="pill stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> reviews move you up in local search, so new customers find you first.</p>
+    </div>
+  </div>
+</section>
 
 <section class="s" id="owner">
   <div class="wrap">
@@ -613,12 +699,12 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       </div>
       <div class="plan main">
         <span class="tag">Most owners pick this</span>
-        <h3 style="margin-top:16px">Website + Google Profile + Booking Widget</h3>
+        <h3 style="margin-top:16px">Website + Review Automation + Booking Widget</h3>
         <div class="amt">$199<small>/month</small></div>
         <div style="color:var(--mute);font-size:14px">No setup fee. Month to month.</div>
         <ul>
           <li><svg><use href="#chk"/></svg>A new, fast website built to book jobs</li>
-          <li><svg><use href="#chk"/></svg>Google Business Profile setup with a Book button</li>
+          <li><svg><use href="#chk"/></svg>Automatic Google review requests after every job</li>
           <li><svg><use href="#chk"/></svg>Everything in the Booking Widget plan</li>
           <li><svg><use href="#chk"/></svg>Text confirmations and reminders in the customer's time zone</li>
           <li><svg><use href="#chk"/></svg>A text to you for every new request</li>
@@ -833,6 +919,53 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { inView = en[0].isIntersecting; if (inView) loop(); }, { threshold: 0.3 }).observe(flow);
     else { inView = true; loop(); }
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(wire);
+  })();
+
+  /* reviews scene: request by text -> tap -> five stars -> posted -> review count goes up */
+  (function () {
+    var sc = document.getElementById('gscene'); if (!sc) return;
+    var link = document.getElementById('glink'), stars = [].slice.call(document.querySelectorAll('#gstars i')), txt = document.querySelector('#gtext span');
+    var post = document.getElementById('gpost'), count = document.getElementById('gcount'), plus = document.getElementById('gplus'), cur = document.getElementById('gcursor');
+    var run = 0, playing = false, inView = false;
+    function pause(ms, id) { return new Promise(function (res, rej) { var end = Date.now() + ms; (function tick() { if (id !== run) return rej('stop'); if (!inView || document.hidden) { end += 120; return setTimeout(tick, 120); } if (Date.now() >= end) return res(); setTimeout(tick, Math.min(120, end - Date.now())); })(); }); }
+    function at(el, fx, fy) { var s = sc.getBoundingClientRect(), r = el.getBoundingClientRect(); cur.classList.remove('gone'); cur.style.transform = 'translate(' + Math.round(r.left - s.left + r.width * fx) + 'px,' + Math.round(r.top - s.top + r.height * fy) + 'px)'; }
+    async function clickFx(id) { cur.classList.add('down'); await pause(130, id); cur.classList.remove('click'); cur.offsetWidth; cur.classList.add('click'); cur.classList.remove('down'); }
+    function setCount(n) {
+      var old = count.querySelector('span'), nu = document.createElement('span'); nu.textContent = n; nu.className = 'in'; count.appendChild(nu);
+      requestAnimationFrame(function () { requestAnimationFrame(function () { if (old) old.className = 'out'; nu.className = ''; }); });
+      setTimeout(function () { if (old && old.parentNode) old.remove(); }, 600);
+    }
+    function reset() {
+      sc.className = 'gscene'; cur.classList.add('gone'); txt.textContent = ''; plus.classList.remove('on');
+      stars.forEach(function (s) { s.className = ''; }); count.innerHTML = '<span>212</span>';
+    }
+    async function loop() {
+      if (playing) return; playing = true; var id = ++run;
+      try {
+        while (true) {
+          reset(); await pause(500, id);
+          sc.classList.add('s1'); await pause(1100, id);
+          sc.classList.add('s2'); await pause(1300, id);
+          at(link, .55, .6); await pause(850, id);
+          await clickFx(id); link.classList.add('press'); await pause(160, id); link.classList.remove('press');
+          cur.classList.add('gone'); sc.classList.add('s3'); await pause(800, id);
+          at(stars[4], .5, .6); await pause(800, id); await clickFx(id);
+          for (var i = 0; i < 5; i++) { stars[i].classList.add('on'); await pause(110, id); }
+          await pause(250, id); stars.forEach(function (s) { s.classList.add('set'); });
+          cur.classList.add('gone');
+          var words = 'Fast, friendly crew. Fair price and they swept up after.';
+          for (var k = 0; k < words.length; k++) { txt.textContent += words[k]; await pause(28 + Math.random() * 30, id); }
+          await pause(400, id);
+          at(post, .5, .6); await pause(800, id); await clickFx(id); post.classList.add('press'); await pause(150, id); post.classList.remove('press');
+          cur.classList.add('gone'); sc.classList.add('s4'); await pause(900, id);
+          setCount(213); plus.classList.add('on');
+          await pause(3200, id);
+        }
+      } catch (e) { }
+      playing = false;
+    }
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { inView = en[0].isIntersecting; if (inView) loop(); }, { threshold: 0.35 }).observe(sc);
+    else { inView = true; loop(); }
   })();
 
   /* ---------- step demo: the whole journey, from their website to your phone ----------
