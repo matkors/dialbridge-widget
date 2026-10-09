@@ -1,10 +1,12 @@
 /* Self-serve path for the Booking Widget plan (Avenue-style):
    1 business search (Google Places when a key is configured, otherwise the typed name)
    2 builder: their widget, "Customise: Logo / Colour", Publish
-   3 publish window: email -> start the 14-day free trial (checkout) -> "you're in, set up your services".
+   3 register at Publish (Continue with Google, or email + 6-digit code; no password, no card) -> where bookings go
+     (name, business, mobile, business phone) -> live, with the hosted link and a setup checklist. Card comes later, at
+     'put it on your website' (Stripe Checkout with the 14-day trial).
    The Website plan does NOT come here: it books a call (build.js).
    Nothing is sent or charged until LEAD_URL / CHECKOUT_URL are set. Pixel events (only if fbq exists):
-   ViewContent when the builder opens, Lead on email, InitiateCheckout on "Start my free trial". */
+   ViewContent when the builder opens, CompleteRegistration on sign-up, Lead when they publish. */
 (function () {
   'use strict';
   var PLACES_KEY = window.DBX_PLACES_KEY || '';   // browser key, referrer-locked to this site. Empty = no suggestions, typed name only.
@@ -96,23 +98,38 @@
     '</div>' +
     '<p class="sb-hint">' + ic('<path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>') + 'It works. Tap through it like one of your customers.</p>' +
     '</div></div>' +
-    // publish window
-    '<div class="sp" id="sp" hidden><div class="sp-box" role="dialog" aria-modal="true" aria-label="Publish your booking page">' +
+    // register window: the normal SaaS sign-up, shown at Publish (no password, no card)
+    '<div class="sp" id="sp" hidden><div class="sp-box" role="dialog" aria-modal="true" aria-label="Save and publish your booking page">' +
     '<button class="sp-x" type="button" id="spX" aria-label="Close">' + ic('<path d="M6 6l12 12M18 6 6 18"/>') + '</button>' +
-    '<div class="sp-art" id="spArt"><div class="sp-site"><i></i><i></i><i></i><b></b><b class="s"></b></div><div class="sp-btn" id="spBtn">' + ic('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>') + 'Book online</div><p>The same button<br>on your website</p></div>' +
-    // a: email
-    '<section class="sp-s" data-p="1"><h3>Put it live today</h3><p>Your booking page is ready. Enter your email and we\'ll get you set up.</p>' +
-    '<form class="sp-row" id="spF1" novalidate><span>' + ic('<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5 12 13l8.5-6.5"/>') + '</span><input id="spEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@yourbusiness.com"><button class="btn" type="submit">Continue</button></form>' +
-    '<p class="sp-err" id="spErr"></p></section>' +
-    // b: trial
-    '<section class="sp-s" data-p="2"><h3>Start your 14-day free trial</h3>' +
-    '<div class="sp-plan"><div><b>Booking Widget</b><span>Your booking page, the Book button for your site, Google and social links, and your inbox</span></div><div class="pr">$0<small>today</small></div></div>' +
-    '<ul class="sp-list"><li>' + CHECK + 'Free for 14 days, then $99/month</li><li>' + CHECK + 'We remind you 3 days before the trial ends</li><li>' + CHECK + 'Cancel anytime in one click</li></ul>' +
-    '<button class="btn sp-go" type="button" id="spTrial">Start my free trial ' + ARW + '</button><p class="sp-fine">Secure checkout. You won\'t be charged today.</p></section>' +
-    // c: in
-    '<section class="sp-s" data-p="3"><h3>You\'re in, <span data-name></span>.</h3><p>Next, add your services, prices and hours. It takes about 10 minutes, and you get the one line of code for your website at the end.</p>' +
-    '<ol class="sp-next"><li><b>Services and prices</b><span>What you do and what customers see</span></li><li><b>Hours and area</b><span>When and where you take jobs</span></li><li><b>Go live</b><span>Paste one line on your site, or we do it for you</span></li></ol>' +
-    '<a class="btn sp-go" id="spSetup" href="#">Set up my services ' + ARW + '</a><p class="sp-demo" id="spDemo" hidden>Draft page: nothing was saved or charged yet.</p></section>' +
+    '<span class="sp-mark">dialbridge<span>.</span>ai</span>' +
+    // 1 register
+    '<section class="sp-s" data-p="1"><h3>Save and publish <span data-name></span>\'s booking page</h3><p>Free for 14 days. No credit card.</p>' +
+    '<button class="sp-google" type="button" id="spGoogle"><svg class="g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.2C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>Continue with Google</button>' +
+    '<div class="sp-or"><span>or</span></div>' +
+    '<form id="spF1" novalidate><label class="sp-lab" for="spEmail">Email</label><input class="sp-in" id="spEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@yourbusiness.com">' +
+    '<p class="sp-err" id="spErr"></p><button class="btn sp-go" type="submit">Continue with email</button></form>' +
+    '<p class="sp-terms">By continuing you agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p><p class="sp-alt">Already have an account? <a href="#">Log in</a></p></section>' +
+    // 2 code
+    '<section class="sp-s" data-p="2"><h3>Check your email</h3><p>We sent a 6-digit code to <b id="spTo"></b>.</p>' +
+    '<div class="sp-code" id="spCode">' + [0, 1, 2, 3, 4, 5].map(function (i) { return '<input inputmode="numeric" maxlength="1" autocomplete="' + (i ? 'off' : 'one-time-code') + '" aria-label="Digit ' + (i + 1) + '">'; }).join('') + '</div>' +
+    '<p class="sp-err" id="spErr2"></p><button class="btn sp-go" type="button" id="spVerify" disabled>Verify</button>' +
+    '<p class="sp-alt"><a href="#" id="spResend">Resend code</a> &middot; <a href="#" id="spBack">Use a different email</a></p></section>' +
+    // 3 details
+    '<section class="sp-s" data-p="3"><h3>Where should new bookings go?</h3><p>Last step. Then your booking page is live.</p>' +
+    '<div class="sp-two"><div><label class="sp-lab" for="spName">Your name</label><input class="sp-in" id="spName" autocomplete="name" placeholder="Jordan Lee"></div>' +
+    '<div><label class="sp-lab" for="spBiz">Business name</label><input class="sp-in" id="spBiz" autocomplete="organization"></div></div>' +
+    '<label class="sp-lab" for="spMob">Your mobile</label><input class="sp-in" id="spMob" type="tel" inputmode="tel" autocomplete="tel" placeholder="(201) 555-0148"><p class="sp-help">We text you the second a customer books. No marketing texts.</p>' +
+    '<label class="sp-lab" for="spPh">Business phone <em>shown on your booking page</em></label><input class="sp-in" id="spPh" type="tel" inputmode="tel" placeholder="(201) 555-0100">' +
+    '<p class="sp-err" id="spErr3"></p><button class="btn sp-go" type="button" id="spPublish">Publish my booking page</button></section>' +
+    // 4 live
+    '<section class="sp-s sp-live" data-p="4"><span class="sp-ok">' + CHECK + '</span><h3>You\'re live, <span id="spFirst"></span>.</h3><p>Customers can book you at this link now. Share it anywhere.</p>' +
+    '<div class="sp-link"><span id="spUrl"></span><button type="button" id="spCopy">Copy link</button></div>' +
+    '<div class="sp-prog"><span>Finish setting up</span><span id="spDone">1 of 4</span></div><i class="sp-bar"><b></b></i>' +
+    '<ol class="sp-tasks"><li class="done"><i>' + CHECK + '</i><div><b>Create your booking page</b></div></li>' +
+    '<li><i></i><div><b>Services and prices</b><span>Ready-made for your trade. Change anything.</span></div></li>' +
+    '<li><i></i><div><b>Hours and arrival windows</b><span>When you take jobs and how many a day</span></div></li>' +
+    '<li><i></i><div><b>Put it on your website and Google</b><span>Copy one line, email your web person, or we do it for you</span></div></li></ol>' +
+    '<a class="btn sp-go" id="spSetup" href="#">Set up my services ' + ARW + '</a><p class="sp-demo" id="spDemo" hidden>Draft page: no account was created and nothing was sent.</p></section>' +
     '</div></div>';
   document.body.appendChild(el);
 
@@ -126,7 +143,7 @@
   }
   function send() { try { frame.contentWindow.postMessage({ type: 'dbw:customize', brand: B.brand, logo: logoUrl }, location.origin); } catch (e) { } }
   function paintColor() {
-    $('#sbDot').style.background = B.brand; $('#spArt').style.setProperty('--b', B.brand);
+    $('#sbDot').style.background = B.brand;
     $$('#sbPop [data-c]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-c').toLowerCase() === B.brand.toLowerCase()); });
   }
 
@@ -144,27 +161,59 @@
     r.readAsDataURL(f);
   });
 
-  // publish window
-  function pstep(n) { $$('.sp-s').forEach(function (s) { s.classList.toggle('on', +s.getAttribute('data-p') === n); }); }
-  $('#sbPub').addEventListener('click', function () { sp.hidden = false; requestAnimationFrame(function () { sp.classList.add('show'); }); pstep(B.email ? 2 : 1); setTimeout(function () { if (!B.email) $('#spEmail').focus(); }, 250); });
+  // register window
+  var sent = '', slug = '';
+  function pstep(n) { $$('.sp-s').forEach(function (s) { s.classList.toggle('on', +s.getAttribute('data-p') === n); }); var f = $('.sp-s.on input'); if (f) setTimeout(function () { f.focus(); }, 200); }
+  function openSp() { names(); sp.hidden = false; requestAnimationFrame(function () { sp.classList.add('show'); }); pstep(B.email ? 3 : 1); track('ViewContent', { content_name: 'register' }); }
+  $('#sbPub').addEventListener('click', openSp);
   function closeSp() { sp.classList.remove('show'); setTimeout(function () { sp.hidden = true; }, reduce ? 0 : 220); }
   $('#spX').addEventListener('click', closeSp);
   sp.addEventListener('click', function (e) { if (e.target === sp) closeSp(); });
+  function registered(email, via) {
+    B.email = email; B.via = via;
+    if (/^https:\/\//.test(LEAD_URL)) fetch(LEAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stage: 'registered', via: via, email: email, business: B.name, area: B.area, phone: B.phone, website: B.website, placeId: B.placeId, trade: B.trade, brand: B.brand, page: location.href, at: new Date().toISOString() }) }).catch(function () { });
+    track('CompleteRegistration', { content_name: 'booking_widget', method: via });
+    $('#spBiz').value = B.name; $('#spPh').value = B.phone || '';
+    pstep(3);
+  }
+  // Google: real sign-in needs our OAuth client; until then the demo just continues
+  $('#spGoogle').addEventListener('click', function () { $('#spDemo').hidden = false; registered('', 'google'); });
   $('#spF1').addEventListener('submit', function (e) {
     e.preventDefault();
     var v = $('#spEmail').value.trim(), er = $('#spErr');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { er.textContent = 'Please enter a valid email.'; er.classList.add('on'); return; }
-    er.classList.remove('on'); B.email = v;
-    var payload = { email: v, business: B.name, area: B.area, phone: B.phone, website: B.website, placeId: B.placeId, trade: B.trade, brand: B.brand, plan: 'widget', page: location.href, at: new Date().toISOString() };
-    if (/^https:\/\//.test(LEAD_URL)) fetch(LEAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(function () { });
-    track('Lead', { content_name: 'widget_publish', value: 25, currency: 'USD' });
+    er.classList.remove('on'); sent = v; $('#spTo').textContent = v;
+    $$('#spCode input').forEach(function (i) { i.value = ''; }); $('#spVerify').disabled = true;
     pstep(2);
   });
-  $('#spTrial').addEventListener('click', function () {
-    track('InitiateCheckout', { content_name: 'booking_widget', value: 99, currency: 'USD' });
-    if (/^https:\/\//.test(CHECKOUT_URL)) { location.href = CHECKOUT_URL + (CHECKOUT_URL.indexOf('?') > -1 ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(B.email); return; }
-    $('#spDemo').hidden = false; pstep(3);
+  var boxes = $$('#spCode input');
+  function code() { return boxes.map(function (i) { return i.value; }).join(''); }
+  boxes.forEach(function (inp, i) {
+    inp.addEventListener('input', function () {
+      var d = inp.value.replace(/\D/g, '');
+      if (d.length > 1) { d.split('').slice(0, 6 - i).forEach(function (c, k) { boxes[i + k].value = c; }); }
+      else inp.value = d;
+      var nx = boxes[Math.min(5, i + Math.max(1, d.length))]; if (d && nx) nx.focus();
+      $('#spVerify').disabled = code().length !== 6;
+      if (code().length === 6) $('#spVerify').click();
+    });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && !inp.value && i) boxes[i - 1].focus(); });
   });
+  $('#spVerify').addEventListener('click', function () { if (code().length !== 6) return; $('#spDemo').hidden = false; registered(sent, 'email'); });
+  $('#spBack').addEventListener('click', function (e) { e.preventDefault(); pstep(1); });
+  $('#spResend').addEventListener('click', function (e) { e.preventDefault(); this.textContent = 'Code sent again'; });
+  $('#spPublish').addEventListener('click', function () {
+    var name = $('#spName').value.trim(), biz = $('#spBiz').value.trim(), mob = $('#spMob').value.replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''), er = $('#spErr3');
+    var bad = !name ? 'Please add your name.' : !biz ? 'Please add your business name.' : mob.length !== 10 ? 'Please add a 10-digit mobile number.' : '';
+    er.textContent = bad; er.classList.toggle('on', !!bad); if (bad) return;
+    B.name = biz; B.owner = name; B.mobile = mob; B.phone = $('#spPh').value.trim() || B.phone;
+    if (/^https:\/\//.test(LEAD_URL)) fetch(LEAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stage: 'published', email: B.email, via: B.via, owner: name, mobile: mob, business: biz, businessPhone: B.phone, area: B.area, placeId: B.placeId, trade: B.trade, brand: B.brand, page: location.href, at: new Date().toISOString() }) }).catch(function () { });
+    track('Lead', { content_name: 'booking_widget_live', value: 25, currency: 'USD' });
+    slug = biz.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'your-business';
+    $('#spFirst').textContent = name.split(' ')[0]; $('#spUrl').textContent = 'book.dialbridge.ai/' + slug;
+    pstep(4);
+  });
+  $('#spCopy').addEventListener('click', function () { var b = this; try { navigator.clipboard.writeText('https://' + $('#spUrl').textContent); } catch (e) { } b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy link'; }, 1500); });
   $('#spSetup').addEventListener('click', function (e) { e.preventDefault(); });
 
   document.addEventListener('keydown', function (e) { if (e.key !== 'Escape' || !el.classList.contains('on')) return; if (!sp.hidden) closeSp(); else close(); });
