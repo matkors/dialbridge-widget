@@ -1,4 +1,25 @@
-{"trade":"detailing","name":"Deluxe Details Mobile Services","phone":"(225) 266-2496","brand":"#0675BC","area":"Slidell, Pearl River and Covington","zips":["704"],"rating":4.8,"reviews":18,"open":"09:00","close":"17:00",
- "logo":"https://matviykorsunskiy.me/dialbridge-widget/demo-assets/deluxe-logo.png",
- "hero":"https://www.deluxedetailsmobileservices.com/assets/hero-home.jpg",
- "serviceImages":{"full":"https://www.deluxedetailsmobileservices.com/assets/hero-home.jpg","interior":"https://www.deluxedetailsmobileservices.com/assets/interior-detailing.jpg","exterior":"https://www.deluxedetailsmobileservices.com/assets/exterior-detailing.jpg","wax":"https://www.deluxedetailsmobileservices.com/assets/wax-polish.jpg","ceramic":"https://www.deluxedetailsmobileservices.com/assets/ceramic-coating.jpg","paint":"https://www.deluxedetailsmobileservices.com/assets/paint-correction.jpg"}}
+{
+  "trade": "detailing",
+  "name": "Deluxe Details Mobile Services",
+  "phone": "(225) 266-2496",
+  "brand": "#0675BC",
+  "area": "Slidell, Pearl River and Covington",
+  "zips": [
+    "704"
+  ],
+  "rating": 4.8,
+  "reviews": 18,
+  "open": "09:00",
+  "close": "17:00",
+  "logo": "https://matviykorsunskiy.me/dialbridge-widget/demo-assets/deluxe-logo.png",
+  "hero": "https://www.deluxedetailsmobileservices.com/assets/hero-home.jpg",
+  "serviceImages": {
+    "full": "https://www.deluxedetailsmobileservices.com/assets/hero-home.jpg",
+    "interior": "https://www.deluxedetailsmobileservices.com/assets/interior-detailing.jpg",
+    "exterior": "https://www.deluxedetailsmobileservices.com/assets/exterior-detailing.jpg",
+    "wax": "https://www.deluxedetailsmobileservices.com/assets/wax-polish.jpg",
+    "ceramic": "https://www.deluxedetailsmobileservices.com/assets/ceramic-coating.jpg",
+    "paint": "https://www.deluxedetailsmobileservices.com/assets/paint-correction.jpg"
+  },
+  "tz": "America/Chicago"
+}

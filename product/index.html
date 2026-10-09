@@ -2,222 +2,358 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Online Booking for Home Service Businesses | DialBridge</title>
 <meta name="description" content="A Book online button for your website and Google profile. Customers pick the job, see a price range and choose a time. You get a text.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="img/m/detail-services.webp">
 <style>
 :root{
-  --bg:#f5f4ef; --paper:#fbfaf6; --ink:#20251f; --ink2:#3b4238; --mute:#6c7068; --line:#e3e1d8; --line2:#d6d3c8;
-  --accent:#f35427; --accent-ink:#c93d14; --deep:#232a22; --sage:#e6e9dc; --ok:#2f7d4f;
-  --r:14px; --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --bg:#f5f4ef; --paper:#fbfaf6; --white:#fff; --ink:#20251f; --ink2:#3b4238; --mute:#6a6e66; --line:#e4e2d9; --line2:#d8d5ca;
+  --accent:#f35427; --accent-ink:#cf4016; --deep:#232a22; --sage:#e6e9dc; --sage2:#d7dccb; --ok:#2f7d4f;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --ease:cubic-bezier(.23,1,.32,1); --ease-io:cubic-bezier(.65,0,.35,1);
+  --frame:0 0 0 1px rgba(32,37,31,.08),0 1px 2px rgba(32,37,31,.06),0 24px 48px -24px rgba(32,37,31,.28);
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{max-width:100%;height:auto;display:block}
 a{color:inherit}
-.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
-.draft{background:var(--deep);color:#e9ece4;font-size:13px;text-align:center;padding:8px 16px}
-.draft b{color:#fff}
-nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0;border-bottom:1px solid var(--line)}
-.logo{font-weight:800;font-size:22px;letter-spacing:-.02em;text-decoration:none}
+button{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:28px}
+
+/* top */
+.draft{background:var(--deep);color:#d9ddd2;font-size:12.5px;text-align:center;padding:7px 16px}
+.draft b{color:#fff;font-weight:600}
+.nav{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid transparent;transition:border-color .2s,background-color .2s}
+.nav.scrolled{border-bottom-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.logo{font-weight:800;font-size:21px;letter-spacing:-.02em;text-decoration:none}
 .logo span{color:var(--accent)}
-.links{display:flex;gap:30px;font-size:15px;font-weight:500}
-.links a{text-decoration:none;color:var(--ink2)}
-.btn{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 22px;border-radius:8px;border:0;background:var(--accent);color:#fff;font:600 15px/1 Manrope,sans-serif;text-decoration:none;cursor:pointer}
+.links{display:flex;gap:6px;font-size:15px;font-weight:500}
+.links a{text-decoration:none;color:var(--ink2);padding:7px 12px;border-radius:8px;transition:background-color .15s,color .15s}
+.links a:hover{background:rgba(32,37,31,.06);color:var(--ink)}
+
+/* buttons: Stripe-style arrow (the line draws in, the head slides) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px 0 22px;border-radius:10px;border:0;background:var(--accent);color:#fff;font:600 15.5px/1 Manrope,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(32,37,31,.14),inset 0 1px 0 rgba(255,255,255,.18);transition:background-color .15s,transform .12s var(--ease),box-shadow .2s}
 .btn:hover{background:var(--accent-ink)}
+.btn:active{transform:scale(.97)}
 .btn.dark{background:var(--deep)}
-.btn.dark:hover{background:#000}
-.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line2)}
-.btn .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
-.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:10px}
+.btn.dark:hover{background:#0f130e}
+.btn.ghost{background:var(--white);color:var(--ink);box-shadow:0 0 0 1px var(--line2),0 1px 2px rgba(32,37,31,.06)}
+.btn.ghost:hover{background:var(--white);box-shadow:0 0 0 1px #b9b5a8,0 2px 6px rgba(32,37,31,.08)}
+.btn.sm{height:40px;padding:0 14px 0 16px;font-size:14.5px;border-radius:9px}
+.arw{width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.arw .ln{opacity:0;transition:opacity .15s}
+.arw .hd{transition:transform .2s var(--ease)}
+.btn:hover .arw .ln,.tlink:hover .arw .ln{opacity:1}
+.btn:hover .arw .hd,.tlink:hover .arw .hd{transform:translateX(3px)}
+.tlink{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--accent-ink);text-decoration:none;font-size:15.5px}
+
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:10px;margin:0}
 .eyebrow .star{color:var(--accent);font-size:15px;letter-spacing:0}
-h1,h2,h3{letter-spacing:-.03em;line-height:1.04;margin:0;font-weight:700;text-wrap:balance}
-h1{font-size:clamp(46px,6.4vw,84px)}
-h1 em{font-style:normal;color:var(--accent);display:block}
-h2{font-size:clamp(34px,4.2vw,52px)}
-h3{font-size:22px;letter-spacing:-.02em;line-height:1.2}
-.lede{font-size:20px;color:var(--ink2);max-width:520px;margin:22px 0 30px}
-.fine{font-size:13.5px;color:var(--mute);display:flex;gap:16px;flex-wrap:wrap;margin-top:16px}
-.fine span::before{content:"\2713";margin-right:6px;color:var(--ink2)}
+h1,h2,h3{letter-spacing:-.03em;line-height:1.05;margin:0;font-weight:700;text-wrap:balance}
+h1{font-size:clamp(42px,5.6vw,76px)}
+h1 em{font-style:normal;color:var(--accent)}
+h2{font-size:clamp(32px,4vw,50px)}
+h3{font-size:21px;letter-spacing:-.02em;line-height:1.2}
+.lede{font-size:19px;color:var(--ink2);max-width:500px;margin:22px 0 30px}
+.checks{font-size:14px;color:var(--mute);display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none}
+.checks li{display:flex;align-items:center;gap:6px}
+.checks svg{width:15px;height:15px;color:var(--ok)}
 
 /* hero */
-.hero{display:grid;grid-template-columns:1fr 1.08fr;gap:56px;align-items:center;padding:72px 0 64px}
-.shot{border-radius:16px;overflow:hidden;border:1px solid var(--line2);background:#fff;box-shadow:0 30px 60px -30px rgba(32,37,31,.35)}
-.browser{border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--line2);box-shadow:0 30px 70px -32px rgba(32,37,31,.45)}
-.browser .bar{height:34px;background:#ecebe5;display:flex;align-items:center;gap:7px;padding:0 14px;border-bottom:1px solid var(--line2)}
-.browser .bar i{width:10px;height:10px;border-radius:50%;background:#cfccc1}
-.browser .bar span{margin-left:14px;font-family:var(--mono);font-size:11px;color:var(--mute);background:#f7f6f1;border-radius:5px;padding:3px 10px}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,560px);gap:64px;align-items:center;padding:56px 0 72px}
+.cta-row{display:flex;gap:10px;flex-wrap:wrap}
+.demo{position:relative}
+.demo::before{content:"";position:absolute;inset:8% -6% -4% 8%;background:radial-gradient(60% 60% at 60% 40%,rgba(243,84,39,.13),transparent 70%);z-index:-1;pointer-events:none}
+.demo-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.seg{position:relative;display:inline-grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:4px;border-radius:12px;background:rgba(32,37,31,.06)}
+.seg button{position:relative;z-index:1;border:0;background:none;padding:8px 14px;border-radius:9px;font-size:14px;font-weight:600;color:var(--mute);cursor:pointer;white-space:nowrap;transition:color .2s}
+.seg button[aria-selected="true"]{color:var(--ink)}
+.seg button:hover{color:var(--ink)}
+.seg .pill{position:absolute;top:4px;bottom:4px;left:0;border-radius:9px;background:var(--white);box-shadow:0 1px 2px rgba(32,37,31,.1),0 2px 8px rgba(32,37,31,.06);transition:transform .32s var(--ease),width .32s var(--ease)}
+.live{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(47,125,79,.18)}
+.frame{border-radius:18px;overflow:hidden;background:var(--white);box-shadow:var(--frame)}
+.demo .frame iframe{display:block;width:100%;height:600px;border:0;background:#fff;transition:height .32s var(--ease),opacity .18s}
+.demo .frame iframe.swap{opacity:0}
+.demo-note{display:flex;justify-content:space-between;gap:12px;margin:12px 2px 0;font-size:13px;color:var(--mute)}
 
-/* builder */
-.builder{background:var(--paper);border:1px solid var(--line2);border-radius:var(--r);padding:22px;margin-top:8px;max-width:560px}
-.builder h4{margin:0 0 4px;font-size:16px}
-.builder p{margin:0 0 14px;color:var(--mute);font-size:14px}
-.row{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
-.row3{display:grid;grid-template-columns:1.4fr 1fr auto;gap:10px;margin-top:10px}
-label.f{display:flex;flex-direction:column;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink2)}
-input,select{height:46px;border:1px solid var(--line2);border-radius:8px;padding:0 13px;font:500 15px Manrope,sans-serif;background:#fff;color:var(--ink);width:100%}
-input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
-input[type=color]{padding:4px;width:58px}
-
-/* trade strip */
-.strip{display:flex;align-items:center;gap:40px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow-x:auto}
-.strip .eyebrow{white-space:nowrap}
-.strip b{font-weight:600;color:var(--ink2);white-space:nowrap;font-size:16px}
+/* trades */
+.trades{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.trades .eyebrow{margin-right:6px}
+.chip{display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;background:var(--paper);box-shadow:0 0 0 1px var(--line);font-size:14.5px;font-weight:600;color:var(--ink2)}
 
 /* sections */
-section.s{padding:96px 0}
-.shead{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:end;margin-bottom:48px}
-.shead p{color:var(--ink2);margin:0;font-size:17px}
-.secnum{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:36px;display:flex;justify-content:space-between}
-.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.card{background:var(--paper);border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
-.card .pic{background:#eceae2;border-bottom:1px solid var(--line);aspect-ratio:600/560;overflow:hidden}
-.card .pic img{width:100%;height:100%;object-fit:cover;object-position:top}
-.card .txt{padding:20px 22px 24px}
-.card .txt .n{font-family:var(--mono);font-size:12px;color:var(--mute);margin-bottom:10px;display:block}
-.card .txt p{margin:8px 0 0;color:var(--ink2);font-size:15px}
+section.s{padding:104px 0}
+.shead{display:grid;grid-template-columns:1.15fr 1fr;gap:48px;align-items:end;margin-bottom:52px}
+.shead p{color:var(--ink2);margin:0;font-size:17px;max-width:470px}
+.shead .eyebrow{margin-bottom:18px}
 
-/* texts block */
-.band{background:var(--sage);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.split{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
-.phone{width:330px;max-width:100%;margin:0 auto;background:#1c1f1b;border-radius:46px;padding:12px;box-shadow:0 40px 70px -35px rgba(0,0,0,.55)}
-.screen{border-radius:36px;background:linear-gradient(170deg,#3d4a3b,#1f2a24 55%,#2c2420);min-height:600px;padding:56px 14px 24px;position:relative;overflow:hidden}
-.screen .clock{text-align:center;color:#f3f1ea}
-.screen .clock small{display:block;font-size:14px;opacity:.85}
-.screen .clock b{font-size:64px;font-weight:600;letter-spacing:-.03em;line-height:1.05}
-.note{background:rgba(245,244,239,.86);backdrop-filter:blur(10px);border-radius:16px;padding:11px 13px;margin-top:10px;font-size:13px;line-height:1.38;color:#1d1f1c}
+/* product tour */
+.tour{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:64px;align-items:center}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.step{position:relative;display:grid;grid-template-columns:36px 1fr;gap:14px;width:100%;padding:18px 20px;border:0;border-radius:14px;background:transparent;text-align:left;cursor:pointer;transition:background-color .2s}
+.step:hover{background:rgba(32,37,31,.04)}
+.step[aria-selected="true"]{background:var(--white);box-shadow:var(--frame)}
+.step .n{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--sage);font-family:var(--mono);font-size:13px;color:var(--ink2);transition:background-color .2s,color .2s}
+.step[aria-selected="true"] .n{background:var(--ink);color:#fff}
+.step b{display:block;font-size:18px;letter-spacing:-.015em;padding-top:4px}
+.step .more{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
+.step[aria-selected="true"] .more{grid-template-rows:1fr}
+.step .more > span{overflow:hidden;color:var(--ink2);font-size:15.5px}
+.step .more > span > span{display:block;padding-top:6px}
+.step .bar{position:absolute;left:20px;right:20px;bottom:0;height:2px;border-radius:2px;background:var(--line);overflow:hidden;opacity:0}
+.step .bar i{display:block;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left}
+.tour.auto .step[aria-selected="true"] .bar{opacity:1}
+.tour.auto .step[aria-selected="true"] .bar i{animation:fill var(--dur,5.5s) linear forwards}
+.tour.paused .step .bar i{animation-play-state:paused}
+@keyframes fill{to{transform:scaleX(1)}}
+.phone{position:relative;width:100%;max-width:360px;margin:0 auto;aspect-ratio:780/1520;border-radius:34px;padding:9px;background:var(--white);box-shadow:var(--frame)}
+.phone .scr{position:relative;width:100%;height:100%;border-radius:26px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px rgba(32,37,31,.06)}
+.phone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;transform:scale(.985);transition:opacity .35s var(--ease),transform .5s var(--ease)}
+.phone img.on{opacity:1;transform:none}
+
+/* reminders */
+.band{background:var(--sage);border-top:1px solid var(--sage2);border-bottom:1px solid var(--sage2)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.list{list-style:none;padding:0;margin:28px 0 0}
+.list li{padding:15px 0;border-top:1px solid #cdd2c0;display:grid;grid-template-columns:130px 1fr;gap:16px;font-size:16px}
+.list li span{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--mute);padding-top:4px}
+.lock{width:330px;max-width:100%;margin:0 auto;background:#1c1f1b;border-radius:46px;padding:11px;box-shadow:0 40px 70px -35px rgba(0,0,0,.5)}
+.lock .scr{border-radius:36px;background:linear-gradient(170deg,#3d4a3b,#1f2a24 55%,#2c2420);min-height:560px;padding:52px 13px 22px;overflow:hidden}
+.lock .clock{text-align:center;color:#f3f1ea;margin-bottom:18px}
+.lock .clock small{display:block;font-size:14px;opacity:.85}
+.lock .clock b{font-size:62px;font-weight:600;letter-spacing:-.03em;line-height:1.05}
+.note{background:rgba(245,244,239,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:16px;padding:11px 13px;margin-top:9px;font-size:13px;line-height:1.38;color:#1d1f1c}
 .note .h{display:flex;justify-content:space-between;font-size:11.5px;color:#55594f;margin-bottom:3px}
 .note .h b{color:#1d1f1c;font-weight:700}
-.list{list-style:none;padding:0;margin:26px 0 0}
-.list li{padding:14px 0;border-top:1px solid #cfd3c3;display:grid;grid-template-columns:120px 1fr;gap:16px;font-size:15.5px}
-.list li span{font-family:var(--mono);font-size:12px;color:var(--mute);padding-top:3px}
 
 /* owner */
-.owner{display:grid;grid-template-columns:1.6fr 1fr;gap:28px;align-items:start}
-.alert{background:var(--deep);color:#eef0e8;border-radius:var(--r);padding:22px}
+.owner{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:28px;align-items:start}
+.owner .frame img{width:100%}
+.side{display:flex;flex-direction:column;gap:14px}
+.alert{background:var(--deep);color:#eef0e8;border-radius:18px;padding:22px}
 .alert .eyebrow{color:#a9b19f}
 .sms{background:#323a30;border-radius:14px;padding:13px 15px;margin-top:14px;font-size:14.5px;line-height:1.45}
 .sms small{display:block;color:#a9b19f;font-size:12px;margin-bottom:4px}
-.kv{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
-.kv div{background:var(--paper);border:1px solid var(--line2);border-radius:12px;padding:16px}
-.kv b{display:block;font-size:26px;letter-spacing:-.02em}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kv div{background:var(--white);border-radius:16px;padding:18px;box-shadow:0 0 0 1px var(--line)}
+.kv b{display:block;font-size:28px;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
 .kv span{font-size:13px;color:var(--mute)}
 
-/* everywhere */
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.tile{background:var(--paper);border:1px solid var(--line2);border-radius:var(--r);padding:22px}
-.tile .ic{width:40px;height:40px;border-radius:10px;background:var(--sage);display:grid;place-items:center;margin-bottom:16px}
-.tile p{margin:8px 0 0;color:var(--ink2);font-size:15px}
-.tile code{font-family:var(--mono);font-size:12px;background:#ecebe4;padding:2px 6px;border-radius:5px}
+/* channels */
+.chan{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.ch{background:var(--white);border-radius:18px;padding:24px;box-shadow:0 0 0 1px var(--line);transition:box-shadow .25s var(--ease)}
+.ch:hover{box-shadow:0 0 0 1px var(--line2),0 12px 28px -14px rgba(32,37,31,.22)}
+.ch .ic{width:42px;height:42px;border-radius:12px;background:var(--sage);display:grid;place-items:center;margin-bottom:18px;color:var(--ink);transition:transform .3s var(--ease),background-color .2s}
+.ch:hover .ic{transform:translateY(-3px);background:var(--accent);color:#fff}
+.ch .ic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ch p{margin:8px 0 0;color:var(--ink2);font-size:15px}
+.ch code{font-family:var(--mono);font-size:12px;background:var(--sage);padding:2px 6px;border-radius:5px}
 
-/* proof + pricing */
-.stat{background:var(--deep);color:#eef0e8;border-radius:20px;padding:56px;display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;position:relative;overflow:hidden}
-.stat .big{font-size:clamp(64px,9vw,120px);font-weight:700;letter-spacing:-.05em;line-height:.9;color:#c9d6b8}
-.stat p{color:#c7cdbd}
-.stat a{color:#c7cdbd}
-.price{display:grid;grid-template-columns:1.2fr 1fr;gap:22px}
-.plan{background:var(--paper);border:1px solid var(--line2);border-radius:var(--r);padding:30px}
-.plan.main{border:2px solid var(--ink)}
-.plan .amt{font-size:46px;font-weight:800;letter-spacing:-.04em;margin:12px 0 2px}
+/* stat */
+.stat{background:var(--deep);color:#eef0e8;border-radius:24px;padding:56px;display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center}
+.stat .big{font-size:clamp(76px,10vw,132px);font-weight:700;letter-spacing:-.05em;line-height:.9;color:#c9d6b8;font-variant-numeric:tabular-nums}
+.stat p{color:#c7cdbd;margin:16px 0 0}
+.stat a{color:#e0e5d6}
+
+/* builder */
+.builder{background:var(--white);border-radius:20px;padding:26px;box-shadow:var(--frame)}
+.builder h4{margin:0 0 4px;font-size:17px;letter-spacing:-.01em}
+.builder > p{margin:0 0 18px;color:var(--mute);font-size:14px}
+.row{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1.4fr 1fr auto;gap:12px;margin-top:12px}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+input,select{height:48px;border:1px solid var(--line2);border-radius:10px;padding:0 13px;font:500 16px Manrope,sans-serif;background:#fff;color:var(--ink);width:100%;transition:border-color .15s,box-shadow .15s}
+input:hover,select:hover{border-color:#bdb9ac}
+input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(243,84,39,.16)}
+input[type=color]{padding:5px;width:62px;cursor:pointer}
+.bact{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+
+/* pricing */
+.price{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:start}
+.plan{background:var(--white);border-radius:20px;padding:32px;box-shadow:0 0 0 1px var(--line)}
+.plan.main{box-shadow:0 0 0 2px var(--ink),0 24px 48px -28px rgba(32,37,31,.35)}
+.plan .amt{font-size:50px;font-weight:800;letter-spacing:-.045em;margin:14px 0 2px;font-variant-numeric:tabular-nums}
 .plan .amt small{font-size:16px;font-weight:600;color:var(--mute);letter-spacing:0}
-.plan ul{list-style:none;padding:0;margin:20px 0 26px}
-.plan li{padding:9px 0;border-top:1px solid var(--line);font-size:15.5px;display:flex;gap:10px}
-.plan li::before{content:"+";color:var(--accent);font-weight:800}
-.tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--sage);border-radius:4px;padding:4px 8px}
+.plan ul{list-style:none;padding:0;margin:22px 0 28px}
+.plan li{padding:10px 0;border-top:1px solid var(--line);font-size:15.5px;display:flex;gap:10px}
+.plan li svg{width:16px;height:16px;flex-shrink:0;margin-top:4px;color:var(--accent);fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--sage);border-radius:6px;padding:4px 8px}
 
 /* faq */
-.faq{display:grid;grid-template-columns:1fr 1.3fr;gap:48px}
-details{border-top:1px solid var(--line2);padding:18px 0}
-details:last-child{border-bottom:1px solid var(--line2)}
-summary{cursor:pointer;font-weight:600;font-size:17px;list-style:none;display:flex;justify-content:space-between;gap:20px}
-summary::after{content:"+";font-size:22px;line-height:1;color:var(--mute)}
-details[open] summary::after{content:"\2212"}
-details p{color:var(--ink2);margin:10px 0 0;font-size:15.5px;max-width:620px}
+.faq{display:grid;grid-template-columns:1fr 1.35fr;gap:56px}
+.qa{border-top:1px solid var(--line2)}
+.qa:last-child{border-bottom:1px solid var(--line2)}
+.qa button{display:flex;justify-content:space-between;align-items:center;gap:20px;width:100%;padding:20px 0;border:0;background:none;font-weight:600;font-size:17px;text-align:left;cursor:pointer}
+.qa button:hover{color:var(--accent-ink)}
+.qa .pm{position:relative;width:14px;height:14px;flex-shrink:0}
+.qa .pm::before,.qa .pm::after{content:"";position:absolute;left:0;right:0;top:6px;height:2px;border-radius:2px;background:currentColor;transition:transform .3s var(--ease)}
+.qa .pm::after{transform:rotate(90deg)}
+.qa[data-open] .pm::after{transform:rotate(0)}
+.qa .a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
+.qa[data-open] .a{grid-template-rows:1fr}
+.qa .a > div{overflow:hidden}
+.qa .a p{color:var(--ink2);margin:0 0 20px;font-size:16px;max-width:620px}
 
-.cta{background:var(--accent);color:#fff;padding:64px 0}
-.cta .wrap{display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap}
+.cta{background:var(--accent);color:#fff;padding:72px 0}
+.cta .wrap{display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}
 .cta h2{color:#fff}
-.cta .btn{background:var(--deep)}
-footer{background:var(--deep);color:#b9c0af;padding:40px 0;font-size:14px}
-footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.cta .eyebrow{color:#ffe1d6}
+footer{background:var(--deep);color:#b9c0af;padding:36px 0;font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
-/* demo modal */
-.modal{position:fixed;inset:0;background:rgba(20,24,19,.62);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+/* preview popup (same feel as the widget) */
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,24,19,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s var(--ease)}
 .modal.on{display:flex}
-.modal .box{width:min(600px,100%);height:min(740px,94vh);background:#fff;border-radius:12px;overflow:hidden;position:relative}
+.modal.show{opacity:1}
+.modal .box{position:relative;width:min(600px,100%);height:min(740px,calc(100dvh - 48px));background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 24px 64px rgba(20,24,19,.3);transform:translateY(28px) scale(.985);transition:transform .3s var(--ease)}
+.modal.show .box{transform:none}
 .modal iframe{width:100%;height:100%;border:0}
-.modal .close{position:absolute;top:-44px;right:0;background:transparent;border:0;color:#fff;font:600 15px Manrope;cursor:pointer}
+.modal .close{position:absolute;top:10px;right:10px;z-index:2;width:38px;height:38px;border:0;border-radius:10px;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.18);cursor:pointer;display:grid;place-items:center}
+.modal .close svg{width:18px;height:18px;fill:none;stroke:#20251f;stroke-width:2.2;stroke-linecap:round}
 
-@media (max-width:900px){
-  .wrap{padding:0 18px}
+/* sticky mobile CTA */
+.mbar{display:none}
+
+@media (max-width:1000px){
   .links{display:none}
-  nav .btn{height:40px;padding:0 14px;font-size:14px;white-space:nowrap}
-  nav .btn .dot{display:none}
-  .browser .bar span{display:none}
-  .hero,.split,.owner,.stat,.price,.faq,.shead{grid-template-columns:1fr}
-  .hero{padding-top:40px;gap:36px}
-  .cards3,.grid4{grid-template-columns:1fr}
-  .row,.row3{grid-template-columns:1fr}
-  section.s{padding:64px 0}
-  .stat{padding:32px}
-  .list li{grid-template-columns:1fr;gap:4px}
+  .hero,.split,.owner,.stat,.price,.faq,.shead,.tour{grid-template-columns:minmax(0,1fr)}
+  .hero{gap:40px;padding:36px 0 56px}
+  .chan{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tour{gap:36px}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap{padding-inline:20px}
+  .nav .wrap{height:60px}
+  .nav .btn{display:none}
+  h1{font-size:42px}
+  h2{font-size:32px}
+  h3{font-size:19px}
+  .lede{font-size:17.5px;margin:18px 0 24px}
+  .cta-row .btn{flex:1}
+  section.s{padding:72px 0}
+  .shead{gap:16px;margin-bottom:32px}
+  .demo-top{flex-direction:column;align-items:stretch}
+  .seg{display:grid}
+  .seg button{padding:9px 6px;font-size:13.5px}
+  .live{align-self:flex-start}
+  .demo-note #demoName{display:none}
+  .demo .frame{border-radius:16px}
+  .trades{gap:8px}
+  .trades .eyebrow{width:100%}
+  .chip{height:32px;font-size:13.5px}
+  .step{padding:14px;grid-template-columns:32px 1fr;gap:12px}
+  .step b{font-size:16.5px;padding-top:3px}
+  .phone{max-width:300px;border-radius:30px;padding:8px}
+  .phone .scr{border-radius:23px}
+  .list li{grid-template-columns:1fr;gap:4px}
+  .lock{width:290px;border-radius:40px;padding:10px}
+  .lock .scr{min-height:480px;border-radius:31px;padding-top:40px}
+  .lock .clock b{font-size:52px}
+  .owner .frame{max-width:340px;margin:0 auto;border-radius:28px;padding:8px}
+  .owner .frame img{border-radius:21px}
+  .chan{grid-template-columns:minmax(0,1fr);gap:12px}
+  .ch{display:grid;grid-template-columns:42px 1fr;gap:4px 16px;padding:20px}
+  .ch .ic{grid-row:span 2;margin:0}
+  .ch p{margin:0}
+  .stat{padding:32px 26px;gap:12px;border-radius:20px}
+  .builder{padding:20px}
+  .row,.row3{grid-template-columns:minmax(0,1fr)}
+  .bact .btn{flex:1}
+  .plan{padding:24px}
+  .plan .amt{font-size:44px}
+  .faq{gap:20px}
+  .cta{padding:56px 0 96px}
+  footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .modal{padding:0;align-items:flex-end;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .modal .box{width:100%;height:calc(100dvh - 12px);border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .34s cubic-bezier(.32,.72,0,1)}
+  .mbar{display:flex;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:45;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .3s var(--ease)}
+  .mbar.on{transform:none}
+  .mbar .btn{flex:1;height:46px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
 </head>
 <body>
-<div class="draft"><b>Draft for review.</b> Product page for the DialBridge booking widget. Every screenshot is the real widget; prices and wording are not final.</div>
-<div class="wrap">
-  <nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="arw" viewBox="0 0 16 16"><path class="ln" d="M2 8h10"/><path class="hd" d="M7.5 3.5 12 8l-4.5 4.5"/></symbol>
+  <symbol id="chk" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<div class="draft"><b>Draft for review.</b> Product page for the DialBridge booking widget. Prices and wording are not final.</div>
+<header class="nav" id="nav">
+  <div class="wrap">
     <a class="logo" href="#">dialbridge<span>.</span>ai</a>
-    <div class="links"><a href="#how">How it works</a><a href="#texts">Reminders</a><a href="#owner">Your inbox</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
-    <a class="btn dark" href="#build">See your booking page <span class="dot"></span></a>
-  </nav>
+    <nav class="links" aria-label="Sections"><a href="#how">How it works</a><a href="#texts">Reminders</a><a href="#owner">Your inbox</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+    <a class="btn dark sm" href="#build">See your booking page <svg class="arw"><use href="#arw"/></svg></a>
+  </div>
+</header>
 
-  <header class="hero">
-    <div>
-      <div class="eyebrow"><span class="star">&#10035;</span>Online booking for home service businesses</div>
-      <h1 style="margin-top:22px">Let them book the job. <em>Even at 10 PM.</em></h1>
-      <p class="lede">A Book online button for your website and Google profile. Customers pick the job, see a price range and choose a time. You get a text with everything you need.</p>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <a class="btn" href="#build">Build my booking page <span class="dot"></span></a>
-        <button class="btn ghost" type="button" data-demo="harbor-haul">Try a live demo</button>
-      </div>
-      <div class="fine"><span>Set up for you</span><span>Works with your current website</span><span>Month to month</span></div>
-    </div>
-    <div class="browser">
-      <div class="bar"><i></i><i></i><i></i><span>deluxedetailsmobileservices.com</span></div>
-      <picture><source media="(max-width:900px)" srcset="img/mobile-services.png"><img src="img/site-popup.png" alt="The DialBridge booking popup open on a mobile detailing company's website" width="2160" height="1350"></picture>
-    </div>
-  </header>
-</div>
-
+<main>
 <div class="wrap">
-  <div class="strip">
-    <div class="eyebrow">Built for</div>
-    <b>Junk removal</b><b>Cleaning</b><b>Mobile detailing</b><b>HVAC</b><b>Landscaping</b><b>Pressure washing</b>
+  <section class="hero" aria-labelledby="h1">
+    <div>
+      <p class="eyebrow"><span class="star">&#10035;</span>Online booking for home service businesses</p>
+      <h1 id="h1" style="margin-top:20px">Let them book the job. <em>Even at 10 PM.</em></h1>
+      <p class="lede">A Book online button for your website and Google profile. Customers pick the job, see a price range and choose a time. You get a text with everything you need.</p>
+      <div class="cta-row">
+        <a class="btn" href="#build">Build my booking page <svg class="arw"><use href="#arw"/></svg></a>
+        <a class="btn ghost" href="#how">See how it works</a>
+      </div>
+      <ul class="checks">
+        <li><svg><use href="#chk"/></svg>Set up for you</li>
+        <li><svg><use href="#chk"/></svg>Works with your current website</li>
+        <li><svg><use href="#chk"/></svg>Month to month</li>
+      </ul>
+    </div>
+    <div class="demo">
+      <div class="demo-top">
+        <div class="seg" role="tablist" aria-label="Pick a sample business" id="seg">
+          <span class="pill" aria-hidden="true"></span>
+          <button role="tab" aria-selected="true" data-b="deluxe-detail">Mobile detailing</button>
+          <button role="tab" aria-selected="false" data-b="harbor-haul">Junk removal</button>
+          <button role="tab" aria-selected="false" data-b="sparkle-and-co">Cleaning</button>
+        </div>
+        <span class="live"><i></i>Live demo</span>
+      </div>
+      <div class="frame"><iframe id="heroFrame" title="Live booking demo" src="../book.html?b=deluxe-detail&amp;embed=1&amp;inline=1"></iframe></div>
+      <p class="demo-note"><span>Tap through it. Nothing is sent anywhere.</span><span id="demoName">Deluxe Details, Slidell LA</span></p>
+    </div>
+  </section>
+
+  <div class="trades">
+    <p class="eyebrow">Built for</p>
+    <span class="chip">Junk removal</span><span class="chip">Cleaning</span><span class="chip">Mobile detailing</span><span class="chip">HVAC</span><span class="chip">Landscaping</span><span class="chip">Pressure washing</span>
   </div>
 </div>
 
 <section class="s" id="how">
   <div class="wrap">
-    <div class="secnum"><span class="eyebrow">01 / What your customer sees</span><span class="eyebrow"><span class="star">&#10035;</span></span></div>
     <div class="shead">
-      <h2>Three taps to a booked job.</h2>
+      <div><p class="eyebrow">How it works</p><h2>Four taps to a booked job.</h2></div>
       <p>No "call for a quote". Customers see your real services with your photos, get a price range before they commit, and pick a time you actually have open.</p>
     </div>
-    <div class="cards3">
-      <div class="card"><div class="pic"><img src="img/detail-services.png" alt="Service tiles with the business's own photos"></div>
-        <div class="txt"><span class="n">01 &middot; Pick the job</span><h3>Your services, your photos.</h3><p>Big tap targets that work on a phone. Mixed loads are fine: a junk customer can pick furniture, appliances and bags in one go.</p></div></div>
-      <div class="card"><div class="pic"><img src="img/detail-price.png" alt="Vehicle size and extras with a live price range"></div>
-        <div class="txt"><span class="n">02 &middot; See the price</span><h3>A real price range, up front.</h3><p>Ranges come from your own pricing, plus extras like pet hair or heavy items. Big or odd jobs switch to "free estimate" with photos.</p></div></div>
-      <div class="card"><div class="pic"><img src="img/detail-time.png" alt="First available arrival windows"></div>
-        <div class="txt"><span class="n">03 &middot; Book a time</span><h3>Only times you can take.</h3><p>Arrival windows follow your hours, your notice period and how many jobs you can do in a day. Prefer to approve first? Turn bookings into requests.</p></div></div>
+    <div class="tour auto" id="tour">
+      <ol class="steps" role="tablist" aria-label="Booking steps">
+        <li><button class="step" role="tab" aria-selected="true" data-i="0"><span class="n">1</span><span><b>Pick the job</b><span class="more"><span><span>Your services with your own photos, big enough to tap on a phone. Mixed loads are fine: a junk customer can pick furniture, appliances and bags in one go.</span></span></span></span><span class="bar"><i></i></span></button></li>
+        <li><button class="step" role="tab" aria-selected="false" data-i="1"><span class="n">2</span><span><b>See the price</b><span class="more"><span><span>A real range from your own pricing, plus extras like pet hair or heavy items. Big or odd jobs switch to "free estimate" with photos.</span></span></span></span><span class="bar"><i></i></span></button></li>
+        <li><button class="step" role="tab" aria-selected="false" data-i="2"><span class="n">3</span><span><b>Book a time</b><span class="more"><span><span>Only times you can take: your hours, your notice period and how many jobs you do in a day. Prefer to approve first? Turn bookings into requests.</span></span></span></span><span class="bar"><i></i></span></button></li>
+        <li><button class="step" role="tab" aria-selected="false" data-i="3"><span class="n">4</span><span><b>Done. You get a text.</b><span class="more"><span><span>The customer gets a receipt with the price they saw. You get the job, the time and their number, wherever you are.</span></span></span></span><span class="bar"><i></i></span></button></li>
+      </ol>
+      <div class="phone" aria-hidden="true"><div class="scr">
+        <img class="on" src="img/m/detail-services.webp" alt="" width="780" height="1520">
+        <img src="img/m/detail-price.webp" alt="" width="780" height="1520" loading="lazy">
+        <img src="img/m/detail-time.webp" alt="" width="780" height="1520" loading="lazy">
+        <img src="img/m/detail-done.webp" alt="" width="780" height="1520" loading="lazy">
+      </div></div>
     </div>
   </div>
 </section>
@@ -226,21 +362,21 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
   <section class="s">
     <div class="wrap split">
       <div>
-        <div class="eyebrow">02 / What they get after booking</div>
+        <p class="eyebrow">After they book</p>
         <h2 style="margin-top:18px">Confirmations and reminders, in their own time zone.</h2>
         <p style="color:var(--ink2);max-width:500px;margin-top:18px">Every text says the time the way the customer picked it, so a customer in Louisiana reads 9:00 AM CST, not your 10:00 AM. Each reminder reads differently, so nobody thinks it was sent twice.</p>
         <ul class="list">
           <li><span>RIGHT AWAY</span>You're booked for Friday, Oct 9 at 9:00 AM CST.</li>
-          <li><span>DAY BEFORE</span>Looking forward to our call tomorrow at 9:00 AM CST.</li>
+          <li><span>DAY BEFORE</span>Looking forward to your detail tomorrow at 9:00 AM CST.</li>
           <li><span>3 HOURS BEFORE</span>Quick heads-up, we're still on for today at 9:00 AM CST.</li>
-          <li><span>1 HOUR BEFORE</span>We're talking in about an hour. Here's the link.</li>
+          <li><span>1 HOUR BEFORE</span>We'll be there in about an hour.</li>
         </ul>
       </div>
-      <div class="phone" aria-hidden="true">
-        <div class="screen">
+      <div class="lock" aria-hidden="true">
+        <div class="scr">
           <div class="clock"><small>Friday, October 9</small><b>8:02</b></div>
-          <div class="note"><div class="h"><b>Deluxe Details</b><span>now</span></div>Hey Craig, we're talking in about an hour (9:00 AM CST). Here's the link for when you're ready.</div>
-          <div class="note"><div class="h"><b>Deluxe Details</b><span>yesterday</span></div>Hey Craig, looking forward to our detail tomorrow at 9:00 AM CST. If the time doesn't work anymore, just text back.</div>
+          <div class="note"><div class="h"><b>Deluxe Details</b><span>now</span></div>Hey Craig, we'll be there in about an hour (9:00 AM CST). Text back if anything changed.</div>
+          <div class="note"><div class="h"><b>Deluxe Details</b><span>yesterday</span></div>Hey Craig, looking forward to your detail tomorrow at 9:00 AM CST. If the time doesn't work anymore, just text back.</div>
           <div class="note"><div class="h"><b>Deluxe Details</b><span>Wed</span></div>You're booked for Friday, Oct 9 at 9:00 AM CST. Full detail, SUV. $249 to $289.</div>
         </div>
       </div>
@@ -250,21 +386,20 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
 
 <section class="s" id="owner">
   <div class="wrap">
-    <div class="secnum"><span class="eyebrow">03 / What you get</span><span class="eyebrow"><span class="star">&#10035;</span></span></div>
     <div class="shead">
-      <h2>Every request in one inbox. A text the second it lands.</h2>
+      <div><p class="eyebrow">What you get</p><h2>Every request in one inbox. A text the second it lands.</h2></div>
       <p>You see the job, the price you showed, the time they picked and where they came from. Reply with one tap, mark it won or lost, and see what came in after hours.</p>
     </div>
     <div class="owner">
-      <div class="browser"><div class="bar"><i></i><i></i><i></i><span>app.dialbridge.ai/inbox</span></div><img src="img/owner-inbox.png" alt="Owner inbox with new requests, price shown and quick replies"></div>
-      <div>
+      <div class="frame"><picture><source media="(max-width:640px)" srcset="img/m/owner-inbox.webp" width="780" height="1520"><img src="img/owner-inbox.webp" alt="Owner inbox with new requests, the price shown and quick replies" width="2160" height="1350" loading="lazy"></picture></div>
+      <div class="side">
         <div class="alert">
-          <div class="eyebrow">Text to your phone</div>
+          <p class="eyebrow">Text to your phone</p>
           <div class="sms"><small>DialBridge &middot; 9:48 PM</small>New booking: Omar Diaz, Fair Lawn. Appliances, 1/4 truck. Shown $199 to $279. Sun Oct 11, afternoon. Tap to reply: dialbridge.ai/r/R1000</div>
         </div>
         <div class="kv">
-          <div><b>19 min</b><span>median reply time, demo data</span></div>
-          <div><b>14 of 34</b><span>requests came in after hours, demo data</span></div>
+          <div><b>19 min</b><span>median reply time (demo data)</span></div>
+          <div><b>14 of 34</b><span>requests came in after hours (demo data)</span></div>
         </div>
       </div>
     </div>
@@ -273,12 +408,12 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
 
 <section class="s" style="padding-top:0">
   <div class="wrap">
-    <div class="secnum"><span class="eyebrow">04 / Works everywhere they find you</span><span class="eyebrow"><span class="star">&#10035;</span></span></div>
-    <div class="grid4">
-      <div class="tile"><div class="ic">&#9635;</div><h3>Your website</h3><p>One line of code adds a Book online button to every page. Works on WordPress, Wix, Squarespace and GoDaddy.</p></div>
-      <div class="tile"><div class="ic">G</div><h3>Google profile</h3><p>Your booking page becomes the booking link on your Google Business Profile.</p></div>
-      <div class="tile"><div class="ic">&#9993;</div><h3>Missed-call text</h3><p>Can't pick up? The caller gets a text with your booking link and books without you.</p></div>
-      <div class="tile"><div class="ic">#</div><h3>Any link</h3><p>Add <code>?book</code> to your link in a Facebook post or Instagram bio and it opens straight to booking.</p></div>
+    <div class="shead" style="margin-bottom:36px"><div><h2>Works everywhere they find you.</h2></div></div>
+    <div class="chan">
+      <div class="ch"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/></svg></div><h3>Your website</h3><p>One line of code adds a Book online button to every page. Works on WordPress, Wix, Squarespace and GoDaddy.</p></div>
+      <div class="ch"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div><h3>Google profile</h3><p>Your booking page becomes the booking link on your Google Business Profile.</p></div>
+      <div class="ch"><div class="ic"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></div><h3>Missed-call text</h3><p>Can't pick up? The caller gets a text with your booking link and books without you.</p></div>
+      <div class="ch"><div class="ic"><svg viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg></div><h3>Any link</h3><p>Add <code>?book</code> to your link in a Facebook post or Instagram bio and it opens straight to booking.</p></div>
     </div>
   </div>
 </section>
@@ -286,37 +421,37 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
 <section class="s" style="padding-top:0">
   <div class="wrap">
     <div class="stat">
-      <div><div class="big">41%</div></div>
+      <div class="big">41%</div>
       <div>
-        <div class="eyebrow" style="color:#a9b19f">Why online booking</div>
-        <h2 style="margin-top:16px;font-size:clamp(28px,3.4vw,40px)">of online bookings come in after hours.</h2>
-        <p style="margin-top:16px">That's when you're with your family, not your phone. Source: <a href="https://www.housecallpro.com/features/online-booking/">Housecall Pro platform data</a>. ServiceTitan reports a similar 51% on its platform.</p>
+        <p class="eyebrow" style="color:#a9b19f">Why online booking</p>
+        <h2 style="margin-top:14px;font-size:clamp(28px,3.4vw,40px)">of online bookings come in after hours.</h2>
+        <p>That's when you're with your family, not your phone. Source: <a href="https://www.housecallpro.com/features/online-booking/">Housecall Pro platform data</a>. ServiceTitan reports a similar 51% on its platform.</p>
       </div>
     </div>
   </div>
 </section>
 
 <section class="s" id="build" style="padding-top:0">
-  <div class="wrap split">
+  <div class="wrap split" style="align-items:start">
     <div>
-      <div class="eyebrow">05 / Try it with your business</div>
+      <p class="eyebrow">Try it with your business</p>
       <h2 style="margin-top:18px">See your booking page in 30 seconds.</h2>
-      <p style="color:var(--ink2);max-width:480px;margin-top:16px">Type your business name, pick your trade and color. We build a working booking page you can click through right now. Nothing is sent anywhere.</p>
+      <p style="color:var(--ink2);max-width:460px;margin-top:16px">Type your business name, pick your trade and color. We build a working booking page you can click through right now. Nothing is sent anywhere.</p>
     </div>
     <form class="builder" id="builder" autocomplete="off">
       <h4>Build my booking page</h4>
       <p>A free preview. It's yours to try, no sign-up.</p>
       <div class="row">
         <label class="f">Business name<input id="bName" required placeholder="Haul Pros Junk Removal" maxlength="60"></label>
-        <label class="f">Phone<input id="bPhone" placeholder="(201) 555-0148" maxlength="20"></label>
+        <label class="f">Phone<input id="bPhone" type="tel" inputmode="tel" placeholder="(201) 555-0148" maxlength="20"></label>
       </div>
       <div class="row3">
         <label class="f">Trade<select id="bTrade"><option value="junk">Junk removal</option><option value="cleaning">House cleaning</option><option value="detailing">Mobile detailing</option><option value="hvac">HVAC</option></select></label>
         <label class="f">Service area<input id="bArea" placeholder="Bergen County" maxlength="60"></label>
         <label class="f">Color<input id="bColor" type="color" value="#0E6650"></label>
       </div>
-      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-        <button class="btn" type="submit">Show my booking page <span class="dot"></span></button>
+      <div class="bact">
+        <button class="btn" type="submit">Show my booking page <svg class="arw"><use href="#arw"/></svg></button>
         <a class="btn ghost" id="bSite" href="#" target="_blank" rel="noopener">See it on a sample website</a>
       </div>
     </form>
@@ -325,7 +460,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
 
 <section class="s" id="pricing" style="padding-top:0">
   <div class="wrap">
-    <div class="secnum"><span class="eyebrow">06 / Pricing</span><span class="tag">Draft</span></div>
+    <div class="shead" style="margin-bottom:36px"><div><p class="eyebrow">Pricing <span class="tag">Draft</span></p><h2 style="margin-top:4px">One plan. We set it all up.</h2></div></div>
     <div class="price">
       <div class="plan main">
         <span class="tag">Most owners pick this</span>
@@ -333,14 +468,14 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
         <div class="amt">$199<small>/month</small></div>
         <div style="color:var(--mute);font-size:14px">$199 one-time setup. Month to month.</div>
         <ul>
-          <li>A fast website built to book jobs</li>
-          <li>Booking widget with your services, photos and prices</li>
-          <li>Confirmations and reminders in the customer's time zone</li>
-          <li>Owner inbox and a text for every new request</li>
-          <li>Google Business Profile cleanup and Book button</li>
-          <li>We set it all up. One short call from you.</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>A fast website built to book jobs</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Booking widget with your services, photos and prices</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Confirmations and reminders in the customer's time zone</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Owner inbox and a text for every new request</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Google Business Profile cleanup and Book button</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>We set it all up. One short call from you.</li>
         </ul>
-        <a class="btn" href="#build">Start with a free preview <span class="dot"></span></a>
+        <a class="btn" href="#build">Start with a free preview <svg class="arw"><use href="#arw"/></svg></a>
       </div>
       <div class="plan">
         <span class="tag">Already have a site you like</span>
@@ -348,9 +483,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
         <div class="amt" style="font-size:34px">Ask us</div>
         <div style="color:var(--mute);font-size:14px">Price to be set. Same booking engine, added to your current website.</div>
         <ul>
-          <li>Book online button for your website</li>
-          <li>Hosted booking page for Google and social</li>
-          <li>Reminders and owner inbox</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Book online button for your website</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Hosted booking page for Google and social</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Reminders and owner inbox</li>
         </ul>
         <a class="btn ghost" href="https://cal.com/dialbridge.ai/discovery-call">Book a 15-minute call</a>
       </div>
@@ -360,38 +495,108 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
 
 <section class="s" id="faq" style="padding-top:0">
   <div class="wrap faq">
-    <div><div class="eyebrow">07 / Questions</div><h2 style="margin-top:18px">A few things owners ask.</h2></div>
-    <div>
-      <details><summary>Do I need a new website?</summary><p>No. The booking button works on the site you already have. If your site is slow or out of date, we can build you a new one as part of the plan.</p></details>
-      <details><summary>What if a booking doesn't work for me?</summary><p>You can set any service to "request" instead of instant booking, so you approve it first. You can also change or cancel from your inbox and the customer is told by text.</p></details>
-      <details><summary>Will customers see prices I don't want to commit to?</summary><p>They see ranges you set, with a note that the final price is confirmed on site. Big or unusual jobs go to "free estimate" with photos instead.</p></details>
-      <details><summary>Does it work with my phone number and my calendar?</summary><p>Yes. Requests come to your phone by text and to your inbox. Calendar and field-software sync (Jobber, Housecall Pro) is on our roadmap.</p></details>
-      <details><summary>How fast can it be live?</summary><p>After a short call, we set up your services, prices and hours. Most of the work is ours, not yours.</p></details>
-      <details><summary>Am I locked in?</summary><p>No. It's month to month and you can cancel any time.</p></details>
+    <div><p class="eyebrow">Questions</p><h2 style="margin-top:18px">A few things owners ask.</h2></div>
+    <div id="faqList">
+      <div class="qa"><button type="button" aria-expanded="false">Do I need a new website?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>No. The booking button works on the site you already have. If your site is slow or out of date, we can build you a new one as part of the plan.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">What if a booking doesn't work for me?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>You can set any service to "request" instead of instant booking, so you approve it first. You can also change or cancel from your inbox and the customer is told by text.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Will customers see prices I don't want to commit to?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>They see ranges you set, with a note that the final price is confirmed on site. Big or unusual jobs go to "free estimate" with photos instead.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Does it work with my phone number and my calendar?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>Yes. Requests come to your phone by text and to your inbox. Calendar and field-software sync (Jobber, Housecall Pro) is on our roadmap.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">How fast can it be live?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>After a short call, we set up your services, prices and hours. Most of the work is ours, not yours.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Am I locked in?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>No. It's month to month and you can cancel any time.</p></div></div></div>
     </div>
   </div>
 </section>
+</main>
 
 <div class="cta">
   <div class="wrap">
-    <div><div class="eyebrow" style="color:#ffe1d6">Your next job could already be trying to book</div><h2 style="margin-top:12px">Let them book it.</h2></div>
-    <a class="btn" href="#build">See your booking page <span class="dot"></span></a>
+    <div><p class="eyebrow">Your next job could already be trying to book</p><h2 style="margin-top:12px">Let them book it.</h2></div>
+    <a class="btn dark" href="#build">See your booking page <svg class="arw"><use href="#arw"/></svg></a>
   </div>
 </div>
 <footer><div class="wrap"><span>&copy; 2026 Dial Bridge LLC &middot; Mahwah, NJ</span><span>Draft page. Not linked from dialbridge.ai.</span></div></footer>
 
-<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Booking demo"><div class="box"><button class="close" type="button" id="mClose">Close &#10005;</button><iframe id="mFrame" title="Booking demo"></iframe></div></div>
+<div class="mbar" id="mbar"><a class="btn" href="#build">Build my booking page <svg class="arw"><use href="#arw"/></svg></a></div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Your booking page preview"><div class="box"><button class="close" type="button" id="mClose" aria-label="Close preview"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><iframe id="mFrame" title="Your booking page preview"></iframe></div></div>
 
 <script>
 (function () {
   var BASE = '../';
-  var modal = document.getElementById('modal'), frame = document.getElementById('mFrame');
-  function open(src) { frame.src = src; modal.classList.add('on'); }
-  function close() { modal.classList.remove('on'); frame.src = 'about:blank'; }
+  var mobile = function () { return window.matchMedia('(max-width: 640px)').matches; };
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Sticky nav gets a hairline once the page scrolls; the phone CTA bar shows after the hero.
+  var nav = document.getElementById('nav'), mbar = document.getElementById('mbar'), hero = document.querySelector('.hero');
+  function onScroll() {
+    nav.classList.toggle('scrolled', scrollY > 8);
+    var past = hero.getBoundingClientRect().bottom < 0;
+    var build = document.getElementById('build').getBoundingClientRect();
+    mbar.classList.toggle('on', past && !(build.top < innerHeight && build.bottom > 0));
+  }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // Hero: live widget, sized to each screen, with a trade switcher.
+  var frame = document.getElementById('heroFrame'), seg = document.getElementById('seg'), pill = seg.querySelector('.pill'), demoName = document.getElementById('demoName');
+  var NAMES = { 'deluxe-detail': 'Deluxe Details, Slidell LA', 'harbor-haul': 'Harbor Haul, sample business', 'sparkle-and-co': 'Sparkle & Co., sample business' };
+  function placePill() { var on = seg.querySelector('[aria-selected="true"]'); pill.style.width = on.offsetWidth + 'px'; pill.style.transform = 'translateX(' + (on.offsetLeft - 4 + 4) + 'px)'; }
+  placePill(); addEventListener('resize', placePill);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placePill);
+  seg.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || b.getAttribute('aria-selected') === 'true') return;
+    seg.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+    placePill();
+    frame.classList.add('swap');
+    setTimeout(function () { frame.src = BASE + 'book.html?b=' + b.getAttribute('data-b') + '&embed=1&inline=1'; }, reduce ? 0 : 180);
+    demoName.textContent = NAMES[b.getAttribute('data-b')] || '';
+  });
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.source !== frame.contentWindow) return;
+    if (e.data.type === 'dbw:ready') frame.classList.remove('swap');
+    if (e.data.type === 'dbw:height' && e.data.h > 0) {
+      var max = mobile() ? Math.min(640, innerHeight - 90) : 700;
+      frame.style.height = Math.max(mobile() ? 460 : 540, Math.min(Math.round(e.data.h), max)) + 'px';
+    }
+  });
+
+  // How it works: tabs that advance on their own until someone taps one.
+  var tour = document.getElementById('tour'), steps = tour.querySelectorAll('.step'), pics = tour.querySelectorAll('.phone img'), cur = 0, timer = null, DUR = 5500, inView = false;
+  function show(i) {
+    cur = i;
+    steps.forEach(function (s, k) { s.setAttribute('aria-selected', k === i ? 'true' : 'false'); var bar = s.querySelector('.bar i'); bar.style.animation = 'none'; bar.offsetWidth; bar.style.animation = ''; });
+    pics.forEach(function (p, k) { p.classList.toggle('on', k === i); });
+  }
+  function tick() { clearTimeout(timer); if (!tour.classList.contains('auto') || !inView) return; timer = setTimeout(function () { show((cur + 1) % steps.length); tick(); }, DUR); }
+  steps.forEach(function (s) { s.addEventListener('click', function () { tour.classList.remove('auto'); clearTimeout(timer); show(+s.getAttribute('data-i')); }); });
+  if (reduce) tour.classList.remove('auto');
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { inView = en[0].isIntersecting; tour.classList.toggle('paused', !inView); if (inView) { show(cur); tick(); } else clearTimeout(timer); }, { threshold: 0.35 }).observe(tour);
+  tour.addEventListener('mouseenter', function () { if (tour.classList.contains('auto')) { clearTimeout(timer); tour.classList.add('paused'); } });
+  tour.addEventListener('mouseleave', function () { if (tour.classList.contains('auto')) { tour.classList.remove('paused'); show(cur); tick(); } });
+
+  // FAQ: smooth open/close.
+  document.getElementById('faqList').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var qa = b.parentNode, open = qa.hasAttribute('data-open');
+    if (open) qa.removeAttribute('data-open'); else qa.setAttribute('data-open', '');
+    b.setAttribute('aria-expanded', open ? 'false' : 'true');
+  });
+
+  // Builder preview: same popup feel as the widget (bottom sheet on phones).
+  var modal = document.getElementById('modal'), mframe = document.getElementById('mFrame'), last = null;
+  function open(src) {
+    last = document.activeElement; mframe.src = src;
+    modal.classList.add('on'); document.documentElement.style.overflow = 'hidden';
+    requestAnimationFrame(function () { requestAnimationFrame(function () { modal.classList.add('show'); }); });
+  }
+  function close() {
+    if (!modal.classList.contains('on')) return;
+    modal.classList.remove('show'); document.documentElement.style.overflow = '';
+    setTimeout(function () { modal.classList.remove('on'); mframe.src = 'about:blank'; }, reduce ? 0 : 260);
+    if (last && last.focus) last.focus();
+  }
   document.getElementById('mClose').addEventListener('click', close);
   modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-  document.querySelectorAll('[data-demo]').forEach(function (b) { b.addEventListener('click', function () { open(BASE + 'book.html?b=' + b.getAttribute('data-demo')); }); });
   function enc(o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
   function cfg() {
     var $ = function (id) { return document.getElementById(id); };

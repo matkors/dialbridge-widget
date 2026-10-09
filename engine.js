@@ -284,7 +284,7 @@
       }
       if (d.type === 'time') {
         h += '<div class="tabs"><button type="button" class="' + (S.tmode === 'first' ? 'on' : '') + '" data-act="tmode" data-v="first">First available</button><button type="button" class="' + (S.tmode === 'day' ? 'on' : '') + '" data-act="tmode" data-v="day">Pick a day</button></div>';
-        h += '<p class="meta">' + ic('globe') + 'Eastern Time. ' + (B.timeMode === 'slots' ? 'Pick a start time.' : 'Pick an arrival window; we text to confirm.') + '</p>';
+        h += '<p class="meta">' + ic('globe') + ({ 'America/Chicago': 'Central', 'America/Denver': 'Mountain', 'America/Phoenix': 'Arizona', 'America/Los_Angeles': 'Pacific' }[B.tz] || 'Eastern') + ' Time. ' + (B.timeMode === 'slots' ? 'Pick a start time.' : 'Pick an arrival window; we text to confirm.') + '</p>';
         if (S.tmode === 'first') {
           h += '<div class="radios">' + firstAvailable().map(function (r) { var on = S.day === r.day.key && S.time === r.w.id; return '<button type="button" class="radio' + (on ? ' on' : '') + '" data-act="slot" data-d="' + esc(r.day.key) + '" data-v="' + esc(r.w.id) + '"><span class="rb"></span>' + dayLabel(r.day) + ', ' + r.w.label + '</button>'; }).join('') + '</div>';
         } else {
@@ -341,7 +341,7 @@
       if (S.photos.length) rows.push(['Photos', S.photos.length + ' attached']);
       if (whenText()) rows.push(['When', whenText()]);
       var p = priceInfo(); if (p && (S.path === 'book' || S.path === 'quote')) rows.push(['Estimate', p.text]);
-      var h = '<div class="donehd"><span class="okc">' + ic('check') + '</span><div><h3>' + title + ', ' + who + '</h3><p class="lede">' + text + '</p></div></div>';
+      var h = '<div class="donehd"><span class="okc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="draw" pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><h3>' + title + ', ' + who + '</h3><p class="lede">' + text + '</p></div></div>';
       if (rows.length) h += '<dl class="receipt"><div class="rh"><span>Request #' + S.done.id + '</span><span>Waiting for confirmation</span></div>' + rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
       return h + '<p class="meta">' + foot + '</p>';
     }
@@ -371,16 +371,52 @@
       if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? 'Request walkthrough' : 'Send booking request') : 'Send price request';
       if (t === 'message') label = 'Send message';
       if (t === 'callback') label = 'Request a call back';
-      var next = t === 'call' ? '' : '<button type="button" class="btn" id="next" data-act="next"' + (screenValid(sc) ? '' : ' disabled') + '>' + label + '</button>';
+      var next = t === 'call' ? '' : '<button type="button" class="btn" id="next" data-act="next"' + (screenValid(sc) ? '' : ' disabled') + '>' + label + (label === 'Continue' ? ic('arrow-right', 'arr') : '') + '</button>';
       return '<footer class="ft">' + (t === 'call' ? '<span></span>' : call) + '<div class="ft-r"><button type="button" class="btn-g" data-act="back">Back</button>' + next + '</div></footer>' + pow;
     }
 
+    // NAV = 'fwd' | 'back' | 'done' when the screen changes (slides the new screen in); null for taps inside a screen.
+    // JUST = selector of the control that was just tapped, so only it plays the select animation.
+    var NAV = null, JUST = null, RO = null, firstPaint = true;
     function render(scrollTo) {
-      app.innerHTML = headerHtml() + stepperHtml() + '<div class="bd" id="bd">' + bodyHtml() + '</div>' + footHtml();
+      var old = document.getElementById('bd'), keep = old && !NAV ? old.scrollTop : 0;
+      var hadSteps = !!app.querySelector('.steps');
+      app.innerHTML = headerHtml() + stepperHtml() + '<div class="bd" id="bd"><div class="bdi" id="bdi">' + bodyHtml() + '</div></div>' + footHtml();
       if (window.lucide) window.lucide.createIcons();
       var bd = document.getElementById('bd');
-      if (scrollTo) { var el = document.getElementById('blk-' + scrollTo); if (el && bd) bd.scrollTo({ top: Math.max(0, el.offsetTop - bd.offsetTop - 8), behavior: 'smooth' }); }
-      else if (bd) bd.scrollTop = 0;
+      if (NAV && !firstPaint) bd.classList.add(NAV === 'back' ? 'in-back' : NAV === 'done' ? 'in-done' : 'in-fwd');
+      if (NAV === 'fwd' && hadSteps) { var now = app.querySelector('.steps li.now'); if (now) now.classList.add('grow'); }
+      if (NAV && !firstPaint) Array.prototype.slice.call(app.querySelectorAll('#bdi .mrow, #bdi .tile, #bdi .radio, #bdi .chip, #bdi .day'), 0, 12).forEach(function (el, i) { el.classList.add('stag'); el.style.setProperty('--i', i); });
+      if (JUST) { try { var j = app.querySelector(JUST); if (j) j.classList.add('just'); } catch (e) { } }
+      if (bd) {
+        bd.scrollTop = keep;
+        if (scrollTo) { var el = document.getElementById('blk-' + scrollTo); if (el) bd.scrollTo({ top: Math.max(0, el.offsetTop - bd.offsetTop - 8), behavior: 'smooth' }); }
+      }
+      NAV = null; JUST = null;
+      watchHeight();
+      if (firstPaint) { firstPaint = false; post('dbw:ready', { light: !!B.logo }); }
+    }
+    // Tell w.js how tall this screen wants to be, so the popup fits the content instead of showing a half-empty card.
+    function wantedHeight() {
+      var h = 0;
+      Array.prototype.forEach.call(app.children, function (c) {
+        if (c.id !== 'bd') { h += c.offsetHeight; return; }
+        var cs = getComputedStyle(c), inner = document.getElementById('bdi');
+        h += (inner ? inner.offsetHeight : 0) + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      });
+      return Math.ceil(h);
+    }
+    var lastH = 0;
+    function sendHeight() { var h = wantedHeight(); if (Math.abs(h - lastH) > 1) { lastH = h; post('dbw:height', { h: h }); } }
+    function watchHeight() {
+      if (!EMBED) return;
+      if (window.ResizeObserver) {
+        if (RO) RO.disconnect();
+        RO = new ResizeObserver(sendHeight);
+        var bdi = document.getElementById('bdi'); if (bdi) RO.observe(bdi);
+        Array.prototype.forEach.call(app.children, function (c) { if (c.id !== 'bd') RO.observe(c); });
+      }
+      requestAnimationFrame(sendHeight);
     }
     function nextBlockAfter(id) { var sc = curScreen(); if (!sc) return null; var i = sc.indexOf(id); return i > -1 && i < sc.length - 1 ? sc[i + 1] : null; }
 
@@ -409,7 +445,7 @@
     function finish() {
       var reqId = (B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000);
       var done = function () {
-        S.done = { id: reqId }; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id });
+        S.done = { id: reqId }; NAV = 'done'; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id });
         // Demo only: hand the booking to the DialBridge dashboard demo on the same site, so it shows up in the owner inbox.
         if (B.demo) { try { var q = JSON.parse(localStorage.getItem('dbx_inbox_queue') || '[]'); q.push(payload(reqId)); localStorage.setItem('dbx_inbox_queue', JSON.stringify(q.slice(-20))); } catch (e) { } }
         render();
@@ -417,48 +453,50 @@
       // Demos have no submitUrl, so nothing leaves the page. A real business config points this at its intake webhook.
       if (!B.submitUrl || !/^https:\/\//.test(B.submitUrl)) return done();
       var btn = document.getElementById('next');
-      if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+      if (btn) { btn.disabled = true; btn.classList.add('busy'); btn.innerHTML = '<span class="spin" aria-hidden="true"></span>Sending'; }
       var ctl = window.AbortController ? new AbortController() : null;
       var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 10000);
       fetch(B.submitUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload(reqId)), signal: ctl ? ctl.signal : undefined })
         .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error(r.status); done(); })
         .catch(function () {
           clearTimeout(timer);
-          if (btn) { btn.disabled = false; btn.textContent = 'Try again'; }
+          if (btn) { btn.disabled = false; btn.classList.remove('busy'); btn.textContent = 'Try again'; }
           var bd = document.getElementById('bd');
           if (bd && !document.getElementById('sendErr')) bd.insertAdjacentHTML('beforeend', '<p class="warn" id="sendErr">That did not go through. Try again, or call ' + esc(B.name) + ' at <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a>.</p>');
         });
     }
     function advance() {
       if (S.idx >= screens().length - 1) return finish();
-      S.idx++; render();
+      S.idx++; NAV = 'fwd'; render();
     }
     function post(type, data) { try { if (EMBED && parent !== window) parent.postMessage(Object.assign({ type: type }, data || {}), '*'); } catch (e) { } }
 
     app.addEventListener('click', function (e) {
       var el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
       var act = el.getAttribute('data-act'), v = el.getAttribute('data-v');
-      if (act === 'start') { S.path = v === 'call' ? (OPEN ? 'call' : 'callback') : v; S.idx = 0; render(); }
+      var sel = function (a) { return '[data-act="' + a + '"][data-v="' + (window.CSS && CSS.escape ? CSS.escape(v || '') : v) + '"]'; };
+      if (act === 'start') { S.path = v === 'call' ? (OPEN ? 'call' : 'callback') : v; S.idx = 0; NAV = 'fwd'; render(); }
       else if (act === 'svc') {
         var before = S.svc ? S.svc.mode : null;
         if (T.multiService) { var at = S.svcs.indexOf(v); if (at > -1) S.svcs.splice(at, 1); else S.svcs.push(v); }
         else S.svcs = [v];
         S.svc = combined();
         if (!T.multiService || !S.svc || S.svc.mode !== before) { S.ans = {}; S.addons = {}; }
+        JUST = sel('svc');
         render(T.multiService ? 'service' : nextBlockAfter('service'));
       }
-      else if (act === 'opt') { var sid = el.getAttribute('data-s'); var first = !S.ans[sid]; S.ans[sid] = v; render(first ? nextBlockAfter(sid) || sid : sid); }
-      else if (act === 'addon') { S.addons[v] = !S.addons[v]; render('addons'); }
+      else if (act === 'opt') { var sid = el.getAttribute('data-s'); var first = !S.ans[sid]; S.ans[sid] = v; JUST = sel('opt') + '[data-s="' + sid + '"]'; render(first ? nextBlockAfter(sid) || sid : sid); }
+      else if (act === 'addon') { S.addons[v] = !S.addons[v]; JUST = sel('addon'); render('addons'); }
       else if (act === 'tmode') { S.tmode = v; render(); }
-      else if (act === 'day') { S.day = v; S.time = null; render(); }
-      else if (act === 'slot') { S.day = el.getAttribute('data-d'); S.time = v; render(); }
-      else if (act === 'cb') { S.cb = v; render(); }
-      else if (act === 'callback') { S.path = 'callback'; S.idx = 0; render(); }
+      else if (act === 'day') { S.day = v; S.time = null; JUST = sel('day'); render(); }
+      else if (act === 'slot') { S.day = el.getAttribute('data-d'); S.time = v; JUST = sel('slot') + '[data-d="' + S.day + '"]'; render(); }
+      else if (act === 'cb') { S.cb = v; JUST = sel('cb'); render(); }
+      else if (act === 'callback') { S.path = 'callback'; S.idx = 0; NAV = 'fwd'; render(); }
       else if (act === 'next') { if (screenValid(curScreen())) advance(); }
-      else if (act === 'back') { if (S.idx === 0) { S.path = null; S.svc = null; S.svcs = []; S.ans = {}; } else S.idx--; render(); }
+      else if (act === 'back') { if (S.idx === 0) { S.path = null; S.svc = null; S.svcs = []; S.ans = {}; } else S.idx--; NAV = 'back'; render(); }
       else if (act === 'photos') { var f = document.getElementById('ph'); if (f) f.click(); }
-      else if (act === 'restart') { fresh(); render(); }
-      else if (act === 'close') { post('dbw:close'); fresh(); render(); }
+      else if (act === 'restart') { fresh(); NAV = 'back'; render(); }
+      else if (act === 'close') { post('dbw:close'); if (S.done) { fresh(); render(); } }
     });
     app.addEventListener('input', function (e) {
       var k = e.target.getAttribute('data-in'); if (!k) return;
@@ -470,8 +508,10 @@
       Array.prototype.slice.call(e.target.files || [], 0, 10 - S.photos.length).forEach(function (f) { S.photos.push(URL.createObjectURL(f)); });
       render();
     });
+    app.addEventListener('focusin', function (e) { if (e.target.matches('input,textarea')) post('dbw:focus', { on: true }); });
+    app.addEventListener('focusout', function (e) { if (e.target.matches('input,textarea')) post('dbw:focus', { on: false }); });
     app.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('input[data-in]') && screenValid(curScreen())) { e.preventDefault(); advance(); } });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && CLOSABLE) { post('dbw:close'); fresh(); render(); } });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && CLOSABLE) { post('dbw:close'); if (S.done) { fresh(); render(); } } });
 
     var st0 = params.get('start');
     if (/^(book|quote|text)$/.test(st0 || '')) S.path = st0;
