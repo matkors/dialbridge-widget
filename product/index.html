@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="img/m/detail-services.webp">
 <style>
 :root{
   --bg:#f5f4ef; --paper:#fbfaf6; --white:#fff; --ink:#20251f; --ink2:#3b4238; --mute:#6a6e66; --line:#e4e2d9; --line2:#d8d5ca;
@@ -23,121 +22,141 @@ html{scroll-behavior:smooth;scroll-padding-top:80px}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{max-width:100%;height:auto;display:block}
 a{color:inherit}
-button{font-family:inherit;color:inherit}
+button,input,select{font-family:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 .wrap{max-width:1180px;margin:0 auto;padding-inline:28px}
 
 /* top */
 .draft{background:var(--deep);color:#d9ddd2;font-size:12.5px;text-align:center;padding:7px 16px}
 .draft b{color:#fff;font-weight:600}
-.nav{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid transparent;transition:border-color .2s,background-color .2s}
+.nav{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid transparent;transition:border-color .2s}
 .nav.scrolled{border-bottom-color:var(--line)}
 .nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
 .logo{font-weight:800;font-size:21px;letter-spacing:-.02em;text-decoration:none}
 .logo span{color:var(--accent)}
-.links{display:flex;gap:6px;font-size:15px;font-weight:500}
+.links{display:flex;gap:4px;font-size:15px;font-weight:500}
 .links a{text-decoration:none;color:var(--ink2);padding:7px 12px;border-radius:8px;transition:background-color .15s,color .15s}
 .links a:hover{background:rgba(32,37,31,.06);color:var(--ink)}
 
-/* buttons: Stripe-style arrow (the line draws in, the head slides) */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px 0 22px;border-radius:10px;border:0;background:var(--accent);color:#fff;font:600 15.5px/1 Manrope,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(32,37,31,.14),inset 0 1px 0 rgba(255,255,255,.18);transition:background-color .15s,transform .12s var(--ease),box-shadow .2s}
+/* buttons: the arrow's line draws in and its head slides on hover */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px 0 22px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:600 15.5px/1 Manrope,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(32,37,31,.16),inset 0 1px 0 rgba(255,255,255,.2);transition:background-color .15s,transform .12s var(--ease)}
 .btn:hover{background:var(--accent-ink)}
 .btn:active{transform:scale(.97)}
 .btn.dark{background:var(--deep)}
 .btn.dark:hover{background:#0f130e}
 .btn.ghost{background:var(--white);color:var(--ink);box-shadow:0 0 0 1px var(--line2),0 1px 2px rgba(32,37,31,.06)}
-.btn.ghost:hover{background:var(--white);box-shadow:0 0 0 1px #b9b5a8,0 2px 6px rgba(32,37,31,.08)}
-.btn.sm{height:40px;padding:0 14px 0 16px;font-size:14.5px;border-radius:9px}
+.btn.ghost:hover{box-shadow:0 0 0 1px #b9b5a8,0 2px 6px rgba(32,37,31,.08)}
+.btn.sm{height:40px;padding:0 14px 0 16px;font-size:14.5px;border-radius:10px}
 .arw{width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
 .arw .ln{opacity:0;transition:opacity .15s}
 .arw .hd{transition:transform .2s var(--ease)}
-.btn:hover .arw .ln,.tlink:hover .arw .ln{opacity:1}
-.btn:hover .arw .hd,.tlink:hover .arw .hd{transform:translateX(3px)}
-.tlink{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--accent-ink);text-decoration:none;font-size:15.5px}
+.btn:hover .arw .ln{opacity:1}
+.btn:hover .arw .hd{transform:translateX(3px)}
 
-.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:10px;margin:0}
-.eyebrow .star{color:var(--accent);font-size:15px;letter-spacing:0}
-h1,h2,h3{letter-spacing:-.03em;line-height:1.05;margin:0;font-weight:700;text-wrap:balance}
-h1{font-size:clamp(42px,5.6vw,76px)}
-h1 em{font-style:normal;color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:0}
+h1,h2,h3{letter-spacing:-.03em;line-height:1.04;margin:0;font-weight:700;text-wrap:balance}
 h2{font-size:clamp(32px,4vw,50px)}
 h3{font-size:21px;letter-spacing:-.02em;line-height:1.2}
-.lede{font-size:19px;color:var(--ink2);max-width:500px;margin:22px 0 30px}
-.checks{font-size:14px;color:var(--mute);display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none}
+
+/* ---------- hero (centered) ---------- */
+.hero{position:relative;text-align:center;padding:64px 0 0;isolation:isolate}
+.hero::before{content:"";position:absolute;inset:-120px 0 auto;height:620px;z-index:-1;pointer-events:none;
+  background:radial-gradient(42% 60% at 50% 0%,rgba(243,84,39,.12),transparent 70%),radial-gradient(30% 50% at 18% 30%,rgba(166,184,140,.28),transparent 70%),radial-gradient(30% 50% at 82% 30%,rgba(166,184,140,.22),transparent 70%)}
+.badge{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:999px;background:var(--white);box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(32,37,31,.05);font-size:14px;font-weight:600;color:var(--ink2)}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(243,84,39,.16)}
+.hero h1{font-size:clamp(44px,6.6vw,88px);margin:24px auto 0;max-width:15ch}
+.hero h1 .ln{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
+.hero h1 .ln > span{display:block}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .sub{font-size:19px;color:var(--ink2);max-width:560px;margin:22px auto 0}
+.quick{max-width:640px;margin:34px auto 0;padding:10px;border-radius:20px;background:rgba(255,255,255,.55);box-shadow:0 0 0 1px var(--line),0 20px 50px -24px rgba(32,37,31,.25);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);text-align:left}
+.quick label{display:block;padding:6px 8px 10px;font-size:14px;font-weight:600;color:var(--ink2)}
+.qrow{display:flex;gap:8px;padding:6px;border-radius:14px;background:var(--white);box-shadow:0 0 0 1px var(--line2);transition:box-shadow .15s}
+.qrow:focus-within{box-shadow:0 0 0 1px var(--accent),0 0 0 4px rgba(243,84,39,.14)}
+.qrow .ico{display:grid;place-items:center;width:34px;flex-shrink:0;color:var(--mute)}
+.qrow .ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.qrow input{flex:1;min-width:0;height:46px;border:0;background:none;font-size:16.5px;font-weight:500;outline:none}
+.qrow select{height:46px;border:0;border-left:1px solid var(--line);background:none;padding:0 10px;font-size:15px;font-weight:600;color:var(--ink2);outline:none;cursor:pointer}
+.qrow .btn{height:46px}
+.checks{display:flex;justify-content:center;gap:8px 20px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:14px;color:var(--mute)}
 .checks li{display:flex;align-items:center;gap:6px}
 .checks svg{width:15px;height:15px;color:var(--ok)}
 
-/* hero */
-.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,560px);gap:64px;align-items:center;padding:56px 0 72px}
-.cta-row{display:flex;gap:10px;flex-wrap:wrap}
-.demo{position:relative}
-.demo::before{content:"";position:absolute;inset:8% -6% -4% 8%;background:radial-gradient(60% 60% at 60% 40%,rgba(243,84,39,.13),transparent 70%);z-index:-1;pointer-events:none}
-.demo-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.seg{position:relative;display:inline-grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:4px;border-radius:12px;background:rgba(32,37,31,.06)}
-.seg button{position:relative;z-index:1;border:0;background:none;padding:8px 14px;border-radius:9px;font-size:14px;font-weight:600;color:var(--mute);cursor:pointer;white-space:nowrap;transition:color .2s}
-.seg button[aria-selected="true"]{color:var(--ink)}
-.seg button:hover{color:var(--ink)}
-.seg .pill{position:absolute;top:4px;bottom:4px;left:0;border-radius:9px;background:var(--white);box-shadow:0 1px 2px rgba(32,37,31,.1),0 2px 8px rgba(32,37,31,.06);transition:transform .32s var(--ease),width .32s var(--ease)}
-.live{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(47,125,79,.18)}
-.frame{border-radius:18px;overflow:hidden;background:var(--white);box-shadow:var(--frame)}
-.demo .frame iframe{display:block;width:100%;height:600px;border:0;background:#fff;transition:height .32s var(--ease),opacity .18s}
-.demo .frame iframe.swap{opacity:0}
-.demo-note{display:flex;justify-content:space-between;gap:12px;margin:12px 2px 0;font-size:13px;color:var(--mute)}
+/* ---------- demo stage ---------- */
+.stage-wrap{margin-top:64px}
+.rail{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.rail button{position:relative;display:flex;align-items:center;gap:8px;height:40px;padding:0 16px 0 10px;border:0;border-radius:999px;background:rgba(32,37,31,.05);font-size:14.5px;font-weight:600;color:var(--mute);cursor:pointer;overflow:hidden;transition:color .2s,background-color .2s}
+.rail button .k{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--white);font-family:var(--mono);font-size:11.5px;color:var(--mute);transition:background-color .2s,color .2s}
+.rail button:hover{color:var(--ink)}
+.rail button.on{background:var(--white);color:var(--ink);box-shadow:0 0 0 1px var(--line),0 4px 14px -6px rgba(32,37,31,.2)}
+.rail button.on .k{background:var(--ink);color:#fff}
+.rail button.done .k{background:var(--sage2);color:var(--ink)}
+.rail button .fill{position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left}
+.rail button.on .fill{transition:transform var(--t,3s) linear;transform:scaleX(1)}
+.stage{position:relative;border-radius:28px;padding:48px 24px;background:
+  radial-gradient(60% 70% at 50% 0%,rgba(255,255,255,.9),transparent 70%),
+  linear-gradient(var(--sage),#dfe3d3);box-shadow:inset 0 0 0 1px var(--sage2);overflow:hidden;min-height:560px}
+.stage::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(32,37,31,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(32,37,31,.045) 1px,transparent 1px);background-size:32px 32px;-webkit-mask-image:radial-gradient(70% 70% at 50% 40%,#000,transparent);mask-image:radial-gradient(70% 70% at 50% 40%,#000,transparent);pointer-events:none}
+.wcard{position:relative;width:min(540px,100%);margin:0 auto;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.08),0 30px 60px -28px rgba(32,37,31,.45);transition:transform .6s var(--ease),filter .4s}
+.wcard iframe{display:block;width:100%;height:560px;border:0;transition:height .35s var(--ease),opacity .3s}
+.wcard iframe.fade{opacity:0}
+.cursor{position:absolute;left:0;top:0;z-index:5;width:26px;height:26px;pointer-events:none;transform:translate(60%,90%);transition:transform .75s var(--ease-io),opacity .3s;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
+.cursor svg{width:26px;height:26px;transform-origin:4px 3px;transition:transform .12s}
+.cursor.down svg{transform:scale(.82)}
+.cursor .rip{position:absolute;left:-14px;top:-14px;width:32px;height:32px;border-radius:50%;border:2px solid var(--accent);opacity:0}
+.cursor.click .rip{animation:rip .5s var(--ease)}
+@keyframes rip{from{opacity:.9;transform:scale(.3)}to{opacity:0;transform:scale(1.6)}}
+.cursor.gone{opacity:0}
+.owner-phone{position:absolute;right:calc(50% - 270px - 24px - 250px);top:50%;z-index:4;width:250px;opacity:0;transform:translate(60px,-46%) rotate(4deg);transition:opacity .5s var(--ease),transform .7s var(--ease);pointer-events:none}
+.stage.finale .owner-phone{opacity:1;transform:translate(0,-50%) rotate(0)}
+.toast{position:absolute;left:calc(50% - 270px - 24px - 230px);top:30%;z-index:4;max-width:230px;padding:14px 16px;border-radius:16px;background:var(--white);box-shadow:0 0 0 1px var(--line),0 18px 40px -18px rgba(32,37,31,.35);font-size:14px;line-height:1.4;text-align:left;opacity:0;transform:translateY(14px) scale(.96);transition:opacity .45s var(--ease),transform .6s var(--ease)}
+.toast b{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:4px}
+.toast b i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.stage.finale .toast{opacity:1;transform:none;transition-delay:.9s}
+.stage-foot{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:16px;font-size:13.5px;color:var(--mute);min-height:36px}
+.stage-foot button{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:0;border-radius:999px;background:var(--white);box-shadow:0 0 0 1px var(--line);font-size:13.5px;font-weight:600;cursor:pointer}
+.stage-foot button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-/* trades */
-.trades{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.trades .eyebrow{margin-right:6px}
+/* ---------- iPhone (shared) ---------- */
+.iphone{position:relative;width:100%;aspect-ratio:71.6/147.6;border-radius:15%/7.4%;padding:3.2%;background:linear-gradient(140deg,#5d5f63,#2a2b2e 22%,#1d1e20 50%,#3a3b3f 78%,#6b6d71);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 0 0 1px #0b0b0c,0 40px 70px -30px rgba(0,0,0,.55);container-type:inline-size}
+.iphone::before{content:"";position:absolute;left:-1.3%;top:17%;width:1.4%;height:4.5%;border-radius:2px 0 0 2px;background:#3a3b3f;box-shadow:0 260% 0 #3a3b3f,0 520% 0 #3a3b3f}
+.iphone::after{content:"";position:absolute;right:-1.3%;top:26%;width:1.4%;height:10%;border-radius:0 2px 2px 0;background:#3a3b3f}
+.iphone .bezel{width:100%;height:100%;border-radius:13.4%/6.6%;padding:2.6%;background:#050505}
+.iphone .scr{position:relative;width:100%;height:100%;border-radius:11.6%/5.6%;overflow:hidden;background:linear-gradient(165deg,#c9d4bd 0%,#7f9479 38%,#38463a 72%,#232b25 100%);color:#fff;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Manrope,sans-serif}
+.iphone .island{position:absolute;top:2.4%;left:50%;width:31%;height:4.1%;transform:translateX(-50%);border-radius:999px;background:#000;z-index:2}
+.iphone .sb{position:absolute;top:2.9%;left:10%;right:8%;display:flex;justify-content:space-between;align-items:center;font-size:4.6cqw;font-weight:600;z-index:1}
+.iphone .sb .ic{display:flex;gap:1.4cqw;align-items:center}
+.iphone .sb svg{height:3.4cqw;width:auto;fill:#fff}
+.iphone .lock{position:absolute;top:12%;left:0;right:0;text-align:center}
+.iphone .lock small{display:block;font-size:5.6cqw;font-weight:600;opacity:.92}
+.iphone .lock b{display:block;font-size:24cqw;font-weight:600;letter-spacing:-.02em;line-height:1;margin-top:1%;opacity:.95}
+.iphone .stack{position:absolute;left:4.5%;right:4.5%;top:41%;display:flex;flex-direction:column;gap:2.4cqw}
+.notif{display:grid;grid-template-columns:9.5cqw 1fr;gap:3cqw;align-items:start;padding:3.4cqw 3.6cqw;border-radius:7cqw;background:rgba(242,242,242,.8);-webkit-backdrop-filter:blur(18px) saturate(1.6);backdrop-filter:blur(18px) saturate(1.6);color:#111;font-size:4.4cqw;line-height:1.32;text-align:left;transition:opacity .5s var(--ease),transform .7s var(--ease)}
+.notif .app{width:9.5cqw;height:9.5cqw;border-radius:2.3cqw;background:linear-gradient(#5ff777,#1ec337);display:grid;place-items:center}
+.notif .app svg{width:62%;height:62%;fill:#fff}
+.notif .t{display:flex;justify-content:space-between;gap:6px;font-weight:600;font-size:4.2cqw}
+.notif .t span{font-weight:400;color:#6b6b6b}
+.notif p{margin:.5cqw 0 0}
+.iphone .home{position:absolute;bottom:1.6%;left:50%;width:36%;height:.55%;min-height:3px;border-radius:999px;background:rgba(255,255,255,.85);transform:translateX(-50%)}
+.pre .notif{opacity:0;transform:translateY(-18px) scale(.94)}
+.owner-phone .notif{opacity:0;transform:translateY(-16px) scale(.94);transition-delay:0s}
+.stage.finale .owner-phone .notif{opacity:1;transform:none;transition-delay:.55s}
+
+/* ---------- sections ---------- */
+.trades{display:flex;align-items:center;justify-content:center;gap:10px 12px;flex-wrap:wrap;padding:40px 0 0}
 .chip{display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;background:var(--paper);box-shadow:0 0 0 1px var(--line);font-size:14.5px;font-weight:600;color:var(--ink2)}
-
-/* sections */
-section.s{padding:104px 0}
+section.s{padding:112px 0}
 .shead{display:grid;grid-template-columns:1.15fr 1fr;gap:48px;align-items:end;margin-bottom:52px}
 .shead p{color:var(--ink2);margin:0;font-size:17px;max-width:470px}
 .shead .eyebrow{margin-bottom:18px}
-
-/* product tour */
-.tour{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:64px;align-items:center}
-.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.step{position:relative;display:grid;grid-template-columns:36px 1fr;gap:14px;width:100%;padding:18px 20px;border:0;border-radius:14px;background:transparent;text-align:left;cursor:pointer;transition:background-color .2s}
-.step:hover{background:rgba(32,37,31,.04)}
-.step[aria-selected="true"]{background:var(--white);box-shadow:var(--frame)}
-.step .n{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--sage);font-family:var(--mono);font-size:13px;color:var(--ink2);transition:background-color .2s,color .2s}
-.step[aria-selected="true"] .n{background:var(--ink);color:#fff}
-.step b{display:block;font-size:18px;letter-spacing:-.015em;padding-top:4px}
-.step .more{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
-.step[aria-selected="true"] .more{grid-template-rows:1fr}
-.step .more > span{overflow:hidden;color:var(--ink2);font-size:15.5px}
-.step .more > span > span{display:block;padding-top:6px}
-.step .bar{position:absolute;left:20px;right:20px;bottom:0;height:2px;border-radius:2px;background:var(--line);overflow:hidden;opacity:0}
-.step .bar i{display:block;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left}
-.tour.auto .step[aria-selected="true"] .bar{opacity:1}
-.tour.auto .step[aria-selected="true"] .bar i{animation:fill var(--dur,5.5s) linear forwards}
-.tour.paused .step .bar i{animation-play-state:paused}
-@keyframes fill{to{transform:scaleX(1)}}
-.phone{position:relative;width:100%;max-width:360px;margin:0 auto;aspect-ratio:780/1520;border-radius:34px;padding:9px;background:var(--white);box-shadow:var(--frame)}
-.phone .scr{position:relative;width:100%;height:100%;border-radius:26px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px rgba(32,37,31,.06)}
-.phone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;transform:scale(.985);transition:opacity .35s var(--ease),transform .5s var(--ease)}
-.phone img.on{opacity:1;transform:none}
-
-/* reminders */
 .band{background:var(--sage);border-top:1px solid var(--sage2);border-bottom:1px solid var(--sage2)}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
 .list{list-style:none;padding:0;margin:28px 0 0}
 .list li{padding:15px 0;border-top:1px solid #cdd2c0;display:grid;grid-template-columns:130px 1fr;gap:16px;font-size:16px}
 .list li span{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--mute);padding-top:4px}
-.lock{width:330px;max-width:100%;margin:0 auto;background:#1c1f1b;border-radius:46px;padding:11px;box-shadow:0 40px 70px -35px rgba(0,0,0,.5)}
-.lock .scr{border-radius:36px;background:linear-gradient(170deg,#3d4a3b,#1f2a24 55%,#2c2420);min-height:560px;padding:52px 13px 22px;overflow:hidden}
-.lock .clock{text-align:center;color:#f3f1ea;margin-bottom:18px}
-.lock .clock small{display:block;font-size:14px;opacity:.85}
-.lock .clock b{font-size:62px;font-weight:600;letter-spacing:-.03em;line-height:1.05}
-.note{background:rgba(245,244,239,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:16px;padding:11px 13px;margin-top:9px;font-size:13px;line-height:1.38;color:#1d1f1c}
-.note .h{display:flex;justify-content:space-between;font-size:11.5px;color:#55594f;margin-bottom:3px}
-.note .h b{color:#1d1f1c;font-weight:700}
-
-/* owner */
+.phone-col{width:300px;max-width:100%;margin:0 auto}
 .owner{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:28px;align-items:start}
-.owner .frame img{width:100%}
+.frame{border-radius:18px;overflow:hidden;background:var(--white);box-shadow:var(--frame)}
 .side{display:flex;flex-direction:column;gap:14px}
 .alert{background:var(--deep);color:#eef0e8;border-radius:18px;padding:22px}
 .alert .eyebrow{color:#a9b19f}
@@ -147,37 +166,18 @@ section.s{padding:104px 0}
 .kv div{background:var(--white);border-radius:16px;padding:18px;box-shadow:0 0 0 1px var(--line)}
 .kv b{display:block;font-size:28px;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
 .kv span{font-size:13px;color:var(--mute)}
-
-/* channels */
 .chan{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 .ch{background:var(--white);border-radius:18px;padding:24px;box-shadow:0 0 0 1px var(--line);transition:box-shadow .25s var(--ease)}
 .ch:hover{box-shadow:0 0 0 1px var(--line2),0 12px 28px -14px rgba(32,37,31,.22)}
-.ch .ic{width:42px;height:42px;border-radius:12px;background:var(--sage);display:grid;place-items:center;margin-bottom:18px;color:var(--ink);transition:transform .3s var(--ease),background-color .2s}
+.ch .ic{width:42px;height:42px;border-radius:12px;background:var(--sage);display:grid;place-items:center;margin-bottom:18px;transition:transform .3s var(--ease),background-color .2s,color .2s}
 .ch:hover .ic{transform:translateY(-3px);background:var(--accent);color:#fff}
 .ch .ic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ch p{margin:8px 0 0;color:var(--ink2);font-size:15px}
 .ch code{font-family:var(--mono);font-size:12px;background:var(--sage);padding:2px 6px;border-radius:5px}
-
-/* stat */
 .stat{background:var(--deep);color:#eef0e8;border-radius:24px;padding:56px;display:grid;grid-template-columns:1fr 1.1fr;gap:48px;align-items:center}
 .stat .big{font-size:clamp(76px,10vw,132px);font-weight:700;letter-spacing:-.05em;line-height:.9;color:#c9d6b8;font-variant-numeric:tabular-nums}
 .stat p{color:#c7cdbd;margin:16px 0 0}
 .stat a{color:#e0e5d6}
-
-/* builder */
-.builder{background:var(--white);border-radius:20px;padding:26px;box-shadow:var(--frame)}
-.builder h4{margin:0 0 4px;font-size:17px;letter-spacing:-.01em}
-.builder > p{margin:0 0 18px;color:var(--mute);font-size:14px}
-.row{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
-.row3{display:grid;grid-template-columns:1.4fr 1fr auto;gap:12px;margin-top:12px}
-label.f{display:flex;flex-direction:column;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink2)}
-input,select{height:48px;border:1px solid var(--line2);border-radius:10px;padding:0 13px;font:500 16px Manrope,sans-serif;background:#fff;color:var(--ink);width:100%;transition:border-color .15s,box-shadow .15s}
-input:hover,select:hover{border-color:#bdb9ac}
-input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(243,84,39,.16)}
-input[type=color]{padding:5px;width:62px;cursor:pointer}
-.bact{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-
-/* pricing */
 .price{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:start}
 .plan{background:var(--white);border-radius:20px;padding:32px;box-shadow:0 0 0 1px var(--line)}
 .plan.main{box-shadow:0 0 0 2px var(--ink),0 24px 48px -28px rgba(32,37,31,.35)}
@@ -185,10 +185,8 @@ input[type=color]{padding:5px;width:62px;cursor:pointer}
 .plan .amt small{font-size:16px;font-weight:600;color:var(--mute);letter-spacing:0}
 .plan ul{list-style:none;padding:0;margin:22px 0 28px}
 .plan li{padding:10px 0;border-top:1px solid var(--line);font-size:15.5px;display:flex;gap:10px}
-.plan li svg{width:16px;height:16px;flex-shrink:0;margin-top:4px;color:var(--accent);fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.plan li svg{width:16px;height:16px;flex-shrink:0;margin-top:4px;color:var(--accent)}
 .tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--sage);border-radius:6px;padding:4px 8px}
-
-/* faq */
 .faq{display:grid;grid-template-columns:1fr 1.35fr;gap:56px}
 .qa{border-top:1px solid var(--line2)}
 .qa:last-child{border-bottom:1px solid var(--line2)}
@@ -202,7 +200,6 @@ input[type=color]{padding:5px;width:62px;cursor:pointer}
 .qa[data-open] .a{grid-template-rows:1fr}
 .qa .a > div{overflow:hidden}
 .qa .a p{color:var(--ink2);margin:0 0 20px;font-size:16px;max-width:620px}
-
 .cta{background:var(--accent);color:#fff;padding:72px 0}
 .cta .wrap{display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}
 .cta h2{color:#fff}
@@ -210,7 +207,20 @@ input[type=color]{padding:5px;width:62px;cursor:pointer}
 footer{background:var(--deep);color:#b9c0af;padding:36px 0;font-size:14px}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
-/* preview popup (same feel as the widget) */
+/* scroll reveal: JS marks blocks below the fold, they rise in once */
+.js .rv{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .9s var(--ease)}
+.js .rv.in{opacity:1;transform:none}
+/* hero entrance */
+.intro .hero .badge,.intro .hero h1 .ln > span,.intro .hero .sub,.intro .quick,.intro .checks{animation:up .9s var(--ease) both}
+.intro .hero h1 .ln > span{animation-name:lineUp}
+.intro .hero h1 .ln:nth-child(2) > span{animation-delay:.08s}
+.intro .hero .sub{animation-delay:.18s}
+.intro .quick{animation-delay:.26s}
+.intro .checks{animation-delay:.34s}
+@keyframes up{from{opacity:0;transform:translateY(16px)}}
+@keyframes lineUp{from{transform:translateY(105%)}}
+
+/* preview popup */
 .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,24,19,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s var(--ease)}
 .modal.on{display:flex}
 .modal.show{opacity:1}
@@ -219,149 +229,137 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .modal iframe{width:100%;height:100%;border:0}
 .modal .close{position:absolute;top:10px;right:10px;z-index:2;width:38px;height:38px;border:0;border-radius:10px;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.18);cursor:pointer;display:grid;place-items:center}
 .modal .close svg{width:18px;height:18px;fill:none;stroke:#20251f;stroke-width:2.2;stroke-linecap:round}
-
-/* sticky mobile CTA */
 .mbar{display:none}
 
+@media (max-width:1180px){
+  .stage.finale .wcard{transform:scale(.96);filter:blur(1.5px) brightness(.96)}
+  .owner-phone{right:50%;top:auto;bottom:28px;width:230px;transform:translate(50%,40px)}
+  .stage.finale .owner-phone{transform:translate(50%,0)}
+  .toast{display:none}
+}
 @media (max-width:1000px){
   .links{display:none}
-  .hero,.split,.owner,.stat,.price,.faq,.shead,.tour{grid-template-columns:minmax(0,1fr)}
-  .hero{gap:40px;padding:36px 0 56px}
+  .split,.owner,.stat,.price,.faq,.shead{grid-template-columns:minmax(0,1fr)}
   .chan{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .tour{gap:36px}
 }
 @media (max-width:640px){
   body{font-size:16px}
   .wrap{padding-inline:20px}
   .nav .wrap{height:60px}
   .nav .btn{display:none}
-  h1{font-size:42px}
+  .hero{padding-top:40px}
+  .hero h1{font-size:44px}
+  .hero .sub{font-size:17px}
+  .quick{padding:8px;border-radius:18px}
+  .qrow{flex-wrap:wrap}
+  .qrow input{flex-basis:calc(100% - 50px)}
+  .qrow select{border-left:0;border-top:1px solid var(--line);flex:1;padding-left:8px}
+  .qrow .btn{flex:1.4}
+  .stage-wrap{margin-top:44px}
+  .rail{gap:6px}
+  .rail button{height:34px;padding:0 12px 0 6px;font-size:13px}
+  .rail button .k{width:22px;height:22px}
+  .stage{margin-inline:-20px;border-radius:0;padding:28px 12px 36px}
+  .wcard{border-radius:16px}
+  .owner-phone{width:200px}
+  section.s{padding:76px 0}
   h2{font-size:32px}
-  h3{font-size:19px}
-  .lede{font-size:17.5px;margin:18px 0 24px}
-  .cta-row .btn{flex:1}
-  section.s{padding:72px 0}
   .shead{gap:16px;margin-bottom:32px}
-  .demo-top{flex-direction:column;align-items:stretch}
-  .seg{display:grid}
-  .seg button{padding:9px 6px;font-size:13.5px}
-  .live{align-self:flex-start}
-  .demo-note #demoName{display:none}
-  .demo .frame{border-radius:16px}
-  .trades{gap:8px}
-  .trades .eyebrow{width:100%}
-  .chip{height:32px;font-size:13.5px}
-  .step{padding:14px;grid-template-columns:32px 1fr;gap:12px}
-  .step b{font-size:16.5px;padding-top:3px}
-  .phone{max-width:300px;border-radius:30px;padding:8px}
-  .phone .scr{border-radius:23px}
   .list li{grid-template-columns:1fr;gap:4px}
-  .lock{width:290px;border-radius:40px;padding:10px}
-  .lock .scr{min-height:480px;border-radius:31px;padding-top:40px}
-  .lock .clock b{font-size:52px}
-  .owner .frame{max-width:340px;margin:0 auto;border-radius:28px;padding:8px}
-  .owner .frame img{border-radius:21px}
+  .phone-col{width:270px}
   .chan{grid-template-columns:minmax(0,1fr);gap:12px}
   .ch{display:grid;grid-template-columns:42px 1fr;gap:4px 16px;padding:20px}
   .ch .ic{grid-row:span 2;margin:0}
   .ch p{margin:0}
   .stat{padding:32px 26px;gap:12px;border-radius:20px}
-  .builder{padding:20px}
-  .row,.row3{grid-template-columns:minmax(0,1fr)}
-  .bact .btn{flex:1}
   .plan{padding:24px}
-  .plan .amt{font-size:44px}
   .faq{gap:20px}
   .cta{padding:56px 0 96px}
   footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
   .modal{padding:0;align-items:flex-end;-webkit-backdrop-filter:none;backdrop-filter:none}
   .modal .box{width:100%;height:calc(100dvh - 12px);border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .34s cubic-bezier(.32,.72,0,1)}
-  .mbar{display:flex;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:45;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .3s var(--ease)}
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:45;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .3s var(--ease)}
   .mbar.on{transform:none}
   .mbar .btn{flex:1;height:46px}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
+<script>document.documentElement.classList.add('js');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro');</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="arw" viewBox="0 0 16 16"><path class="ln" d="M2 8h10"/><path class="hd" d="M7.5 3.5 12 8l-4.5 4.5"/></symbol>
   <symbol id="chk" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="bubble" viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.4 1.3 4.6 3.5 6.1-.2 1.4-.9 2.7-1.9 3.6 2.1-.1 3.9-.9 5.2-2 1 .2 2.1.3 3.2.3 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></symbol>
+  <symbol id="sig" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></symbol>
+  <symbol id="wifi" viewBox="0 0 16 12"><path d="M8 2.2c2.4 0 4.6.9 6.3 2.5l1.2-1.3C13.4 1.4 10.8.3 8 .3S2.6 1.4.5 3.4l1.2 1.3C3.4 3.1 5.6 2.2 8 2.2zm0 3.6c1.4 0 2.7.5 3.7 1.4l1.2-1.3C11.6 4.7 9.9 4 8 4s-3.6.7-4.9 1.9l1.2 1.3c1-.9 2.3-1.4 3.7-1.4zM8 9.4l2.3-1.9C9.7 7 8.9 6.7 8 6.7s-1.7.3-2.3.8L8 9.4z"/></symbol>
+  <symbol id="batt" viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3.5" fill="none" stroke="#fff" stroke-opacity=".45"/><rect x="2" y="2" width="17" height="8" rx="2"/><path d="M25 4v4c.8-.3 1.3-1.1 1.3-2S25.8 4.3 25 4z" fill-opacity=".45"/></symbol>
 </svg>
 <div class="draft"><b>Draft for review.</b> Product page for the DialBridge booking widget. Prices and wording are not final.</div>
 <header class="nav" id="nav">
   <div class="wrap">
     <a class="logo" href="#">dialbridge<span>.</span>ai</a>
-    <nav class="links" aria-label="Sections"><a href="#how">How it works</a><a href="#texts">Reminders</a><a href="#owner">Your inbox</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
-    <a class="btn dark sm" href="#build">See your booking page <svg class="arw"><use href="#arw"/></svg></a>
+    <nav class="links" aria-label="Sections"><a href="#demo">See it work</a><a href="#texts">Reminders</a><a href="#owner">Your inbox</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+    <a class="btn dark sm" href="#top">Build my booking page <svg class="arw"><use href="#arw"/></svg></a>
   </div>
 </header>
 
-<main>
+<main id="top">
 <div class="wrap">
   <section class="hero" aria-labelledby="h1">
-    <div>
-      <p class="eyebrow"><span class="star">&#10035;</span>Online booking for home service businesses</p>
-      <h1 id="h1" style="margin-top:20px">Let them book the job. <em>Even at 10 PM.</em></h1>
-      <p class="lede">A Book online button for your website and Google profile. Customers pick the job, see a price range and choose a time. You get a text with everything you need.</p>
-      <div class="cta-row">
-        <a class="btn" href="#build">Build my booking page <svg class="arw"><use href="#arw"/></svg></a>
-        <a class="btn ghost" href="#how">See how it works</a>
+    <span class="badge"><i></i>Online booking for home service businesses</span>
+    <h1 id="h1"><span class="ln"><span>Let them book the job.</span></span><span class="ln"><span><em>Even at 10 PM.</em></span></span></h1>
+    <p class="sub">A Book online button for your website and Google profile. Customers pick the job, see a price and choose a time. You get a text.</p>
+    <form class="quick" id="quick" autocomplete="off">
+      <label for="qName">Type your business name. We'll build your booking page.</label>
+      <div class="qrow">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+        <input id="qName" placeholder="Haul Pros Junk Removal" maxlength="60" required>
+        <select id="qTrade" aria-label="Trade"><option value="junk">Junk removal</option><option value="cleaning">Cleaning</option><option value="detailing">Detailing</option><option value="hvac">HVAC</option></select>
+        <button class="btn" type="submit">Build it <svg class="arw"><use href="#arw"/></svg></button>
       </div>
-      <ul class="checks">
-        <li><svg><use href="#chk"/></svg>Set up for you</li>
-        <li><svg><use href="#chk"/></svg>Works with your current website</li>
-        <li><svg><use href="#chk"/></svg>Month to month</li>
-      </ul>
-    </div>
-    <div class="demo">
-      <div class="demo-top">
-        <div class="seg" role="tablist" aria-label="Pick a sample business" id="seg">
-          <span class="pill" aria-hidden="true"></span>
-          <button role="tab" aria-selected="true" data-b="northside-detail">Mobile detailing</button>
-          <button role="tab" aria-selected="false" data-b="harbor-haul">Junk removal</button>
-          <button role="tab" aria-selected="false" data-b="sparkle-and-co">Cleaning</button>
+    </form>
+    <ul class="checks">
+      <li><svg><use href="#chk"/></svg>Free preview, no sign-up</li>
+      <li><svg><use href="#chk"/></svg>Works with your current website</li>
+      <li><svg><use href="#chk"/></svg>Month to month</li>
+    </ul>
+
+    <div class="stage-wrap" id="demo">
+      <div class="rail" id="rail" role="tablist" aria-label="Booking steps">
+        <button role="tab" data-s="0"><span class="k">1</span>Pick the job<span class="fill"></span></button>
+        <button role="tab" data-s="1"><span class="k">2</span>See the price<span class="fill"></span></button>
+        <button role="tab" data-s="2"><span class="k">3</span>Book a time<span class="fill"></span></button>
+        <button role="tab" data-s="3"><span class="k">4</span>You get a text<span class="fill"></span></button>
+      </div>
+      <div class="stage" id="stage">
+        <div class="wcard"><iframe id="demoFrame" title="Live booking widget demo" src="../book.html?b=harbor-haul&amp;embed=1&amp;inline=1"></iframe></div>
+        <div class="toast" aria-hidden="true"><b><i></i>Text sent to the customer</b>You're booked with Harbor Haul for Sat, Oct 10, 11 AM to 2 PM. $199 to $279.</div>
+        <div class="owner-phone" aria-hidden="true">
+          <div class="iphone"><div class="bezel"><div class="scr">
+            <div class="island"></div>
+            <div class="sb"><span>9:48</span><span class="ic"><svg viewBox="0 0 18 12"><use href="#sig"/></svg><svg viewBox="0 0 16 12"><use href="#wifi"/></svg><svg viewBox="0 0 27 12"><use href="#batt"/></svg></span></div>
+            <div class="lock"><small>Friday, October 9</small><b>9:48</b></div>
+            <div class="stack"><div class="notif"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">DialBridge<span>now</span></div><p>New booking: Dana Lopez, Fair Lawn. Furniture and appliances, 1/4 truck. Sat Oct 10, 11 AM to 2 PM. Shown $199 to $279.</p></div></div></div>
+            <div class="home"></div>
+          </div></div></div>
         </div>
-        <span class="live"><i></i>Live demo</span>
+        <div class="cursor gone" id="cursor" aria-hidden="true"><span class="rip"></span><svg viewBox="0 0 24 24"><path d="M4 2.5 19.5 12l-6.6 1.6 3.9 7.2-2.6 1.4-3.9-7.2L5.6 19z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
       </div>
-      <div class="frame"><iframe id="heroFrame" title="Live booking demo" src="../book.html?b=northside-detail&amp;embed=1&amp;inline=1"></iframe></div>
-      <p class="demo-note"><span>Tap through it. Nothing is sent anywhere.</span><span id="demoName">Northside Mobile Detailing, sample business</span></p>
+      <div class="stage-foot"><span id="stageNote">Harbor Haul is a sample junk removal business. Tap the widget to try it yourself.</span><button type="button" id="replay" aria-label="Pause the demo"><svg viewBox="0 0 24 24" id="rpIcon"><path d="M8 5v14M16 5v14"/></svg><span id="rpText">Pause</span></button></div>
     </div>
   </section>
 
   <div class="trades">
-    <p class="eyebrow">Built for</p>
+    <span class="eyebrow" style="margin-right:6px">Built for</span>
     <span class="chip">Junk removal</span><span class="chip">Cleaning</span><span class="chip">Mobile detailing</span><span class="chip">HVAC</span><span class="chip">Landscaping</span><span class="chip">Pressure washing</span>
   </div>
 </div>
 
-<section class="s" id="how">
-  <div class="wrap">
-    <div class="shead">
-      <div><p class="eyebrow">How it works</p><h2>Four taps to a booked job.</h2></div>
-      <p>No "call for a quote". Customers see your real services with your photos, get a price range before they commit, and pick a time you actually have open.</p>
-    </div>
-    <div class="tour auto" id="tour">
-      <ol class="steps" role="tablist" aria-label="Booking steps">
-        <li><button class="step" role="tab" aria-selected="true" data-i="0"><span class="n">1</span><span><b>Pick the job</b><span class="more"><span><span>Your services with your own photos, big enough to tap on a phone. Mixed loads are fine: a junk customer can pick furniture, appliances and bags in one go.</span></span></span></span><span class="bar"><i></i></span></button></li>
-        <li><button class="step" role="tab" aria-selected="false" data-i="1"><span class="n">2</span><span><b>See the price</b><span class="more"><span><span>A real range from your own pricing, plus extras like pet hair or heavy items. Big or odd jobs switch to "free estimate" with photos.</span></span></span></span><span class="bar"><i></i></span></button></li>
-        <li><button class="step" role="tab" aria-selected="false" data-i="2"><span class="n">3</span><span><b>Book a time</b><span class="more"><span><span>Only times you can take: your hours, your notice period and how many jobs you do in a day. Prefer to approve first? Turn bookings into requests.</span></span></span></span><span class="bar"><i></i></span></button></li>
-        <li><button class="step" role="tab" aria-selected="false" data-i="3"><span class="n">4</span><span><b>Done. You get a text.</b><span class="more"><span><span>The customer gets a receipt with the price they saw. You get the job, the time and their number, wherever you are.</span></span></span></span><span class="bar"><i></i></span></button></li>
-      </ol>
-      <div class="phone" aria-hidden="true"><div class="scr">
-        <img class="on" src="img/m/detail-services.webp" alt="" width="780" height="1520">
-        <img src="img/m/detail-price.webp" alt="" width="780" height="1520" loading="lazy">
-        <img src="img/m/detail-time.webp" alt="" width="780" height="1520" loading="lazy">
-        <img src="img/m/detail-done.webp" alt="" width="780" height="1520" loading="lazy">
-      </div></div>
-    </div>
-  </div>
-</section>
-
-<div class="band" id="texts">
+<div class="band" id="texts" style="margin-top:96px">
   <section class="s">
     <div class="wrap split">
-      <div>
+      <div class="rv">
         <p class="eyebrow">After they book</p>
         <h2 style="margin-top:18px">Confirmations and reminders, in their own time zone.</h2>
         <p style="color:var(--ink2);max-width:500px;margin-top:18px">Every text says the time the way the customer picked it, so a customer in Houston reads 9:00 AM CST, even when your office runs on Eastern time. Each reminder reads differently, so nobody thinks it was sent twice.</p>
@@ -372,13 +370,18 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           <li><span>1 HOUR BEFORE</span>We'll be there in about an hour.</li>
         </ul>
       </div>
-      <div class="lock" aria-hidden="true">
-        <div class="scr">
-          <div class="clock"><small>Friday, October 9</small><b>8:02</b></div>
-          <div class="note"><div class="h"><b>Northside Detailing</b><span>now</span></div>Hey Jordan, we'll be there in about an hour (9:00 AM CST). Text back if anything changed.</div>
-          <div class="note"><div class="h"><b>Northside Detailing</b><span>yesterday</span></div>Hey Jordan, looking forward to your detail tomorrow at 9:00 AM CST. If the time doesn't work anymore, just text back.</div>
-          <div class="note"><div class="h"><b>Northside Detailing</b><span>Wed</span></div>You're booked for Friday, Oct 9 at 9:00 AM CST. Full detail, SUV. $249 to $289.</div>
-        </div>
+      <div class="phone-col" aria-hidden="true">
+        <div class="iphone" id="remPhone"><div class="bezel"><div class="scr">
+          <div class="island"></div>
+          <div class="sb"><span>8:02</span><span class="ic"><svg viewBox="0 0 18 12"><use href="#sig"/></svg><svg viewBox="0 0 16 12"><use href="#wifi"/></svg><svg viewBox="0 0 27 12"><use href="#batt"/></svg></span></div>
+          <div class="lock"><small>Friday, October 9</small><b>8:02</b></div>
+          <div class="stack">
+            <div class="notif"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">Northside Detailing<span>now</span></div><p>Hey Jordan, we'll be there in about an hour (9:00 AM CST). Text back if anything changed.</p></div></div>
+            <div class="notif"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">Northside Detailing<span>Thu</span></div><p>Looking forward to your detail tomorrow at 9:00 AM CST. If the time doesn't work anymore, just text back.</p></div></div>
+            <div class="notif"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">Northside Detailing<span>Wed</span></div><p>You're booked for Friday, Oct 9 at 9:00 AM CST. Full detail, SUV. $249 to $289.</p></div></div>
+          </div>
+          <div class="home"></div>
+        </div></div></div>
       </div>
     </div>
   </section>
@@ -386,11 +389,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <section class="s" id="owner">
   <div class="wrap">
-    <div class="shead">
+    <div class="shead rv">
       <div><p class="eyebrow">What you get</p><h2>Every request in one inbox. A text the second it lands.</h2></div>
       <p>You see the job, the price you showed, the time they picked and where they came from. Reply with one tap, mark it won or lost, and see what came in after hours.</p>
     </div>
-    <div class="owner">
+    <div class="owner rv">
       <div class="frame"><picture><source media="(max-width:640px)" srcset="img/m/owner-inbox.webp" width="780" height="1520"><img src="img/owner-inbox.webp" alt="Owner inbox with new requests, the price shown and quick replies" width="2160" height="1350" loading="lazy"></picture></div>
       <div class="side">
         <div class="alert">
@@ -408,8 +411,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <section class="s" style="padding-top:0">
   <div class="wrap">
-    <div class="shead" style="margin-bottom:36px"><div><h2>Works everywhere they find you.</h2></div></div>
-    <div class="chan">
+    <div class="shead rv" style="margin-bottom:36px"><div><h2>Works everywhere they find you.</h2></div></div>
+    <div class="chan rv">
       <div class="ch"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/></svg></div><h3>Your website</h3><p>One line of code adds a Book online button to every page. Works on WordPress, Wix, Squarespace and GoDaddy.</p></div>
       <div class="ch"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div><h3>Google profile</h3><p>Your booking page becomes the booking link on your Google Business Profile.</p></div>
       <div class="ch"><div class="ic"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></div><h3>Missed-call text</h3><p>Can't pick up? The caller gets a text with your booking link and books without you.</p></div>
@@ -420,7 +423,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <section class="s" style="padding-top:0">
   <div class="wrap">
-    <div class="stat">
+    <div class="stat rv">
       <div class="big">41%</div>
       <div>
         <p class="eyebrow" style="color:#a9b19f">Why online booking</p>
@@ -431,51 +434,24 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   </div>
 </section>
 
-<section class="s" id="build" style="padding-top:0">
-  <div class="wrap split" style="align-items:start">
-    <div>
-      <p class="eyebrow">Try it with your business</p>
-      <h2 style="margin-top:18px">See your booking page in 30 seconds.</h2>
-      <p style="color:var(--ink2);max-width:460px;margin-top:16px">Type your business name, pick your trade and color. We build a working booking page you can click through right now. Nothing is sent anywhere.</p>
-    </div>
-    <form class="builder" id="builder" autocomplete="off">
-      <h4>Build my booking page</h4>
-      <p>A free preview. It's yours to try, no sign-up.</p>
-      <div class="row">
-        <label class="f">Business name<input id="bName" required placeholder="Haul Pros Junk Removal" maxlength="60"></label>
-        <label class="f">Phone<input id="bPhone" type="tel" inputmode="tel" placeholder="(201) 555-0148" maxlength="20"></label>
-      </div>
-      <div class="row3">
-        <label class="f">Trade<select id="bTrade"><option value="junk">Junk removal</option><option value="cleaning">House cleaning</option><option value="detailing">Mobile detailing</option><option value="hvac">HVAC</option></select></label>
-        <label class="f">Service area<input id="bArea" placeholder="Bergen County" maxlength="60"></label>
-        <label class="f">Color<input id="bColor" type="color" value="#0E6650"></label>
-      </div>
-      <div class="bact">
-        <button class="btn" type="submit">Show my booking page <svg class="arw"><use href="#arw"/></svg></button>
-        <a class="btn ghost" id="bSite" href="#" target="_blank" rel="noopener">See it on a sample website</a>
-      </div>
-    </form>
-  </div>
-</section>
-
 <section class="s" id="pricing" style="padding-top:0">
   <div class="wrap">
-    <div class="shead" style="margin-bottom:36px"><div><p class="eyebrow">Pricing <span class="tag">Draft</span></p><h2 style="margin-top:4px">One plan. We set it all up.</h2></div></div>
-    <div class="price">
+    <div class="shead rv" style="margin-bottom:36px"><div><p class="eyebrow">Pricing <span class="tag">Draft</span></p><h2 style="margin-top:4px">One plan. We set it all up.</h2></div></div>
+    <div class="price rv">
       <div class="plan main">
         <span class="tag">Most owners pick this</span>
         <h3 style="margin-top:16px">Website + booking + Google</h3>
         <div class="amt">$199<small>/month</small></div>
         <div style="color:var(--mute);font-size:14px">$199 one-time setup. Month to month.</div>
         <ul>
-          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>A fast website built to book jobs</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Booking widget with your services, photos and prices</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Confirmations and reminders in the customer's time zone</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Owner inbox and a text for every new request</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Google Business Profile cleanup and Book button</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>We set it all up. One short call from you.</li>
+          <li><svg><use href="#chk"/></svg>A fast website built to book jobs</li>
+          <li><svg><use href="#chk"/></svg>Booking widget with your services, photos and prices</li>
+          <li><svg><use href="#chk"/></svg>Confirmations and reminders in the customer's time zone</li>
+          <li><svg><use href="#chk"/></svg>Owner inbox and a text for every new request</li>
+          <li><svg><use href="#chk"/></svg>Google Business Profile cleanup and Book button</li>
+          <li><svg><use href="#chk"/></svg>We set it all up. One short call from you.</li>
         </ul>
-        <a class="btn" href="#build">Start with a free preview <svg class="arw"><use href="#arw"/></svg></a>
+        <a class="btn" href="#top">Start with a free preview <svg class="arw"><use href="#arw"/></svg></a>
       </div>
       <div class="plan">
         <span class="tag">Already have a site you like</span>
@@ -483,9 +459,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
         <div class="amt" style="font-size:34px">Ask us</div>
         <div style="color:var(--mute);font-size:14px">Price to be set. Same booking engine, added to your current website.</div>
         <ul>
-          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Book online button for your website</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Hosted booking page for Google and social</li>
-          <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Reminders and owner inbox</li>
+          <li><svg><use href="#chk"/></svg>Book online button for your website</li>
+          <li><svg><use href="#chk"/></svg>Hosted booking page for Google and social</li>
+          <li><svg><use href="#chk"/></svg>Reminders and owner inbox</li>
         </ul>
         <a class="btn ghost" href="https://cal.com/dialbridge.ai/discovery-call">Book a 15-minute call</a>
       </div>
@@ -495,8 +471,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <section class="s" id="faq" style="padding-top:0">
   <div class="wrap faq">
-    <div><p class="eyebrow">Questions</p><h2 style="margin-top:18px">A few things owners ask.</h2></div>
-    <div id="faqList">
+    <div class="rv"><p class="eyebrow">Questions</p><h2 style="margin-top:18px">A few things owners ask.</h2></div>
+    <div id="faqList" class="rv">
       <div class="qa"><button type="button" aria-expanded="false">Do I need a new website?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>No. The booking button works on the site you already have. If your site is slow or out of date, we can build you a new one as part of the plan.</p></div></div></div>
       <div class="qa"><button type="button" aria-expanded="false">What if a booking doesn't work for me?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>You can set any service to "request" instead of instant booking, so you approve it first. You can also change or cancel from your inbox and the customer is told by text.</p></div></div></div>
       <div class="qa"><button type="button" aria-expanded="false">Will customers see prices I don't want to commit to?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>They see ranges you set, with a note that the final price is confirmed on site. Big or unusual jobs go to "free estimate" with photos instead.</p></div></div></div>
@@ -511,69 +487,167 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 <div class="cta">
   <div class="wrap">
     <div><p class="eyebrow">Your next job could already be trying to book</p><h2 style="margin-top:12px">Let them book it.</h2></div>
-    <a class="btn dark" href="#build">See your booking page <svg class="arw"><use href="#arw"/></svg></a>
+    <a class="btn dark" href="#top">Build my booking page <svg class="arw"><use href="#arw"/></svg></a>
   </div>
 </div>
 <footer><div class="wrap"><span>&copy; 2026 Dial Bridge LLC &middot; Mahwah, NJ</span><span>Draft page. Not linked from dialbridge.ai.</span></div></footer>
 
-<div class="mbar" id="mbar"><a class="btn" href="#build">Build my booking page <svg class="arw"><use href="#arw"/></svg></a></div>
+<div class="mbar" id="mbar"><a class="btn" href="#top">Build my booking page <svg class="arw"><use href="#arw"/></svg></a></div>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Your booking page preview"><div class="box"><button class="close" type="button" id="mClose" aria-label="Close preview"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><iframe id="mFrame" title="Your booking page preview"></iframe></div></div>
 
 <script>
 (function () {
   var BASE = '../';
-  var mobile = function () { return window.matchMedia('(max-width: 640px)').matches; };
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 
-  // Sticky nav gets a hairline once the page scrolls; the phone CTA bar shows after the hero.
-  var nav = document.getElementById('nav'), mbar = document.getElementById('mbar'), hero = document.querySelector('.hero');
+  /* nav hairline + phone CTA bar */
+  var nav = document.getElementById('nav'), mbar = document.getElementById('mbar'), quick = document.getElementById('quick');
   function onScroll() {
     nav.classList.toggle('scrolled', scrollY > 8);
-    var past = hero.getBoundingClientRect().bottom < 0;
-    var build = document.getElementById('build').getBoundingClientRect();
-    mbar.classList.toggle('on', past && !(build.top < innerHeight && build.bottom > 0));
+    mbar.classList.toggle('on', quick.getBoundingClientRect().bottom < 0);
   }
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
-  // Hero: live widget, sized to each screen, with a trade switcher.
-  var frame = document.getElementById('heroFrame'), seg = document.getElementById('seg'), pill = seg.querySelector('.pill'), demoName = document.getElementById('demoName');
-  var NAMES = { 'northside-detail': 'Northside Mobile Detailing, sample business', 'harbor-haul': 'Harbor Haul, sample business', 'sparkle-and-co': 'Sparkle & Co., sample business' };
-  function placePill() { var on = seg.querySelector('[aria-selected="true"]'); pill.style.width = on.offsetWidth + 'px'; pill.style.transform = 'translateX(' + (on.offsetLeft - 4 + 4) + 'px)'; }
-  placePill(); addEventListener('resize', placePill);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placePill);
-  seg.addEventListener('click', function (e) {
-    var b = e.target.closest('button'); if (!b || b.getAttribute('aria-selected') === 'true') return;
-    seg.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
-    placePill();
-    frame.classList.add('swap');
-    setTimeout(function () { frame.src = BASE + 'book.html?b=' + b.getAttribute('data-b') + '&embed=1&inline=1'; }, reduce ? 0 : 180);
-    demoName.textContent = NAMES[b.getAttribute('data-b')] || '';
-  });
+  /* scroll reveal: blocks below the fold rise in once */
+  var rvs = [].slice.call(document.querySelectorAll('.rv'));
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (en) { en.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -12% 0px' });
+    rvs.forEach(function (el) { if (el.getBoundingClientRect().top > innerHeight) io.observe(el); else el.classList.add('in'); });
+  } else rvs.forEach(function (el) { el.classList.add('in'); });
+
+  /* reminder phone: notifications drop in one by one, oldest first */
+  var rem = document.getElementById('remPhone');
+  if ('IntersectionObserver' in window && !reduce && rem.getBoundingClientRect().top > innerHeight) {
+    rem.classList.add('pre');
+    var notes = [].slice.call(rem.querySelectorAll('.notif')).reverse();
+    notes.forEach(function (n, i) { n.style.transitionDelay = (0.3 + i * 0.5) + 's'; });
+    var io2 = new IntersectionObserver(function (en) { if (!en[0].isIntersecting) return; io2.disconnect(); rem.classList.remove('pre'); }, { threshold: 0.4 });
+    io2.observe(rem);
+  }
+
+  /* ---------- auto-playing demo: a cursor books a job in the real widget ---------- */
+  var stage = document.getElementById('stage'), frame = document.getElementById('demoFrame'), cursor = document.getElementById('cursor');
+  var rail = [].slice.call(document.querySelectorAll('#rail button')), note = document.getElementById('stageNote');
+  var STOP = {}, running = false, manual = false, inView = false, runId = 0, readyRes = null, loaded = false;
+  var MOVE = 750;
+  function doc() { try { return frame.contentDocument; } catch (e) { return null; } }
+  function q(sel) { var d = doc(); return d && d.querySelector(sel); }
+  async function gate(id) { while (true) { if (manual || id !== runId) throw STOP; if (inView && !document.hidden) return; await sleep(250); } }
+  async function wait(ms, id) { var end = Date.now() + ms; while (Date.now() < end) { await gate(id); await sleep(Math.min(120, Math.max(0, end - Date.now()))); } }
+  async function find(sel, id, t) { var end = Date.now() + (t || 4000); while (Date.now() < end) { await gate(id); var el = q(sel); if (el && !el.disabled) return el; await sleep(80); } throw new Error('not found: ' + sel); }
+  function setStep(i, dur) {
+    rail.forEach(function (b, k) { b.classList.toggle('on', k === i); b.classList.toggle('done', i >= 0 && k < i); var f = b.querySelector('.fill'); f.style.transition = 'none'; f.style.transform = 'scaleX(0)'; });
+    if (i < 0) return;
+    var f = rail[i].querySelector('.fill'); rail[i].style.setProperty('--t', (dur || 4000) + 'ms');
+    f.offsetWidth; f.style.transition = ''; f.style.transform = '';
+  }
+  function place(el) {
+    var fr = frame.getBoundingClientRect(), st = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
+    return { x: fr.left - st.left + r.left + Math.min(r.width * 0.5, 60), y: fr.top - st.top + r.top + r.height * 0.55 };
+  }
+  async function moveTo(el, id) {
+    var bd = q('#bd');
+    if (bd) {
+      var r = el.getBoundingClientRect(), br = bd.getBoundingClientRect();
+      if (r.bottom > br.bottom - 10 || r.top < br.top) { bd.scrollTo({ top: bd.scrollTop + r.top - br.top - 70, behavior: 'smooth' }); await wait(450, id); }
+    }
+    var p = place(el);
+    cursor.classList.remove('gone');
+    cursor.style.transform = 'translate(' + Math.round(p.x) + 'px,' + Math.round(p.y) + 'px)';
+    await wait(MOVE + 60, id);
+  }
+  async function tap(sel, id, pause) {
+    var el = await find(sel, id); await moveTo(el, id);
+    el = await find(sel, id);
+    cursor.classList.add('down'); await wait(110, id);
+    cursor.classList.remove('click'); cursor.offsetWidth; cursor.classList.add('click');
+    el.click(); cursor.classList.remove('down');
+    await wait(pause || 450, id);
+  }
+  async function type(sel, text, id) {
+    await tap(sel, id, 150);
+    var el = await find(sel, id);
+    el.style.setProperty('border-color', 'var(--brand)');
+    for (var i = 0; i < text.length; i++) { el.value += text[i]; el.dispatchEvent(new Event('input', { bubbles: true })); await wait(70 + Math.random() * 50, id); }
+    el.style.removeProperty('border-color');
+    await wait(250, id);
+  }
+  function reload() {
+    return new Promise(function (res) { readyRes = res; frame.classList.add('fade'); setTimeout(function () { frame.src = BASE + 'book.html?b=harbor-haul&embed=1&inline=1&t=' + Date.now(); }, 250); });
+  }
+  function hookFrame() { var d = doc(); if (d && !d.__dbx) { d.__dbx = 1; d.addEventListener('click', function (ev) { if (ev.isTrusted) takeOver(); }, true); d.addEventListener('input', function (ev) { if (ev.isTrusted) takeOver(); }, true); d.addEventListener('keydown', function (ev) { if (ev.isTrusted) takeOver(); }, true); } }
   window.addEventListener('message', function (e) {
-    if (!e.data || e.source !== frame.contentWindow) return;
-    if (e.data.type === 'dbw:ready') frame.classList.remove('swap');
+    if (e.source !== frame.contentWindow || !e.data) return;
+    if (e.data.type === 'dbw:ready') {
+      loaded = true; frame.classList.remove('fade'); hookFrame();
+      if (readyRes) { readyRes(); readyRes = null; }
+    }
     if (e.data.type === 'dbw:height' && e.data.h > 0) {
-      var max = mobile() ? Math.min(640, innerHeight - 90) : 700;
-      frame.style.height = Math.max(mobile() ? 460 : 540, Math.min(Math.round(e.data.h), max)) + 'px';
+      var max = innerWidth < 640 ? 600 : 640;
+      frame.style.height = Math.max(440, Math.min(Math.round(e.data.h), max)) + 'px';
     }
   });
-
-  // How it works: tabs that advance on their own until someone taps one.
-  var tour = document.getElementById('tour'), steps = tour.querySelectorAll('.step'), pics = tour.querySelectorAll('.phone img'), cur = 0, timer = null, DUR = 5500, inView = false;
-  function show(i) {
-    cur = i;
-    steps.forEach(function (s, k) { s.setAttribute('aria-selected', k === i ? 'true' : 'false'); var bar = s.querySelector('.bar i'); bar.style.animation = 'none'; bar.offsetWidth; bar.style.animation = ''; });
-    pics.forEach(function (p, k) { p.classList.toggle('on', k === i); });
+  async function play(id) {
+    stage.classList.remove('finale'); setStep(-1);
+    if (!loaded || q('.okc') || q('.steps')) await reload();
+    await wait(700, id);
+    setStep(0, 7800);
+    await tap('[data-act="start"][data-v="book"]', id, 600);
+    await type('input[data-in="zip"]', '07410', id);
+    await tap('#next', id, 650);
+    await tap('[data-act="svc"][data-v="furniture"]', id, 300);
+    await tap('[data-act="svc"][data-v="appliances"]', id, 500);
+    setStep(1, 4200);
+    await tap('[data-act="opt"][data-v="quarter"]', id, 900);
+    for (var g = 0; g < 4; g++) { var nx = q('#next'); if (nx && !nx.disabled) break; await tap('.blk:last-of-type .chip:not(.on)', id, 600); }
+    await wait(900, id);
+    await tap('#next', id, 650);
+    setStep(2, 4600);
+    await tap('.radio:not(:disabled)', id, 600);
+    await tap('#next', id, 650);
+    await type('input[data-in="name"]', 'Dana Lopez', id);
+    await type('input[data-in="phone"]', '2015550142', id);
+    if (q('input[data-in="addr"]')) await type('input[data-in="addr"]', '41 Maple Ave', id);
+    await tap('#next', id, 900);
+    setStep(3, 5200);
+    cursor.classList.add('gone');
+    stage.classList.add('finale');
+    await wait(5600, id);
+    stage.classList.remove('finale');
+    await wait(500, id);
   }
-  function tick() { clearTimeout(timer); if (!tour.classList.contains('auto') || !inView) return; timer = setTimeout(function () { show((cur + 1) % steps.length); tick(); }, DUR); }
-  steps.forEach(function (s) { s.addEventListener('click', function () { tour.classList.remove('auto'); clearTimeout(timer); show(+s.getAttribute('data-i')); }); });
-  if (reduce) tour.classList.remove('auto');
-  if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { inView = en[0].isIntersecting; tour.classList.toggle('paused', !inView); if (inView) { show(cur); tick(); } else clearTimeout(timer); }, { threshold: 0.35 }).observe(tour);
-  tour.addEventListener('mouseenter', function () { if (tour.classList.contains('auto')) { clearTimeout(timer); tour.classList.add('paused'); } });
-  tour.addEventListener('mouseleave', function () { if (tour.classList.contains('auto')) { tour.classList.remove('paused'); show(cur); tick(); } });
+  async function loop() {
+    if (running) return; running = true; var id = ++runId;
+    try { while (true) { await play(id); } }
+    catch (e) { if (e !== STOP) { console.warn('demo stopped', e); takeOver(); } }
+    running = false;
+  }
+  function takeOver() {
+    if (manual) return;
+    manual = true; runId++; cursor.classList.add('gone'); stage.classList.remove('finale'); stage.classList.add('manual'); setStep(-1);
+    note.textContent = 'Your turn. Tap through it. Nothing is sent anywhere.';
+    setBtn();
+  }
+  var rpIcon = document.getElementById('rpIcon'), rpText = document.getElementById('rpText'), rpBtn = document.getElementById('replay');
+  function setBtn() {
+    rpText.textContent = manual ? 'Replay' : 'Pause';
+    rpBtn.setAttribute('aria-label', manual ? 'Replay the demo' : 'Pause the demo');
+    rpIcon.innerHTML = manual ? '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>' : '<path d="M8 5v14M16 5v14"/>';
+  }
+  rail.forEach(function (b) { b.addEventListener('click', takeOver); });
+  document.getElementById('replay').addEventListener('click', async function () {
+    if (!manual) { takeOver(); note.textContent = 'Paused. Tap through it yourself, or replay.'; return; }
+    manual = false; setBtn(); stage.classList.remove('manual'); note.textContent = 'Harbor Haul is a sample junk removal business. Tap the widget to try it yourself.';
+    await reload(); loop();
+  });
+  if (reduce) { manual = true; setBtn(); stage.classList.add('manual'); note.textContent = 'Harbor Haul is a sample junk removal business. Tap through it. Nothing is sent anywhere.'; }
+  else if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) { inView = en[0].isIntersecting; if (inView && !manual) loop(); }, { threshold: 0.45 }).observe(stage);
+  }
 
-  // FAQ: smooth open/close.
+  /* FAQ */
   document.getElementById('faqList').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     var qa = b.parentNode, open = qa.hasAttribute('data-open');
@@ -581,7 +655,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     b.setAttribute('aria-expanded', open ? 'false' : 'true');
   });
 
-  // Builder preview: same popup feel as the widget (bottom sheet on phones).
+  /* "Build it": a preview of their own booking page in a popup */
   var modal = document.getElementById('modal'), mframe = document.getElementById('mFrame'), last = null;
   function open(src) {
     last = document.activeElement; mframe.src = src;
@@ -598,16 +672,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   function enc(o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
-  function cfg() {
-    var $ = function (id) { return document.getElementById(id); };
-    return { trade: $('bTrade').value, name: $('bName').value.trim() || 'Your Business', phone: $('bPhone').value.trim() || '(201) 555-0148',
-      brand: /^#[0-9a-fA-F]{6}$/.test($('bColor').value) ? $('bColor').value : '#0E6650', area: $('bArea').value.trim() || 'your area', zips: [] };
-  }
-  var site = document.getElementById('bSite');
-  function sync() { site.href = BASE + 'site.html?c=' + enc(cfg()) + '&book'; }
-  ['bName', 'bPhone', 'bTrade', 'bArea', 'bColor'].forEach(function (id) { document.getElementById(id).addEventListener('input', sync); });
-  sync();
-  document.getElementById('builder').addEventListener('submit', function (e) { e.preventDefault(); open(BASE + 'book.html?c=' + enc(cfg())); });
+  quick.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = document.getElementById('qName').value.trim() || 'Your Business';
+    open(BASE + 'book.html?c=' + enc({ trade: document.getElementById('qTrade').value, name: name, phone: '(201) 555-0148', brand: '#0E6650', area: 'your area', zips: [] }));
+  });
 })();
 </script>
 </body>
