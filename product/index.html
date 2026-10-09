@@ -236,6 +236,48 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .modal .close svg{width:18px;height:18px;fill:none;stroke:#20251f;stroke-width:2.2;stroke-linecap:round}
 .mbar{display:none}
 
+/* reminders scene */
+.rsplit{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:56px}
+.rlede{color:var(--ink2);max-width:420px;margin:18px 0 0;font-size:18px}
+.rscene{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 270px;align-items:center;gap:36px;padding:40px 44px;border-radius:28px;background:radial-gradient(70% 80% at 70% 30%,#fff,rgba(255,255,255,.55) 70%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 30px 60px -36px rgba(32,37,31,.35);overflow:hidden}
+.rrail{position:relative;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:30px}
+.rrail::before{content:"";position:absolute;left:9px;top:10px;bottom:10px;width:2px;border-radius:2px;background:var(--sage2)}
+.rrail::after{content:"";position:absolute;left:9px;top:10px;width:2px;border-radius:2px;background:var(--accent);height:var(--fill,0px);transition:height .8s var(--ease)}
+.rrail li{position:relative;padding-left:36px;opacity:.45;transition:opacity .4s var(--ease)}
+.rrail li i{position:absolute;left:2px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--white);box-shadow:inset 0 0 0 2px var(--sage2);transition:box-shadow .3s,background-color .3s,transform .4s var(--ease)}
+.rrail li b{display:block;font-size:15.5px;letter-spacing:-.01em}
+.rrail li span{display:block;font-family:var(--mono);font-size:12px;color:var(--mute);margin-top:2px}
+.rrail li.on,.rrail li.done{opacity:1}
+.rrail li.on i{background:var(--accent);box-shadow:0 0 0 5px rgba(243,84,39,.16);transform:scale(1.1)}
+.rrail li.done i{background:var(--ink);box-shadow:none}
+.rphone{position:relative;width:270px}
+.tz{position:absolute;z-index:3;left:50%;top:-14px;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--ink);color:#e9ece4;font-size:12px;white-space:nowrap;box-shadow:0 10px 24px -10px rgba(0,0,0,.45);transform:translate(-50%,-6px);opacity:0;transition:opacity .45s var(--ease),transform .6s var(--ease)}
+.tz b{color:#fff;font-weight:700}
+.tz svg{width:14px;height:14px;fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.tz.show{opacity:1;transform:translate(-50%,0)}
+.roll{position:relative;display:block;overflow:hidden;height:1em;line-height:1}
+.roll span{display:block;transition:transform .55s var(--ease),opacity .4s}
+.roll span.out{position:absolute;left:0;right:0;top:0;transform:translateY(-100%);opacity:0}
+.roll span.in{transform:translateY(100%);opacity:0}
+#rstack .notif{transition:transform .6s var(--ease),opacity .45s var(--ease)}
+#rstack .notif.enter{opacity:0;transform:translateY(-16px) scale(.95)}
+#rstack .notif.leave{opacity:0;transform:scale(.92)}
+.rscene .iphone .lock{top:11%}
+.rscene .iphone .lock b{font-size:22cqw;height:1em}
+.rscene .iphone .stack{top:37%}
+@media (max-width:1000px){.rsplit{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){
+  .rscene{grid-template-columns:minmax(0,1fr);gap:26px;padding:44px 18px 28px;margin-inline:-6px}
+  .rrail{flex-direction:row;gap:0;justify-content:space-between;order:2}
+  .rrail::before,.rrail::after{left:10px;right:auto;top:8px;bottom:auto;height:2px;width:calc(100% - 20px)}
+  .rrail::after{width:var(--fillx,0px);transition:width .8s var(--ease)}
+  .rrail li{flex:1;padding:24px 0 0;text-align:center}
+  .rrail li i{left:50%;top:0;margin-left:-8px}
+  .rrail li b{font-size:12px;line-height:1.25}
+  .rrail li span{display:none}
+  .rphone{width:250px;margin:0 auto}
+  .tz{font-size:11px;padding:7px 10px}
+}
 @media (max-width:1180px){
   .stage.finale .wcard{transform:scale(.96);filter:blur(1.5px) brightness(.96)}
   .owner-phone{right:50%;top:auto;bottom:28px;width:230px;transform:translate(50%,40px)}
@@ -290,7 +332,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .mbar.on{transform:none}
   .mbar .btn{flex:1;height:46px}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *)),:where(*:not(.stage *))::before,:where(*:not(.stage *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *, .rscene *)),:where(*:not(.stage *, .rscene *))::before,:where(*:not(.stage *, .rscene *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -365,30 +407,29 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <div class="band" id="texts" style="margin-top:96px">
   <section class="s">
-    <div class="wrap split">
+    <div class="wrap split rsplit">
       <div class="rv">
         <p class="eyebrow">After they book</p>
-        <h2 style="margin-top:18px">Confirmations and reminders, in their own time zone.</h2>
-        <p style="color:var(--ink2);max-width:500px;margin-top:18px">Every text says the time the way the customer picked it, so a customer in Houston reads 9:00 AM CST, even when your office runs on Eastern time. Each reminder reads differently, so nobody thinks it was sent twice.</p>
-        <ul class="list">
-          <li><span>RIGHT AWAY</span>You're booked for Friday, Oct 9 at 9:00 AM CST.</li>
-          <li><span>DAY BEFORE</span>Looking forward to your detail tomorrow at 9:00 AM CST.</li>
-          <li><span>3 HOURS BEFORE</span>Quick heads-up, we're still on for today at 9:00 AM CST.</li>
-          <li><span>1 HOUR BEFORE</span>We'll be there in about an hour.</li>
-        </ul>
+        <h2 style="margin-top:18px">Reminders go out on their own.</h2>
+        <p class="rlede">Four short texts, each worded differently, at the right time in the customer's own time zone. Fewer no-shows, no work for you.</p>
       </div>
-      <div class="phone-col" aria-hidden="true">
-        <div class="iphone" id="remPhone"><div class="bezel"><div class="scr">
-          <div class="island"></div>
-          <div class="sb"><span>8:02</span><span class="ic"><svg viewBox="0 0 18 12"><use href="#sig"/></svg><svg viewBox="0 0 16 12"><use href="#wifi"/></svg><svg viewBox="0 0 27 12"><use href="#batt"/></svg></span></div>
-          <div class="lock"><small>Friday, October 9</small><b>8:02</b></div>
-          <div class="stack">
-            <div class="notif"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">Northside Detailing<span>now</span></div><p>Hey Jordan, we'll be there in about an hour (9:00 AM CST). Text back if anything changed.</p></div></div>
-            <div class="notif"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">Northside Detailing<span>Thu</span></div><p>Looking forward to your detail tomorrow at 9:00 AM CST. If the time doesn't work anymore, just text back.</p></div></div>
-            <div class="notif"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">Northside Detailing<span>Wed</span></div><p>You're booked for Friday, Oct 9 at 9:00 AM CST. Full detail, SUV. $249 to $289.</p></div></div>
-          </div>
-          <div class="home"></div>
-        </div></div></div>
+      <div class="rscene" id="rscene" aria-label="Animation: four reminder texts arriving on a customer's phone" role="img">
+        <ol class="rrail" aria-hidden="true">
+          <li data-i="0"><i></i><b>Right after booking</b><span>Wed, 4:12 PM</span></li>
+          <li data-i="1"><i></i><b>Day before</b><span>Thu, 9:00 AM</span></li>
+          <li data-i="2"><i></i><b>3 hours before</b><span>Fri, 6:00 AM</span></li>
+          <li data-i="3"><i></i><b>1 hour before</b><span>Fri, 8:00 AM</span></li>
+        </ol>
+        <div class="rphone" aria-hidden="true">
+          <div class="tz" id="tz"><span>Your office <b>10:00 AM EST</b></span><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span>Their phone <b>9:00 AM CST</b></span></div>
+          <div class="iphone"><div class="bezel"><div class="scr">
+            <div class="island"></div>
+            <div class="sb"><span class="sbt" id="rsb">4:12</span><span class="ic"><svg viewBox="0 0 18 12"><use href="#sig"/></svg><svg viewBox="0 0 16 12"><use href="#wifi"/></svg><svg viewBox="0 0 27 12"><use href="#batt"/></svg></span></div>
+            <div class="lock"><small id="rday">Wednesday, October 7</small><b class="roll" id="rclock"><span>4:12</span></b></div>
+            <div class="stack" id="rstack"></div>
+            <div class="home"></div>
+          </div></div></div>
+        </div>
       </div>
     </div>
   </section>
@@ -447,7 +488,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     <div class="price rv">
       <div class="plan">
         <span class="tag">Already have a site you like</span>
-        <h3 style="margin-top:16px">Booking widget</h3>
+        <h3 style="margin-top:16px">Booking Widget</h3>
         <div class="amt">$99<small>/month</small></div>
         <div style="color:var(--mute);font-size:14px">$99 one-time setup. Month to month.</div>
         <ul>
@@ -461,13 +502,13 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       </div>
       <div class="plan main">
         <span class="tag">Most owners pick this</span>
-        <h3 style="margin-top:16px">Website + Google + booking</h3>
+        <h3 style="margin-top:16px">Website + Google Profile + Booking Widget</h3>
         <div class="amt">$199<small>/month</small></div>
         <div style="color:var(--mute);font-size:14px">$199 one-time setup. Month to month.</div>
         <ul>
           <li><svg><use href="#chk"/></svg>A new, fast website built to book jobs</li>
           <li><svg><use href="#chk"/></svg>Google Business Profile setup with a Book button</li>
-          <li><svg><use href="#chk"/></svg>Everything in the booking widget plan</li>
+          <li><svg><use href="#chk"/></svg>Everything in the Booking Widget plan</li>
           <li><svg><use href="#chk"/></svg>Text confirmations and reminders in the customer's time zone</li>
           <li><svg><use href="#chk"/></svg>A text to you for every new request</li>
           <li><svg><use href="#chk"/></svg>We set it all up. One short call from you.</li>
@@ -526,15 +567,69 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     rvs.forEach(function (el) { if (el.getBoundingClientRect().top > innerHeight) io.observe(el); else el.classList.add('in'); });
   } else rvs.forEach(function (el) { el.classList.add('in'); });
 
-  /* reminder phone: notifications drop in one by one, oldest first */
-  var rem = document.getElementById('remPhone');
-  if ('IntersectionObserver' in window && !reduce && rem.getBoundingClientRect().top > innerHeight) {
-    rem.classList.add('pre');
-    var notes = [].slice.call(rem.querySelectorAll('.notif')).reverse();
-    notes.forEach(function (n, i) { n.style.transitionDelay = (0.3 + i * 0.5) + 's'; });
-    var io2 = new IntersectionObserver(function (en) { if (!en[0].isIntersecting) return; io2.disconnect(); rem.classList.remove('pre'); }, { threshold: 0.4 });
-    io2.observe(rem);
-  }
+  /* reminders scene: the clock rolls forward and each text lands at its moment, then it loops */
+  (function () {
+    var scene = document.getElementById('rscene'); if (!scene) return;
+    var rail = scene.querySelector('.rrail'), items = [].slice.call(rail.children), stack = document.getElementById('rstack');
+    var clock = document.getElementById('rclock'), day = document.getElementById('rday'), sb = document.getElementById('rsb'), tz = document.getElementById('tz');
+    var bubble = '<span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span>';
+    var BEATS = [
+      { day: 'Wednesday, October 7', t: '4:12', ago: 'Wed', msg: "You're booked for Friday, Oct 9 at 9:00 AM CST. Full detail, SUV. $249 to $289." },
+      { day: 'Thursday, October 8', t: '9:00', ago: 'Thu', msg: "Hey Jordan, looking forward to your detail tomorrow at 9:00 AM CST. Text back if the time doesn't work." },
+      { day: 'Friday, October 9', t: '6:00', ago: '6:00', msg: "Quick heads-up, we're still on for today at 9:00 AM CST." },
+      { day: 'Friday, October 9', t: '8:00', ago: 'now', msg: "We'll be there in about an hour. Text back if anything changed." }
+    ];
+    var run = 0, visible = false, playing = false;
+    function pause(ms, id) { return new Promise(function (res, rej) { setTimeout(function () { id === run ? res() : rej('stop'); }, ms); }); }
+    function rollTo(t) {
+      var old = clock.querySelector('span'); if (old && old.textContent === t) return;
+      var nu = document.createElement('span'); nu.textContent = t; nu.className = 'in'; clock.appendChild(nu);
+      requestAnimationFrame(function () { requestAnimationFrame(function () { if (old) old.className = 'out'; nu.className = ''; }); });
+      setTimeout(function () { if (old && old.parentNode) old.remove(); }, 650);
+      sb.textContent = t;
+    }
+    // FLIP: older texts slide down smoothly when a new one lands on top
+    function push(b) {
+      var kids = [].slice.call(stack.children), first = kids.map(function (k) { return k.getBoundingClientRect().top; });
+      var n = document.createElement('div'); n.className = 'notif enter';
+      n.innerHTML = bubble + '<div><div class="t">Northside Detailing<span>now</span></div><p>' + b.msg + '</p></div>';
+      stack.insertBefore(n, stack.firstChild);
+      kids.forEach(function (k, i) { var dy = first[i] - k.getBoundingClientRect().top; k.style.transition = 'none'; k.style.transform = 'translateY(' + dy + 'px)'; });
+      stack.offsetHeight;
+      kids.forEach(function (k) { k.style.transition = ''; k.style.transform = ''; });
+      requestAnimationFrame(function () { requestAnimationFrame(function () { n.classList.remove('enter'); }); });
+      kids.forEach(function (k, i) { var s = k.querySelector('.t span'); if (s && s.textContent === 'now') s.textContent = BEATS[stackOrder[i]] ? BEATS[stackOrder[i]].ago : ''; });
+      stackOrder.unshift(BEATS.indexOf(b));
+      if (stack.children.length > 3) { var last = stack.lastChild; last.classList.add('leave'); stackOrder.pop(); setTimeout(function () { if (last.parentNode) last.remove(); }, 450); }
+    }
+    var stackOrder = [];
+    function setRail(i) {
+      items.forEach(function (li, k) { li.classList.toggle('on', k === i); li.classList.toggle('done', k < i); });
+      var dot = items[Math.max(0, i)].querySelector('i').getBoundingClientRect(), top = rail.getBoundingClientRect();
+      rail.style.setProperty('--fill', i < 0 ? '0px' : Math.max(0, dot.top - top.top) + 'px');
+      rail.style.setProperty('--fillx', i < 0 ? '0px' : Math.max(0, dot.left - top.left) + 'px');
+    }
+    function reset() { stack.innerHTML = ''; stackOrder = []; setRail(-1); tz.classList.remove('show'); day.textContent = BEATS[0].day; rollTo(BEATS[0].t); }
+    async function loop() {
+      if (playing) return; playing = true; var id = ++run;
+      try {
+        while (true) {
+          reset(); await pause(700, id);
+          for (var i = 0; i < BEATS.length; i++) {
+            day.textContent = BEATS[i].day; rollTo(BEATS[i].t); setRail(i);
+            if (i === 0) setTimeout(function () { if (id === run) tz.classList.add('show'); }, 900);
+            await pause(650, id); push(BEATS[i]);
+            await pause(i === 0 ? 3000 : 2300, id);
+          }
+          items[3].classList.remove('on'); items[3].classList.add('done');
+          await pause(2600, id);
+        }
+      } catch (e) { }
+      playing = false;
+    }
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) loop(); else run++; }, { threshold: 0.35 }).observe(scene);
+    else loop();
+  })();
 
   /* ---------- step demo: pick a step (pills or arrows) and watch it happen in the real widget ---------- */
   var stage = document.getElementById('stage'), frame = document.getElementById('demoFrame'), cursor = document.getElementById('cursor');
