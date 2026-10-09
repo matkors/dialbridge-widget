@@ -33,13 +33,13 @@
     if (!a) return;
     ACCT = a;
     S.email = a.email || S.email; S.name = a.firstName || S.name; S.biz = a.businessName || S.biz; S.phone = a.phone || S.phone; S.trade = a.trade || S.trade;
-    var an = a.answers || {}; ['reach', 'miss', 'calls', 'goal'].forEach(function (k) { if (an[k] !== undefined) S[k] = an[k]; });
+    var an = a.answers || {}; ['mode', 'reach', 'calls', 'goal'].forEach(function (k) { if (an[k] !== undefined) S[k] = an[k]; }); if (an.trade_label) S.tradeLabel = an.trade_label;
     S.paid = a.subStatus === 'trialing' || a.subStatus === 'active' || a.subStatus === 'past_due';
     if (a.plan) S.plan = a.plan;
     save();
   }
 
-  var S = { email: '', name: '', phone: '', biz: '', area: '', trade: '', reach: [], miss: '', calls: '', goal: '', plan: 'widget', paid: false, widgetDone: false, brand: '#0E6650', logo: null, svc: {}, days: [1, 2, 3, 4, 5, 6], open: '08:00', close: '18:00' };
+  var S = { email: '', name: '', phone: '', biz: '', area: '', trade: '', tradeLabel: '', mode: '', reach: [], miss: '', calls: '', goal: '', plan: 'widget', paid: false, widgetDone: false, brand: '#0E6650', logo: null, svc: {}, days: [1, 2, 3, 4, 5, 6], open: '08:00', close: '18:00' };
   try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { }
   var q0 = new URLSearchParams(location.search).get('biz'); if (q0 && !S.biz) S.biz = q0.slice(0, 60);
   // ?preview=1: a read-only live dashboard with sample data, used as the product shot on the sign-up page
@@ -203,15 +203,30 @@
   }
 
   /* ---------------- 2. onboarding (one question per screen) ---------------- */
+  // Trade: they type it (any business works); the chips are shortcuts. The key picks a starting template.
   var TRADES = [['junk', 'Junk removal', 'truck'], ['cleaning', 'House cleaning', 'spark'], ['detailing', 'Mobile detailing', 'car'], ['hvac', 'Heating and cooling', 'fan'], ['other', 'Something else', 'dots']];
+  var TRADE_CHIPS = ['Junk removal', 'House cleaning', 'Mobile detailing', 'Pressure washing', 'Landscaping', 'HVAC', 'Plumbing', 'Handyman', 'Moving', 'Painting', 'Pest control', 'Barbershop'];
+  function tradeKey(label) {
+    var t = String(label || '').toLowerCase();
+    if (/junk|haul|clean ?out|dumpster|debris/.test(t)) return 'junk';
+    if (/detail|car wash|ceramic|tint/.test(t)) return 'detailing';
+    if (/clean|maid|janitor/.test(t)) return 'cleaning';
+    if (/hvac|heat|cool|air cond|furnace/.test(t)) return 'hvac';
+    return 'other';
+  }
+  // How the booking page works depends on how they price: set prices, quotes after seeing the job, or time slots.
+  var MODES = [['priced', 'I have set prices or price ranges', 'Customers pick the job and see the price before they book', 'tag'],
+    ['estimate', 'I quote after I see the job', 'Customers send details and photos, you send the price', 'msg'],
+    ['appointments', 'Customers book a time with me', 'Like a haircut or a detail: pick a service and a time slot', 'clock'],
+    ['mix', 'A mix of these', 'Some jobs have a price, bigger ones get a quote', 'dots']];
   var STEPS = [
     { k: 'phone', type: 'phone', t: 'Where should we text you when a customer books?', p: 'You get a text the second someone books, with the job, the time and the price they saw.' },
     { k: 'biz', type: 'biz', t: 'What\'s your business called?', p: 'We\'ll use it on your booking page. If you\'re on Google, we\'ll find you.' },
-    { k: 'trade', type: 'one', grid: true, t: 'What kind of work do you do?', p: 'We set up your services and prices for your trade.', o: TRADES.map(function (x) { return [x[0], x[1], '', x[2]]; }) },
+    { k: 'tradeLabel', type: 'trade', t: 'What kind of work do you do?', p: 'Type it in your own words, or tap one.' },
+    { k: 'mode', type: 'one', t: 'How do customers usually get a price from you?', p: 'This sets up how your booking page works. You can change it later.', o: MODES },
     { k: 'reach', type: 'multi', t: 'How do customers reach you today?', p: 'Pick all that apply.', o: [['calls', 'Phone calls', '', 'phone'], ['texts', 'Text messages', '', 'msg'], ['site', 'A form on my website', '', 'globe'], ['google', 'My Google profile', '', 'pin'], ['social', 'Facebook or Instagram', '', 'msg'], ['apps', 'Thumbtack, Angi or Yelp', '', 'dots']] },
-    { k: 'miss', type: 'one', t: 'When you\'re on a job and a new call comes in, what usually happens?', p: '', o: [['answer', 'I stop and answer it', '', 'phone'], ['vm', 'It goes to voicemail', '', 'msg'], ['later', 'I call back when I can', '', 'cal'], ['office', 'Someone in the office answers', '', 'home']] },
     { k: 'insight', type: 'insight' },
-    { k: 'calls', type: 'one', t: 'About how many calls or quote requests do you get in a normal week?', p: 'Ballpark is fine.', o: [['0', '0 to 5'], ['1', '6 to 15'], ['2', '16 to 40'], ['3', 'More than 40']] },
+    { k: 'calls', type: 'one', t: 'About how many new customers reach out in a normal week?', p: 'Calls, texts, messages and website forms together. A ballpark is fine.', o: [['0', '0 to 5'], ['1', '6 to 15'], ['2', '16 to 40'], ['3', 'More than 40']] },
     { k: 'goal', type: 'one', t: 'What do you want most right now?', p: 'We\'ll set up your dashboard around it.', o: [['jobs', 'More booked jobs', 'Turn more visitors and callers into jobs', 'cal'], ['missed', 'Stop losing missed calls', 'Catch the ones that go to voicemail', 'phone'], ['reviews', 'More Google reviews', 'Ask every happy customer, automatically', 'star'], ['time', 'Less time on the phone', 'Let customers price and book themselves', 'msg']] },
     { k: 'build', type: 'build' },
     { k: 'ready', type: 'ready' }
@@ -228,39 +243,48 @@
     $('#onbBack').style.visibility = i > 0 && s.type !== 'build' ? 'visible' : 'hidden';
     var m = $('#onbMain'), h = '<div class="q">';
     if (s.type === 'phone') h += '<p class="k">Welcome, ' + esc(first()) + '</p><h1>' + s.t + '</h1><p>' + s.p + '</p><div class="opts"><input class="in" id="qIn" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(201) 555-0142" value="' + esc(fmtPhone(S.phone)) + '" style="height:56px;font-size:18px"></div>' +
-      '<p class="consent">By continuing you agree to texts from DialBridge about your bookings, your account and finishing your setup. Msg and data rates may apply. Reply STOP to opt out.</p>' + act(!phoneOk(S.phone));
+      act(!phoneOk(S.phone)) + '<p class="consent">By continuing you agree to texts from DialBridge about your bookings, your account and finishing setup. Msg and data rates may apply. Reply STOP to opt out.</p>';
     else if (s.type === 'text') h += '<h1>' + s.t + '</h1><p>' + s.p + '</p><div class="opts"><input class="in" id="qIn" autocomplete="' + s.auto + '" placeholder="' + s.ph + '" value="' + esc(S[s.k]) + '" style="height:56px;font-size:18px"></div>' + act(!S[s.k]);
     else if (s.type === 'biz') h += '<h1>' + s.t + '</h1><p>' + s.p + '</p><div class="opts" style="gap:0"><input class="in" id="qIn" autocomplete="organization" placeholder="Haul Pros Junk Removal" value="' + esc(S.biz) + '" style="height:56px;font-size:18px"><div class="sugg" id="sugg" hidden></div>' +
       '<div class="bizcard" id="bizcard"' + (S.area ? '' : ' hidden') + '><span class="pin">' + I('pin') + '</span><div><b id="bcN">' + esc(S.biz) + '</b><span id="bcA">' + esc(S.area) + '</span></div><span class="ok">Found on Google</span></div></div>' + act(!S.biz);
+    else if (s.type === 'trade') {
+      var tl = S.tradeLabel || '';
+      h += '<h1>' + s.t + '</h1><p>' + s.p + '</p><div class="opts" style="gap:0"><input class="in" id="qIn" autocomplete="off" placeholder="For example: junk removal" value="' + esc(tl) + '" style="height:56px;font-size:18px"></div>' +
+        '<div class="chips2" id="tChips">' + TRADE_CHIPS.map(function (c) { return '<button type="button" data-t="' + esc(c) + '"' + (c.toLowerCase() === tl.toLowerCase() ? ' class="on"' : '') + '>' + esc(c) + '</button>'; }).join('') + '</div>' + act(!tl);
+    }
     else if (s.type === 'one' || s.type === 'multi') {
       var cur = S[s.k], multi = s.type === 'multi';
       h += '<p class="k">' + (multi ? 'Pick all that apply' : 'Pick one') + '</p><h1>' + s.t + '</h1>' + (s.p ? '<p>' + s.p + '</p>' : '') +
         '<div class="opts' + (s.grid ? ' grid' : '') + '" id="qOpts">' + s.o.map(function (o) { return opt(o, multi ? cur.indexOf(o[0]) > -1 : cur === o[0], multi); }).join('') + '</div>' + (multi ? act(!cur.length) : '');
     }
     else if (s.type === 'insight') {
-      var vm = S.miss === 'vm' || S.miss === 'later';
-      h += '<p class="k">' + (vm ? 'You\'re not alone' : 'Good to know') + '</p><h1>' + (vm ? 'Most owners can\'t pick up while they\'re working. Customers don\'t wait.' : 'Even owners who always answer miss the after-hours customers.') + '</h1>' +
+      h += '<p class="k">Good to know</p><h1>Customers book when it suits them, not when you can pick up.</h1>' +
         '<div class="insight"><div class="big">41%</div><p>of online bookings come in after hours, when nobody is answering the phone.</p><div class="clock">' + Array.apply(null, Array(24)).map(function (_, hr) { var ah = hr < 8 || hr >= 18, v = [3, 2, 1, 1, 1, 2, 4, 6, 7, 8, 9, 9, 8, 9, 9, 8, 8, 9, 10, 11, 12, 11, 9, 6][hr]; return '<i class="' + (ah ? 'ah' : '') + '" style="height:' + v * 8 + '%"></i>'; }).join('') + '</div><div class="clock-l"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11 PM</span></div>' +
         '<small>Orange: requests that arrive outside 8 AM to 6 PM. Published data from large home-service booking platforms.</small></div>' +
         '<p style="margin-top:18px">Your booking page takes those requests while you work or sleep, with your prices and your schedule.</p>' + act(false);
     }
     else if (s.type === 'build') {
-      var tr = (TRADES.filter(function (x) { return x[0] === S.trade; })[0] || TRADES[0])[1].toLowerCase();
-      var items = ['Creating ' + BIZ() + '\'s account', 'Adding ' + tr + ' services and prices', 'Opening your schedule for after-hours booking', 'Connecting your lead inbox', 'Preparing your dashboard'];
+      var tr = (S.tradeLabel || 'your').toLowerCase();
+      var items = ['Creating ' + BIZ() + '\'s account', S.mode === 'estimate' ? 'Setting up estimate requests with photos' : S.mode === 'appointments' ? 'Setting up ' + tr + ' appointments' : 'Adding ' + tr + ' services and prices', 'Opening your schedule for after-hours booking', 'Connecting your lead inbox', 'Preparing your dashboard'];
       h += '<div class="building"><div class="ring"><svg viewBox="0 0 140 140"><circle class="t" cx="70" cy="70" r="60"/><circle class="p" id="ringP" cx="70" cy="70" r="60"/></svg><b id="ringN">0%</b></div><h1 style="margin-top:22px;text-align:center">Setting up ' + esc(BIZ()) + '</h1><ul class="blist" id="blist">' + items.map(function (t) { return '<li><i>' + I('chk') + '</i>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
     }
     else if (s.type === 'ready') {
-      var full = recommend() === 'full';
-      var lines = [];
-      if (S.miss === 'vm' || S.miss === 'later') lines.push(['Catch the calls you can\'t pick up', 'Customers book online instead of leaving a voicemail.']);
-      else lines.push(['Take bookings around the clock', 'Including the 41% that come in after hours.']);
-      lines.push(['Your ' + ((TRADES.filter(function (x) { return x[0] === S.trade; })[0] || TRADES[0])[1]).toLowerCase() + ' services and prices', 'Ready to edit. Customers see the price before they book.']);
-      lines.push(['A text the second someone books', 'With the job, the price they saw and their number.']);
-      lines.push([S.reach.indexOf('google') > -1 || S.reach.indexOf('social') > -1 ? 'On your Google profile, Facebook and Instagram' : 'On your website and Google profile', 'One link works everywhere customers find you.']);
-      if (S.goal === 'reviews' || full) lines.push(['Automatic Google review requests', 'Included in Website + Reviews + Booking Widget.']);
-      h += '<p class="k">Your plan is ready</p><h1>Here\'s how ' + esc(BIZ()) + ' books more jobs</h1>' +
-        '<div class="plan-sum"><div class="ph"><small>Built for ' + esc(BIZ()) + '</small><b>' + (S.goal === 'reviews' ? 'More reviews and more booked jobs' : S.goal === 'time' ? 'Less phone time, more booked jobs' : 'Book more jobs without answering every call') + '</b></div><ul>' +
-        lines.map(function (l) { return '<li><i>' + I('chk') + '</i><div><b>' + esc(l[0]) + '</b><span>' + esc(l[1]) + '</span></div></li>'; }).join('') + '</ul></div>' + act(false, 'See my plan');
+      var full = recommend() === 'full', tlab = (S.tradeLabel || 'your').toLowerCase();
+      var how = S.mode === 'estimate' ? ['Estimate requests with photos', 'Customers send the job and photos. You reply with a price.']
+        : S.mode === 'appointments' ? ['Online appointments', 'Customers pick a service and an open time slot.']
+        : S.mode === 'mix' ? ['Prices for small jobs, quotes for big ones', 'Each service can show a price or ask for an estimate.']
+        : ['Your services and prices up front', 'Customers see the price before they book.'];
+      var rows = [
+        ['moon', 'Bookings around the clock', 'Including the 41% that come in after hours.'],
+        [S.mode === 'estimate' ? 'msg' : 'cal', how[0], how[1]],
+        ['phone', 'A text the second someone books', 'With the job, the time and their number.'],
+        [S.reach.indexOf('google') > -1 || S.reach.indexOf('social') > -1 ? 'pin' : 'globe', S.reach.indexOf('google') > -1 || S.reach.indexOf('social') > -1 ? 'On Google, Facebook and Instagram' : 'On your website and Google profile', 'One link works everywhere customers find you.']
+      ];
+      if (S.goal === 'reviews' || full) rows.push(['star', 'Automatic Google review requests', 'Included in Website + Reviews + Booking Widget.']);
+      h += '<p class="k">Your plan is ready</p><h1>Here\'s how ' + esc(BIZ()) + ' books more ' + (S.mode === 'appointments' ? 'appointments' : 'jobs') + '</h1>' +
+        '<div class="plan2"><div class="p2-head"><span class="p2-av">' + esc((BIZ()[0] || 'D').toUpperCase()) + '</span><div><b>' + esc(BIZ()) + '</b><span>' + esc(S.tradeLabel || 'Booking page') + '</span></div><span class="p2-tag">Ready to set up</span></div>' +
+        '<ul>' + rows.map(function (r) { return '<li><span class="p2-i">' + I(r[0]) + '</span><div><b>' + esc(r[1]) + '</b><span>' + esc(r[2]) + '</span></div></li>'; }).join('') + '</ul>' +
+        '<div class="p2-foot"><span>' + I('chk') + '14 days free</span><span>' + I('chk') + 'No setup fee</span><span>' + I('chk') + 'Cancel anytime</span></div></div>' + act(false, 'See my plan');
     }
     h += '</div>'; m.innerHTML = h;
     var inp = $('#qIn'); if (inp) setTimeout(function () { inp.focus(); }, 60);
@@ -275,17 +299,22 @@
   function syncStep(s) {
     if (s.k === 'phone') return sync({ phone: S.phone, smsConsent: true, step: 'phone', tz: (DBX.attr().tz || undefined) });
     if (s.k === 'biz') return sync({ businessName: S.biz, step: 'biz' });
-    if (s.k === 'trade') return sync({ trade: S.trade, step: 'trade' });
-    if (['reach', 'miss', 'calls', 'goal'].indexOf(s.k) > -1) { var o = {}; o[s.k] = S[s.k]; return sync({ answers: o, step: s.k }); }
+    if (s.k === 'tradeLabel') return sync({ trade: S.trade, answers: { trade_label: S.tradeLabel }, step: 'tradeLabel' });
+    if (['mode', 'reach', 'calls', 'goal'].indexOf(s.k) > -1) { var o = {}; o[s.k] = S[s.k]; return sync({ answers: o, step: s.k }); }
   }
   function next() {
     var s = STEPS[onbIdx];
     if (s.type === 'text' || s.type === 'biz') { S[s.k] = $('#qIn').value.trim(); }
+    if (s.type === 'trade') { S.tradeLabel = $('#qIn').value.trim().slice(0, 40); if (!S.tradeLabel) return; S.trade = tradeKey(S.tradeLabel); }
     if (s.type === 'phone') { var v = $('#qIn').value; if (!phoneOk(v)) return; S.phone = v.replace(/\D/g, '').slice(-10); }
     save(); syncStep(s); location.hash = '#onb/' + (onbIdx + 1);
   }
   $('#onbBack').addEventListener('click', function () { var i = onbIdx - 1; while (i > 0 && STEPS[i].type === 'build') i--; location.hash = '#onb/' + Math.max(0, i); });
-  $('#onbMain').addEventListener('input', function (e) { if (e.target.id === 'qIn') { var b = $('#qNext'); if (b) b.disabled = STEPS[onbIdx].type === 'phone' ? !phoneOk(e.target.value) : !e.target.value.trim(); } });
+  $('#onbMain').addEventListener('input', function (e) {
+    if (e.target.id !== 'qIn') return;
+    var b = $('#qNext'); if (b) b.disabled = STEPS[onbIdx].type === 'phone' ? !phoneOk(e.target.value) : !e.target.value.trim();
+    if (STEPS[onbIdx].type === 'trade') { var v = e.target.value.trim().toLowerCase(); $$('#tChips button').forEach(function (c) { c.classList.toggle('on', c.getAttribute('data-t').toLowerCase() === v); }); }
+  });
   $('#onbMain').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.id === 'qIn' && e.target.value.trim()) { e.preventDefault(); next(); } });
   $('#onbMain').addEventListener('click', function (e) {
     if (e.target.closest('#qNext')) {
@@ -297,6 +326,8 @@
       } else next();
       return;
     }
+    var tc = e.target.closest('#tChips button');
+    if (tc) { $('#qIn').value = tc.getAttribute('data-t'); $$('#tChips button').forEach(function (c) { c.classList.toggle('on', c === tc); }); $('#qNext').disabled = false; setTimeout(next, reduce ? 0 : 220); return; }
     var o = e.target.closest('.opt'); if (!o) return;
     var s = STEPS[onbIdx], v = o.getAttribute('data-v');
     if (s.type === 'multi') { var a = S[s.k], i = a.indexOf(v); if (i > -1) a.splice(i, 1); else a.push(v); o.classList.toggle('on'); $('#qNext').disabled = !a.length; save(); return; }
@@ -349,7 +380,11 @@
     var btn = this;
     if (S.plan !== 'full') track('InitiateCheckout', { value: 99, currency: 'USD', content_name: 'widget_plan_99' });
     var fallback = function (r) {
-      if (S.plan === 'full') { location.href = (r && r.body && r.body.callUrl) || ('../product/?call=1&biz=' + encodeURIComponent(S.biz || '')); return; }
+      if (S.plan === 'full') {
+        if (r && r.body && r.body.callUrl) { location.href = r.body.callUrl; return; }
+        if (window.DBXBuild) { window.DBXBuild.open(S.biz || ''); return; }
+        location.href = '../product/?call=1&biz=' + encodeURIComponent(S.biz || ''); return;
+      }
       location.hash = '#checkout';
     };
     if (!LIVE) return fallback();

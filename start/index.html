@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="../product/build.css">
 <script src="../dbx.js"></script>
 </head>
 <body>
@@ -39,6 +40,8 @@
   <symbol id="dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></symbol>
   <symbol id="up" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></symbol>
   <symbol id="eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="tag" viewBox="0 0 24 24"><path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
+  <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
   <symbol id="copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
 </svg>
 
@@ -206,6 +209,7 @@
 <div class="modal" id="modal" hidden><div class="modal-box" id="modalBox"></div></div>
 <div class="toast" id="toast"><svg class="i"><use href="#chk"/></svg><span id="toastTx"></span></div>
 <span class="demo-tag">Demo: nothing is saved, sent or charged</span>
+<script src="../product/build.js"></script>
 <script src="app.js"></script>
 <script>(function(){var b=document.getElementById('authShot');if(!b)return;var f=b.querySelector('iframe');function fit(){var k=b.clientWidth/1280;f.style.transform='scale('+k+')';}fit();addEventListener('resize',fit);})();</script>
 </body>
