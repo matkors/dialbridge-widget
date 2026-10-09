@@ -335,13 +335,25 @@
       return h;
     }
 
+    // Photos for the first screen (free Unsplash licence, files in img/tiles, credits in img/tiles/CREDITS.json).
+    var TRADE = { junk: 'junk', cleaning: 'cleaning', detailing: 'detailing', hvac: 'hvac' }[B.trade] || 'junk';
+    var IMG = { book: 'img/tiles/' + TRADE + '-book.webp', quote: 'img/tiles/quote.webp', text: 'img/tiles/text.webp', call: 'img/tiles/call.webp' };
+    function sideHtml() {
+      var area = B.area && B.area !== 'your area' ? B.area : '';
+      var head = B.tagline || (T.trade + (area ? ' in ' + area : ', booked online'));
+      var photo = /^https:\/\//.test(B.hero || '') ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
+      return '<aside class="side" aria-hidden="true"><div class="sb"><img alt="" src="' + esc(photo) + '"><div class="st">' +
+        (B.logo ? '<span class="slogo"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname">' + esc(B.name) + '</span>') +
+        '<h2>' + esc(head) + '</h2><p>Tell us what you need, see your price and pick a time. We will take care of the rest.</p></div></div>' +
+        (B.rating ? '<div class="srate"><span class="stars">★★★★★</span><b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</div>' : '') + '</aside>';
+    }
     function menuHtml() {
       var order = OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call'];
-      return '<h3>How can we help?</h3><div class="menu">' + order.map(function (k) {
+      return '<div class="mhead"><h3>How can we help?</h3><p class="lede">Select an option.</p></div><div class="menu tiles2">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
         if (k === 'book' && t.priced && B.showPrices) { var rg = bookRange(); if (rg) desc = t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
         if (k === 'call') { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
-        return '<button type="button" class="mrow" data-act="start" data-v="' + k + '"><span class="mi">' + ic(icon) + '</span><span class="mt"><b>' + title + '</b><span>' + desc + '</span></span>' + ic('chevron-right', 'chev') + '</button>';
+        return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + IMG[k] + '"></span><span class="mt"><b>' + title + '</b><span>' + desc + '</span></span></button>';
       }).join('') + '</div>';
     }
 
@@ -401,7 +413,7 @@
     function render(scrollTo) {
       var old = document.getElementById('bd'), keep = old && !NAV ? old.scrollTop : 0;
       var hadSteps = !!app.querySelector('.steps');
-      app.innerHTML = headerHtml() + stepperHtml() + '<div class="bd" id="bd"><div class="bdi" id="bdi">' + bodyHtml() + '</div></div>' + footHtml();
+      app.innerHTML = sideHtml() + '<div class="main" id="main">' + headerHtml() + stepperHtml() + '<div class="bd" id="bd"><div class="bdi" id="bdi">' + bodyHtml() + '</div></div>' + footHtml() + '</div>';
       if (window.lucide) window.lucide.createIcons();
       var bd = document.getElementById('bd');
       if (NAV && !firstPaint) bd.classList.add(NAV === 'back' ? 'in-back' : NAV === 'done' ? 'in-done' : 'in-fwd');
@@ -425,13 +437,13 @@
     window.__dbwGlide = glide;
     // Tell w.js how tall this screen wants to be, so the popup fits the content instead of showing a half-empty card.
     function wantedHeight() {
-      var h = 0;
-      Array.prototype.forEach.call(app.children, function (c) {
+      var h = 0, main = document.getElementById('main') || app;
+      Array.prototype.forEach.call(main.children, function (c) {
         if (c.id !== 'bd') { h += c.offsetHeight; return; }
         var cs = getComputedStyle(c), inner = document.getElementById('bdi');
         h += (inner ? inner.offsetHeight : 0) + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
       });
-      return Math.ceil(h);
+      return Math.ceil(app.offsetWidth >= 760 ? Math.max(h, 600) : h);   // wide layout: the brand panel needs room
     }
     var lastH = 0;
     function sendHeight() { var h = wantedHeight(); if (Math.abs(h - lastH) > 1) { lastH = h; post('dbw:height', { h: h }); } }
@@ -441,7 +453,7 @@
         if (RO) RO.disconnect();
         RO = new ResizeObserver(sendHeight);
         var bdi = document.getElementById('bdi'); if (bdi) RO.observe(bdi);
-        Array.prototype.forEach.call(app.children, function (c) { if (c.id !== 'bd') RO.observe(c); });
+        Array.prototype.forEach.call((document.getElementById('main') || app).children, function (c) { if (c.id !== 'bd') RO.observe(c); });
       }
       requestAnimationFrame(sendHeight);
     }

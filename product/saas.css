@@ -24,7 +24,7 @@
 .sb-x:hover{background:rgba(32,37,31,.06)}
 .sb-x svg{width:20px;height:20px;stroke-width:2.2}
 .sb-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:8px 24px 40px}
-.sb-wrap{max-width:1000px;margin:0 auto}
+.sb-wrap{max-width:1080px;margin:0 auto}
 .sb-head{text-align:center;margin:8px 0 22px}
 .sb-head h2{font-size:clamp(26px,3vw,36px);letter-spacing:-.03em}
 .sb-head p{margin:8px 0 0;color:var(--mute);font-size:16px}
@@ -48,8 +48,8 @@
 .sb-pub{margin-left:auto;height:42px;padding:0 18px;border-radius:12px;gap:8px}
 .sb-pub svg{width:16px;height:16px;stroke-width:2.4}
 .sb-canvas{display:grid;place-items:center;padding:34px 20px;border-radius:14px;background:radial-gradient(60% 70% at 50% 0%,#fff,transparent 70%),linear-gradient(#eef0e7,#e3e7d9)}
-.sb-card{width:min(560px,100%);border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.08),0 30px 60px -28px rgba(32,37,31,.45)}
-.sb-card iframe{display:block;width:100%;height:600px;border:0}
+.sb-card{width:min(940px,100%);border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.08),0 30px 60px -28px rgba(32,37,31,.45)}
+.sb-card iframe{display:block;width:100%;height:640px;border:0}
 .sb-hint{display:flex;justify-content:center;align-items:center;gap:8px;margin:16px 0 0;font-size:13.5px;color:var(--mute)}
 .sb-hint svg{width:15px;height:15px;color:var(--ok)}
 
