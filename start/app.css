@@ -1,5 +1,5 @@
 :root{
-  --bg:#f6f5f1; --white:#fff; --ink:#1d221c; --ink2:#3b4238; --mute:#6a6e66; --faint:#9a9d94; --line:#e7e5de; --line2:var(--line2);
+  --bg:#f6f5f1; --white:#fff; --ink:#1d221c; --ink2:#3b4238; --mute:#6a6e66; --faint:#9a9d94; --line:#e7e5de; --line2:#d9d6cc;
   --accent:#f35427; --accent-ink:#cf4016; --deep:#232a22; --sage:#e6e9dc; --ok:#2f7d4f; --ok-bg:#e8f3ec; --warn:#b4540f; --warn-bg:#fdf1e6; --blue:#2856b8; --blue-bg:#e9eefb;
   --ease:cubic-bezier(.23,1,.32,1); --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
   --sh1:0 1px 2px rgba(29,34,28,.05); --sh2:0 1px 2px rgba(29,34,28,.04),0 8px 24px -10px rgba(29,34,28,.16);
