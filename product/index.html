@@ -1268,7 +1268,14 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   nextB.addEventListener('click', function () { go((cur + 1) % STEPS.length); });
   paint(0);
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (en) { inView = en[0].isIntersecting; if (inView && !started) go(0); }, { threshold: 0.12 }).observe(stage);
+    // Start only once at least half the demo is on screen, so nobody misses the opening.
+    // After that it keeps playing while any real part of it is visible and pauses when scrolled away.
+    new IntersectionObserver(function (en) {
+      var r = en[0].intersectionRatio;
+      inView = r > 0.15;
+      if (!started && r >= 0.5) go(0);
+    }, { threshold: [0, 0.15, 0.3, 0.5, 0.7, 1] }).observe(stage);
+    loadSite().then(sizeSite);   // show the sample website (still, sharp) until the demo starts
   } else { inView = true; go(0); }
 
   /* FAQ */
