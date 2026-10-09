@@ -468,6 +468,58 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 @media (max-width:1000px){.gsplit{grid-template-columns:minmax(0,1fr)}}
 .gscene .cursor{z-index:6}
 @media (max-width:640px){.gscene{height:470px;margin-inline:-6px}.gimg{height:130px}.gstars i{font-size:32px}}
+/* Google section: search -> business card -> Book online -> booking page */
+.ggs{position:relative;height:560px;border-radius:28px;background:radial-gradient(70% 70% at 60% 30%,#fff,rgba(255,255,255,.55) 70%);box-shadow:inset 0 0 0 1px var(--line),0 30px 60px -40px rgba(32,37,31,.35);overflow:hidden;font-family:Roboto,-apple-system,'Segoe UI',Arial,sans-serif}
+.gg-search{position:absolute;left:50%;top:44px;display:flex;align-items:center;gap:12px;width:min(420px,calc(100% - 40px));height:50px;padding:0 18px;border-radius:999px;background:#fff;box-shadow:0 1px 6px rgba(32,33,36,.18);transform:translateX(-50%);font-size:16px;color:#202124}
+.gg-search svg{width:19px;height:19px;fill:none;stroke:#5f6368;stroke-width:2;stroke-linecap:round}
+.gg-search i{width:1.5px;height:20px;margin-left:-10px;background:#1a73e8;animation:blink 1s steps(1) infinite}
+.gg-card{position:absolute;left:50%;top:118px;width:min(420px,calc(100% - 40px));border-radius:18px;background:#fff;box-shadow:0 1px 3px rgba(32,33,36,.15),0 14px 34px -14px rgba(32,33,36,.3);transform:translate(-50%,14px);opacity:0;overflow:hidden;transition:opacity .45s var(--ease),transform .6s var(--ease),filter .4s}
+.ggs.s1 .gg-card{opacity:1;transform:translate(-50%,0)}
+.ggs.s3 .gg-card{filter:brightness(.6)}
+.gg-map{position:relative;height:96px;background:linear-gradient(135deg,rgba(255,255,255,.4) 25%,transparent 25%) 0 0/28px 28px,linear-gradient(#e8f0e3,#dfe8f1)}
+.gg-map::before{content:"";position:absolute;left:-10%;top:55%;width:120%;height:10px;background:#fff;transform:rotate(-8deg);box-shadow:0 -40px 0 -2px #f6e6b4}
+.gg-pin{position:absolute;left:50%;top:30px;width:22px;height:22px;border-radius:50% 50% 50% 0;background:#ea4335;transform:translateX(-50%) rotate(-45deg);box-shadow:0 2px 4px rgba(0,0,0,.25)}
+.gg-pin::after{content:"";position:absolute;left:7px;top:7px;width:8px;height:8px;border-radius:50%;background:#a50e0e}
+.gg-body{padding:14px 18px 16px}
+.gg-body b{display:block;font-size:20px;font-weight:500;color:#202124}
+.gg-body p{margin:4px 0 0;font-size:14px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.gg-r{color:#202124}
+.gg-st{color:#fbbc04;letter-spacing:1px}
+.gg-m{color:#70757a}
+.gg-open{color:#188038}
+.gg-acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.gg-a{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;border:1px solid #dadce0;color:#1a73e8;font-size:14px;font-weight:500;background:#fff}
+.gg-a svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gg-book{background:#1a73e8;border-color:#1a73e8;color:#fff;transition:transform .12s,box-shadow .2s}
+.ggs.s2 .gg-book{box-shadow:0 0 0 4px rgba(26,115,232,.22)}
+.gg-book.press{transform:scale(.95)}
+.gg-rev{margin-top:14px;padding-top:12px;border-top:1px solid #ebebeb;font-size:13.5px;color:#4d5156;font-style:italic}
+.gg-sheet{position:absolute;left:50%;bottom:0;width:min(390px,calc(100% - 28px));height:440px;border-radius:20px 20px 0 0;background:#fff;box-shadow:0 -10px 40px rgba(0,0,0,.25);transform:translate(-50%,105%);transition:transform .55s cubic-bezier(.32,.72,0,1);overflow:hidden}
+.ggs.s3 .gg-sheet{transform:translate(-50%,0)}
+.gg-grab{height:18px;display:grid;place-items:center}
+.gg-grab::before{content:"";width:38px;height:4px;border-radius:2px;background:#d3d7dc}
+.gg-sheet iframe{display:block;width:100%;height:calc(100% - 18px);border:0;pointer-events:none}
+.ggs .cursor{z-index:6}
+@media (max-width:640px){.ggs{height:520px;margin-inline:-6px}.gg-search{top:26px;height:46px;font-size:15px}.gg-card{top:92px}.gg-sheet{height:410px}}
+/* dashboard section */
+.dshead{grid-template-columns:1fr 1fr;align-items:end}
+.dsh{margin-top:6px}
+.dsh-frame{position:relative;width:100%;aspect-ratio:1280/800;border-radius:20px;overflow:hidden;background:#f6f5f1;box-shadow:0 0 0 1px rgba(32,37,31,.08),0 40px 80px -40px rgba(32,37,31,.45)}
+.dsh-frame iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform-origin:0 0;pointer-events:none}
+.dsh-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+.dsh-tabs button{position:relative;display:flex;flex-direction:column;gap:2px;padding:14px 16px 16px;border:0;border-radius:14px;background:transparent;text-align:left;cursor:pointer;overflow:hidden;transition:background-color .2s}
+.dsh-tabs button:hover{background:rgba(32,37,31,.04)}
+.dsh-tabs button.on{background:var(--white);box-shadow:0 0 0 1px var(--line)}
+.dsh-tabs b{font-size:15.5px}
+.dsh-tabs span{font-size:13.5px;color:var(--mute)}
+.dsh-tabs i{position:absolute;left:16px;right:16px;bottom:8px;height:3px;border-radius:2px;background:var(--line);overflow:hidden;opacity:0}
+.dsh-tabs button.on i{opacity:1}
+.dsh-tabs em{display:block;height:100%;background:var(--accent);transform:scaleX(0);transform-origin:left}
+.dsh-tabs button.on em{animation:dfill 5s linear forwards}
+.dsh.paused .dsh-tabs button.on em{animation-play-state:paused}
+@keyframes dfill{to{transform:scaleX(1)}}
+@media (max-width:1000px){.dshead{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.dsh-tabs{grid-template-columns:1fr 1fr;gap:8px}.dsh-tabs button{padding:10px 12px 14px}.dsh-frame{border-radius:14px}}
 @media (max-width:1180px){
   .stage.finale .wcard{transform:scale(.94);opacity:.35;filter:saturate(.4)}
   .owner-phone{left:50%;top:auto;bottom:28px;width:230px;transform:translate(-50%,60px)}
@@ -532,7 +584,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .mbar.on{transform:none}
   .mbar .btn{flex:1;height:46px}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *, .rscene *, .flow *, .gscene *)),:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::before,:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *, .rscene *, .flow *, .gscene *, .ggs *, .dsh *)),:where(*:not(.stage *, .rscene *, .flow *, .gscene *, .ggs *, .dsh *))::before,:where(*:not(.stage *, .rscene *, .flow *, .gscene *, .ggs *, .dsh *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
 </style>
 <link rel="stylesheet" href="build.css">
 </head>
@@ -550,7 +602,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 <header class="nav" id="nav">
   <div class="wrap">
     <a class="logo" href="#">dialbridge<span>.</span>ai</a>
-    <nav class="links" aria-label="Sections"><a href="#demo">How it works</a><a href="#texts">Reminders</a><a href="#reviews">Reviews</a><a href="#owner">Your inbox</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+    <nav class="links" aria-label="Sections"><a href="#demo">How it works</a><a href="#google">Google</a><a href="#texts">Reminders</a><a href="#reviews">Reviews</a><a href="#dashboard">Dashboard</a><a href="#pricing">Pricing</a></nav>
     <a class="btn dark sm" href="#top">Build my booking page <svg class="arw"><use href="#arw"/></svg></a>
   </div>
 </header>
@@ -605,7 +657,33 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   <ul class="trades" aria-label="Built for"><li><svg viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62L18.3 8.38A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Junk removal</li><li><svg viewBox="0 0 24 24"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15v4M17 17h4"/></svg>Cleaning</li><li><svg viewBox="0 0 24 24"><path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M9.5 17h5M3 12h18"/></svg>Mobile detailing</li><li><svg viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/><path d="m9.5 4.5 2.5 2 2.5-2M9.5 19.5l2.5-2 2.5 2"/></svg>HVAC</li><li><svg viewBox="0 0 24 24"><path d="M7 20h10"/><path d="M12 20V10"/><path d="M12 10C12 6 9 4 5 4c0 4 3 6 7 6zM12 13c0-3.5 3-5.5 7-5.5 0 3.5-3 5.5-7 5.5z"/></svg>Landscaping</li><li><svg viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Pressure washing</li></ul>
 </div>
 
-<div class="band" id="texts" style="margin-top:96px">
+<section class="s" id="google">
+  <div class="wrap split rsplit gsplit">
+    <div class="rv rtext gtextcol">
+      <p class="flabel"><span class="fi"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>Bookings from Google</p>
+      <h2 style="margin-top:16px">Get booked straight from Google.</h2>
+      <p class="rlede">Add a <span class="pill"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Book online</span> button to your Google Business Profile. Customers book from <span class="pill"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</span> and <span class="pill"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Maps</span> without calling.</p>
+      <p class="rlede">We show you where to paste it. It takes two minutes and it's free on Google's side.</p>
+    </div>
+    <div class="ggs" id="ggs" role="img" aria-label="Animation: a customer searches for junk removal on Google, taps Book online on the business profile and the booking page opens">
+      <div class="gg-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span id="ggQ"></span><i></i></div>
+      <div class="gg-card" id="ggCard">
+        <div class="gg-map"><span class="gg-pin"></span></div>
+        <div class="gg-body">
+          <b>Harbor Haul</b>
+          <p><span class="gg-r">4.9</span><span class="gg-st">★★★★★</span><span class="gg-m">(212) · Junk removal service</span></p>
+          <p class="gg-m">Serves Bergen County · <span class="gg-open">Open</span> · Closes 6 PM</p>
+          <div class="gg-acts"><span class="gg-a gg-book" id="ggBook"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Book online</span><span class="gg-a"><svg viewBox="0 0 24 24"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg>Call</span><span class="gg-a"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>Website</span><span class="gg-a"><svg viewBox="0 0 24 24"><path d="M3 11 21 3l-8 18-2-8z"/></svg>Directions</span></div>
+          <div class="gg-rev"><span>“Booked online at night, they showed up the next morning.”</span></div>
+        </div>
+      </div>
+      <div class="gg-sheet" id="ggSheet"><div class="gg-grab"></div><iframe id="ggFrame" title="Booking page opened from Google" tabindex="-1" aria-hidden="true" loading="lazy"></iframe></div>
+      <div class="cursor gone" id="ggCur" aria-hidden="true"><span class="rip"></span><svg viewBox="0 0 24 24"><path d="M4 2.5 19.5 12l-6.6 1.6 3.9 7.2-2.6 1.4-3.9-7.2L5.6 19z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+    </div>
+  </div>
+</section>
+
+<div class="band" id="texts">
   <section class="s">
     <div class="wrap split rsplit">
       <div class="rscene" id="rscene" aria-label="Animation: four reminder texts rising out of a customer's phone" role="img">
@@ -720,6 +798,24 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           </div>
           <div class="home"></div>
         </div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="dashboard" style="padding-top:0">
+  <div class="wrap">
+    <div class="shead rv dshead">
+      <div><p class="flabel"><span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 13h4M8 16h7"/></svg></span>Your dashboard</p><h2 style="margin-top:14px">Run it all from one dashboard.</h2></div>
+      <p>Every booking, call-back and review in one place. See what came in after hours, reply in one tap, and know which link brings the jobs.</p>
+    </div>
+    <div class="dsh rv" id="dsh">
+      <div class="dsh-frame" id="dshFrame"><iframe id="dshIf" title="DialBridge dashboard" tabindex="-1" aria-hidden="true" scrolling="no" loading="lazy"></iframe></div>
+      <div class="dsh-tabs" id="dshTabs" role="tablist" aria-label="Dashboard pages">
+        <button role="tab" data-pg="home"><b>Home</b><span>Setup guide and today</span><i><em></em></i></button>
+        <button role="tab" data-pg="leads"><b>Leads</b><span>Reply in one tap</span><i><em></em></i></button>
+        <button role="tab" data-pg="reviews"><b>Reviews</b><span>Your Google rating</span><i><em></em></i></button>
+        <button role="tab" data-pg="traffic"><b>Traffic</b><span>What brings the jobs</span><i><em></em></i></button>
       </div>
     </div>
   </div>
@@ -1050,6 +1146,55 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     }
     if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { inView = en[0].isIntersecting; if (inView) loop(); }, { threshold: 0.12 }).observe(sc);
     else { inView = true; loop(); }
+  })();
+
+
+  /* Google section: search -> business card -> Book online -> booking page slides up, then loop */
+  (function () {
+    var sc = document.getElementById('ggs'); if (!sc) return;
+    var qEl = document.getElementById('ggQ'), book = document.getElementById('ggBook'), cur = document.getElementById('ggCur'), fr = document.getElementById('ggFrame');
+    var run = 0, playing = false, inView = false, loaded = false;
+    function pause(ms, id) { return new Promise(function (res, rej) { var end = Date.now() + ms; (function tick() { if (id !== run) return rej('stop'); if (!inView || document.hidden) { end += 120; return setTimeout(tick, 120); } if (Date.now() >= end) return res(); setTimeout(tick, Math.min(120, end - Date.now())); })(); }); }
+    function at(el, fx, fy) { var s = sc.getBoundingClientRect(), r = el.getBoundingClientRect(); cur.classList.remove('gone'); cur.style.transform = 'translate(' + Math.round(r.left - s.left + r.width * fx) + 'px,' + Math.round(r.top - s.top + r.height * fy) + 'px)'; }
+    async function loop() {
+      if (playing) return; playing = true; var id = ++run;
+      if (!loaded) { fr.src = '../book.html?b=harbor-haul&embed=1&inline=1&demo=1'; loaded = true; }
+      try {
+        while (true) {
+          sc.className = 'ggs'; qEl.textContent = ''; cur.classList.add('gone'); await pause(400, id);
+          var q = 'junk removal near me';
+          for (var i = 0; i < q.length; i++) { qEl.textContent += q[i]; await pause(45 + Math.random() * 40, id); }
+          await pause(350, id); sc.classList.add('s1'); await pause(1100, id);
+          at(book, .45, .6); await pause(850, id); sc.classList.add('s2');
+          cur.classList.add('down'); await pause(130, id); cur.classList.remove('click'); cur.offsetWidth; cur.classList.add('click'); cur.classList.remove('down');
+          book.classList.add('press'); await pause(140, id); book.classList.remove('press');
+          await pause(200, id); cur.classList.add('gone'); sc.classList.add('s3');
+          await pause(4200, id);
+        }
+      } catch (e) { }
+      playing = false;
+    }
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { var r = en[0].intersectionRatio; inView = r > 0.15; if (r >= 0.45) loop(); }, { threshold: [0, 0.15, 0.45, 0.7, 1] }).observe(sc);
+    else { inView = true; loop(); }
+  })();
+
+  /* Dashboard section: the real dashboard (read-only preview), cycling Home, Leads, Reviews, Traffic */
+  (function () {
+    var box = document.getElementById('dsh'); if (!box) return;
+    var frame = document.getElementById('dshFrame'), f = document.getElementById('dshIf'), tabs = [].slice.call(document.querySelectorAll('#dshTabs button'));
+    var i = 0, t = null, inView = false, auto = true, loaded = false;
+    function fit() { f.style.transform = 'scale(' + (frame.clientWidth / 1280) + ')'; }
+    fit(); addEventListener('resize', fit);
+    function go(k) {
+      i = k; tabs.forEach(function (b, n) { b.classList.toggle('on', n === k); b.setAttribute('aria-selected', n === k ? 'true' : 'false'); var e = b.querySelector('em'); e.style.animation = 'none'; e.offsetWidth; e.style.animation = ''; });
+      var pg = tabs[k].getAttribute('data-pg');
+      try { if (loaded) f.contentWindow.location.hash = '#app/' + pg; } catch (e) { }
+      if (!loaded) { f.src = '../start/?preview=1#app/' + pg; loaded = true; }
+      clearTimeout(t); if (auto && inView) t = setTimeout(function () { go((i + 1) % tabs.length); }, 5000);
+    }
+    tabs.forEach(function (b, k) { b.addEventListener('click', function () { auto = false; box.classList.add('paused'); go(k); }); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { inView = en[0].intersectionRatio > 0.3; box.classList.toggle('paused', !inView || !auto); if (inView) go(loaded ? i : 0); else clearTimeout(t); }, { threshold: [0, 0.3, 0.6] }).observe(box);
+    else { inView = true; go(0); }
   })();
 
   /* ---------- step demo: the whole journey, from their website to your phone ----------
