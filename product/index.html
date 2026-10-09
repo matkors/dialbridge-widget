@@ -178,7 +178,7 @@ section.s{padding:112px 0}
 .stat .big{font-size:clamp(76px,10vw,132px);font-weight:700;letter-spacing:-.05em;line-height:.9;color:#c9d6b8;font-variant-numeric:tabular-nums}
 .stat p{color:#c7cdbd;margin:16px 0 0}
 .stat a{color:#e0e5d6}
-.price{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:start}
+.price{display:grid;grid-template-columns:1fr 1.15fr;gap:20px;align-items:start}
 .plan{background:var(--white);border-radius:20px;padding:32px;box-shadow:0 0 0 1px var(--line)}
 .plan.main{box-shadow:0 0 0 2px var(--ink),0 24px 48px -28px rgba(32,37,31,.35)}
 .plan .amt{font-size:50px;font-weight:800;letter-spacing:-.045em;margin:14px 0 2px;font-variant-numeric:tabular-nums}
@@ -436,34 +436,36 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <section class="s" id="pricing" style="padding-top:0">
   <div class="wrap">
-    <div class="shead rv" style="margin-bottom:36px"><div><p class="eyebrow">Pricing <span class="tag">Draft</span></p><h2 style="margin-top:4px">One plan. We set it all up.</h2></div></div>
+    <div class="shead rv" style="margin-bottom:36px"><div><p class="eyebrow">Pricing <span class="tag">Draft</span></p><h2 style="margin-top:4px">Two plans. We set them up for you.</h2></div></div>
     <div class="price rv">
+      <div class="plan">
+        <span class="tag">Already have a site you like</span>
+        <h3 style="margin-top:16px">Booking widget</h3>
+        <div class="amt">$99<small>/month</small></div>
+        <div style="color:var(--mute);font-size:14px">$99 one-time setup. Month to month.</div>
+        <ul>
+          <li><svg><use href="#chk"/></svg>Book online button on your current website</li>
+          <li><svg><use href="#chk"/></svg>Your services, photos and price ranges</li>
+          <li><svg><use href="#chk"/></svg>Hosted booking page for Google and social links</li>
+          <li><svg><use href="#chk"/></svg>Every request in your inbox, with an email alert</li>
+          <li><svg><use href="#chk"/></svg>We set it up for you</li>
+        </ul>
+        <a class="btn ghost" href="#top">Start with a free preview <svg class="arw"><use href="#arw"/></svg></a>
+      </div>
       <div class="plan main">
         <span class="tag">Most owners pick this</span>
-        <h3 style="margin-top:16px">Website + booking + Google</h3>
+        <h3 style="margin-top:16px">Website + Google + booking</h3>
         <div class="amt">$199<small>/month</small></div>
         <div style="color:var(--mute);font-size:14px">$199 one-time setup. Month to month.</div>
         <ul>
-          <li><svg><use href="#chk"/></svg>A fast website built to book jobs</li>
-          <li><svg><use href="#chk"/></svg>Booking widget with your services, photos and prices</li>
-          <li><svg><use href="#chk"/></svg>Confirmations and reminders in the customer's time zone</li>
-          <li><svg><use href="#chk"/></svg>Owner inbox and a text for every new request</li>
-          <li><svg><use href="#chk"/></svg>Google Business Profile cleanup and Book button</li>
+          <li><svg><use href="#chk"/></svg>A new, fast website built to book jobs</li>
+          <li><svg><use href="#chk"/></svg>Google Business Profile setup with a Book button</li>
+          <li><svg><use href="#chk"/></svg>Everything in the booking widget plan</li>
+          <li><svg><use href="#chk"/></svg>Text confirmations and reminders in the customer's time zone</li>
+          <li><svg><use href="#chk"/></svg>A text to you for every new request</li>
           <li><svg><use href="#chk"/></svg>We set it all up. One short call from you.</li>
         </ul>
         <a class="btn" href="#top">Start with a free preview <svg class="arw"><use href="#arw"/></svg></a>
-      </div>
-      <div class="plan">
-        <span class="tag">Already have a site you like</span>
-        <h3 style="margin-top:16px">Booking widget only</h3>
-        <div class="amt" style="font-size:34px">Ask us</div>
-        <div style="color:var(--mute);font-size:14px">Price to be set. Same booking engine, added to your current website.</div>
-        <ul>
-          <li><svg><use href="#chk"/></svg>Book online button for your website</li>
-          <li><svg><use href="#chk"/></svg>Hosted booking page for Google and social</li>
-          <li><svg><use href="#chk"/></svg>Reminders and owner inbox</li>
-        </ul>
-        <a class="btn ghost" href="https://cal.com/dialbridge.ai/discovery-call">Book a 15-minute call</a>
       </div>
     </div>
   </div>
@@ -476,7 +478,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <div class="qa"><button type="button" aria-expanded="false">Do I need a new website?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>No. The booking button works on the site you already have. If your site is slow or out of date, we can build you a new one as part of the plan.</p></div></div></div>
       <div class="qa"><button type="button" aria-expanded="false">What if a booking doesn't work for me?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>You can set any service to "request" instead of instant booking, so you approve it first. You can also change or cancel from your inbox and the customer is told by text.</p></div></div></div>
       <div class="qa"><button type="button" aria-expanded="false">Will customers see prices I don't want to commit to?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>They see ranges you set, with a note that the final price is confirmed on site. Big or unusual jobs go to "free estimate" with photos instead.</p></div></div></div>
-      <div class="qa"><button type="button" aria-expanded="false">Does it work with my phone number and my calendar?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>Yes. Requests come to your phone by text and to your inbox. Calendar and field-software sync (Jobber, Housecall Pro) is on our roadmap.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Does it work with my phone number and my calendar?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>Yes. Every request lands in your inbox with an email alert, and on the full plan you also get a text. Calendar and field-software sync (Jobber, Housecall Pro) is on our roadmap.</p></div></div></div>
       <div class="qa"><button type="button" aria-expanded="false">How fast can it be live?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>After a short call, we set up your services, prices and hours. Most of the work is ours, not yours.</p></div></div></div>
       <div class="qa"><button type="button" aria-expanded="false">Am I locked in?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>No. It's month to month and you can cancel any time.</p></div></div></div>
     </div>
