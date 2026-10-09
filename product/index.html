@@ -671,6 +671,24 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   }
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
+  /* in-page links glide instead of jumping (same in every browser and setting) */
+  function glideTo(y, ms) {
+    var from = scrollY, d = y - from, t0 = null; ms = ms || Math.min(1100, 450 + Math.abs(d) * 0.18);
+    document.documentElement.style.scrollBehavior = 'auto';
+    (function f(now) { if (t0 === null) t0 = now; var k = Math.min(1, (now - t0) / ms), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; scrollTo(0, from + d * e); if (k < 1) requestAnimationFrame(f); else document.documentElement.style.scrollBehavior = ''; })(performance.now());
+    return ms;
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="#"]'); if (!a) return;
+    var id = a.getAttribute('href').slice(1), el = id ? document.getElementById(id) : null;
+    if (!el && id !== '') return;
+    e.preventDefault();
+    var y = id === 'top' || !el ? 0 : el.getBoundingClientRect().top + scrollY - 76;
+    var ms = glideTo(Math.max(0, y));
+    if (id === 'top') setTimeout(function () { var n = document.getElementById('qName'); if (n) n.focus({ preventScroll: true }); }, ms);
+    history.replaceState(null, '', '#' + id);
+  });
+
   /* scroll reveal: blocks below the fold rise in once */
   var rvs = [].slice.call(document.querySelectorAll('.rv'));
   if ('IntersectionObserver' in window && !reduce) {
