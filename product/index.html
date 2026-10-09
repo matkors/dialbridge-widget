@@ -89,14 +89,21 @@ h3{font-size:21px;letter-spacing:-.02em;line-height:1.2}
 .rail button.on{background:var(--white);color:var(--ink);box-shadow:0 0 0 1px var(--line),0 4px 14px -6px rgba(32,37,31,.2)}
 .rail button.on .k{background:var(--ink);color:#fff}
 .rail button.done .k{background:var(--sage2);color:var(--ink)}
-.rail button .fill{position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left}
-.rail button.on .fill{transition:transform var(--t,3s) linear;transform:scaleX(1)}
 .stage{position:relative;border-radius:28px;padding:48px 24px;background:
   radial-gradient(60% 70% at 50% 0%,rgba(255,255,255,.9),transparent 70%),
   linear-gradient(var(--sage),#dfe3d3);box-shadow:inset 0 0 0 1px var(--sage2);overflow:hidden;min-height:560px}
 .stage::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(32,37,31,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(32,37,31,.045) 1px,transparent 1px);background-size:32px 32px;-webkit-mask-image:radial-gradient(70% 70% at 50% 40%,#000,transparent);mask-image:radial-gradient(70% 70% at 50% 40%,#000,transparent);pointer-events:none}
 .wcard{position:relative;width:min(540px,100%);margin:0 auto;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.08),0 30px 60px -28px rgba(32,37,31,.45);transition:transform .6s var(--ease),filter .4s}
-.wcard iframe{display:block;width:100%;height:560px;border:0;transition:height .35s var(--ease),opacity .3s}
+.wcard iframe{display:block;width:100%;height:560px;border:0;pointer-events:none;transition:height .35s var(--ease),opacity .25s}
+.arr{position:absolute;top:50%;z-index:6;display:grid;place-items:center;width:46px;height:46px;margin-top:-23px;border:0;border-radius:50%;background:var(--white);color:var(--ink);cursor:pointer;box-shadow:0 0 0 1px var(--line),0 8px 20px -10px rgba(32,37,31,.35);transition:transform .2s var(--ease),opacity .2s,box-shadow .2s}
+.arr svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.arr.prev{left:20px}.arr.next{right:20px}
+.arr:hover{box-shadow:0 0 0 1px var(--line2),0 12px 26px -10px rgba(32,37,31,.4)}
+.arr.prev:hover{transform:translateX(-2px)}.arr.next:hover{transform:translateX(2px)}
+.arr:active{transform:scale(.94)}
+.arr:disabled{opacity:0;pointer-events:none}
+.arr.nudge{background:var(--ink);color:#fff;animation:nudge 1.6s var(--ease) 2}
+@keyframes nudge{0%,100%{transform:none}30%{transform:translateX(4px)}55%{transform:none}}
 .wcard iframe.fade{opacity:0}
 .cursor{position:absolute;left:0;top:0;z-index:5;width:26px;height:26px;pointer-events:none;transform:translate(60%,90%);transition:transform .75s var(--ease-io),opacity .3s;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
 .cursor svg{width:26px;height:26px;transform-origin:4px 3px;transition:transform .12s}
@@ -110,7 +117,7 @@ h3{font-size:21px;letter-spacing:-.02em;line-height:1.2}
 .toast{position:absolute;left:calc(50% - 270px - 24px - 230px);top:30%;z-index:4;max-width:230px;padding:14px 16px;border-radius:16px;background:var(--white);box-shadow:0 0 0 1px var(--line),0 18px 40px -18px rgba(32,37,31,.35);font-size:14px;line-height:1.4;text-align:left;opacity:0;transform:translateY(14px) scale(.96);transition:opacity .45s var(--ease),transform .6s var(--ease)}
 .toast b{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:4px}
 .toast b i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
-.stage.finale .toast{opacity:1;transform:none;transition-delay:.9s}
+.stage.finale .toast{opacity:1;transform:none;transition-delay:.45s}
 .stage-foot{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:16px;font-size:13.5px;color:var(--mute);min-height:36px}
 .stage-foot button{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:0;border-radius:999px;background:var(--white);box-shadow:0 0 0 1px var(--line);font-size:13.5px;font-weight:600;cursor:pointer}
 .stage-foot button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -260,6 +267,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .stage{margin-inline:-20px;border-radius:0;padding:28px 12px 36px}
   .wcard{border-radius:16px}
   .owner-phone{width:200px}
+  .stage{padding-bottom:84px}
+  .arr{top:auto;bottom:20px;margin-top:0;width:42px;height:42px}
+  .arr.prev{left:calc(50% - 52px)}.arr.next{right:calc(50% - 52px)}
   section.s{padding:76px 0}
   h2{font-size:32px}
   .shead{gap:16px;margin-bottom:32px}
@@ -280,7 +290,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .mbar.on{transform:none}
   .mbar .btn{flex:1;height:46px}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *)),:where(*:not(.stage *))::before,:where(*:not(.stage *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -297,7 +307,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 <header class="nav" id="nav">
   <div class="wrap">
     <a class="logo" href="#">dialbridge<span>.</span>ai</a>
-    <nav class="links" aria-label="Sections"><a href="#demo">See it work</a><a href="#texts">Reminders</a><a href="#owner">Your inbox</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+    <nav class="links" aria-label="Sections"><a href="#demo">How it works</a><a href="#texts">Reminders</a><a href="#owner">Your inbox</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
     <a class="btn dark sm" href="#top">Build my booking page <svg class="arw"><use href="#arw"/></svg></a>
   </div>
 </header>
@@ -322,26 +332,28 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
     <div class="stage-wrap" id="demo">
       <div class="rail" id="rail" role="tablist" aria-label="Booking steps">
-        <button role="tab" data-s="0"><span class="k">1</span>Pick the job<span class="fill"></span></button>
-        <button role="tab" data-s="1"><span class="k">2</span>See the price<span class="fill"></span></button>
-        <button role="tab" data-s="2"><span class="k">3</span>Book a time<span class="fill"></span></button>
-        <button role="tab" data-s="3"><span class="k">4</span>You get a text<span class="fill"></span></button>
+        <button role="tab" data-s="0"><span class="k">1</span>Pick the job</button>
+        <button role="tab" data-s="1"><span class="k">2</span>See the price</button>
+        <button role="tab" data-s="2"><span class="k">3</span>Book a time</button>
+        <button role="tab" data-s="3"><span class="k">4</span>You get a text</button>
       </div>
       <div class="stage" id="stage">
+        <button class="arr prev" id="dPrev" type="button" aria-label="Previous step"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="arr next" id="dNext" type="button" aria-label="Next step"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
         <div class="wcard"><iframe id="demoFrame" title="Live booking widget demo" src="../book.html?b=harbor-haul&amp;embed=1&amp;inline=1"></iframe></div>
-        <div class="toast" aria-hidden="true"><b><i></i>Text sent to the customer</b>You're booked with Harbor Haul for Sat, Oct 10, 11 AM to 2 PM. $199 to $279.</div>
+        <div class="toast" aria-hidden="true"><b><i></i>Text sent to the customer</b><span id="toastText">You're booked with Harbor Haul. $199 to $279.</span></div>
         <div class="owner-phone" aria-hidden="true">
           <div class="iphone"><div class="bezel"><div class="scr">
             <div class="island"></div>
             <div class="sb"><span>9:48</span><span class="ic"><svg viewBox="0 0 18 12"><use href="#sig"/></svg><svg viewBox="0 0 16 12"><use href="#wifi"/></svg><svg viewBox="0 0 27 12"><use href="#batt"/></svg></span></div>
             <div class="lock"><small>Friday, October 9</small><b>9:48</b></div>
-            <div class="stack"><div class="notif"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">DialBridge<span>now</span></div><p>New booking: Dana Lopez, Fair Lawn. Furniture and appliances, 1/4 truck. Sat Oct 10, 11 AM to 2 PM. Shown $199 to $279.</p></div></div></div>
+            <div class="stack"><div class="notif"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">DialBridge<span>now</span></div><p id="ownerText">New booking: Dana Lopez, Fair Lawn. Furniture and appliances, 1/4 truck. Shown $199 to $279.</p></div></div></div>
             <div class="home"></div>
           </div></div></div>
         </div>
         <div class="cursor gone" id="cursor" aria-hidden="true"><span class="rip"></span><svg viewBox="0 0 24 24"><path d="M4 2.5 19.5 12l-6.6 1.6 3.9 7.2-2.6 1.4-3.9-7.2L5.6 19z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
       </div>
-      <div class="stage-foot"><span id="stageNote">Harbor Haul is a sample junk removal business. Tap the widget to try it yourself.</span><button type="button" id="replay" aria-label="Pause the demo"><svg viewBox="0 0 24 24" id="rpIcon"><path d="M8 5v14M16 5v14"/></svg><span id="rpText">Pause</span></button></div>
+      <div class="stage-foot"><span id="stageNote"></span></div>
     </div>
   </section>
 
@@ -524,22 +536,16 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     io2.observe(rem);
   }
 
-  /* ---------- auto-playing demo: a cursor books a job in the real widget ---------- */
+  /* ---------- step demo: pick a step (pills or arrows) and watch it happen in the real widget ---------- */
   var stage = document.getElementById('stage'), frame = document.getElementById('demoFrame'), cursor = document.getElementById('cursor');
   var rail = [].slice.call(document.querySelectorAll('#rail button')), note = document.getElementById('stageNote');
-  var STOP = {}, running = false, manual = false, inView = false, runId = 0, readyRes = null, loaded = false;
-  var MOVE = 750;
+  var prevB = document.getElementById('dPrev'), nextB = document.getElementById('dNext');
+  var STOP = {}, runId = 0, cur = 0, started = false, readyRes = null, MOVE = 750;
+  var NOTES = ['A customer picks what needs to go. Mixed loads are fine.', 'The price range shows up the moment they pick a load size.', 'They pick an arrival window you actually have open.', 'They get a confirmation. You get a text with the whole job.'];
   function doc() { try { return frame.contentDocument; } catch (e) { return null; } }
   function q(sel) { var d = doc(); return d && d.querySelector(sel); }
-  async function gate(id) { while (true) { if (manual || id !== runId) throw STOP; if (inView && !document.hidden) return; await sleep(250); } }
-  async function wait(ms, id) { var end = Date.now() + ms; while (Date.now() < end) { await gate(id); await sleep(Math.min(120, Math.max(0, end - Date.now()))); } }
-  async function find(sel, id, t) { var end = Date.now() + (t || 4000); while (Date.now() < end) { await gate(id); var el = q(sel); if (el && !el.disabled) return el; await sleep(80); } throw new Error('not found: ' + sel); }
-  function setStep(i, dur) {
-    rail.forEach(function (b, k) { b.classList.toggle('on', k === i); b.classList.toggle('done', i >= 0 && k < i); var f = b.querySelector('.fill'); f.style.transition = 'none'; f.style.transform = 'scaleX(0)'; });
-    if (i < 0) return;
-    var f = rail[i].querySelector('.fill'); rail[i].style.setProperty('--t', (dur || 4000) + 'ms');
-    f.offsetWidth; f.style.transition = ''; f.style.transform = '';
-  }
+  async function wait(ms, id) { var end = Date.now() + ms; while (Date.now() < end) { if (id !== runId) throw STOP; await sleep(Math.min(100, Math.max(0, end - Date.now()))); } if (id !== runId) throw STOP; }
+  async function find(sel, id, t) { var end = Date.now() + (t || 4000); while (Date.now() < end) { if (id !== runId) throw STOP; var el = q(sel); if (el && !el.disabled) return el; await sleep(80); } throw new Error('not found: ' + sel); }
   function place(el) {
     var fr = frame.getBoundingClientRect(), st = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
     return { x: fr.left - st.left + r.left + Math.min(r.width * 0.5, 60), y: fr.top - st.top + r.top + r.height * 0.55 };
@@ -553,12 +559,12 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     var p = place(el);
     cursor.classList.remove('gone');
     cursor.style.transform = 'translate(' + Math.round(p.x) + 'px,' + Math.round(p.y) + 'px)';
-    await wait(MOVE + 60, id);
+    await wait(MOVE + 80, id);
   }
   async function tap(sel, id, pause) {
     var el = await find(sel, id); await moveTo(el, id);
     el = await find(sel, id);
-    cursor.classList.add('down'); await wait(110, id);
+    cursor.classList.add('down'); await wait(140, id);
     cursor.classList.remove('click'); cursor.offsetWidth; cursor.classList.add('click');
     el.click(); cursor.classList.remove('down');
     await wait(pause || 450, id);
@@ -567,82 +573,91 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     await tap(sel, id, 150);
     var el = await find(sel, id);
     el.style.setProperty('border-color', 'var(--brand)');
-    for (var i = 0; i < text.length; i++) { el.value += text[i]; el.dispatchEvent(new Event('input', { bubbles: true })); await wait(70 + Math.random() * 50, id); }
+    for (var i = 0; i < text.length; i++) { el.value += text[i]; el.dispatchEvent(new Event('input', { bubbles: true })); await wait(65 + Math.random() * 45, id); }
     el.style.removeProperty('border-color');
     await wait(250, id);
   }
   function reload() {
-    return new Promise(function (res) { readyRes = res; frame.classList.add('fade'); setTimeout(function () { frame.src = BASE + 'book.html?b=harbor-haul&embed=1&inline=1&t=' + Date.now(); }, 250); });
+    return new Promise(function (res) { readyRes = res; frame.src = BASE + 'book.html?b=harbor-haul&embed=1&inline=1&t=' + Date.now(); });
   }
-  function hookFrame() { var d = doc(); if (d && !d.__dbx) { d.__dbx = 1; d.addEventListener('click', function (ev) { if (ev.isTrusted) takeOver(); }, true); d.addEventListener('input', function (ev) { if (ev.isTrusted) takeOver(); }, true); d.addEventListener('keydown', function (ev) { if (ev.isTrusted) takeOver(); }, true); } }
   window.addEventListener('message', function (e) {
     if (e.source !== frame.contentWindow || !e.data) return;
-    if (e.data.type === 'dbw:ready') {
-      loaded = true; frame.classList.remove('fade'); hookFrame();
-      if (readyRes) { readyRes(); readyRes = null; }
-    }
+    if (e.data.type === 'dbw:ready' && readyRes) { readyRes(); readyRes = null; }
     if (e.data.type === 'dbw:height' && e.data.h > 0) {
       var max = innerWidth < 640 ? 600 : 640;
       frame.style.height = Math.max(440, Math.min(Math.round(e.data.h), max)) + 'px';
     }
   });
-  async function play(id) {
-    stage.classList.remove('finale'); setStep(-1);
-    if (!loaded || q('.okc') || q('.steps')) await reload();
-    await wait(700, id);
-    setStep(0, 7800);
-    await tap('[data-act="start"][data-v="book"]', id, 600);
-    await type('input[data-in="zip"]', '07410', id);
-    await tap('#next', id, 650);
-    await tap('[data-act="svc"][data-v="furniture"]', id, 300);
-    await tap('[data-act="svc"][data-v="appliances"]', id, 500);
-    setStep(1, 4200);
-    await tap('[data-act="opt"][data-v="quarter"]', id, 900);
-    for (var g = 0; g < 4; g++) { var nx = q('#next'); if (nx && !nx.disabled) break; await tap('.blk:last-of-type .chip:not(.on)', id, 600); }
-    await wait(900, id);
-    await tap('#next', id, 650);
-    setStep(2, 4600);
-    await tap('.radio:not(:disabled)', id, 600);
-    await tap('#next', id, 650);
-    await type('input[data-in="name"]', 'Dana Lopez', id);
-    await type('input[data-in="phone"]', '2015550142', id);
-    if (q('input[data-in="addr"]')) await type('input[data-in="addr"]', '41 Maple Ave', id);
-    await tap('#next', id, 900);
-    setStep(3, 5200);
-    cursor.classList.add('gone');
-    stage.classList.add('finale');
-    await wait(5600, id);
-    stage.classList.remove('finale');
-    await wait(500, id);
+  // Jump the widget straight to where step i begins (no cursor), behind a quick fade.
+  function click(sel) { var el = q(sel); if (!el) throw new Error('missing ' + sel); el.click(); }
+  function setv(sel, v) { var el = q(sel); if (!el) throw new Error('missing ' + sel); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }
+  async function prepare(i, id) {
+    frame.classList.add('fade'); await wait(200, id);
+    await reload(); if (id !== runId) throw STOP;
+    if (i >= 1) { click('[data-act="start"][data-v="book"]'); setv('input[data-in="zip"]', '07410'); click('#next'); click('[data-act="svc"][data-v="furniture"]'); click('[data-act="svc"][data-v="appliances"]'); }
+    if (i >= 2) { click('[data-act="opt"][data-v="quarter"]'); click('#next'); }
+    if (i >= 3) { click('.radio:not(:disabled)'); click('#next'); setv('input[data-in="name"]', 'Dana Lopez'); setv('input[data-in="phone"]', '2015550142'); }
+    await wait(i ? 450 : 150, id);
+    var bd = q('#bd'); if (bd && i === 1) bd.scrollTop = bd.scrollHeight;
+    frame.classList.remove('fade'); await wait(350, id);
   }
-  async function loop() {
-    if (running) return; running = true; var id = ++runId;
-    try { while (true) { await play(id); } }
-    catch (e) { if (e !== STOP) { console.warn('demo stopped', e); takeOver(); } }
-    running = false;
+  var STEPS = [
+    async function (id) {
+      await tap('[data-act="start"][data-v="book"]', id, 650);
+      await type('input[data-in="zip"]', '07410', id);
+      await tap('#next', id, 700);
+      await tap('[data-act="svc"][data-v="furniture"]', id, 350);
+      await tap('[data-act="svc"][data-v="appliances"]', id, 350);
+      await tap('[data-act="svc"][data-v="trash"]', id, 600);
+    },
+    async function (id) {
+      await tap('[data-act="opt"][data-v="quarter"]', id, 1400);
+      await tap('[data-act="opt"][data-v="half"]', id, 1400);
+      await tap('[data-act="opt"][data-v="quarter"]', id, 900);
+    },
+    async function (id) {
+      await tap('.radio:not(:disabled)', id, 500);
+      await tap('#next', id, 700);
+      await type('input[data-in="name"]', 'Dana Lopez', id);
+      await type('input[data-in="phone"]', '2015550142', id);
+    },
+    async function (id) {
+      await tap('#next', id, 700);
+      // Phone and customer text show exactly what was booked on the receipt.
+      var row = {}; var d = doc();
+      if (d) [].forEach.call(d.querySelectorAll('.receipt div'), function (x) { var a = x.querySelector('dt'), b = x.querySelector('dd'); if (a && b) row[a.textContent] = b.textContent; });
+      var when = row.When || '', est = row.Estimate || '$199 to $279';
+      document.getElementById('ownerText').textContent = 'New booking: Dana Lopez, Fair Lawn. ' + (row.Items || 'Furniture, Appliances') + ', ' + (row.Load || '1/4 truck') + '. ' + when + '. Shown ' + est + '.';
+      document.getElementById('toastText').textContent = "You're booked with Harbor Haul for " + when.replace(/^Today/, 'today') + '. ' + est + '.';
+      cursor.classList.add('gone');
+      stage.classList.add('finale');
+    }
+  ];
+  function paint(i) {
+    rail.forEach(function (b, k) { b.classList.toggle('on', k === i); b.classList.toggle('done', k < i); b.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+    prevB.disabled = i === 0; nextB.disabled = i === STEPS.length - 1;
+    nextB.classList.remove('nudge');
+    note.textContent = NOTES[i];
   }
-  function takeOver() {
-    if (manual) return;
-    manual = true; runId++; cursor.classList.add('gone'); stage.classList.remove('finale'); stage.classList.add('manual'); setStep(-1);
-    note.textContent = 'Your turn. Tap through it. Nothing is sent anywhere.';
-    setBtn();
+  async function go(i) {
+    var id = ++runId; cur = i; started = true;
+    paint(i); stage.classList.remove('finale'); cursor.classList.add('gone');
+    try {
+      await prepare(i, id);
+      await STEPS[i](id);
+      cursor.classList.add('gone');
+      if (i < STEPS.length - 1) { await wait(600, id); nextB.classList.add('nudge'); }
+    } catch (e) { if (e !== STOP) console.warn('demo step failed', e); }
   }
-  var rpIcon = document.getElementById('rpIcon'), rpText = document.getElementById('rpText'), rpBtn = document.getElementById('replay');
-  function setBtn() {
-    rpText.textContent = manual ? 'Replay' : 'Pause';
-    rpBtn.setAttribute('aria-label', manual ? 'Replay the demo' : 'Pause the demo');
-    rpIcon.innerHTML = manual ? '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>' : '<path d="M8 5v14M16 5v14"/>';
-  }
-  rail.forEach(function (b) { b.addEventListener('click', takeOver); });
-  document.getElementById('replay').addEventListener('click', async function () {
-    if (!manual) { takeOver(); note.textContent = 'Paused. Tap through it yourself, or replay.'; return; }
-    manual = false; setBtn(); stage.classList.remove('manual'); note.textContent = 'Harbor Haul is a sample junk removal business. Tap the widget to try it yourself.';
-    await reload(); loop();
-  });
-  if (reduce) { manual = true; setBtn(); stage.classList.add('manual'); note.textContent = 'Harbor Haul is a sample junk removal business. Tap through it. Nothing is sent anywhere.'; }
-  else if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (en) { inView = en[0].isIntersecting; if (inView && !manual) loop(); }, { threshold: 0.45 }).observe(stage);
-  }
+  rail.forEach(function (b, k) { b.addEventListener('click', function () { go(k); }); });
+  prevB.addEventListener('click', function () { if (cur > 0) go(cur - 1); });
+  nextB.addEventListener('click', function () { if (cur < STEPS.length - 1) go(cur + 1); });
+  paint(0);
+  // Step 1 plays once on its own when the section comes into view; after that the visitor drives.
+  if ('IntersectionObserver' in window) {
+    var io3 = new IntersectionObserver(function (en) { if (en[0].isIntersecting && !started) { io3.disconnect(); go(0); } }, { threshold: 0.45 });
+    io3.observe(stage);
+  } else go(0);
 
   /* FAQ */
   document.getElementById('faqList').addEventListener('click', function (e) {
