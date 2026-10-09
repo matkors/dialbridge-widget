@@ -16,6 +16,8 @@ a{color:inherit}
 .demo-bar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:9px 16px;background:#1A1D21;color:#E7E9EC;font-size:13px}
 .demo-bar a{color:#fff;font-weight:600}
 .bare .demo-bar{display:none}
+html.bare{scrollbar-width:none;overflow:hidden}
+html.bare::-webkit-scrollbar{display:none}
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px clamp(16px,5vw,64px);border-bottom:1px solid var(--line)}
 .logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px}
 .mark{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:var(--brand);color:var(--on-brand);font-weight:700}

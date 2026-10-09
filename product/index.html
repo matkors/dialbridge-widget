@@ -111,6 +111,7 @@ h3{font-size:21px;letter-spacing:-.02em;line-height:1.2}
 .stage.swapping .site{filter:blur(8px)}
 .stage.focus .wcard{transform:scale(1.22);box-shadow:0 0 0 1px rgba(32,37,31,.08),0 50px 90px -30px rgba(32,37,31,.5);transition:transform 1s var(--ease-io)}
 .stage .wcard{transition:transform .8s var(--ease-io),opacity .6s var(--ease),filter .4s}
+.stage,.stage *{-webkit-user-select:none;user-select:none}
 .wcard iframe{display:block;width:100%;height:560px;border:0;pointer-events:none;transition:height .35s var(--ease),opacity .25s}
 .arr{position:absolute;top:50%;z-index:6;display:grid;place-items:center;width:46px;height:46px;margin-top:-23px;border:0;border-radius:50%;background:var(--white);color:var(--ink);cursor:pointer;box-shadow:0 0 0 1px var(--line),0 8px 20px -10px rgba(32,37,31,.35);transition:transform .2s var(--ease),opacity .2s,box-shadow .2s}
 .arr svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -353,16 +354,40 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .fp .iphone .lock b{font-size:22cqw}
 .fp .iphone .stack{top:38%}
 .fp .scr{transition:filter .5s var(--ease)}
-.fp .scr.dim{filter:brightness(.55)}
+.fp .scr.dim{filter:brightness(.78)}
 .fp .iphone.buzz{animation:buzz .42s linear}
 @keyframes buzz{0%,100%{transform:none}15%{transform:translateX(-3px) rotate(-1deg)}30%{transform:translateX(3px) rotate(1deg)}45%{transform:translateX(-3px) rotate(-1deg)}60%{transform:translateX(3px) rotate(1deg)}75%{transform:translateX(-2px)}}
 #fstack .notif{transition:transform .6s var(--ease),opacity .45s var(--ease)}
 #fstack .notif.enter{opacity:0;transform:translateY(-16px) scale(.95)}
 .fp .notif p b{font-weight:700}
-.reply{position:absolute;left:8%;right:5%;bottom:9%;display:flex;flex-direction:column;align-items:flex-end;gap:3px;opacity:0;transform:translateY(12px);transition:opacity .4s var(--ease),transform .6s var(--ease)}
-.reply span{padding:2.6cqw 3.6cqw;border-radius:5cqw 5cqw 1.4cqw 5cqw;background:#2f7cf6;color:#fff;font-size:4.4cqw;line-height:1.32}
-.reply em{font-style:normal;font-size:3.6cqw;color:rgba(255,255,255,.8)}
-.reply.show{opacity:1;transform:none}
+.fp .scr{background:radial-gradient(90% 60% at 25% 8%,#ffd9bf,rgba(255,217,191,0) 60%),radial-gradient(80% 70% at 85% 30%,#f58a5c,rgba(245,138,92,0) 70%),linear-gradient(170deg,#f6a57c 0%,#d9603a 38%,#5b3a4e 72%,#22202b 100%)}
+.flow .cursor{z-index:7}
+.thread{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;background:#fff;color:#111;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Manrope,sans-serif;opacity:0;transform:scale(.88) translateY(-18%);transform-origin:50% 40%;transition:opacity .35s var(--ease),transform .55s var(--ease);pointer-events:none}
+.fp .scr.open .thread{opacity:1;transform:none}
+.fp .scr.open .sb{color:#111;z-index:5}.fp .scr.open .sb svg{fill:#111}
+.fp .scr.open .home{background:#111;z-index:5}
+.th-top{display:flex;align-items:center;padding:15cqw 4cqw 3cqw;border-bottom:1px solid #eee;background:#f7f7f7}
+.th-back{width:7cqw;color:#2f7cf6}.th-back svg{width:6cqw;height:6cqw;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.th-who{flex:1;display:flex;flex-direction:column;align-items:center;gap:1cqw;margin-right:7cqw}
+.th-av{display:grid;place-items:center;width:12cqw;height:12cqw;border-radius:50%;background:linear-gradient(#a7acb6,#868b95);color:#fff;font-size:4.6cqw;font-weight:600}
+.th-who b{font-size:4cqw;font-weight:500}
+.th-body{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:1.6cqw;padding:3cqw 4cqw 2cqw;overflow:hidden}
+.th-day{margin:0 0 1cqw;text-align:center;font-size:3.4cqw;color:#8e8e93}
+.bb{max-width:80%;padding:2.6cqw 3.8cqw;border-radius:5cqw;border-bottom-right-radius:1.4cqw;font-size:4.3cqw;line-height:1.32;align-self:flex-end}
+.bb.auto{background:#e9e9eb;color:#111}
+.bb.me{background:#2f7cf6;color:#fff;opacity:0;transform:translateY(8cqw) scale(.9);transform-origin:100% 100%;transition:opacity .3s var(--ease),transform .45s cubic-bezier(.34,1.4,.64,1)}
+.bb.me.show{opacity:1;transform:none}
+.th-note{margin:0;align-self:flex-end;font-size:3.2cqw;color:#8e8e93}
+.th-note.dl{opacity:0;transition:opacity .3s .25s}
+.th-note.dl.show{opacity:1}
+.th-bar{display:flex;align-items:center;gap:2.4cqw;padding:2.4cqw 3.4cqw 9cqw}
+.th-plus{display:grid;place-items:center;width:8cqw;height:8cqw;flex-shrink:0;border-radius:50%;background:#e9e9eb;color:#8e8e93;font-size:5.4cqw;line-height:1}
+.th-in{flex:1;min-width:0;min-height:8.4cqw;display:flex;align-items:center;flex-wrap:wrap;padding:1.4cqw 3.4cqw;border:1px solid #d1d1d6;border-radius:5cqw;font-size:4cqw;line-height:1.3;color:#111}
+.th-in i{display:none;width:1.5px;height:4.4cqw;margin-left:1px;background:#2f7cf6;animation:blink 1s steps(1) infinite}
+.th-in.on i{display:inline-block}
+.th-send{display:grid;place-items:center;width:8cqw;height:8cqw;flex-shrink:0;border-radius:50%;background:#c7c7cc;transition:background-color .2s,transform .15s}
+.th-send.ok{background:#2f7cf6}.th-send.press{transform:scale(.85)}
+.th-send svg{width:5cqw;height:5cqw;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 @media (max-width:1100px){.flow{grid-template-columns:minmax(0,260px) minmax(0,1fr) 210px;gap:36px;padding:44px 28px}}
 @media (max-width:860px){
   .flow{grid-template-columns:minmax(0,1fr);gap:48px;padding:36px 18px;max-width:440px;margin:0 auto}
@@ -416,6 +441,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .gresult strong{padding:4px 10px;border-radius:999px;background:#e6f4ea;color:#137333;font-size:13px;opacity:0;transform:scale(.6);transition:opacity .3s,transform .45s cubic-bezier(.34,1.56,.64,1)}
 .gresult strong.on{opacity:1;transform:none}
 .pill.stars{color:#e8a200;letter-spacing:2px}
+.gsplit{grid-template-columns:minmax(0,.85fr) minmax(0,1.2fr)}
+.gsplit .gtextcol{order:-1}
+@media (max-width:1000px){.gsplit{grid-template-columns:minmax(0,1fr)}}
 .gscene .cursor{z-index:6}
 @media (max-width:640px){.gscene{height:470px;margin-inline:-6px}.gimg{height:130px}.gstars i{font-size:32px}}
 @media (max-width:1180px){
@@ -534,7 +562,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
         <button class="arr prev" id="dPrev" type="button" aria-label="Previous step"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
         <button class="arr next" id="dNext" type="button" aria-label="Next step"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
         <div class="site" id="siteLayer" aria-hidden="true"><div class="bchrome"><i></i><i></i><i></i><span>harborhaul.com</span></div><div class="bview" id="bview"><iframe id="siteFrame" title="Sample business website" tabindex="-1"></iframe></div></div>
-        <div class="wcard"><iframe id="demoFrame" title="Live booking widget demo" src="../book.html?b=harbor-haul&amp;embed=1&amp;inline=1"></iframe></div>
+        <div class="wcard"><iframe id="demoFrame" title="Live booking widget demo" src="../book.html?b=harbor-haul&amp;embed=1&amp;inline=1&amp;demo=1"></iframe></div>
         <div class="toast" aria-hidden="true"><b><i></i>Text sent to the customer</b><span id="toastText">You're booked with Harbor Haul. $199 to $279.</span></div>
         <div class="owner-phone" aria-hidden="true">
           <div class="iphone"><div class="bezel"><div class="scr">
@@ -580,7 +608,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 </div>
 
 <section class="s" id="reviews">
-  <div class="wrap split rsplit">
+  <div class="wrap split rsplit gsplit">
     <div class="gscene" id="gscene" role="img" aria-label="Animation: a customer gets a review request by text, taps it, gives five stars and the business's Google review count goes up">
       <div class="gchat" id="gchat" aria-hidden="true">
         <div class="gbub">Hi Dana, thanks for choosing Harbor Haul! Mind leaving us a quick Google review? It helps a small business a lot.</div>
@@ -603,7 +631,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       </div>
       <div class="cursor gone" id="gcursor" aria-hidden="true"><span class="rip"></span><svg viewBox="0 0 24 24"><path d="M4 2.5 19.5 12l-6.6 1.6 3.9 7.2-2.6 1.4-3.9-7.2L5.6 19z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
     </div>
-    <div class="rv rtext">
+    <div class="rv rtext gtextcol">
       <p class="flabel"><span class="fi"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></span>Google reviews</p>
       <h2 style="margin-top:16px">Turn happy customers into Google reviews.</h2>
       <p class="rlede">After every job, customers get a <span class="pill"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>review request by text</span> with a one-tap link.</p>
@@ -619,6 +647,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <p>The job, the price they saw and the time they picked, on your phone in seconds. Reply with one tap.</p>
     </div>
     <div class="flow" id="flow" role="img" aria-label="Animation: a booking is sent from the widget, lands in the owner's inbox and arrives on the owner's phone as a text">
+      <div class="cursor gone" id="fcursor" aria-hidden="true"><span class="rip"></span><svg viewBox="0 0 24 24"><path d="M4 2.5 19.5 12l-6.6 1.6 3.9 7.2-2.6 1.4-3.9-7.2L5.6 19z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
       <svg class="wires" id="wires" aria-hidden="true"><path id="w1"/><path id="w2"/><circle r="5" id="d1"/><circle r="5" id="d2"/></svg>
 
       <div class="fcol fw" id="fw" aria-hidden="true">
@@ -655,7 +684,17 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           <div class="sb"><span>9:48</span><span class="ic"><svg viewBox="0 0 18 12"><use href="#sig"/></svg><svg viewBox="0 0 16 12"><use href="#wifi"/></svg><svg viewBox="0 0 27 12"><use href="#batt"/></svg></span></div>
           <div class="lock"><small>Friday, October 9</small><b>9:48</b></div>
           <div class="stack" id="fstack"></div>
-          <div class="reply" id="freply"><span>Hi Dana, this is Mike from Harbor Haul. Saturday 11 to 2 works. See you then!</span><em>Sent</em></div>
+          <div class="thread" id="fthread">
+            <div class="th-top"><span class="th-back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span><div class="th-who"><span class="th-av">DL</span><b>Dana Lopez</b></div></div>
+            <div class="th-body">
+              <p class="th-day">Today 9:31 PM</p>
+              <div class="bb auto">You're booked with Harbor Haul for Sat, Oct 10, 11 AM to 2 PM. $199 to $279. Reply here with any questions.</div>
+              <p class="th-note">Sent automatically</p>
+              <div class="bb me" id="fme">Hi Dana, this is Mike from Harbor Haul. Saturday works, see you then!</div>
+              <p class="th-note dl" id="fdl">Delivered</p>
+            </div>
+            <div class="th-bar"><span class="th-plus">+</span><div class="th-in" id="fin2"><span id="ftype"></span><i></i></div><span class="th-send" id="fsend"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span></div>
+          </div>
           <div class="home"></div>
         </div></div></div>
       </div>
@@ -845,7 +884,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     var svg = document.getElementById('wires'), w1 = document.getElementById('w1'), w2 = document.getElementById('w2'), d1 = document.getElementById('d1'), d2 = document.getElementById('d2');
     var fw = document.getElementById('fw'), fin = document.getElementById('fin'), fph = document.getElementById('fph');
     var btn = document.getElementById('fbtn'), rows = document.getElementById('frows'), cnt = document.getElementById('fcnt');
-    var stack = document.getElementById('fstack'), scr = document.getElementById('fscr'), phone = fph.querySelector('.iphone'), reply = document.getElementById('freply');
+    var stack = document.getElementById('fstack'), scr = document.getElementById('fscr'), phone = fph.querySelector('.iphone'), me = document.getElementById('fme'), dl = document.getElementById('fdl'), typ = document.getElementById('ftype'), tin = document.getElementById('fin2'), send = document.getElementById('fsend'), fcur = document.getElementById('fcursor');
     var run = 0, playing = false, inView = false;
     function pause(ms, id) { return new Promise(function (res, rej) { var end = Date.now() + ms; (function tick() { if (id !== run) return rej('stop'); if (!inView || document.hidden) { end += 120; return setTimeout(tick, 120); } if (Date.now() >= end) return res(); setTimeout(tick, Math.min(120, end - Date.now())); })(); }); }
     function box(el) { var f = flow.getBoundingClientRect(), r = el.getBoundingClientRect(); return { l: r.left - f.left, t: r.top - f.top, r: r.right - f.left, b: r.bottom - f.top, w: r.width, h: r.height }; }
@@ -880,7 +919,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     }
     var BASE_ROWS = rows.innerHTML;
     function reset() {
-      rows.innerHTML = BASE_ROWS; cnt.textContent = '2 new'; stack.innerHTML = ''; reply.classList.remove('show');
+      rows.innerHTML = BASE_ROWS; cnt.textContent = '2 new'; stack.innerHTML = ''; scr.classList.remove('open'); me.classList.remove('show'); dl.classList.remove('show'); typ.textContent = ''; tin.classList.remove('on'); send.classList.remove('ok'); fcur.classList.add('gone');
       btn.classList.remove('sent', 'press'); scr.classList.add('dim'); [fw, fin, fph].forEach(function (c) { c.classList.remove('lit'); });
     }
     function addRow() {
@@ -912,8 +951,21 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       var n = document.createElement('div'); n.className = 'notif enter';
       n.innerHTML = '<span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">DialBridge<span>now</span></div><p><b>New booking:</b> Dana Lopez, Fair Lawn. Furniture and appliances, 1/4 truck. Sat 11 AM to 2 PM. Shown $199 to $279.</p></div>';
       stack.appendChild(n); requestAnimationFrame(function () { requestAnimationFrame(function () { n.classList.remove('enter'); }); });
-      await pause(2200, id);
-      reply.classList.add('show');
+      await pause(1500, id);
+      // tap the notification: Messages opens, Mike's reply types and sends
+      var fr = flow.getBoundingClientRect(), nr = n.getBoundingClientRect();
+      fcur.classList.remove('gone'); fcur.style.transform = 'translate(' + Math.round(nr.left - fr.left + nr.width * .55) + 'px,' + Math.round(nr.top - fr.top + nr.height * .6) + 'px)';
+      await pause(850, id);
+      fcur.classList.add('down'); await pause(130, id); fcur.classList.remove('click'); fcur.offsetWidth; fcur.classList.add('click'); fcur.classList.remove('down');
+      await pause(120, id); fcur.classList.add('gone');
+      scr.classList.add('open'); await pause(900, id);
+      tin.classList.add('on');
+      var msg = me.textContent;
+      for (var c = 0; c < msg.length; c++) { typ.textContent = msg.slice(0, c + 1); if (c === 0) send.classList.add('ok'); await pause(26 + Math.random() * 26, id); }
+      await pause(300, id);
+      send.classList.add('press'); await pause(140, id); send.classList.remove('press');
+      typ.textContent = ''; tin.classList.remove('on'); send.classList.remove('ok');
+      me.classList.add('show'); dl.classList.add('show');
       await pause(700, id);
       var b = r.querySelector('.bdg'); b.className = 'bdg ok'; b.textContent = 'Replied'; r.classList.remove('hot'); r.querySelector('i').className = '';
       cnt.textContent = '2 new';
@@ -1023,7 +1075,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     el.style.removeProperty('border-color');
     await wait(250, id);
   }
-  function reload() { return new Promise(function (res) { readyRes = res; frame.src = BASE + 'book.html?b=harbor-haul&embed=1&inline=1&t=' + Date.now(); }); }
+  function reload() { return new Promise(function (res) { readyRes = res; frame.src = BASE + 'book.html?b=harbor-haul&embed=1&inline=1&demo=1&t=' + Date.now(); }); }
   window.addEventListener('message', function (e) {
     if (!e.data) return;
     if (e.source === frame.contentWindow) {

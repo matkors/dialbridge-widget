@@ -8,6 +8,11 @@
   var CLOSABLE = EMBED && params.get('inline') !== '1';
   var app = document.getElementById('app');
   if (EMBED) document.body.classList.add('embed');
+  // ?demo=1: the product page drives this copy itself. Hide scrollbars and ignore the visitor's wheel and touch scrolling.
+  if (params.get('demo') === '1') {
+    document.body.classList.add('demo-lock');
+    ['wheel', 'touchmove'].forEach(function (t) { document.addEventListener(t, function (e) { e.preventDefault(); }, { passive: false }); });
+  }
 
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var ic = function (name, cls) { return '<i data-lucide="' + esc(name) + '"' + (cls ? ' class="' + cls + '"' : '') + '></i>'; };
