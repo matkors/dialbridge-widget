@@ -300,7 +300,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .flat{width:220px;bottom:-232px}
 }
 /* owner flow scene: widget -> inbox -> phone */
-.flow{position:relative;display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr) 240px;gap:56px;align-items:center;padding:56px 48px;border-radius:28px;background:radial-gradient(70% 90% at 50% 0%,#fff,rgba(255,255,255,.4) 70%),var(--paper);box-shadow:inset 0 0 0 1px var(--line),0 30px 60px -40px rgba(32,37,31,.35);overflow:hidden}
+#owner{padding-top:72px}
+.oshead{grid-template-columns:1.5fr 1fr;margin-bottom:28px}
+.oshead h2{font-size:clamp(30px,3.2vw,42px)}
+.flow{position:relative;display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr) 205px;gap:52px;align-items:center;padding:24px 44px 28px;border-radius:28px;background:radial-gradient(70% 90% at 50% 0%,#fff,rgba(255,255,255,.4) 70%),var(--paper);box-shadow:inset 0 0 0 1px var(--line),0 30px 60px -40px rgba(32,37,31,.35);overflow:hidden}
 .flow .wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .flow .wires path{fill:none;stroke:var(--line2);stroke-width:2;stroke-dasharray:4 6}
 .flow .wires circle{fill:var(--accent);opacity:0;filter:drop-shadow(0 0 6px rgba(243,84,39,.6))}
@@ -388,7 +391,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .th-send{display:grid;place-items:center;width:8cqw;height:8cqw;flex-shrink:0;border-radius:50%;background:#c7c7cc;transition:background-color .2s,transform .15s}
 .th-send.ok{background:#2f7cf6}.th-send.press{transform:scale(.85)}
 .th-send svg{width:5cqw;height:5cqw;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-@media (max-width:1100px){.flow{grid-template-columns:minmax(0,260px) minmax(0,1fr) 210px;gap:36px;padding:44px 28px}}
+@media (max-width:1100px){.flow{grid-template-columns:minmax(0,260px) minmax(0,1fr) 200px;gap:36px;padding:44px 28px}}
 @media (max-width:860px){
   .flow{grid-template-columns:minmax(0,1fr);gap:48px;padding:36px 18px;max-width:440px;margin:0 auto}
   .fp{width:230px;margin:0 auto}
@@ -642,8 +645,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <section class="s" id="owner">
   <div class="wrap">
-    <div class="shead rv">
-      <div><p class="flabel"><span class="fi"><svg viewBox="0 0 24 24"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M5 13 7.5 5h9L19 13v6H5z"/></svg></span>Your inbox</p><h2 style="margin-top:16px">Every request in one inbox. A text the second it lands.</h2></div>
+    <div class="shead rv oshead">
+      <div><p class="flabel"><span class="fi"><svg viewBox="0 0 24 24"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M5 13 7.5 5h9L19 13v6H5z"/></svg></span>Your inbox</p><h2 style="margin-top:14px">Every request in one inbox.<br>A text the second it lands.</h2></div>
       <p>The job, the price they saw and the time they picked, on your phone in seconds. Reply with one tap.</p>
     </div>
     <div class="flow" id="flow" role="img" aria-label="Animation: a booking is sent from the widget, lands in the owner's inbox and arrives on the owner's phone as a text">
@@ -817,7 +820,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     var id = a.getAttribute('href').slice(1), el = id ? document.getElementById(id) : null;
     if (!el && id !== '') return;
     e.preventDefault();
-    var y = id === 'top' || !el ? 0 : el.getBoundingClientRect().top + scrollY - 76;
+    var tgt = el && (el.querySelector('.shead, .flabel') || el); var y = id === 'top' || !el ? 0 : tgt.getBoundingClientRect().top + scrollY - 96;
     var ms = glideTo(Math.max(0, y));
     if (id === 'top') setTimeout(function () { var n = document.getElementById('qName'); if (n) n.focus({ preventScroll: true }); }, ms);
     history.replaceState(null, '', '#' + id);
