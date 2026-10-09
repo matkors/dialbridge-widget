@@ -96,10 +96,15 @@ h3{font-size:21px;letter-spacing:-.02em;line-height:1.2}
 .wcard{position:relative;width:min(540px,100%);margin:0 auto;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.08),0 30px 60px -28px rgba(32,37,31,.45);transition:transform .8s var(--ease),opacity .6s var(--ease),filter .6s}
 .stage.finale .wcard{transform:translateX(-290px) scale(.84);opacity:.28;filter:saturate(.4)}
 /* website intro + camera moves */
-.site{position:absolute;z-index:3;left:50%;top:50%;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.1),0 40px 80px -30px rgba(32,37,31,.45);opacity:0;visibility:hidden;transform:translate(-50%,-50%) scale(.96);transition:transform 1.1s var(--ease-io),opacity .5s var(--ease),filter .6s var(--ease),visibility 0s .6s;pointer-events:none}
-.stage.intro .site{opacity:1;visibility:visible;transform:translate(-50%,-50%);transition:transform 1.1s var(--ease-io),opacity .5s var(--ease),filter .6s var(--ease),visibility 0s}
-.stage.intro .site.cam{transition:transform 1.15s cubic-bezier(.65,0,.35,1),opacity .35s .85s var(--ease),filter .5s .5s var(--ease)}
-.stage.intro .site.cam.fadeout{opacity:0;filter:blur(2px)}
+.site{position:absolute;z-index:3;left:50%;top:50%;opacity:0;visibility:hidden;transform:translate(-50%,-50%) scale(.96);transform-origin:0 0;transition:opacity .5s var(--ease),filter .6s var(--ease),visibility 0s .6s;pointer-events:none}
+.stage.intro .site{opacity:1;visibility:visible;transform:translate(-50%,-50%);transition:opacity .5s var(--ease),filter .6s var(--ease),visibility 0s}
+.mscreen{position:relative;border-radius:16px;overflow:hidden;background:#fff;padding:0;box-shadow:0 0 0 9px #141516,0 0 0 10px #3a3b3e,0 40px 80px -30px rgba(32,37,31,.5)}
+.mstand{position:relative;height:96px;display:flex;flex-direction:column;align-items:center}
+.mstand i{width:120px;height:78px;margin-top:10px;background:linear-gradient(90deg,#b9bcc1,#e7e8ea 30%,#d3d5d9 60%,#a9acb1);clip-path:polygon(10% 0,90% 0,100% 100%,0 100%)}
+.mstand b{width:240px;height:9px;border-radius:5px 5px 3px 3px;background:linear-gradient(#e9eaec,#b4b7bb);box-shadow:0 10px 18px -6px rgba(32,37,31,.35)}
+.site.cam{transition:transform var(--camT,1.3s) cubic-bezier(.65,0,.35,1),opacity .4s var(--ease),filter .5s var(--ease)}
+.site.cam.fadeout{opacity:0;filter:blur(2px);transition:transform var(--camT,1.3s) cubic-bezier(.65,0,.35,1),opacity .45s var(--ease),filter .45s var(--ease)}
+@media (max-width:640px){.mscreen{border-radius:12px;box-shadow:0 0 0 1px rgba(32,37,31,.12),0 30px 60px -30px rgba(32,37,31,.45)}.mstand{display:none}}
 .ah{margin-left:auto;display:flex;align-items:center;gap:7px;padding:3px 10px 3px 8px;border-radius:999px;background:#20251f;color:#f3f1ea;font-size:11.5px;font-weight:600;opacity:0;transform:translateY(-4px);transition:opacity .4s var(--ease),transform .5s var(--ease)}
 .ah svg{width:12px;height:12px;fill:#ffd166}
 .ah em{font-style:normal;color:#a9b19f;font-weight:500}
@@ -582,7 +587,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <div class="stage" id="stage">
         <button class="arr prev" id="dPrev" type="button" aria-label="Previous step"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
         <button class="arr next" id="dNext" type="button" aria-label="Next step"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
-        <div class="site" id="siteLayer" aria-hidden="true"><div class="bchrome"><i></i><i></i><i></i><span>harborhaul.com</span><b class="ah"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>10:12 PM <em>Office closed</em></b></div><div class="bview" id="bview"><iframe id="siteFrame" title="Sample business website" tabindex="-1"></iframe></div></div>
+        <div class="site" id="siteLayer" aria-hidden="true"><div class="mscreen"><div class="bchrome"><i></i><i></i><i></i><span>harborhaul.com</span><b class="ah"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>10:12 PM <em>Office closed</em></b></div><div class="bview" id="bview"><iframe id="siteFrame" title="Sample business website" tabindex="-1"></iframe></div></div><div class="mstand"><i></i><b></b></div></div>
         <div class="wcard"><iframe id="demoFrame" title="Live booking widget demo" src="../book.html?b=harbor-haul&amp;embed=1&amp;inline=1&amp;demo=1"></iframe></div>
         <div class="toast" aria-hidden="true"><b><i></i>Text sent to the customer</b><span id="toastText">You're booked with Harbor Haul. $199 to $279.</span></div>
         <div class="owner-phone" aria-hidden="true">
@@ -1113,7 +1118,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   function sizeSite() {
     var sw = stage.clientWidth, sh = stage.clientHeight, mob = sw < 640;
     SITE.w = mob ? 390 : 1180; SITE.h = mob ? 640 : 740;
-    var maxW = mob ? Math.min(sw - 48, 290) : Math.min(sw - 120, 940), maxH = sh - (mob ? 48 : 70) - 34;
+    var maxW = mob ? Math.min(sw - 48, 290) : Math.min(sw - 200, 780), maxH = sh - (mob ? 48 : 90 + 96) - 34;
     SITE.k = Math.min(maxW / SITE.w, maxH / SITE.h);
     sframe.style.width = SITE.w + 'px'; sframe.style.height = SITE.h + 'px'; sframe.style.transform = 'scale(' + SITE.k + ')';
     bview.style.width = Math.round(SITE.w * SITE.k) + 'px'; bview.style.height = Math.round(SITE.h * SITE.k) + 'px';
@@ -1148,7 +1153,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     if (i === 0) {
       await loadSite(); if (id !== runId) throw STOP;
       var w = sframe.contentWindow; if (w && w.DialBridgeWidget) w.DialBridgeWidget.close();
-      siteL.style.transformOrigin = ''; siteL.style.transform = ''; siteL.classList.remove('cam', 'fadeout');
+      siteL.style.transform = ''; siteL.classList.remove('cam', 'fadeout');
+      try { var rt = launcher(), ww = rt && rt.querySelector('.w'); if (ww) { ww.style.transition = 'none'; ww.style.opacity = '0'; ww.classList.add('pre'); } } catch (e) { }
       siteL.style.transition = ''; siteL.style.visibility = ''; siteL.style.opacity = '';
       try { sdoc().scrollingElement.scrollTop = 0; } catch (e) { }
       stage.classList.remove('night', 'handoff');
@@ -1159,49 +1165,75 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     stage.classList.remove('swapping'); await wait(380, id);
   }
   var STEPS = [
-    // 0: on their website. It's 10 PM, the visitor scrolls, the Book button gets their attention, the popup opens,
-    //    and the camera flies into that popup until it lines up with the big widget (seamless hand-off).
+    // 0: on their website (Avenue-style). Establishing shot of the monitor, camera pushes into the bottom-right corner,
+    //    the Book button pops in with a greeting, the cursor clicks it, and the camera flies into the popup,
+    //    which lines up exactly with the big widget (seamless hand-off).
     async function (id) {
-      var st = stage.getBoundingClientRect(), b = bview.getBoundingClientRect(), d = sdoc(), se = d && d.scrollingElement;
-      siteL.classList.remove('cam', 'fadeout'); siteL.style.transform = ''; siteL.style.transformOrigin = '';
-      await wait(250, id);
-      stage.classList.add('night'); await wait(700, id);
-      // the visitor reads a little: cursor drifts in, page glides down
-      point(b.left - st.left + b.width * 0.42, b.top - st.top + b.height * 0.42); await wait(500, id);
-      if (se) { var from = se.scrollTop, to = Math.min(260, se.scrollHeight - se.clientHeight), t0 = performance.now();
-        await new Promise(function (res) { (function f(now) { var k = Math.min(1, (now - t0) / 1200), e = 1 - Math.pow(1 - k, 3); se.scrollTop = from + (to - from) * e; if (k < 1 && id === runId) requestAnimationFrame(f); else res(); })(t0); }); }
-      await wait(350, id);
-      // the floating Book button pulses, then the cursor goes for it
-      var root = launcher(), go = root && root.querySelector('.go');
+      var d = sdoc(), se = d && d.scrollingElement, root = launcher(), wrap = root && root.querySelector('.w'), go = root && root.querySelector('.go');
       if (!go) throw new Error('no launcher');
-      if (!root.querySelector('#dbxSpot')) { var sty = document.createElement('style'); sty.id = 'dbxSpot'; sty.textContent = '.go.spot{animation:spot 1.4s cubic-bezier(.23,1,.32,1) 2}.go.hov{transform:translateY(-2px);filter:brightness(1.06)}@keyframes spot{0%{box-shadow:0 0 0 0 rgba(14,102,80,.55),0 8px 24px rgba(16,24,40,.2)}70%{box-shadow:0 0 0 18px rgba(14,102,80,0),0 8px 24px rgba(16,24,40,.2)}100%{box-shadow:0 0 0 0 rgba(14,102,80,0),0 8px 24px rgba(16,24,40,.2)}}'; root.appendChild(sty); }
-      go.classList.remove('spot'); go.offsetWidth; go.classList.add('spot');
-      await wait(900, id);
-      var r = siteRect(go);
-      point(r.x + r.w * 0.5, r.y + r.h * 0.55); await wait(MOVE + 120, id);
-      go.classList.add('hov'); await wait(380, id);
-      await press(id); go.classList.remove('hov', 'spot'); go.click();
+      if (!root.querySelector('#dbxDemo')) {
+        var sty = document.createElement('style'); sty.id = 'dbxDemo';
+        sty.textContent = '.w{transition:opacity .3s ease,transform .55s cubic-bezier(.34,1.56,.64,1)!important;transform-origin:100% 100%;animation:none!important}.w.pre{opacity:0;transform:scale(.5)}'
+          + '.go.hov{transform:translateY(-2px);filter:brightness(1.07)}'
+          + '.hi{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:10px 14px 10px 10px;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.08),0 12px 28px -8px rgba(16,24,40,.28);font:600 14px/1.3 system-ui,-apple-system,Segoe UI,sans-serif;color:#1a1d21;opacity:0;transform:translateY(8px) scale(.85);transform-origin:85% 100%;transition:opacity .3s ease,transform .5s cubic-bezier(.34,1.56,.64,1)}'
+          + '.hi::after{content:"";position:absolute;right:34px;bottom:-6px;width:12px;height:12px;background:#fff;transform:rotate(45deg);border-radius:2px}'
+          + '.hi.on{opacity:1;transform:none}.hi small{display:block;font-weight:500;color:#5d646d;font-size:12.5px}'
+          + '.hi span{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#0E6650;color:#fff;flex-shrink:0}.hi svg{width:18px;height:18px}';
+        root.appendChild(sty);
+        var hi = document.createElement('div'); hi.className = 'hi';
+        hi.innerHTML = '<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62L18.3 8.38A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></span><div>Skip the call<small>Book a pickup online in a minute</small></div>';
+        wrap.insertBefore(hi, wrap.firstChild);
+      }
+      var hi = root.querySelector('.hi');
+      wrap.classList.add('pre'); wrap.offsetWidth; wrap.style.opacity = ''; wrap.style.transition = ''; hi.classList.remove('on'); go.classList.remove('hov');
+      var mob = stage.clientWidth < 640;
+      // base geometry (no camera): where things sit in stage coordinates
+      var S0x = (stage.clientWidth - siteL.offsetWidth) / 2, S0y = (stage.clientHeight - siteL.offsetHeight) / 2;
+      var scr = siteL.querySelector('.mscreen'), bx = S0x + scr.offsetLeft + bview.offsetLeft, by = S0y + scr.offsetTop + bview.offsetTop;
+      function base(el) { var q = el.getBoundingClientRect(); return { x: bx + q.left * SITE.k, y: by + q.top * SITE.k, w: q.width * SITE.k, h: q.height * SITE.k }; }
+      var cam = { k: 1, tx: 0, ty: 0 };
+      function camTo(k, p, T, ms) {
+        cam = { k: k, tx: T.x - S0x - k * (p.x - S0x), ty: T.y - S0y - k * (p.y - S0y) };
+        siteL.style.setProperty('--camT', ms + 'ms'); siteL.classList.add('cam');
+        siteL.style.transform = 'translate(-50%,-50%) translate(' + cam.tx.toFixed(1) + 'px,' + cam.ty.toFixed(1) + 'px) scale(' + k.toFixed(4) + ')';
+      }
+      function view(pt) { return { x: S0x + cam.tx + cam.k * (pt.x - S0x), y: S0y + cam.ty + cam.k * (pt.y - S0y) }; }
+      // 1) establishing shot
+      await wait(400, id);
+      stage.classList.add('night'); await wait(900, id);
+      // 2) camera pushes into the bottom-right corner while the page scrolls a little
+      var wb = base(wrap), corner = { x: wb.x + wb.w - wb.w, y: wb.y + wb.h - wb.h }; // wrap is at half scale from its bottom-right, so its full-size center is (right - w, bottom - h)
+      var K = mob ? 1.4 : 1.75;
+      camTo(K, corner, { x: stage.clientWidth * (mob ? .52 : .56), y: stage.clientHeight * .52 }, 1500);
+      if (se) { var t0 = performance.now(); (function f(now) { var q = Math.min(1, (now - t0) / 1500), e = q < .5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2; se.scrollTop = 220 * e; if (q < 1 && id === runId) requestAnimationFrame(f); })(t0); }
+      await wait(1650, id);
+      // 3) the Book button pops in, then the greeting bubble
+      wrap.classList.remove('pre'); await wait(650, id);
+      hi.classList.add('on'); await wait(1100, id);
+      // 4) cursor comes in, hovers, clicks
+      var gb = view(base(go));
+      point(gb.x - 160, gb.y + 90); await wait(60, id);
+      point(gb.x + gb.w * .45, gb.y + gb.h * .55); await wait(MOVE + 100, id);
+      go.classList.add('hov'); await wait(350, id);
+      await press(id); go.classList.remove('hov'); hi.classList.remove('on');
+      // 5) pull back right away, the popup opens in the wide shot, then the camera flies into it (lands exactly on the big widget)
       cursor.classList.add('gone');
-      await wait(1150, id);
-      // camera: map the site's popup exactly onto the big widget's spot, then crossfade
+      camTo(1, { x: S0x, y: S0y }, { x: S0x, y: S0y }, 1000);
+      await wait(650, id); go.click();
+      await wait(1000, id);
       var pn = root.querySelector('.pn'); if (!pn) throw new Error('no popup');
-      var P = siteRect(pn), S = siteL.getBoundingClientRect(), stb = stage.getBoundingClientRect(), W = wcard.getBoundingClientRect();
-      var Sx = S.left - stb.left, Sy = S.top - stb.top, Wx = W.left - stb.left, Wy = W.top - stb.top;
-      var k = W.width / P.w, tx = Wx - Sx - k * (P.x - Sx), ty = Wy - Sy - k * (P.y - Sy);
-      siteL.style.transformOrigin = '0 0';
-      siteL.classList.add('cam');
-      siteL.style.transform = 'translate(-50%,-50%) translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + k.toFixed(4) + ')';
+      var P = base(pn), W = wcard.getBoundingClientRect(), stb = stage.getBoundingClientRect();
+      camTo(W.width / P.w, { x: P.x, y: P.y }, { x: W.left - stb.left, y: W.top - stb.top }, 1300);
       stage.classList.add('handoff');
-      await wait(900, id);
+      await wait(1050, id);
       siteL.classList.add('fadeout');
       await wait(450, id);
-      // hide the site instantly before dropping the classes, so it can't flash back un-zoomed
       siteL.style.transition = 'none'; siteL.style.visibility = 'hidden'; siteL.style.opacity = '0';
       stage.classList.remove('intro', 'night', 'handoff');
-      siteL.classList.remove('cam', 'fadeout'); siteL.style.transform = ''; siteL.style.transformOrigin = '';
+      siteL.classList.remove('cam', 'fadeout'); siteL.style.transform = '';
       await wait(60, id);
       var w = sframe.contentWindow; if (w && w.DialBridgeWidget) w.DialBridgeWidget.close();
-      if (se) se.scrollTop = 0;
+      wrap.classList.remove('pre'); if (se) se.scrollTop = 0;
     },
     // 1: pick the job
     async function (id) {
