@@ -642,11 +642,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   var stage = document.getElementById('stage'), frame = document.getElementById('demoFrame'), cursor = document.getElementById('cursor');
   var rail = [].slice.call(document.querySelectorAll('#rail button')), note = document.getElementById('stageNote');
   var prevB = document.getElementById('dPrev'), nextB = document.getElementById('dNext');
-  var STOP = {}, runId = 0, cur = 0, started = false, readyRes = null, MOVE = 750;
+  var STOP = {}, runId = 0, cur = 0, started = false, readyRes = null, MOVE = 750, inView = false;
   var NOTES = ['A customer picks what needs to go. Mixed loads are fine.', 'The price range shows up the moment they pick a load size.', 'They pick an arrival window you actually have open.', 'They get a confirmation. You get a text with the whole job.'];
   function doc() { try { return frame.contentDocument; } catch (e) { return null; } }
   function q(sel) { var d = doc(); return d && d.querySelector(sel); }
-  async function wait(ms, id) { var end = Date.now() + ms; while (Date.now() < end) { if (id !== runId) throw STOP; await sleep(Math.min(100, Math.max(0, end - Date.now()))); } if (id !== runId) throw STOP; }
+  async function wait(ms, id) { var end = Date.now() + ms; while (Date.now() < end) { if (id !== runId) throw STOP; if (!inView || document.hidden) { end += 100; await sleep(100); continue; } await sleep(Math.min(100, Math.max(0, end - Date.now()))); } if (id !== runId) throw STOP; }
   async function find(sel, id, t) { var end = Date.now() + (t || 4000); while (Date.now() < end) { if (id !== runId) throw STOP; var el = q(sel); if (el && !el.disabled) return el; await sleep(80); } throw new Error('not found: ' + sel); }
   function place(el) {
     var fr = frame.getBoundingClientRect(), st = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
@@ -718,6 +718,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       await tap('[data-act="opt"][data-v="quarter"]', id, 900);
     },
     async function (id) {
+      if (!q('.radio')) await tap('#next', id, 700);
       await tap('.radio:not(:disabled)', id, 500);
       await tap('#next', id, 700);
       await type('input[data-in="name"]', 'Dana Lopez', id);
@@ -737,29 +738,30 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   ];
   function paint(i) {
     rail.forEach(function (b, k) { b.classList.toggle('on', k === i); b.classList.toggle('done', k < i); b.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
-    prevB.disabled = i === 0; nextB.disabled = i === STEPS.length - 1;
-    nextB.classList.remove('nudge');
+    
     note.textContent = NOTES[i];
   }
-  async function go(i) {
-    var id = ++runId; cur = i; started = true;
-    paint(i); stage.classList.remove('finale'); cursor.classList.add('gone');
+  // Plays straight through 1 to 4 and loops. A pill or arrow jumps to that step and carries on from there.
+  async function go(i, cont) {
+    var id = ++runId; started = true;
     try {
-      await prepare(i, id);
-      await STEPS[i](id);
-      cursor.classList.add('gone');
-      if (i < STEPS.length - 1) { await wait(600, id); nextB.classList.add('nudge'); }
+      while (true) {
+        cur = i; paint(i); stage.classList.remove('finale'); cursor.classList.add('gone');
+        if (!cont || i === 0) await prepare(i, id);
+        await STEPS[i](id);
+        cursor.classList.add('gone');
+        await wait(i === STEPS.length - 1 ? 5500 : 1100, id);
+        i = (i + 1) % STEPS.length; cont = true;
+      }
     } catch (e) { if (e !== STOP) console.warn('demo step failed', e); }
   }
   rail.forEach(function (b, k) { b.addEventListener('click', function () { go(k); }); });
-  prevB.addEventListener('click', function () { if (cur > 0) go(cur - 1); });
-  nextB.addEventListener('click', function () { if (cur < STEPS.length - 1) go(cur + 1); });
+  prevB.addEventListener('click', function () { go((cur + STEPS.length - 1) % STEPS.length); });
+  nextB.addEventListener('click', function () { go((cur + 1) % STEPS.length); });
   paint(0);
-  // Step 1 plays once on its own when the section comes into view; after that the visitor drives.
   if ('IntersectionObserver' in window) {
-    var io3 = new IntersectionObserver(function (en) { if (en[0].isIntersecting && !started) { io3.disconnect(); go(0); } }, { threshold: 0.45 });
-    io3.observe(stage);
-  } else go(0);
+    new IntersectionObserver(function (en) { inView = en[0].isIntersecting; if (inView && !started) go(0); }, { threshold: 0.35 }).observe(stage);
+  } else { inView = true; go(0); }
 
   /* FAQ */
   document.getElementById('faqList').addEventListener('click', function (e) {
