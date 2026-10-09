@@ -57,6 +57,7 @@
 
   function toast(t) { var el = $('#toast'); $('#toastTx').textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(function () { el.classList.remove('on'); }, 2400); }
   function modal(html) { $('#modalBox').innerHTML = html; $('#modal').hidden = false; }
+  document.addEventListener('click', function (e) { var u = e.target.closest('[data-upgrade]'); if (u) { track('UpgradeClick', { from: 'reviews' }, true); if (window.DBXBuild) window.DBXBuild.open(S.biz || ''); return; } });
   document.addEventListener('click', function (e) { var a = e.target.closest('[data-setupcall]'); if (a && !DBX.setupCallUrl) { e.preventDefault(); toast('Demo: the setup call calendar is not connected yet'); } else if (a) track('SetupCallClick', {}, true); });
   $('#modal').addEventListener('click', function (e) { if (e.target.id === 'modal' || e.target.closest('[data-close]')) $('#modal').hidden = true; });
 
@@ -70,7 +71,7 @@
     else if (parts[0] === 'onb') { show('v-onb'); onb(+parts[1] || 0); }
     else if (parts[0] === 'plan') { show('v-plan'); paywall(); }
     else if (parts[0] === 'checkout') { show('v-checkout'); checkout(); }
-    else if (parts[0] === 'app') { show('v-app'); app(parts[1] || 'home'); }
+    else if (parts[0] === 'app') { show('v-app'); app(parts[1] || (S.widgetDone ? 'home' : 'setup')); }
     else location.hash = '#signup';
   }
   addEventListener('hashchange', route);
@@ -82,7 +83,7 @@
         $('#modal').hidden = true;
         try { history.replaceState(null, '', location.pathname + '#app/home'); } catch (e) { }
         if (!S.trialTracked) { S.trialTracked = true; save(); track('StartTrial', { value: 50, currency: 'USD', predicted_ltv: 600, content_name: 'widget_plan_99' }, false, ACCT ? 'st_' + ACCT.id : undefined); }
-        location.hash = '#app/home'; setTimeout(welcome, 350); return;
+        location.hash = '#app/setup'; return;
       }
       if (tries > 15) { modal('<h3>Almost there</h3><p>Your payment went through, and we\'re still switching your account on. Refresh in a minute, or text us and we\'ll sort it out.</p><button class="btn" type="button" data-close>OK</button>'); return; }
       setTimeout(function () { waitForTrial(tries + 1); }, 2000);
@@ -119,7 +120,7 @@
     setToken(r.body.token); fromAccount(r.body.account);
     if (created) track('AccountCreated', { method: r.method || 'email' }, true);
     var a = r.body.account;
-    if (S.paid) location.hash = '#app/home';
+    if (S.paid) location.hash = S.widgetDone ? '#app/home' : '#app/setup';
     else if (a.stage === 'saw_plans' || a.plan) location.hash = '#plan';
     else location.hash = '#onb/0';
   }
@@ -414,11 +415,12 @@
     setTimeout(function () {
       b.classList.remove('busy'); b.classList.add('done'); $('.tx', b).textContent = '✓';
       S.paid = true; save(); track('StartTrial', { value: price(), currency: 'USD', predicted_ltv: price() * 6 });
-      setTimeout(function () { location.hash = '#app/home'; setTimeout(welcome, 350); }, 700);
+      setTimeout(function () { location.hash = '#app/setup'; }, 700);
     }, reduce ? 200 : 1500);
   }
   $('#coPay').addEventListener('click', pay); $('#payLink').addEventListener('click', pay); $('#payApple').addEventListener('click', pay);
-  function welcome() {
+  function welcome() { location.hash = '#app/setup'; }
+  function welcomeOld() {
     modal('<div class="okc">' + I('chk') + '</div><h3>Your free trial has started</h3><p>Welcome to DialBridge, ' + esc(first()) + '. Next, set up your booking widget. It takes about 10 minutes.</p><a class="btn" href="#app/widget" data-close>Set up my booking widget ' + I('arw') + '</a><p style="margin-top:10px;font-size:14px">Rather have us do it with you? <a href="' + esc(DBX.setupCallUrl || '#') + '" data-setupcall' + (DBX.setupCallUrl ? ' target="_blank" rel="noopener"' : '') + '>Book a free setup call</a></p><p style="margin-top:12px;font-size:13px">Trial ends ' + md(END) + '. We remind you on ' + md(REMIND) + '.</p>');
   }
 
@@ -434,7 +436,7 @@
     { n: 'Lauren Nguyen', t: 'Hot tub removal', a: 'Wayne 07470', w: 'Free estimate', p: 'Estimate', s: 'sch', src: 'Booking page', ago: '4d' }
   ];
   var PILL = { new: ['new', 'New'], sch: ['sch', 'Scheduled'], won: ['won', 'Booked'], lost: ['lost', 'Lost'] };
-  var TITLES = { home: 'Home', leads: 'Leads', bookings: 'Bookings', reviews: 'Reviews', traffic: 'Traffic', widget: 'Booking widget', settings: 'Settings' };
+  var TITLES = { setup: 'Setup', home: 'Home', leads: 'Leads', bookings: 'Bookings', reviews: 'Reviews', traffic: 'Traffic', widget: 'Booking widget', settings: 'Settings' };
   function app(pg) {
     if (pg === 'test') { S.tested = true; save(); window.open('../book.html?c=' + previewSrc().split('?c=')[1].split('&')[0], '_blank'); toast('Booking page opened in a new tab. Book something and watch it land in Leads.'); location.replace('#app/home'); return; }
     if (!TITLES[pg]) pg = 'home';
@@ -444,10 +446,37 @@
     $('#bizPlan').textContent = S.plan === 'full' ? 'Website + Reviews' : 'Booking Widget';
     $('#meName').textContent = S.name || 'You'; $('#meAv').textContent = (S.name || 'Y').charAt(0).toUpperCase();
     $('#trialEnd').textContent = 'Ends ' + md(END) + ', then $' + price() + '/mo';
-    var P = $('#page'); P.innerHTML = PAGES[pg](); P.firstElementChild && P.firstElementChild.classList.add('on');
+    var P = $('#page'), html = PAGES[pg](), lock = gateFor(pg);
+    $$('.nav a').forEach(function (a) { var k = a.getAttribute('data-pg'); a.classList.toggle('locked', !!gateFor(k)); });
+    var ns = $('#navSetup'); if (ns) ns.hidden = !!S.widgetDone;
+    P.innerHTML = lock ? '<div class="gate"><div class="gate-blur" aria-hidden="true" inert>' + html + '</div>' + lock + '</div>' : html;
+    var first0 = lock ? $('.gate-blur > *', P) : P.firstElementChild; if (first0) first0.classList.add('on');
     if (pg === 'widget') wizard();
     if (pg === 'leads') leadsInit();
     var lt = $('#later'); if (lt) lt.addEventListener('click', function () { S.hideGuide = true; save(); app('home'); toast('Setup guide hidden. It is still under Booking widget.'); });
+  }
+  // What each page is for, said plainly on its locked card.
+  var GATE_TX = {
+    home: ['Home', 'New requests, upcoming jobs and what came in after hours, all in one place.'],
+    leads: ['Leads', 'Every booking request lands here with the job, the price they saw and their number.'],
+    bookings: ['Bookings', 'Upcoming jobs from your booking page, in order.'],
+    traffic: ['Traffic', 'How many people open your booking page, and where they come from.'],
+    reviews: ['Reviews', 'Your Google rating and the review requests we send after each job.']
+  };
+  function gateFor(pg) {
+    if (pg === 'reviews' && S.plan !== 'full') return upsellReviews();
+    if (S.widgetDone || !GATE_TX[pg]) return '';
+    var t = GATE_TX[pg];
+    return '<div class="gate-card"><span class="gate-ic">' + I('lock') + '</span><h3>' + t[0] + ' opens after setup</h3><p>' + t[1] + '</p>' +
+      '<div class="gate-act"><a class="btn dark" href="#app/setup">Continue setup ' + I('arw') + '</a><a class="link" href="' + esc(DBX.setupCallUrl || '#') + '" data-setupcall' + (DBX.setupCallUrl ? ' target="_blank" rel="noopener"' : '') + '>Or set it up with us on a free call</a></div></div>';
+  }
+  function upsellReviews() {
+    return '<div class="gate-card up"><span class="gate-ic">' + I('star') + '</span><h3>Get more 5-star Google reviews without asking</h3>' +
+      '<ul class="gate-list"><li>' + I('chk') + '<span>After every job, the customer gets a text with a one-tap review link.</span></li>' +
+      '<li>' + I('chk') + '<span>More reviews move you up on Google Maps, so new customers find you first.</span></li>' +
+      '<li>' + I('chk') + '<span>New reviews show up here, and you can reply in one tap.</span></li></ul>' +
+      '<p class="gate-plan">Part of <b>Website + Review Automation + Booking Widget</b>, $199/month. It also comes with a new website built to book jobs.</p>' +
+      '<div class="gate-act"><button class="btn" type="button" data-upgrade>Upgrade with a quick call ' + I('arw') + '</button></div></div>';
   }
   var greet = function () { var h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
   function ring(done, total) { var off = 132 * (1 - done / total); return '<div class="gring"><svg viewBox="0 0 52 52"><circle class="t" cx="26" cy="26" r="21"/><circle class="p" cx="26" cy="26" r="21" style="stroke-dashoffset:' + off + '"/></svg><b>' + done + '/' + total + '</b></div>'; }
@@ -462,6 +491,17 @@
     return '<svg viewBox="0 0 600 200" preserveAspectRatio="none"><line x1="0" y1="190" x2="600" y2="190" stroke="#e7e5de"/>' + g + '</svg>';
   }
   var PAGES = {
+    setup: function () {
+      var steps = [['clock', 'Hours and area', 'When you work and where you go'], [S.mode === 'estimate' ? 'msg' : 'tag', S.mode === 'estimate' ? 'What you quote' : 'Services and prices', S.mode === 'estimate' ? 'The jobs customers can ask about' : 'What customers can book'], ['spark', 'Your look', 'Logo and color'], ['globe', 'Go live', 'Website, Google profile and social']];
+      return '<div class="pg setup"><div class="su-hello"><p class="su-k">' + (S.widgetDone ? 'All set' : 'Your trial has started') + '</p><h2>Welcome, ' + esc(first()) + '. Let\'s get ' + esc(BIZ()) + ' taking bookings.</h2>' +
+        '<p>Most owners are live in about 10 minutes. Pick the way that suits you.</p></div>' +
+        '<div class="su-choices">' +
+        '<a class="su-card" href="#app/widget"><span class="su-ic">' + I('widget') + '</span><b>Set it up myself</b><span>We walk you through it step by step. About 10 minutes.</span><span class="btn dark">Start setup ' + I('arw') + '</span></a>' +
+        '<a class="su-card" href="' + esc(DBX.setupCallUrl || '#') + '" data-setupcall' + (DBX.setupCallUrl ? ' target="_blank" rel="noopener"' : '') + '><span class="su-ic">' + I('phone') + '</span><b>Set it up with us</b><span>A free 20-minute call. We set everything up with you and put it on your website and Google profile.</span><span class="btn">Book a free call ' + I('arw') + '</span></a>' +
+        '</div>' +
+        '<div class="su-steps"><p>What you\'ll set up</p><ol>' + steps.map(function (st, i) { return '<li' + (S.widgetDone ? ' class="done"' : '') + '><span class="su-n">' + (S.widgetDone ? I('chk') : i + 1) + '</span><span class="su-si">' + I(st[0]) + '</span><div><b>' + st[1] + '</b><span>' + st[2] + '</span></div></li>'; }).join('') + '</ol></div>' +
+        '<p class="su-foot">Your other pages open as soon as your booking page is set up. Free until ' + md(END) + '.</p></div>';
+    },
     home: function () {
       var w = S.widgetDone, full = S.plan === 'full', tasks = [
         { d: true, t: 'Create your account', s: 'Welcome aboard', m: '' },
@@ -625,7 +665,7 @@
       if (r.ok) fromAccount(r.body.account);
       if (/[?&]paid=1/.test(location.search)) { modal('<div class="waiting"><div class="spin"></div><h3>Starting your free trial</h3><p>This takes a few seconds.</p></div>'); waitForTrial(0); return; }
       var h = (location.hash.slice(1).split('/')[0]) || 'signup';
-      if ((h === 'signup' || h === 'login') && ACCT) { location.hash = S.paid ? '#app/home' : (ACCT.stage === 'saw_plans' || ACCT.plan) ? '#plan' : '#onb/' + stepIndex(ACCT.step); return; }
+      if ((h === 'signup' || h === 'login') && ACCT) { location.hash = S.paid ? (S.widgetDone ? '#app/home' : '#app/setup') : (ACCT.stage === 'saw_plans' || ACCT.plan) ? '#plan' : '#onb/' + stepIndex(ACCT.step); return; }
       route();
     });
   } else route();
