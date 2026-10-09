@@ -535,7 +535,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *, .rscene *, .flow *, .gscene *)),:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::before,:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
 </style>
 <link rel="stylesheet" href="build.css">
-<link rel="stylesheet" href="saas.css">
 </head>
 <body>
 <script>document.documentElement.classList.add('js');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro');</script>
@@ -767,7 +766,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           <li><svg><use href="#chk"/></svg>Every request in your inbox, with an email alert</li>
           <li><svg><use href="#chk"/></svg>Set it up yourself in about 10 minutes</li>
         </ul>
-        <a class="btn ghost" href="#top">Start my free trial <svg class="arw"><use href="#arw"/></svg></a>
+        <a class="btn ghost" href="../start/?reset">Start my free trial <svg class="arw"><use href="#arw"/></svg></a>
       </div>
       <div class="plan main">
         <span class="tag">Most owners pick this</span>
@@ -1297,14 +1296,15 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   function enc(o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  (function () { var q = new URLSearchParams(location.search); if (q.get('call') === '1') setTimeout(function () { if (window.DBXBuild) window.DBXBuild.open(q.get('biz') || ''); }, 300); })();
   document.addEventListener('click', function (e) { var c = e.target.closest('[data-call]'); if (c && window.DBXBuild) window.DBXBuild.open(''); });
   quick.addEventListener('submit', function (e) {
     e.preventDefault();
-    // the Booking Widget is self-serve: saas.js handles the search box (suggestions, then the builder)
+    // the Booking Widget is self-serve: sign up first, then onboarding, trial and the dashboard (../start/)
+    location.href = '../start/?reset&biz=' + encodeURIComponent(document.getElementById('qName').value.trim());
   });
 })();
 </script>
 <script src="build.js"></script>
-<script src="saas.js"></script>
 </body>
 </html>
