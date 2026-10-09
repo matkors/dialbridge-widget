@@ -15,7 +15,7 @@
   var CHECK = ic('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
   var esc = function (t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 
-  var S = { name: '', trade: 'junk', brand: COLORS[0], area: '', phone: '', site: null, calls: null, miss: null, setup: 'dfy', first: '', mobile: '', email: '', url: '' };
+  var S = { name: '', trade: 'junk', brand: COLORS[0], area: '', phone: '', site: null, calls: null, miss: null, mgr: null, setup: 'dfy', first: '', mobile: '', email: '', url: '' };
 
   var el = document.createElement('div');
   el.className = 'bld'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Build your booking page');
@@ -33,14 +33,14 @@
     '<label class="bfield">What you do<select id="bTrade">' + Object.keys(TRADES).map(function (k) { return '<option value="' + k + '">' + TRADES[k] + '</option>'; }).join('') + '</select></label>' +
     '<div class="bfield">Brand color<div class="swatches" id="bSw">' + COLORS.map(function (c) { return '<button type="button" data-c="' + c + '" style="background:' + c + '" aria-label="Color ' + c + '"></button>'; }).join('') + '<label aria-label="Pick any color"><input type="color" id="bCol"></label></div></div>' +
     '<label class="bfield">Where you work<input id="bArea" placeholder="Bergen County, NJ" maxlength="60"><small>Shown to customers so they know you cover them.</small></label>' +
-    '<div class="bcta"><button class="btn" type="button" data-go="3">Start my free 2-week trial <svg class="arw"><use href="#arw"/></svg></button><div class="bnote"><span>' + CHECK.replace('<svg', '<svg') + 'No card needed</span><span>' + CHECK + 'Cancel anytime</span></div></div>' +
+    '<div class="bcta"><button class="btn" type="button" data-go="3">Start my free 2-week trial <svg class="arw"><use href="#arw"/></svg></button><div class="bnote"><span>' + CHECK + 'We set it up for you</span><span>' + CHECK + 'Live in 48 hours</span><span>' + CHECK + 'No card needed</span></div></div>' +
     '</div></div></section>' +
     // 3 fit + plan
-    '<section class="bstep" data-s="3"><div class="bnarrow"><p class="eyebrow">3 quick questions</p><h2 style="margin-top:12px">Let\'s set up your trial.</h2><p class="bsub">So we set it up the right way for your business.</p><div class="bq">' +
+    '<section class="bstep" data-s="3"><div class="bnarrow"><p class="eyebrow">3 quick questions</p><h2 style="margin-top:12px">Let\'s set up your trial.</h2><p class="bsub">We set everything up for you. This tells us how.</p><div class="bq">' +
     '<div><h3>Do you have a website?</h3><div class="opts" data-q="site"><button class="opt" data-v="yes">Yes</button><button class="opt" data-v="no">No</button><button class="opt" data-v="old">Yes, but it\'s outdated</button></div></div>' +
     '<div><h3>About how many calls or quote requests do you get in a normal week?</h3><div class="opts" data-q="calls"><button class="opt" data-v="0">0 to 5</button><button class="opt" data-v="1">6 to 15</button><button class="opt" data-v="2">16 to 40</button><button class="opt" data-v="3">40+</button></div></div>' +
     '<div><h3>When you\'re on a job and a new call comes in, what usually happens?</h3><div class="opts" data-q="miss"><button class="opt" data-v="answer">I answer it</button><button class="opt" data-v="vm">It goes to voicemail</button><button class="opt" data-v="later">I call back later</button><button class="opt" data-v="office">Someone in the office answers</button></div></div>' +
-    '<div><h3>How do you want to get set up?</h3><div class="opts big" data-q="setup"><button class="opt on" data-v="dfy"><b>Set it up for me</b><small>We add your services, prices and hours and put it on your site. One 15-minute call.</small><span class="rc">Most owners pick this</span></button><button class="opt" data-v="self"><b>I\'ll set it up myself</b><small>We text you a link to your setup page and install code. About 10 minutes.</small></button></div></div>' +
+    '<div id="bMgr" hidden><h3>Who takes care of your website?</h3><div class="opts" data-q="mgr"><button class="opt" data-v="me">I do</button><button class="opt" data-v="agency">A web company or freelancer</button><button class="opt" data-v="nobody">Nobody really</button></div><p class="bfine" style="margin-top:8px">So we know how to add your Book button. We never need your password to get you live: your booking link goes on Google, Facebook and Instagram on day one.</p></div>' +
     '</div><div class="brec" id="bRec"></div>' +
     '<div class="bnav"><button class="bback" type="button" data-go="2">Back</button><button class="btn" type="button" data-go="4" id="bTo4" disabled>Continue <svg class="arw"><use href="#arw"/></svg></button></div></div></section>' +
     // 4 contact
@@ -115,7 +115,8 @@
   }
 
   function recUpdate(pulse) {
-    var ok = S.site && S.calls && S.miss;
+    $('#bMgr').hidden = !S.site || S.site === 'no';
+    var ok = S.site && S.calls && S.miss && (S.site === 'no' || S.mgr);
     $('#bTo4').disabled = !ok;
     var full = plan() === 'full';
     var r = $('#bRec');
@@ -135,7 +136,7 @@
     var box = $('#bErr'); box.textContent = err; box.classList.toggle('on', !!err);
     if (err) return;
     var t = tier(), value = { A: 60, B: 25, C: 5 }[t];
-    var payload = { business: S.name, trade: S.trade, brand: S.brand, area: S.area, website: S.url || null, hasWebsite: S.site, callsPerWeek: ['0-5', '6-15', '16-40', '40+'][+S.calls], whenOnAJob: S.miss, setup: S.setup, plan: plan(), fit: fit(), tier: t,
+    var payload = { business: S.name, trade: S.trade, brand: S.brand, area: S.area, website: S.url || null, hasWebsite: S.site, siteManagedBy: S.site === 'no' ? null : S.mgr, callsPerWeek: ['0-5', '6-15', '16-40', '40+'][+S.calls], whenOnAJob: S.miss, setup: S.setup, plan: plan(), fit: fit(), tier: t,
       firstName: S.first, mobile: S.mobile, email: S.email, consentText: $('.bfine').textContent, page: location.href, utm: utm(), submittedAt: new Date().toISOString() };
     var btn = $('#bSubmit');
     if (/^https:\/\//.test(SUBMIT_URL)) {
