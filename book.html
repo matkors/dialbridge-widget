@@ -122,6 +122,18 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
 .tile:hover .tl{color:var(--ink)}
 .tile.on .tl{color:var(--ink);font-weight:600}
 .tt{font-size:11.5px;color:var(--brand);font-weight:600;margin-top:-3px}
+/* icon tiles: one clean card, icon in a soft square, label inside */
+.tiles.icons{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile.it .tbox{aspect-ratio:auto;flex-direction:column;justify-content:flex-start;gap:9px;min-height:112px;padding:16px 8px 13px}
+.tico{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--soft);color:var(--ink);transition:transform .3s var(--ease),background-color .2s,color .2s}
+.tbox .tico svg{position:static;width:22px;height:22px;stroke-width:1.7}
+.tile.it:hover .tbox svg{transform:none}
+.tile.it:hover .tico{transform:translateY(-3px);background:color-mix(in srgb,var(--brand) 12%,#fff);color:var(--brand)}
+.tile.it.on .tico{background:var(--brand);color:var(--on-brand)}
+.tile.it .tl{color:var(--ink);font-weight:600;font-size:13.5px;line-height:1.25;padding:0 2px}
+.tile.it .tt{margin-top:-4px}
+.tile.it .tick{left:auto;right:7px;top:7px;width:20px;height:20px}
+.tile.it.on .tbox{background:var(--tint)}
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips.col{flex-direction:column;align-items:stretch}
@@ -242,7 +254,7 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
 .pow a:hover{color:var(--mute)}
 .demo{padding:1px 7px;border-radius:999px;background:#fff4d6;color:#8a5a00;font-weight:600}
 .err{padding:40px;text-align:center;color:var(--mute)}
-@media (hover:none){.tile:hover .tbox{background:#fff;border-color:var(--line)}.tile:hover .tbox img,.tile:hover .tbox svg{transform:none}.tile.on .tbox{border-color:var(--brand)}.mrow:hover .chev{transform:none}.mrow:hover .mi{background:var(--tint);color:var(--brand)}}
+@media (hover:none){.tile.it:hover .tico{transform:none;background:var(--soft);color:var(--ink)}.tile.it.on:hover .tico{background:var(--brand);color:var(--on-brand)}.tile:hover .tbox{background:#fff;border-color:var(--line)}.tile:hover .tbox img,.tile:hover .tbox svg{transform:none}.tile.on .tbox{border-color:var(--brand)}.mrow:hover .chev{transform:none}.mrow:hover .mi{background:var(--tint);color:var(--brand)}}
 @media (max-width:560px){
   .page{padding:0}
   .hostline{display:none}
@@ -258,6 +270,8 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
   .pricebox{flex-direction:column;align-items:flex-start;gap:10px}
   .tiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
   .tbox svg{width:32px;height:32px}
+  .tile.it .tbox{min-height:104px;padding:14px 6px 12px}
+  .tile.it .tl{font-size:12.5px}
   .callus{font-size:0;gap:0;width:46px;height:46px;justify-content:center;margin-left:0;border:1px solid var(--line);border-radius:12px}
   .callus svg{width:19px;height:19px}
 }

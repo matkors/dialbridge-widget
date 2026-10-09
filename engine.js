@@ -258,10 +258,13 @@
       h += '<h3>' + esc(title) + '</h3>';
       if (d.type === 'service') {
         if (T.multiService && d.multiHint) h += '<p class="lede">' + esc(d.multiHint) + '</p>';
-        h += '<div class="tiles" style="--n:' + (T.services.length <= 6 ? T.services.length : 5) + '">' + T.services.map(function (s) {
+        h += '<div class="tiles' + (T.services.some(function (x) { return x.image; }) ? '' : ' icons') + '" style="--n:' + (T.services.length <= 6 ? T.services.length : 5) + '">' + T.services.map(function (s) {
           var on = S.svcs.indexOf(s.id) > -1;
           var tag = s.mode === 'estimate' ? 'Free estimate' : s.fixed ? '$' + s.fixed : s.fee ? '$' + s.fee + ' visit' : s.heavy ? 'By weight' : '';
-          return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + s.id + '" aria-pressed="' + !!on + '"><span class="tbox">' + (on ? '<span class="tick">' + ic('check') + '</span>' : '') + (s.image ? '<img alt="" src="' + esc(s.image) + '">' : '<span class="blob"></span>' + ic(s.icon)) + '</span><span class="tl">' + esc(s.label) + '</span>' + (tag && B.showPrices ? '<span class="tt">' + tag + '</span>' : '') + '</button>';
+          var tick = on ? '<span class="tick">' + ic('check') + '</span>' : '', tt = tag && B.showPrices ? '<span class="tt">' + tag + '</span>' : '';
+          // Photo tiles: picture with the label underneath. Icon tiles: one card with the icon, label and tag inside.
+          if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + s.id + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>';
+          return '<button type="button" class="tile it' + (on ? ' on' : '') + '" data-act="svc" data-v="' + s.id + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.icon) + '</span><span class="tl">' + esc(s.label) + '</span>' + tt + '</span></button>';
         }).join('') + '</div>';
       }
       if (d.type === 'choice') {
@@ -390,12 +393,19 @@
       if (JUST) { try { var j = app.querySelector(JUST); if (j) j.classList.add('just'); } catch (e) { } }
       if (bd) {
         bd.scrollTop = keep;
-        if (scrollTo) { var el = document.getElementById('blk-' + scrollTo); if (el) bd.scrollTo({ top: Math.max(0, el.offsetTop - bd.offsetTop - 8), behavior: 'smooth' }); }
+        if (scrollTo) { var el = document.getElementById('blk-' + scrollTo); if (el) glide(bd, Math.max(0, el.offsetTop - bd.offsetTop - 8)); }
       }
       NAV = null; JUST = null;
       watchHeight();
       if (firstPaint) { firstPaint = false; post('dbw:ready', { light: !!B.logo }); }
     }
+    // Eased scroll inside the card (same feel in every browser, unlike native smooth scrolling).
+    function glide(el, top, ms) {
+      var from = el.scrollTop, d = Math.min(top, el.scrollHeight - el.clientHeight) - from, t0 = null; ms = ms || 520;
+      if (Math.abs(d) < 2) return;
+      (function f(now) { if (t0 === null) t0 = now; var k = Math.min(1, (now - t0) / ms), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; el.scrollTop = from + d * e; if (k < 1) requestAnimationFrame(f); })(performance.now());
+    }
+    window.__dbwGlide = glide;
     // Tell w.js how tall this screen wants to be, so the popup fits the content instead of showing a half-empty card.
     function wantedHeight() {
       var h = 0;
