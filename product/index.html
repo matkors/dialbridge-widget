@@ -318,14 +318,14 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <div class="demo-top">
         <div class="seg" role="tablist" aria-label="Pick a sample business" id="seg">
           <span class="pill" aria-hidden="true"></span>
-          <button role="tab" aria-selected="true" data-b="deluxe-detail">Mobile detailing</button>
+          <button role="tab" aria-selected="true" data-b="northside-detail">Mobile detailing</button>
           <button role="tab" aria-selected="false" data-b="harbor-haul">Junk removal</button>
           <button role="tab" aria-selected="false" data-b="sparkle-and-co">Cleaning</button>
         </div>
         <span class="live"><i></i>Live demo</span>
       </div>
-      <div class="frame"><iframe id="heroFrame" title="Live booking demo" src="../book.html?b=deluxe-detail&amp;embed=1&amp;inline=1"></iframe></div>
-      <p class="demo-note"><span>Tap through it. Nothing is sent anywhere.</span><span id="demoName">Deluxe Details, Slidell LA</span></p>
+      <div class="frame"><iframe id="heroFrame" title="Live booking demo" src="../book.html?b=northside-detail&amp;embed=1&amp;inline=1"></iframe></div>
+      <p class="demo-note"><span>Tap through it. Nothing is sent anywhere.</span><span id="demoName">Northside Mobile Detailing, sample business</span></p>
     </div>
   </section>
 
@@ -364,7 +364,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <div>
         <p class="eyebrow">After they book</p>
         <h2 style="margin-top:18px">Confirmations and reminders, in their own time zone.</h2>
-        <p style="color:var(--ink2);max-width:500px;margin-top:18px">Every text says the time the way the customer picked it, so a customer in Louisiana reads 9:00 AM CST, not your 10:00 AM. Each reminder reads differently, so nobody thinks it was sent twice.</p>
+        <p style="color:var(--ink2);max-width:500px;margin-top:18px">Every text says the time the way the customer picked it, so a customer in Houston reads 9:00 AM CST, even when your office runs on Eastern time. Each reminder reads differently, so nobody thinks it was sent twice.</p>
         <ul class="list">
           <li><span>RIGHT AWAY</span>You're booked for Friday, Oct 9 at 9:00 AM CST.</li>
           <li><span>DAY BEFORE</span>Looking forward to your detail tomorrow at 9:00 AM CST.</li>
@@ -375,9 +375,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <div class="lock" aria-hidden="true">
         <div class="scr">
           <div class="clock"><small>Friday, October 9</small><b>8:02</b></div>
-          <div class="note"><div class="h"><b>Deluxe Details</b><span>now</span></div>Hey Craig, we'll be there in about an hour (9:00 AM CST). Text back if anything changed.</div>
-          <div class="note"><div class="h"><b>Deluxe Details</b><span>yesterday</span></div>Hey Craig, looking forward to your detail tomorrow at 9:00 AM CST. If the time doesn't work anymore, just text back.</div>
-          <div class="note"><div class="h"><b>Deluxe Details</b><span>Wed</span></div>You're booked for Friday, Oct 9 at 9:00 AM CST. Full detail, SUV. $249 to $289.</div>
+          <div class="note"><div class="h"><b>Northside Detailing</b><span>now</span></div>Hey Jordan, we'll be there in about an hour (9:00 AM CST). Text back if anything changed.</div>
+          <div class="note"><div class="h"><b>Northside Detailing</b><span>yesterday</span></div>Hey Jordan, looking forward to your detail tomorrow at 9:00 AM CST. If the time doesn't work anymore, just text back.</div>
+          <div class="note"><div class="h"><b>Northside Detailing</b><span>Wed</span></div>You're booked for Friday, Oct 9 at 9:00 AM CST. Full detail, SUV. $249 to $289.</div>
         </div>
       </div>
     </div>
@@ -538,7 +538,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
   // Hero: live widget, sized to each screen, with a trade switcher.
   var frame = document.getElementById('heroFrame'), seg = document.getElementById('seg'), pill = seg.querySelector('.pill'), demoName = document.getElementById('demoName');
-  var NAMES = { 'deluxe-detail': 'Deluxe Details, Slidell LA', 'harbor-haul': 'Harbor Haul, sample business', 'sparkle-and-co': 'Sparkle & Co., sample business' };
+  var NAMES = { 'northside-detail': 'Northside Mobile Detailing, sample business', 'harbor-haul': 'Harbor Haul, sample business', 'sparkle-and-co': 'Sparkle & Co., sample business' };
   function placePill() { var on = seg.querySelector('[aria-selected="true"]'); pill.style.width = on.offsetWidth + 'px'; pill.style.transform = 'translateX(' + (on.offsetLeft - 4 + 4) + 'px)'; }
   placePill(); addEventListener('resize', placePill);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(placePill);

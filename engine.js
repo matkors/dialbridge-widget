@@ -298,7 +298,7 @@
         }
       }
       if (d.type === 'contact') {
-        h += nameFields(1) + (d.askAddress ? '<label class="fld"><span>Address where the vehicle will be <em>*</em></span><input data-in="addr" autocomplete="street-address" placeholder="123 Main St, Slidell" value="' + esc(S.addr) + '"></label>' : '') + (hasZipStep() ? '' : '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>') +
+        h += nameFields(1) + (d.askAddress ? '<label class="fld"><span>Address where the vehicle will be <em>*</em></span><input data-in="addr" autocomplete="street-address" placeholder="123 Main St" value="' + esc(S.addr) + '"></label>' : '') + (hasZipStep() ? '' : '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>') +
           '<p class="fine">By sending, you agree that ' + esc(B.name) + ' may text you about this request. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>';
       }
       if (d.type === 'message') {
