@@ -344,12 +344,14 @@
       var photo = /^https:\/\//.test(B.hero || '') ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
       return '<aside class="side" aria-hidden="true"><div class="sb"><img alt="" src="' + esc(photo) + '"><div class="st">' +
         (B.logo ? '<span class="slogo"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname">' + esc(B.name) + '</span>') +
-        '<h2>' + esc(head) + '</h2><p>Tell us what you need, see your price and pick a time. We will take care of the rest.</p></div></div>' +
-        (B.rating ? '<div class="srate"><span class="stars">★★★★★</span><b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</div>' : '') + '</aside>';
+        '<h2>' + esc(head) + '</h2><p>Tell us what you need, see your price and pick a time.</p></div>' +
+        '<div class="sinfo"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span>' +
+        '<span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span>' +
+        (B.rating ? '<span><b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</span>' : '') + '</div></div></aside>';
     }
     function menuHtml() {
       var order = OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call'];
-      return '<div class="mhead"><h3>How can we help?</h3><p class="lede">Select an option.</p></div><div class="menu tiles2">' + order.map(function (k) {
+      return '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
         if (k === 'book' && t.priced && B.showPrices) { var rg = bookRange(); if (rg) desc = t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
         if (k === 'call') { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
