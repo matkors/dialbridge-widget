@@ -15,6 +15,7 @@
   var color = /^#[0-9a-fA-F]{6}$/.test(s.getAttribute('data-color') || '') ? s.getAttribute('data-color') : '#0E6650';
   var label = s.getAttribute('data-label') || 'Book online';
   var left = s.getAttribute('data-position') === 'left';
+  var phone = (s.getAttribute('data-phone') || '').replace(/[^\d+]/g, '');   // optional: adds a round call button next to Book online
   var q = (cfg ? 'c=' + cfg : 'b=' + (slug || 'harbor-haul'));
   var src = base + 'book.html?embed=1&' + q;
   var EASE = 'cubic-bezier(.23,1,.32,1)', DRAWER = 'cubic-bezier(.32,.72,0,1)';
@@ -35,14 +36,21 @@
     ':host{all:initial}' +
     '*{box-sizing:border-box}' +
     '.w{position:fixed;bottom:24px;' + (left ? 'left' : 'right') + ':24px;display:flex;flex-direction:column;align-items:' + (left ? 'flex-start' : 'flex-end') + ';gap:7px;font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;animation:wIn .5s .4s ' + EASE + ' both;transition:opacity .2s,transform .25s ' + EASE + '}' +
+    '.row{display:flex;align-items:center;gap:10px;flex-direction:' + (left ? 'row-reverse' : 'row') + '}' +
+    '.go,.call{position:relative;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.55);color:' + fg + ';cursor:pointer;text-decoration:none;font-family:inherit;-webkit-tap-highlight-color:transparent;' +
+      'background:linear-gradient(180deg,color-mix(in srgb,' + color + ' 62%,#fff) 0%,' + color + ' 58%,color-mix(in srgb,' + color + ' 88%,#000) 100%);' +
+      'box-shadow:inset 0 1px 1px rgba(255,255,255,.55),inset 0 -3px 8px rgba(0,0,0,.14),0 0 0 4px color-mix(in srgb,' + color + ' 16%,transparent),0 10px 26px color-mix(in srgb,' + color + ' 38%,transparent);' +
+      'transition:transform .2s ' + EASE + ',box-shadow .2s ' + EASE + ',filter .15s}' +
+    '.go{gap:10px;height:58px;padding:0 28px 0 22px;border-radius:29px;font:650 17px/1 inherit;font-family:inherit;letter-spacing:-.01em}' +
+    '.call{width:58px;height:58px;border-radius:50%}' +
+    '.go:hover,.call:hover{transform:translateY(-2px);filter:brightness(1.05);box-shadow:inset 0 1px 1px rgba(255,255,255,.55),inset 0 -3px 8px rgba(0,0,0,.14),0 0 0 6px color-mix(in srgb,' + color + ' 18%,transparent),0 16px 34px color-mix(in srgb,' + color + ' 45%,transparent)}' +
+    '.go:active,.call:active{transform:scale(.96);transition-duration:.1s}' +
+    '.go:focus-visible,.call:focus-visible{outline:3px solid ' + color + ';outline-offset:4px}' +
+    '.go svg,.call svg{transition:transform .25s ' + EASE + '}.go:hover svg{transform:rotate(-8deg) scale(1.06)}.call:hover svg{transform:rotate(12deg)}' +
+    '.pw{display:flex;align-items:center;gap:5px;padding-' + (left ? 'left' : 'right') + ':' + (phone ? '68px' : '0') + ';font-size:12px;font-weight:600;color:#3d4249;text-shadow:0 1px 0 rgba(255,255,255,.7)}' +
+    '.pw i{width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,#f35427 50%,#20251f 50%)}' +
     '.w.away{opacity:0;transform:translateY(8px) scale(.96);pointer-events:none}' +
     '@keyframes wIn{from{opacity:0;transform:translateY(14px) scale(.96)}}' +
-    '.go{display:flex;align-items:center;gap:10px;height:54px;padding:0 22px 0 18px;border:0;border-radius:27px;background:' + color + ';color:' + fg + ';font:600 15.5px/1 inherit;font-family:inherit;cursor:pointer;box-shadow:0 1px 2px rgba(16,24,40,.18),0 8px 24px rgba(16,24,40,.18),inset 0 1px 0 rgba(255,255,255,.16);transition:transform .2s ' + EASE + ',box-shadow .2s ' + EASE + ',filter .15s;-webkit-tap-highlight-color:transparent}' +
-    '.go:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(16,24,40,.16),0 14px 34px rgba(16,24,40,.24),inset 0 1px 0 rgba(255,255,255,.16)}' +
-    '.go:active{transform:scale(.97);transition-duration:.1s}' +
-    '.go:focus-visible{outline:3px solid ' + color + ';outline-offset:3px}' +
-    '.go svg{transition:transform .25s ' + EASE + '}.go:hover svg{transform:rotate(-8deg) scale(1.06)}' +
-    '.pw{font-size:11px;color:#6b727b;background:rgba(255,255,255,.9);padding:2px 7px;border-radius:999px;box-shadow:0 1px 2px rgba(16,24,40,.08)}' +
     '.ov{position:fixed;inset:0;z-index:1;display:none;align-items:center;justify-content:center;background:rgba(15,18,22,.46);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s ' + EASE + ';-webkit-tap-highlight-color:transparent}' +
     '.ov.on{display:flex}.ov.show{opacity:1}' +
     '.pn{position:relative;display:flex;flex-direction:column;width:min(600px,calc(100vw - 32px));height:560px;max-height:calc(100dvh - 48px);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px rgba(16,24,40,.06),0 24px 64px rgba(16,24,40,.28);opacity:0;transform:translateY(28px) scale(.985);transition:opacity .3s ' + EASE + ',transform .3s ' + EASE + '}' +
@@ -68,11 +76,11 @@
     '.gr{display:flex;justify-content:center;align-items:center;position:absolute;top:0;left:0;right:0;height:16px;z-index:3;touch-action:none;cursor:grab}' +
     '.gr::before{content:"";width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.55)}' +
     '.pn.light .gr::before{background:#d3d7dc}' +
-    '.w{bottom:16px;' + (left ? 'left' : 'right') + ':16px}.go{height:50px;font-size:15px}}' +
+    '.w{bottom:16px;' + (left ? 'left' : 'right') + ':16px}.go{height:52px;font-size:16px;padding:0 22px 0 18px}.call{width:52px;height:52px}.pw{padding-' + (left ? 'left' : 'right') + ':' + (phone ? '62px' : '0') + '}}' +
     '@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}' +
     '</style>' +
-    '<div class="w"><button type="button" class="go" aria-haspopup="dialog"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>' +
-    label.replace(/[<>&]/g, '') + '</button><span class="pw">Powered by DialBridge</span></div>' +
+    '<div class="w"><div class="row"><button type="button" class="go" aria-haspopup="dialog"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>' +
+    label.replace(/[<>&]/g, '') + '</button>' + (phone ? '<a class="call" href="tel:' + phone + '" aria-label="Call us"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg></a>' : '') + '</div><span class="pw"><i></i>Powered by DialBridge</span></div>' +
     '<div class="ov" role="presentation"><div class="pn" role="dialog" aria-modal="true" aria-label="Book online"><div class="gr" aria-hidden="true"></div>' +
     '<div class="sk" aria-hidden="true"><i class="h"></i><i class="t"></i><i class="r"></i><i class="r"></i><i class="r"></i></div></div></div>';
 

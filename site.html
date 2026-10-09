@@ -93,7 +93,7 @@ nav .tel{font-weight:600}
     var sc=document.createElement('script');
     sc.src='w.js'; sc.async=true;
     if(cfg) sc.setAttribute('data-config',cfg); else sc.setAttribute('data-business',slug);
-    sc.setAttribute('data-color',brand); sc.setAttribute('data-label',C.label);
+    sc.setAttribute('data-color',brand); sc.setAttribute('data-label',C.label); if(b.phone) sc.setAttribute('data-phone',String(b.phone));
     document.body.appendChild(sc);
     var go=function(e){e.preventDefault(); if(window.DialBridgeWidget) DialBridgeWidget.open();};
     document.getElementById('openw').addEventListener('click',go);
