@@ -175,6 +175,7 @@
   /* ---------------- 3. paywall ---------------- */
   function paywall() {
     $$('.pcard').forEach(function (c) { c.classList.toggle('on', c.getAttribute('data-plan') === S.plan); });
+    $$('[data-badge]').forEach(function (b) { b.hidden = b.getAttribute('data-badge') !== recommend(); });
     var full = S.plan === 'full';
     $('#tlRemind').textContent = md(REMIND); $('#tlCharge').textContent = md(END);
     $('#tlChargeTx').textContent = 'You\'re charged $' + price() + '. Cancel anytime before, in one click.';
@@ -228,6 +229,7 @@
   var PILL = { new: ['new', 'New'], sch: ['sch', 'Scheduled'], won: ['won', 'Booked'], lost: ['lost', 'Lost'] };
   var TITLES = { home: 'Home', leads: 'Leads', bookings: 'Bookings', reviews: 'Reviews', traffic: 'Traffic', widget: 'Booking widget', settings: 'Settings' };
   function app(pg) {
+    if (pg === 'test') { S.tested = true; save(); window.open('../book.html?c=' + previewSrc().split('?c=')[1].split('&')[0], '_blank'); toast('Booking page opened in a new tab. Book something and watch it land in Leads.'); location.replace('#app/home'); return; }
     if (!TITLES[pg]) pg = 'home';
     $$('.nav a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-pg') === pg); });
     $('#pgTitle').textContent = TITLES[pg];
@@ -238,6 +240,7 @@
     var P = $('#page'); P.innerHTML = PAGES[pg](); P.firstElementChild && P.firstElementChild.classList.add('on');
     if (pg === 'widget') wizard();
     if (pg === 'leads') leadsInit();
+    var lt = $('#later'); if (lt) lt.addEventListener('click', function () { S.hideGuide = true; save(); app('home'); toast('Setup guide hidden. It is still under Booking widget.'); });
   }
   var greet = function () { var h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; };
   function ring(done, total) { var off = 132 * (1 - done / total); return '<div class="gring"><svg viewBox="0 0 52 52"><circle class="t" cx="26" cy="26" r="21"/><circle class="p" cx="26" cy="26" r="21" style="stroke-dashoffset:' + off + '"/></svg><b>' + done + '/' + total + '</b></div>'; }
@@ -253,25 +256,36 @@
   }
   var PAGES = {
     home: function () {
-      var w = S.widgetDone, tasks = [
-        [true, 'Create your account', 'Done'],
-        [w, 'Set up your booking widget', 'Services, prices, hours and your look. About 10 minutes.', '#app/widget', 'Start'],
-        [false, 'Put it on your website and Google', 'Copy one line, or send it to your web person.', w ? '#app/widget/4' : '', w ? 'Open' : ''],
-        [false, 'Turn on Google review requests', S.plan === 'full' ? 'Ask every customer after the job.' : 'Included in Website + Reviews.', '#app/reviews', S.plan === 'full' ? 'Turn on' : 'See plan'],
-        [false, 'Get your first booking', 'Share your link on Facebook or text it to a past customer.']
-      ], done = tasks.filter(function (t) { return t[0]; }).length, curI = tasks.findIndex(function (t) { return !t[0]; });
-      return '<div class="pg"><div class="hello"><h2>' + greet() + ', ' + esc(first()) + '</h2><p>' + new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + '</p></div>' +
-        '<div class="card guide"><div class="guide-l"><div class="guide-h">' + ring(done, tasks.length) + '<div><h3>Get ' + esc(BIZ()) + ' ready for bookings</h3><p>' + (w ? 'Your booking page is live. Two more steps.' : 'Most owners finish in about 10 minutes.') + '</p></div></div><ol class="tasks">' +
-        tasks.map(function (t, i) { return '<li class="task' + (t[0] ? ' done' : '') + (i === curI ? ' cur' : '') + (!t[0] && !t[3] && i !== curI ? ' locked' : '') + '"><i>' + I('chk') + '</i><div><b>' + esc(t[1]) + '</b><span>' + esc(t[2]) + '</span></div>' + (t[3] && !t[0] ? '<a class="btn sm' + (i === curI ? '' : ' ghost') + '" href="' + t[3] + '">' + t[4] + '</a>' : '') + '</li>'; }).join('') +
-        '</ol></div><div class="guide-r"><img src="img/widget.webp" alt="Your booking widget" width="900" height="560"><p>' + (w ? 'Live at book.dialbridge.ai/' + slug() : 'This is what your customers will see. Make it yours in the setup.') + '</p></div></div>' +
+      var w = S.widgetDone, full = S.plan === 'full', tasks = [
+        { d: true, t: 'Create your account', s: 'Welcome aboard', m: '' },
+        { d: w, t: 'Set up your booking widget', s: 'Services, prices, hours and your look', m: '10 min', h: '#app/widget', b: 'Start setup' },
+        { d: !!S.tested, t: 'Send yourself a test booking', s: 'See exactly what your customers see, and get the text', m: '1 min', h: w ? '#app/test' : '', b: 'Try it' },
+        { d: false, t: 'Put it on your website and Google', s: 'Copy one line, or send it to your web person', m: '5 min', h: w ? '#app/widget/4' : '', b: 'Add it now' },
+        { d: false, t: 'Turn on Google review requests', s: full ? 'Ask every customer after the job' : 'Included in Website + Reviews', m: '2 min', h: '#app/reviews', b: full ? 'Turn on' : 'See plan' },
+        { d: false, t: 'Get your first booking', s: 'Share your link on Facebook or text it to a past customer', m: '', h: '', b: '' }
+      ];
+      var done = tasks.filter(function (t) { return t.d; }), todo = tasks.filter(function (t) { return !t.d; }), pct = Math.round(done.length / tasks.length * 100), cur = todo[0];
+      var row = function (t) {
+        var isCur = t === cur, can = !!t.h;
+        return '<li class="task' + (t.d ? ' done' : '') + (isCur ? ' cur' : '') + (!t.d && !can && !isCur ? ' locked' : '') + '"><i>' + I('chk') + '</i><div><b>' + esc(t.t) + '</b><span>' + esc(t.s) + '</span></div>' +
+          (t.d ? '<small class="dn">Done</small>' : can ? '<span class="tr">' + (t.m ? '<small>' + t.m + '</small>' : '') + '<a class="btn sm' + (isCur ? '' : ' ghost') + '" href="' + t.h + '">' + t.b + '</a></span>' : (t.m ? '<small>' + t.m + '</small>' : '')) + '</li>';
+      };
+      var headline = pct >= 50 ? 'More than halfway there!' : pct > 20 ? 'Nice start, ' + esc(first()) + '!' : 'Welcome to DialBridge';
+      return '<div class="pg"><div class="hello"><h2>' + greet() + ', ' + esc(first()) + '</h2><p>' + (w ? 'Your booking page is live. 3 new leads are waiting for a reply.' : 'Let us get ' + esc(BIZ()) + ' ready to take bookings. It takes about 15 minutes.') + '</p></div>' +
+        (S.hideGuide ? '' : '<div class="card guide"><div class="guide-l"><div class="gbanner"><div><b>' + headline + '</b><span>' + todo.length + ' steps left</span></div>' + ring(done.length, tasks.length) + '</div>' +
+          '<p class="gsec">To do</p><ol class="tasks">' + todo.map(row).join('') + '</ol>' +
+          '<details class="gdone"><summary>Already done (' + done.length + ')</summary><ol class="tasks">' + done.map(row).join('') + '</ol></details>' +
+          '<button class="link" type="button" id="later" style="font-size:13px;margin:8px 0 0 12px">I will finish later</button></div>' +
+          '<div class="guide-r"><img src="img/widget.webp" alt="Your booking widget" width="900" height="660"><p>' + (w ? 'Live at book.dialbridge.ai/' + slug() : 'This is what customers will see. Make it yours in the setup.') + '</p></div></div>') +
         '<div class="sample">' + I('info') + 'Sample data below. Your real numbers show up here after your first booking.</div>' +
-        '<div class="kpis"><div class="card kpi"><span>Booking requests</span><b>34</b><small class="up">' + I('up') + '21% vs last month</small></div><div class="card kpi"><span>Booked jobs</span><b>18</b><small class="mute">$10,686 in jobs</small></div><div class="card kpi"><span>Average reply time</span><b>19 min</b><small class="mute">Goal: 15 min</small></div><div class="card kpi"><span>Google rating</span><b>4.9 ★</b><small class="mute">212 reviews</small></div></div>' +
+        '<div class="kpis"><div class="card kpi"><span>' + I('inbox') + 'New leads</span><b>34</b><small class="up">' + I('up') + '21% vs last month</small></div><div class="card kpi"><span>' + I('cal') + 'Booked jobs</span><b>18</b><small class="mute">$10,686 in jobs</small></div><div class="card kpi"><span>' + I('phone') + 'Reply time</span><b>19 min</b><small class="mute">Goal: 15 min</small></div><div class="card kpi"><span>' + I('star') + 'Google rating</span><b>4.9</b><small class="mute">212 reviews</small></div></div>' +
         '<div class="grid2"><div class="card"><div class="card-h"><h3>Booking requests</h3><span>Last 14 days</span></div><div class="chart">' + barsChart() + '<div class="legend"><span><i style="background:#1d221c"></i>Business hours</span><span><i style="background:#f35427"></i>After hours, would have gone to voicemail</span></div></div></div>' +
-        '<div class="card"><div class="card-h"><h3>Latest activity</h3><a class="link" href="#app/leads" style="font-size:13px">See all</a></div><ul class="feed">' +
-        LEADS.slice(0, 5).map(function (l) { return '<li><span class="fi">' + I(l.s === 'won' ? 'cal' : l.p ? 'inbox' : 'msg') + '</span><div><b>' + esc(l.n) + '</b><span>' + esc(l.t) + '</span></div><span class="pill ' + PILL[l.s][0] + '">' + PILL[l.s][1] + '</span></li>'; }).join('') + '</ul></div></div></div>';
+        '<div class="card"><div class="card-h"><h3>Needs your attention</h3><a class="link" href="#app/leads" style="font-size:13px">See all</a></div><ul class="feed">' +
+        LEADS.slice(0, 5).map(function (l) { return '<li><span class="fi">' + I(l.s === 'won' ? 'cal' : l.p ? 'inbox' : 'msg') + '</span><div><b>' + esc(l.n) + '</b><span>' + esc(l.t) + ' · ' + l.ago + ' ago</span></div><span class="pill ' + PILL[l.s][0] + '">' + PILL[l.s][1] + '</span></li>'; }).join('') + '</ul></div></div></div>';
     },
     leads: function () {
       return '<div class="pg"><div class="hello"><h2>Leads</h2><p>3 new requests waiting. Fast replies win the job.</p></div><div class="sample">' + I('info') + 'Sample leads. Real ones arrive here and by text the moment someone books.</div>' +
+        '<div class="kpis"><div class="card kpi"><span>Needs a reply</span><b>3</b><small class="mute">Oldest: 1 hour</small></div><div class="card kpi"><span>Booked this week</span><b>2</b><small class="up">' + I('up') + '$698 in jobs</small></div><div class="card kpi"><span>Came in after hours</span><b>41%</b><small class="mute">You would have missed these</small></div><div class="card kpi"><span>Average reply time</span><b>19 min</b><small class="mute">Goal: 15 min</small></div></div>' +
         '<div class="card leads"><div class="leads-l"><div class="tabs"><button class="on">All 8</button><button>New 3</button><button>Scheduled 2</button><button>Booked 2</button><button>Lost 1</button></div><div id="lrows">' +
         LEADS.map(function (l, i) { return '<div class="lrow' + (i ? '' : ' on') + '" data-i="' + i + '"><b>' + (l.s === 'new' ? '<span style="color:var(--accent)">● </span>' : '') + esc(l.n) + '</b><small>' + l.ago + '</small><span>' + esc(l.t) + '</span><span class="pill ' + PILL[l.s][0] + '" style="justify-self:end">' + PILL[l.s][1] + '</span></div>'; }).join('') +
         '</div></div><div class="ld" id="ld"></div></div></div>';
