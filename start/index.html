@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="app.css">
+<script src="../dbx.js"></script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -49,24 +50,47 @@
       <div class="auth-f" id="authForm">
         <h1>Create your account</h1>
         <p>Start your 14-day free trial. Takes about 3 minutes.</p>
-        <button class="gbtn" type="button" id="gSign"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.2C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>Continue with Google</button>
-        <div class="or">or</div>
-        <form id="emailForm" novalidate>
-          <label class="field">Work email<input class="in" id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@yourbusiness.com"></label>
-          <p class="err" id="emailErr"></p>
-          <button class="btn dark full" type="submit">Continue with email</button>
+        <div id="gWrap">
+          <button class="gbtn" type="button" id="gSign"><svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.2C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>Continue with Google</button>
+          <div class="or">or</div>
+        </div>
+        <form id="signupForm" novalidate>
+          <label class="field">First name<input class="in" id="suName" autocomplete="given-name" placeholder="Matt"></label>
+          <label class="field">Email<input class="in" id="suEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@yourbusiness.com"></label>
+          <label class="field">Password<span class="pwf"><input class="in" id="suPw" type="password" autocomplete="new-password" placeholder="At least 8 characters"><button class="pw-t" type="button" aria-label="Show password"><svg class="i"><use href="#eye"/></svg></button></span></label>
+          <p class="err" id="suErr"></p>
+          <button class="btn dark full" type="submit" id="suBtn">Create account</button>
         </form>
         <p class="terms">By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
-        <p class="terms" style="margin-top:8px;font-size:13.5px">Already have an account? <a href="#">Log in</a></p>
+        <p class="terms" style="margin-top:8px;font-size:13.5px">Already have an account? <button class="link" type="button" data-auth="login">Log in</button></p>
       </div>
-      <div class="auth-f" id="codeForm" hidden>
-        <h1>Check your email</h1>
-        <p>We sent a 6-digit code to <b id="codeTo"></b>. It expires in 10 minutes.</p>
-        <div class="code" id="code"></div>
-        <p class="err" id="codeErr"></p>
-        <button class="btn dark full" type="button" id="verify" style="margin-top:18px" disabled>Verify</button>
-        <p class="terms" style="font-size:13.5px"><button class="link" type="button" id="resend">Resend code</button> &middot; <button class="link" type="button" id="diffEmail">Use a different email</button></p>
+      <div class="auth-f" id="loginForm" hidden>
+        <h1>Welcome back</h1>
+        <p>Log in to your DialBridge account.</p>
+        <form id="liForm" novalidate style="margin-top:24px">
+          <label class="field">Email<input class="in" id="liEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@yourbusiness.com"></label>
+          <label class="field">Password<span class="pwf"><input class="in" id="liPw" type="password" autocomplete="current-password"><button class="pw-t" type="button" aria-label="Show password"><svg class="i"><use href="#eye"/></svg></button></span></label>
+          <p class="err" id="liErr"></p>
+          <button class="btn dark full" type="submit" id="liBtn">Log in</button>
+        </form>
+        <p class="terms" style="font-size:13.5px"><button class="link" type="button" data-auth="reset">Forgot password?</button> &middot; <button class="link" type="button" data-auth="signup">Create an account</button></p>
       </div>
+      <div class="auth-f" id="resetForm" hidden>
+        <h1>Reset your password</h1>
+        <p id="rsLead">Enter your email and we'll send you a 6-digit code.</p>
+        <form id="rsEmailForm" novalidate style="margin-top:24px">
+          <label class="field">Email<input class="in" id="rsEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@yourbusiness.com"></label>
+          <button class="btn dark full" type="submit">Send me a code</button>
+        </form>
+        <form id="rsCodeForm" novalidate hidden style="margin-top:20px">
+          <div class="code" id="code"></div>
+          <label class="field" style="margin-top:14px">New password<span class="pwf"><input class="in" id="rsPw" type="password" autocomplete="new-password" placeholder="At least 8 characters"><button class="pw-t" type="button" aria-label="Show password"><svg class="i"><use href="#eye"/></svg></button></span></label>
+          <button class="btn dark full" type="submit" id="rsBtn">Set new password</button>
+        </form>
+        <p class="err" id="rsErr"></p>
+        <p class="terms" style="font-size:13.5px"><button class="link" type="button" id="resend" hidden>Resend code</button> <button class="link" type="button" data-auth="login">Back to log in</button></p>
+      </div>
+      <div class="iab-hint" id="iabHint" hidden><span>Want to use Google? Tap <b>&middot;&middot;&middot;</b> up here, then <b>Open in browser</b></span><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></div>
     </div>
     <aside class="auth-r">
       <div class="auth-chips"><span>14 days free</span><span>Cancel anytime</span><span>Live in 10 minutes</span></div>

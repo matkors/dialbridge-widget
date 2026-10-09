@@ -491,3 +491,34 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stro
 .auth-shot{position:relative}
 .auth-shot iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform-origin:0 0;pointer-events:none}
 .preview .sample{display:none}
+
+/* password field with show/hide */
+.pwf{position:relative;display:block}
+.pwf .in{width:100%;padding-right:48px}
+/* in the Instagram/Facebook browser, leave room for the menu hint at the top */
+.inapp .auth-l{padding-top:78px}
+.pw-t{position:absolute;top:50%;right:6px;display:grid;place-items:center;width:38px;height:38px;border:0;border-radius:9px;background:none;color:var(--mute);cursor:pointer;transform:translateY(-50%)}
+.pw-t:hover{color:var(--ink);background:#f3f2ee}
+.pw-t .i{width:18px;height:18px}
+.pw-t.on{color:var(--ink)}
+.btn.busy{opacity:.7;pointer-events:none}
+
+/* inside the Facebook / Instagram app: point at the app's own menu (top right) to open the real browser */
+.iab-hint{position:fixed;top:calc(8px + env(safe-area-inset-top,0px));right:10px;z-index:30;display:flex;align-items:flex-start;gap:6px;max-width:250px;padding:10px 12px;border-radius:12px;background:var(--ink);color:#fff;font-size:13px;line-height:1.35;box-shadow:0 10px 30px -12px rgba(0,0,0,.45);animation:iab .5s var(--ease,ease) both}
+.iab-hint b{font-weight:800}
+.iab-hint svg{flex-shrink:0;width:20px;height:20px;margin-top:-4px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;animation:nudge 1.6s ease-in-out infinite}
+@keyframes iab{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes nudge{0%,100%{transform:translate(0,0)}50%{transform:translate(3px,-3px)}}
+@media (prefers-reduced-motion:reduce){.iab-hint,.iab-hint svg{animation:none}}
+
+/* onboarding: phone step */
+.consent{margin:12px 0 0;font-size:12.5px;line-height:1.5;color:var(--mute)}
+.waiting{display:grid;place-items:center;gap:14px;padding:30px 0;text-align:center}
+.spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.helpcall{display:flex;flex-direction:column;gap:6px;margin-top:14px;padding:14px 16px;border-radius:14px;background:#f4f6f1;box-shadow:inset 0 0 0 1px var(--line)}
+.helpcall b{font-size:14.5px}
+.helpcall span{font-size:13px;color:var(--mute);line-height:1.45}
+.helpcall .btn{align-self:flex-start;margin-top:4px}
+.iab-hint[hidden]{display:none}
+#gWrap[hidden] + #signupForm{margin-top:24px}

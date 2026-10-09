@@ -3,7 +3,7 @@
    right = Step 1 of 3 pick a setup-call time -> Step 2 contact -> Step 3 fit questions, one per screen -> booked.
    Nothing is sent anywhere until SUBMIT_URL is set, and the calendar shows generated times (no real calendar yet).
    Meta pixel events fire only if the page has fbq loaded: ViewContent when it opens; on booking:
-   Schedule, Lead (value by fit: 5 / 25 / 60, with eventID for CAPI dedupe) and QualifiedLead for good fits. */
+   Schedule, WebsitePlanLead (custom; value by fit: 5 / 25 / 60, with eventID for CAPI dedupe) and QualifiedLead for good fits. */
 (function () {
   'use strict';
   var SUBMIT_URL = '';            // intake webhook (https). Empty = demo mode: nothing leaves the page.
@@ -173,7 +173,8 @@
       catch (x) { btn.disabled = false; err('#bErr3', 'That did not go through. Please try again, or text us at ' + TEXT_US + '.'); return; }
     } else $('#bDemo').hidden = false;
     track('Schedule', { content_name: 'setup_call', plan: plan() });
-    track('Lead', { value: value, currency: 'USD', content_name: plan(), lead_tier: t }, false, evid);
+    // Not 'Lead': that event belongs to the Lost Job Report campaign on the same pixel.
+    track('WebsitePlanLead', { value: value, currency: 'USD', content_name: plan(), lead_tier: t, content_category: 'website_plan' }, true, evid);
     if (t !== 'C') track('QualifiedLead', { value: value, currency: 'USD', plan: plan(), lead_tier: t }, true);
     done();
   }

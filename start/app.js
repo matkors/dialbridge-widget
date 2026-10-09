@@ -1,4 +1,5 @@
-/* DialBridge trial funnel (visual demo, nothing is saved server-side, sent or charged).
+/* DialBridge trial funnel. Runs as a demo (nothing saved, sent or charged) until ../dbx.js has an api URL;
+   then sign-up, onboarding answers, plan choice and Stripe checkout go to the real backend (api/src/saas.js).
    #signup -> #onb/N (one question per screen, app-onboarding style) -> #plan (paywall, trial timeline)
    -> #checkout (Stripe Checkout look) -> #app/home (dashboard + setup guide) -> #app/widget (set up the widget).
    The Website plan is done-for-you, so choosing it sends the owner to book a setup call instead of checkout.
@@ -10,9 +11,35 @@
   var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var I = function (id, cls) { return '<svg class="i' + (cls ? ' ' + cls : '') + '"><use href="#' + id + '"/></svg>'; };
-  function track(ev, data, custom) { try { if (window.fbq) window.fbq(custom ? 'trackCustom' : 'track', ev, data || {}); } catch (e) { } }
+  function track(ev, data, custom, eventId) { try { if (window.fbq) window.fbq(custom ? 'trackCustom' : 'track', ev, Object.assign({ content_category: 'booking_widget' }, data || {}), eventId ? { eventID: eventId } : undefined); } catch (e) { } }
+  var DBX = window.DBX || { api: '', inApp: false, attr: function () { return {}; } };
+  if (DBX.inApp) document.documentElement.classList.add('inapp');
+  var LIVE = !!DBX.api;                       // real backend configured
+  var TOK = 'dbx_tok';
+  function token() { try { return localStorage.getItem(TOK) || ''; } catch (e) { return ''; } }
+  function setToken(t) { try { if (t) localStorage.setItem(TOK, t); else localStorage.removeItem(TOK); } catch (e) { } }
+  // JSON call to the backend. Resolves { ok, status, body }; never throws on HTTP errors.
+  function api(path, method, body) {
+    var h = { 'Content-Type': 'application/json' }, t = token();
+    if (t) h.Authorization = 'Bearer ' + t;
+    return fetch(DBX.api.replace(/\/$/, '') + path, { method: method || 'GET', headers: h, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (b) { return { ok: r.ok, status: r.status, body: b }; }); })
+      .catch(function () { return { ok: false, status: 0, body: { errors: ['network'] } }; });
+  }
+  var ACCT = null;   // the signed-in account from the backend (live mode)
+  // Onboarding answers go to the backend as they happen, so a reload or a later visit resumes in place.
+  function sync(fields) { if (!LIVE || !token()) return Promise.resolve(); return api('/v1/acct/me', 'PATCH', fields).then(function (r) { if (r.ok) ACCT = r.body.account; return r; }); }
+  function fromAccount(a) {
+    if (!a) return;
+    ACCT = a;
+    S.email = a.email || S.email; S.name = a.firstName || S.name; S.biz = a.businessName || S.biz; S.phone = a.phone || S.phone; S.trade = a.trade || S.trade;
+    var an = a.answers || {}; ['reach', 'miss', 'calls', 'goal'].forEach(function (k) { if (an[k] !== undefined) S[k] = an[k]; });
+    S.paid = a.subStatus === 'trialing' || a.subStatus === 'active' || a.subStatus === 'past_due';
+    if (a.plan) S.plan = a.plan;
+    save();
+  }
 
-  var S = { email: '', name: '', biz: '', area: '', trade: '', reach: [], miss: '', calls: '', goal: '', plan: 'widget', paid: false, widgetDone: false, brand: '#0E6650', logo: null, svc: {}, days: [1, 2, 3, 4, 5, 6], open: '08:00', close: '18:00' };
+  var S = { email: '', name: '', phone: '', biz: '', area: '', trade: '', reach: [], miss: '', calls: '', goal: '', plan: 'widget', paid: false, widgetDone: false, brand: '#0E6650', logo: null, svc: {}, days: [1, 2, 3, 4, 5, 6], open: '08:00', close: '18:00' };
   try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { }
   var q0 = new URLSearchParams(location.search).get('biz'); if (q0 && !S.biz) S.biz = q0.slice(0, 60);
   // ?preview=1: a read-only live dashboard with sample data, used as the product shot on the sign-up page
@@ -30,14 +57,16 @@
 
   function toast(t) { var el = $('#toast'); $('#toastTx').textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(function () { el.classList.remove('on'); }, 2400); }
   function modal(html) { $('#modalBox').innerHTML = html; $('#modal').hidden = false; }
+  document.addEventListener('click', function (e) { var a = e.target.closest('[data-setupcall]'); if (a && !DBX.setupCallUrl) { e.preventDefault(); toast('Demo: the setup call calendar is not connected yet'); } else if (a) track('SetupCallClick', {}, true); });
   $('#modal').addEventListener('click', function (e) { if (e.target.id === 'modal' || e.target.closest('[data-close]')) $('#modal').hidden = true; });
 
   /* ---------------- router ---------------- */
   function show(id) { $$('.view').forEach(function (v) { v.classList.toggle('on', v.id === id); }); scrollTo(0, 0); }
   function route() {
     var h = (location.hash || '#signup').slice(1), parts = h.split('/');
+    if (LIVE && !token() && parts[0] !== 'signup' && parts[0] !== 'login') { location.hash = '#signup'; return; }
     if (parts[0] === 'app' && !S.paid) { location.hash = S.trade ? '#plan' : '#signup'; return; }
-    if (parts[0] === 'signup') { show('v-signup'); }
+    if (parts[0] === 'signup' || parts[0] === 'login') { show('v-signup'); authView(parts[0] === 'login' ? 'login' : 'signup'); }
     else if (parts[0] === 'onb') { show('v-onb'); onb(+parts[1] || 0); }
     else if (parts[0] === 'plan') { show('v-plan'); paywall(); }
     else if (parts[0] === 'checkout') { show('v-checkout'); checkout(); }
@@ -45,34 +74,138 @@
     else location.hash = '#signup';
   }
   addEventListener('hashchange', route);
+  // Back from Stripe (success URL has ?paid=1): the webhook switches the trial on, usually within seconds.
+  function waitForTrial(tries) {
+    api('/v1/acct/me').then(function (r) {
+      if (r.ok) fromAccount(r.body.account);
+      if (S.paid) {
+        $('#modal').hidden = true;
+        try { history.replaceState(null, '', location.pathname + '#app/home'); } catch (e) { }
+        if (!S.trialTracked) { S.trialTracked = true; save(); track('StartTrial', { value: 50, currency: 'USD', predicted_ltv: 600, content_name: 'widget_plan_99' }, false, ACCT ? 'st_' + ACCT.id : undefined); }
+        location.hash = '#app/home'; setTimeout(welcome, 350); return;
+      }
+      if (tries > 15) { modal('<h3>Almost there</h3><p>Your payment went through, and we\'re still switching your account on. Refresh in a minute, or text us and we\'ll sort it out.</p><button class="btn" type="button" data-close>OK</button>'); return; }
+      setTimeout(function () { waitForTrial(tries + 1); }, 2000);
+    });
+  }
 
-  /* ---------------- 1. sign up ---------------- */
+  /* ---------------- 1. sign up / log in ---------------- */
   var GOOGLE_DEMO = { name: 'Matt Korsun', email: 'matt@haulpros.com' };
-  $('#gSign').addEventListener('click', function () { S.name = S.name || GOOGLE_DEMO.name; S.email = S.email || GOOGLE_DEMO.email; save(); track('CompleteRegistration', { method: 'google' }); location.hash = '#onb/1'; });
-  $('#emailForm').addEventListener('submit', function (e) {
-    e.preventDefault(); var v = $('#email').value.trim(), er = $('#emailErr');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { er.textContent = 'Please enter a valid email.'; er.classList.add('on'); return; }
-    er.classList.remove('on'); S.email = v; save(); $('#codeTo').textContent = v; $('#authForm').hidden = true; $('#codeForm').hidden = false; boxes[0].focus();
+  var ERR = {
+    firstName: 'Please add your first name.', email: 'Please enter a valid email.', password: 'Use at least 8 characters for your password.',
+    account_exists: 'There\'s already an account with this email. Log in instead.', wrong_login: 'That email and password don\'t match.',
+    no_password: 'This account signs in with Google. Use Continue with Google, or reset your password.', locked: 'Too many tries. Wait 15 minutes, or reset your password.',
+    wrong_code: 'That code isn\'t right. Check the email and try again.', code_expired: 'That code has expired. Send a new one.', too_many_tries: 'Too many tries. Send a new code.',
+    wait: 'Give it 30 seconds before asking for another code.', network: 'We couldn\'t reach the server. Check your connection and try again.', slow_down: 'Too many tries. Wait a minute and try again.'
+  };
+  function errText(r) { var e = (r.body && r.body.errors) || []; return e.map(function (k) { return ERR[k] || ''; }).filter(Boolean)[0] || 'Something went wrong. Please try again.'; }
+  function showErr(id, t) { var el = $(id); el.textContent = t || ''; el.classList.toggle('on', !!t); }
+  function busy(btn, on) { btn.classList.toggle('busy', on); btn.disabled = on; }
+
+  function authView(v) {
+    $('#authForm').hidden = v !== 'signup'; $('#loginForm').hidden = v !== 'login'; $('#resetForm').hidden = v !== 'reset';
+    // Google sign-in is blocked inside the Facebook / Instagram browser: hide it there and point at the app's menu instead.
+    var g = !DBX.inApp && (!LIVE || !!DBX.googleClientId);
+    $('#gWrap').hidden = !g;
+    $('#iabHint').hidden = !(DBX.inApp && v === 'signup' && (!LIVE || !!DBX.googleClientId));
+  }
+  $('#v-signup').addEventListener('click', function (e) {
+    var t = e.target.closest('[data-auth]'); if (t) { var v = t.getAttribute('data-auth'); if (v === 'reset') authView('reset'); else location.hash = '#' + v; return; }
+    var pt = e.target.closest('.pw-t'); if (pt) { var inp = pt.parentNode.querySelector('input'), show = inp.type === 'password'; inp.type = show ? 'text' : 'password'; pt.classList.toggle('on', show); pt.setAttribute('aria-label', show ? 'Hide password' : 'Show password'); }
   });
+
+  // After any sign-in: keep the token, load the account, and go where they left off.
+  function signedIn(r, created) {
+    setToken(r.body.token); fromAccount(r.body.account);
+    if (created) track('AccountCreated', { method: r.method || 'email' }, true);
+    var a = r.body.account;
+    if (S.paid) location.hash = '#app/home';
+    else if (a.stage === 'saw_plans' || a.plan) location.hash = '#plan';
+    else location.hash = '#onb/0';
+  }
+
+  $('#signupForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = $('#suName').value.trim(), email = $('#suEmail').value.trim(), pw = $('#suPw').value;
+    if (!name) return showErr('#suErr', ERR.firstName);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('#suErr', ERR.email);
+    if (pw.length < 8) return showErr('#suErr', ERR.password);
+    showErr('#suErr', '');
+    if (!LIVE) { S.name = name; S.email = email; save(); track('AccountCreated', { method: 'email' }, true); location.hash = '#onb/0'; return; }
+    var b = $('#suBtn'); busy(b, true);
+    api('/v1/acct/signup', 'POST', Object.assign({ firstName: name, email: email, password: pw, biz: S.biz }, DBX.attr())).then(function (r) {
+      busy(b, false);
+      if (!r.ok) return showErr('#suErr', errText(r));
+      S.name = name; signedIn(r, true);
+    });
+  });
+
+  $('#liForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = $('#liEmail').value.trim(), pw = $('#liPw').value;
+    if (!email || !pw) return showErr('#liErr', ERR.wrong_login);
+    if (!LIVE) { location.hash = S.paid ? '#app/home' : '#plan'; return; }
+    var b = $('#liBtn'); busy(b, true);
+    api('/v1/acct/login', 'POST', Object.assign({ email: email, password: pw }, DBX.attr())).then(function (r) { busy(b, false); if (!r.ok) return showErr('#liErr', errText(r)); signedIn(r, false); });
+  });
+
+  // Password reset: email -> 6-digit code + new password
   $('#code').innerHTML = [0, 1, 2, 3, 4, 5].map(function (i) { return '<input inputmode="numeric" maxlength="1" aria-label="Digit ' + (i + 1) + '"' + (i ? '' : ' autocomplete="one-time-code"') + '>'; }).join('');
   var boxes = $$('#code input'), code = function () { return boxes.map(function (b) { return b.value; }).join(''); };
   boxes.forEach(function (b, i) {
     b.addEventListener('input', function () {
       var d = b.value.replace(/\D/g, '');
-      if (d.length > 1) d.split('').slice(0, 6 - i).forEach(function (c, k) { boxes[i + k].value = c; }); else b.value = d;
-      if (d && boxes[Math.min(5, i + d.length)]) boxes[Math.min(5, i + d.length)].focus();
-      $('#verify').disabled = code().length !== 6; if (code().length === 6) $('#verify').click();
+      if (d.length > 1) d.split('').slice(0, 6 - i).forEach(function (c, k) { if (boxes[i + k]) boxes[i + k].value = c; }); else b.value = d;
+      var nx = boxes[Math.min(5, i + Math.max(1, d.length))]; if (d && nx) nx.focus();
+      if (code().length === 6) $('#rsPw').focus();
     });
     b.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && !b.value && i) boxes[i - 1].focus(); });
   });
-  $('#verify').addEventListener('click', function () { if (code().length !== 6) return; track('CompleteRegistration', { method: 'email' }); location.hash = '#onb/0'; });
-  $('#resend').addEventListener('click', function () { this.textContent = 'Code sent again'; });
-  $('#diffEmail').addEventListener('click', function () { $('#codeForm').hidden = true; $('#authForm').hidden = false; });
+  function sendReset() {
+    var email = $('#rsEmail').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('#rsErr', ERR.email);
+    showErr('#rsErr', '');
+    var go = function () { $('#rsLead').innerHTML = 'If there\'s an account for <b>' + esc(email) + '</b>, we just sent it a 6-digit code. It works for 10 minutes.'; $('#rsEmailForm').hidden = true; $('#rsCodeForm').hidden = false; $('#resend').hidden = false; boxes[0].focus(); };
+    if (!LIVE) return go();
+    api('/v1/acct/code', 'POST', { email: email, purpose: 'reset' }).then(function (r) { if (!r.ok && r.status !== 429) return showErr('#rsErr', errText(r)); go(); });
+  }
+  $('#rsEmailForm').addEventListener('submit', function (e) { e.preventDefault(); sendReset(); });
+  $('#resend').addEventListener('click', function () { sendReset(); this.textContent = 'Code sent again'; });
+  $('#rsCodeForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (code().length !== 6) return showErr('#rsErr', ERR.wrong_code);
+    if ($('#rsPw').value.length < 8) return showErr('#rsErr', ERR.password);
+    if (!LIVE) { toast('Demo: password not changed'); authView('login'); return; }
+    var b = $('#rsBtn'); busy(b, true);
+    api('/v1/acct/reset', 'POST', { email: $('#rsEmail').value.trim(), code: code(), password: $('#rsPw').value }).then(function (r) { busy(b, false); if (!r.ok) return showErr('#rsErr', errText(r)); signedIn(r, false); });
+  });
+
+  // Google: demo button in demo mode; Google's own button when a client ID is set (normal browsers only).
+  $('#gSign').addEventListener('click', function () {
+    if (LIVE) return;
+    S.name = S.name || GOOGLE_DEMO.name; S.email = S.email || GOOGLE_DEMO.email; save(); track('AccountCreated', { method: 'google' }, true); location.hash = '#onb/0';
+  });
+  if (LIVE && DBX.googleClientId && !DBX.inApp) {
+    var gs = document.createElement('script'); gs.src = 'https://accounts.google.com/gsi/client'; gs.async = true;
+    gs.onload = function () {
+      try {
+        window.google.accounts.id.initialize({ client_id: DBX.googleClientId, callback: function (res) {
+          api('/v1/acct/google', 'POST', Object.assign({ credential: res.credential, biz: S.biz }, DBX.attr())).then(function (r) {
+            if (!r.ok) return showErr('#suErr', errText(r));
+            r.method = 'google'; signedIn(r, r.status === 201);
+          });
+        } });
+        var holder = document.createElement('div'); holder.id = 'gBtn'; $('#gSign').replaceWith(holder);
+        window.google.accounts.id.renderButton(holder, { theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular', width: Math.min(380, holder.parentNode.clientWidth || 380) });
+      } catch (e) { }
+    };
+    document.head.appendChild(gs);
+  }
 
   /* ---------------- 2. onboarding (one question per screen) ---------------- */
   var TRADES = [['junk', 'Junk removal', 'truck'], ['cleaning', 'House cleaning', 'spark'], ['detailing', 'Mobile detailing', 'car'], ['hvac', 'Heating and cooling', 'fan'], ['other', 'Something else', 'dots']];
   var STEPS = [
-    { k: 'name', type: 'text', t: 'Welcome! What\'s your first name?', p: 'So we know what to call you.', ph: 'Matt', auto: 'given-name' },
+    { k: 'phone', type: 'phone', t: 'Where should we text you when a customer books?', p: 'You get a text the second someone books, with the job, the time and the price they saw.' },
     { k: 'biz', type: 'biz', t: 'What\'s your business called?', p: 'We\'ll use it on your booking page. If you\'re on Google, we\'ll find you.' },
     { k: 'trade', type: 'one', grid: true, t: 'What kind of work do you do?', p: 'We set up your services and prices for your trade.', o: TRADES.map(function (x) { return [x[0], x[1], '', x[2]]; }) },
     { k: 'reach', type: 'multi', t: 'How do customers reach you today?', p: 'Pick all that apply.', o: [['calls', 'Phone calls', '', 'phone'], ['texts', 'Text messages', '', 'msg'], ['site', 'A form on my website', '', 'globe'], ['google', 'My Google profile', '', 'pin'], ['social', 'Facebook or Instagram', '', 'msg'], ['apps', 'Thumbtack, Angi or Yelp', '', 'dots']] },
@@ -83,7 +216,6 @@
     { k: 'build', type: 'build' },
     { k: 'ready', type: 'ready' }
   ];
-  function onbVisible() { return STEPS.filter(function (s) { return !(s.k === 'name' && S.name && S.email === GOOGLE_DEMO.email); }); }
   function opt(o, on, multi) {
     return '<button type="button" class="opt' + (multi ? ' multi' : '') + (on ? ' on' : '') + '" data-v="' + o[0] + '">' + (o[3] ? '<span class="oi">' + I(o[3]) + '</span>' : '') +
       '<span class="ot">' + esc(o[1]) + (o[2] ? '<small>' + esc(o[2]) + '</small>' : '') + '</span><span class="ck">' + I('chk') + '</span></button>';
@@ -91,12 +223,13 @@
   var onbIdx = 0, buildRun = 0;
   function onb(i) {
     var list = STEPS, s = list[i]; if (!s) { location.hash = '#plan'; return; }
-    if (s.k === 'name' && S.name && S.email === GOOGLE_DEMO.email) { location.hash = '#onb/' + (i + 1); return; }
     onbIdx = i;
     $('#onbBar').style.width = Math.round((i + 1) / (list.length + 1) * 86) + '%';
     $('#onbBack').style.visibility = i > 0 && s.type !== 'build' ? 'visible' : 'hidden';
     var m = $('#onbMain'), h = '<div class="q">';
-    if (s.type === 'text') h += '<h1>' + s.t + '</h1><p>' + s.p + '</p><div class="opts"><input class="in" id="qIn" autocomplete="' + s.auto + '" placeholder="' + s.ph + '" value="' + esc(S[s.k]) + '" style="height:56px;font-size:18px"></div>' + act(!S[s.k]);
+    if (s.type === 'phone') h += '<p class="k">Welcome, ' + esc(first()) + '</p><h1>' + s.t + '</h1><p>' + s.p + '</p><div class="opts"><input class="in" id="qIn" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(201) 555-0142" value="' + esc(fmtPhone(S.phone)) + '" style="height:56px;font-size:18px"></div>' +
+      '<p class="consent">By continuing you agree to texts from DialBridge about your bookings, your account and finishing your setup. Msg and data rates may apply. Reply STOP to opt out.</p>' + act(!phoneOk(S.phone));
+    else if (s.type === 'text') h += '<h1>' + s.t + '</h1><p>' + s.p + '</p><div class="opts"><input class="in" id="qIn" autocomplete="' + s.auto + '" placeholder="' + s.ph + '" value="' + esc(S[s.k]) + '" style="height:56px;font-size:18px"></div>' + act(!S[s.k]);
     else if (s.type === 'biz') h += '<h1>' + s.t + '</h1><p>' + s.p + '</p><div class="opts" style="gap:0"><input class="in" id="qIn" autocomplete="organization" placeholder="Haul Pros Junk Removal" value="' + esc(S.biz) + '" style="height:56px;font-size:18px"><div class="sugg" id="sugg" hidden></div>' +
       '<div class="bizcard" id="bizcard"' + (S.area ? '' : ' hidden') + '><span class="pin">' + I('pin') + '</span><div><b id="bcN">' + esc(S.biz) + '</b><span id="bcA">' + esc(S.area) + '</span></div><span class="ok">Found on Google</span></div></div>' + act(!S.biz);
     else if (s.type === 'one' || s.type === 'multi') {
@@ -133,15 +266,37 @@
     var inp = $('#qIn'); if (inp) setTimeout(function () { inp.focus(); }, 60);
     if (s.type === 'build') runBuild();
     if (s.type === 'biz') bizSearch();
-    track('ViewContent', { content_name: 'onboarding_' + s.k }, false);
+    track('OnboardingStep', { step: s.k }, true);
   }
   function act(disabled, label) { return '<div class="q-actions"><span></span><button class="btn dark" type="button" id="qNext"' + (disabled ? ' disabled' : '') + '>' + (label || 'Continue') + ' ' + I('arw') + '</button></div>'; }
-  function next() { var s = STEPS[onbIdx]; if (s.type === 'text' || s.type === 'biz') { S[s.k] = $('#qIn').value.trim(); } save(); location.hash = '#onb/' + (onbIdx + 1); }
-  $('#onbBack').addEventListener('click', function () { var i = onbIdx - 1; while (i > 0 && (STEPS[i].type === 'build' || (STEPS[i].k === 'name' && S.email === GOOGLE_DEMO.email))) i--; location.hash = '#onb/' + Math.max(0, i); });
-  $('#onbMain').addEventListener('input', function (e) { if (e.target.id === 'qIn') { var b = $('#qNext'); if (b) b.disabled = !e.target.value.trim(); } });
+  function phoneOk(v) { var d = String(v || '').replace(/\D/g, ''); if (d.length === 11 && d[0] === '1') d = d.slice(1); return /^[2-9]\d{2}[2-9]\d{6}$/.test(d); }
+  function fmtPhone(v) { var d = String(v || '').replace(/\D/g, ''); if (d.length === 11 && d[0] === '1') d = d.slice(1); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : (v || ''); }
+  // What each answer is called on the backend.
+  function syncStep(s) {
+    if (s.k === 'phone') return sync({ phone: S.phone, smsConsent: true, step: 'phone', tz: (DBX.attr().tz || undefined) });
+    if (s.k === 'biz') return sync({ businessName: S.biz, step: 'biz' });
+    if (s.k === 'trade') return sync({ trade: S.trade, step: 'trade' });
+    if (['reach', 'miss', 'calls', 'goal'].indexOf(s.k) > -1) { var o = {}; o[s.k] = S[s.k]; return sync({ answers: o, step: s.k }); }
+  }
+  function next() {
+    var s = STEPS[onbIdx];
+    if (s.type === 'text' || s.type === 'biz') { S[s.k] = $('#qIn').value.trim(); }
+    if (s.type === 'phone') { var v = $('#qIn').value; if (!phoneOk(v)) return; S.phone = v.replace(/\D/g, '').slice(-10); }
+    save(); syncStep(s); location.hash = '#onb/' + (onbIdx + 1);
+  }
+  $('#onbBack').addEventListener('click', function () { var i = onbIdx - 1; while (i > 0 && STEPS[i].type === 'build') i--; location.hash = '#onb/' + Math.max(0, i); });
+  $('#onbMain').addEventListener('input', function (e) { if (e.target.id === 'qIn') { var b = $('#qNext'); if (b) b.disabled = STEPS[onbIdx].type === 'phone' ? !phoneOk(e.target.value) : !e.target.value.trim(); } });
   $('#onbMain').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.id === 'qIn' && e.target.value.trim()) { e.preventDefault(); next(); } });
   $('#onbMain').addEventListener('click', function (e) {
-    if (e.target.closest('#qNext')) { if (STEPS[onbIdx].type === 'ready') { S.plan = recommend(); save(); location.hash = '#plan'; } else next(); return; }
+    if (e.target.closest('#qNext')) {
+      if (STEPS[onbIdx].type === 'ready') {
+        S.plan = recommend(); save();
+        if (!S.registered) { S.registered = true; save(); track('CompleteRegistration', { content_name: 'onboarding_done', status: true }, false, ACCT ? 'reg_' + ACCT.id : undefined); }
+        sync({ step: 'done' });
+        location.hash = '#plan';
+      } else next();
+      return;
+    }
     var o = e.target.closest('.opt'); if (!o) return;
     var s = STEPS[onbIdx], v = o.getAttribute('data-v');
     if (s.type === 'multi') { var a = S[s.k], i = a.indexOf(v); if (i > -1) a.splice(i, 1); else a.push(v); o.classList.toggle('on'); $('#qNext').disabled = !a.length; save(); return; }
@@ -191,8 +346,19 @@
   }
   $('#plans').addEventListener('click', function (e) { var c = e.target.closest('.pcard'); if (!c) return; S.plan = c.getAttribute('data-plan'); save(); paywall(); });
   $('#toCheckout').addEventListener('click', function () {
-    if (S.plan === 'full') { location.href = '../product/?call=1&biz=' + encodeURIComponent(S.biz || ''); return; }
-    track('InitiateCheckout', { value: 99, currency: 'USD', content_name: 'booking_widget' }); location.hash = '#checkout';
+    var btn = this;
+    if (S.plan !== 'full') track('InitiateCheckout', { value: 99, currency: 'USD', content_name: 'widget_plan_99' });
+    var fallback = function (r) {
+      if (S.plan === 'full') { location.href = (r && r.body && r.body.callUrl) || ('../product/?call=1&biz=' + encodeURIComponent(S.biz || '')); return; }
+      location.hash = '#checkout';
+    };
+    if (!LIVE) return fallback();
+    busy(btn, true);
+    api('/v1/acct/plan', 'POST', Object.assign({ plan: S.plan }, DBX.attr())).then(function (r) {
+      busy(btn, false);
+      if (r.ok && r.body.checkoutUrl) { location.href = r.body.checkoutUrl; return; }   // Stripe's own page
+      fallback(r);
+    });
   });
 
   /* ---------------- 4. checkout (Stripe Checkout look; no real payment) ---------------- */
@@ -218,7 +384,7 @@
   }
   $('#coPay').addEventListener('click', pay); $('#payLink').addEventListener('click', pay); $('#payApple').addEventListener('click', pay);
   function welcome() {
-    modal('<div class="okc">' + I('chk') + '</div><h3>Your free trial has started</h3><p>Welcome to DialBridge, ' + esc(first()) + '. Next, set up your booking widget. It takes about 10 minutes.</p><a class="btn" href="#app/widget" data-close>Set up my booking widget ' + I('arw') + '</a><p style="margin-top:12px;font-size:13px">Trial ends ' + md(END) + '. We remind you on ' + md(REMIND) + '.</p>');
+    modal('<div class="okc">' + I('chk') + '</div><h3>Your free trial has started</h3><p>Welcome to DialBridge, ' + esc(first()) + '. Next, set up your booking widget. It takes about 10 minutes.</p><a class="btn" href="#app/widget" data-close>Set up my booking widget ' + I('arw') + '</a><p style="margin-top:10px;font-size:14px">Rather have us do it with you? <a href="' + esc(DBX.setupCallUrl || '#') + '" data-setupcall' + (DBX.setupCallUrl ? ' target="_blank" rel="noopener"' : '') + '>Book a free setup call</a></p><p style="margin-top:12px;font-size:13px">Trial ends ' + md(END) + '. We remind you on ' + md(REMIND) + '.</p>');
   }
 
   /* ---------------- 5. app ---------------- */
@@ -282,7 +448,8 @@
           '<p class="gsec">To do</p><ol class="tasks">' + todo.map(row).join('') + '</ol>' +
           '<details class="gdone"><summary>Already done (' + done.length + ')</summary><ol class="tasks">' + done.map(row).join('') + '</ol></details>' +
           '<button class="link" type="button" id="later" style="font-size:13px;margin:8px 0 0 12px">I will finish later</button></div>' +
-          '<div class="guide-r"><img src="img/widget.webp" alt="Your booking widget" width="900" height="660"><p>' + (w ? 'Live at book.dialbridge.ai/' + slug() : 'This is what customers will see. Make it yours in the setup.') + '</p></div></div>') +
+          '<div class="guide-r"><img src="img/widget.webp" alt="Your booking widget" width="900" height="660"><p>' + (w ? 'Live at book.dialbridge.ai/' + slug() : 'This is what customers will see. Make it yours in the setup.') + '</p>' +
+          (w ? '' : '<div class="helpcall"><b>Want us to set it up with you?</b><span>Free 20-minute call. We add your services, prices and hours, and put the button on your website and Google profile.</span><a class="btn sm" href="' + esc(DBX.setupCallUrl || '#') + '" data-setupcall' + (DBX.setupCallUrl ? ' target="_blank" rel="noopener"' : '') + '>Book a free setup call</a></div>') + '</div></div>') +
         '<div class="sample">' + I('info') + 'Sample data below. Your real numbers show up here after your first booking.</div>' +
         '<div class="kpis"><div class="card kpi"><span>' + I('inbox') + 'New leads</span><b>34</b><small class="up">' + I('up') + '21% vs last month</small></div><div class="card kpi"><span>' + I('cal') + 'Booked jobs</span><b>18</b><small class="mute">$10,686 in jobs</small></div><div class="card kpi"><span>' + I('phone') + 'Reply time</span><b>19 min</b><small class="mute">Goal: 15 min</small></div><div class="card kpi"><span>' + I('star') + 'Google rating</span><b>4.9</b><small class="mute">212 reviews</small></div></div>' +
         '<div class="grid2"><div class="card"><div class="card-h"><h3>Booking requests</h3><span>Last 14 days</span></div><div class="chart">' + barsChart() + '<div class="legend"><span><i style="background:#1d221c"></i>Business hours</span><span><i style="background:#f35427"></i>After hours, would have gone to voicemail</span></div></div></div>' +
@@ -321,7 +488,7 @@
     },
     widget: function () {
       return '<div class="pg"><div class="hello"><h2>Set up your booking widget</h2><p>Your changes show in the preview right away.</p></div><div class="wz">' +
-        '<ol class="card wz-steps" id="wzSteps">' + [['Your look', 'Logo and color'], ['Services and prices', 'What customers can book'], ['Hours and area', 'When and where you work'], ['Go live', 'Website, Google, social']].map(function (s, i) { return '<li data-s="' + (i + 1) + '"><button type="button"><i>' + (i + 1) + '</i><div><b>' + s[0] + '</b><span>' + s[1] + '</span></div></button></li>'; }).join('') + '</ol>' +
+        '<ol class="card wz-steps" id="wzSteps">' + [['Hours and area', 'When and where you work'], ['Services and prices', 'What customers can book'], ['Your look', 'Logo and color'], ['Go live', 'Website, Google, social']].map(function (s, i) { return '<li data-s="' + (i + 1) + '"><button type="button"><i>' + (i + 1) + '</i><div><b>' + s[0] + '</b><span>' + s[1] + '</span></div></button></li>'; }).join('') + '</ol>' +
         '<div class="card wz-form" id="wzForm"></div>' +
         '<div class="wz-prev"><div class="card"><div class="bar"><i></i><i></i><i></i><span id="wzUrl">book.dialbridge.ai/' + slug() + '</span></div><iframe id="wzFrame" title="Your booking widget preview"></iframe></div><p>Live preview. Tap through it like a customer.</p></div></div></div>';
     },
@@ -369,12 +536,14 @@
   function wzRender() {
     $$('#wzSteps li').forEach(function (li) { var s = +li.getAttribute('data-s'); li.classList.toggle('on', s === wzStep); li.classList.toggle('done', s < wzStep || (S.widgetDone && s !== wzStep)); });
     var f = $('#wzForm'), h = '';
-    if (wzStep === 1) h = '<div><h3>Your look</h3><p>Add your logo and pick your brand color.</p></div><div class="wz-body"><div class="field">Logo<label class="drop">' + (S.logo ? '<img src="' + S.logo + '" alt="">' : I('up')) + '<span>' + (S.logo ? 'Change logo' : 'Upload your logo (PNG or JPG)') + '</span><input type="file" id="wzLogo" accept="image/png,image/jpeg,image/webp"></label></div>' +
+    // Order Matt chose: hours first, then services and prices, then the look, then go live.
+    var sec = [3, 2, 1, 4][wzStep - 1];
+    if (sec === 1) h = '<div><h3>Your look</h3><p>Add your logo and pick your brand color.</p></div><div class="wz-body"><div class="field">Logo<label class="drop">' + (S.logo ? '<img src="' + S.logo + '" alt="">' : I('up')) + '<span>' + (S.logo ? 'Change logo' : 'Upload your logo (PNG or JPG)') + '</span><input type="file" id="wzLogo" accept="image/png,image/jpeg,image/webp"></label></div>' +
       '<div class="field">Brand color<div class="sw">' + COLORS.map(function (c) { return '<button type="button" data-c="' + c + '" style="background:' + c + '"' + (c.toLowerCase() === S.brand.toLowerCase() ? ' class="on"' : '') + ' aria-label="' + c + '"></button>'; }).join('') + '</div></div>' +
       '<label class="field">Business name<input class="in" id="wzName" value="' + esc(BIZ()) + '"></label></div>';
-    else if (wzStep === 2) h = '<div><h3>Services and prices</h3><p>Turn on what you offer. Prices show as "from" ranges; 0 means free estimate.</p></div><div class="wz-body">' +
+    else if (sec === 2) h = '<div><h3>Services and prices</h3><p>Turn on what you offer. Prices show as "from" ranges; 0 means free estimate.</p></div><div class="wz-body">' +
       SVC[trade()].map(function (x) { var on = S.svc[x[0]] !== false; return '<div class="svc"><button type="button" class="tog' + (on ? ' on' : '') + '" data-svc="' + x[0] + '" aria-label="Offer ' + x[1] + '"></button><div><b>' + x[1] + '</b><span>' + (x[2] ? 'Price shown up front' : 'Free estimate') + '</span></div><label class="pr">From $<input value="' + (x[2] || 0) + '" inputmode="numeric"></label></div>'; }).join('') + '</div>';
-    else if (wzStep === 3) h = '<div><h3>Hours and area</h3><p>Customers only see times you can actually take.</p></div><div class="wz-body"><div class="field">Days you work<div class="days" id="wzDays">' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (d, i) { return '<button type="button" data-d="' + i + '"' + (S.days.indexOf(i) > -1 ? ' class="on"' : '') + '>' + d + '</button>'; }).join('') + '</div></div>' +
+    else if (sec === 3) h = '<div><h3>Hours and area</h3><p>Customers only see times you can actually take.</p></div><div class="wz-body"><div class="field">Days you work<div class="days" id="wzDays">' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (d, i) { return '<button type="button" data-d="' + i + '"' + (S.days.indexOf(i) > -1 ? ' class="on"' : '') + '>' + d + '</button>'; }).join('') + '</div></div>' +
       '<div class="row2"><label class="field">Start<select class="in" id="wzOpen">' + hrs(S.open) + '</select></label><label class="field">End<select class="in" id="wzClose">' + hrs(S.close) + '</select></label></div>' +
       '<label class="field">Area you serve<input class="in" id="wzArea" value="' + esc(S.area) + '" placeholder="Bergen County, NJ"></label><label class="field">ZIP codes you cover <em>first 3 digits work too</em><input class="in" placeholder="074, 076, 07601"></label><label class="field">Most jobs per day<input class="in" value="4" inputmode="numeric"></label></div>';
     else h = '<div><h3>Go live</h3><p>Put your Book online button where customers find you.</p></div><div class="wz-body">' + (S.widgetDone ? '<div class="live-ok">' + I('chk') + 'Your booking page is live.</div>' : '') +
@@ -399,7 +568,7 @@
     if (t.closest('#wzNext')) {
       if (wzStep < 4) { wzStep++; wzRender(); $('.main').scrollTo && scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); return; }
       if (S.widgetDone) { location.hash = '#app/home'; return; }
-      S.widgetDone = true; save(); track('Lead', { content_name: 'widget_published', value: 99, currency: 'USD' }); wzRender();
+      S.widgetDone = true; save(); track('WidgetPublished', {}, true); wzRender();
       modal('<div class="okc">' + I('chk') + '</div><h3>Your booking page is live</h3><p>Customers can book ' + esc(BIZ()) + ' at book.dialbridge.ai/' + slug() + '. Add the button to your website and the link to Google to start getting bookings.</p><button class="btn" type="button" data-close>Got it</button>');
     }
   }
@@ -414,5 +583,17 @@
 
   /* demo helper: ?reset clears the saved progress */
   if (/[?&]reset\b/.test(location.search)) { localStorage.removeItem(KEY); location.replace(location.pathname + (q0 ? '?biz=' + encodeURIComponent(q0) : '') + '#signup'); return; }
-  route();
+  // Live mode: a saved session picks up where they left off (or finishes the return from Stripe).
+  if (LIVE && token()) {
+    api('/v1/acct/me').then(function (r) {
+      if (r.status === 401) { setToken(''); route(); return; }
+      if (r.ok) fromAccount(r.body.account);
+      if (/[?&]paid=1/.test(location.search)) { modal('<div class="waiting"><div class="spin"></div><h3>Starting your free trial</h3><p>This takes a few seconds.</p></div>'); waitForTrial(0); return; }
+      var h = (location.hash.slice(1).split('/')[0]) || 'signup';
+      if ((h === 'signup' || h === 'login') && ACCT) { location.hash = S.paid ? '#app/home' : (ACCT.stage === 'saw_plans' || ACCT.plan) ? '#plan' : '#onb/' + stepIndex(ACCT.step); return; }
+      route();
+    });
+  } else route();
+  // resume onboarding on the question after the last one they answered
+  function stepIndex(k) { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].k === k) return i + 1; return 0; }
 })();
