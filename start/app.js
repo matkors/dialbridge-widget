@@ -14,6 +14,8 @@
   function track(ev, data, custom, eventId) { try { if (window.fbq) window.fbq(custom ? 'trackCustom' : 'track', ev, Object.assign({ content_category: 'booking_widget' }, data || {}), eventId ? { eventID: eventId } : undefined); } catch (e) { } }
   var DBX = window.DBX || { api: '', inApp: false, attr: function () { return {}; } };
   if (DBX.inApp) document.documentElement.classList.add('inapp');
+  // Live backend: sign-ups really save, but payments aren't connected yet.
+  if (LIVE) { var dt = document.querySelector('.demo-tag'); if (dt) dt.textContent = 'Test version: accounts are saved, payments are not connected'; }
   var LIVE = !!DBX.api;                       // real backend configured
   var TOK = 'dbx_tok';
   function token() { try { return localStorage.getItem(TOK) || ''; } catch (e) { return ''; } }
