@@ -15,6 +15,7 @@ body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif;color:var(--ink
 a{color:inherit}
 .demo-bar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:9px 16px;background:#1A1D21;color:#E7E9EC;font-size:13px}
 .demo-bar a{color:#fff;font-weight:600}
+.bare .demo-bar{display:none}
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px clamp(16px,5vw,64px);border-bottom:1px solid var(--line)}
 .logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px}
 .mark{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:var(--brand);color:var(--on-brand);font-weight:700}
@@ -43,6 +44,7 @@ nav .tel{font-weight:600}
 </style>
 </head>
 <body>
+<script>if (/[?&]bare=1/.test(location.search)) document.documentElement.classList.add('bare');</script>
 <div class="demo-bar">This is a pretend website to show the DialBridge booking widget. Click the button at the bottom right, or <a href="#" id="openw">open it here</a>.</div>
 <header><div class="logo"><span class="mark" id="mark">H</span><span id="bname">Business</span></div>
 <nav><a href="#svcs">Services</a><a href="#svcs">Reviews</a><a class="tel" id="tel" href="#">(201) 555-0148</a></nav></header>
