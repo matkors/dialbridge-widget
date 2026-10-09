@@ -127,7 +127,7 @@
     if (n === 2) { $('#bWhen').innerHTML = callCard() + '<button type="button" class="sg-ch" data-to="1">Change</button>'; setTimeout(function () { $('#fFirst').focus({ preventScroll: true }); }, 250); }
     if (n === 3) { qi = Math.min(qi, QS.length); ask(); }
   }
-  function names() { $$('[data-name]').forEach(function (n) { n.textContent = S.name; }); }
+  function names() { $$('[data-name]').forEach(function (n) { n.textContent = S.name === 'Your Business' ? 'your business' : S.name; }); }
   function bar() {
     var n = visibleQs().length, f = cur === 1 ? 1 / 3 : cur === 2 ? 2 / 3 : 2 / 3 + Math.min(qi, n) / n / 3;
     $('#sgBar').style.transform = 'scaleX(' + f + ')';

@@ -539,6 +539,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *, .rscene *, .flow *, .gscene *)),:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::before,:where(*:not(.stage *, .rscene *, .flow *, .gscene *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
 </style>
 <link rel="stylesheet" href="build.css">
+<link rel="stylesheet" href="saas.css">
 </head>
 <body>
 <script>document.documentElement.classList.add('js');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro');</script>
@@ -572,9 +573,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <button class="btn" type="submit">Build my booking page <svg class="arw"><use href="#arw"/></svg></button>
     </form>
     <ul class="checks">
-      <li><svg><use href="#chk"/></svg><span class="lg">Free for 2 weeks</span><span class="sm">2 weeks free</span></li>
-      <li><svg><use href="#chk"/></svg><span class="lg">No card needed</span><span class="sm">No card</span></li>
-      <li><svg><use href="#chk"/></svg><span class="lg">Set up for you</span><span class="sm">Set up for you</span></li>
+      <li><svg><use href="#chk"/></svg><span class="lg">14 days free</span><span class="sm">14 days free</span></li>
+      <li><svg><use href="#chk"/></svg><span class="lg">Live today</span><span class="sm">Live today</span></li>
+      <li><svg><use href="#chk"/></svg><span class="lg">Cancel anytime</span><span class="sm">Cancel anytime</span></li>
     </ul>
 
     <div class="stage-wrap" id="demo">
@@ -762,13 +763,13 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
         <span class="tag">Already have a site you like</span>
         <h3 style="margin-top:16px">Booking Widget</h3>
         <div class="amt">$99<small>/month</small></div>
-        <div style="color:var(--mute);font-size:14px">Free for 2 weeks. No setup fee. Month to month.</div>
+        <div style="color:var(--mute);font-size:14px">Free for 14 days. Cancel anytime.</div>
         <ul>
           <li><svg><use href="#chk"/></svg>Book online button on your current website</li>
           <li><svg><use href="#chk"/></svg>Your services, photos and price ranges</li>
           <li><svg><use href="#chk"/></svg>Hosted booking page for Google and social links</li>
           <li><svg><use href="#chk"/></svg>Every request in your inbox, with an email alert</li>
-          <li><svg><use href="#chk"/></svg>We set it up for you</li>
+          <li><svg><use href="#chk"/></svg>Set it up yourself in about 10 minutes</li>
         </ul>
         <a class="btn ghost" href="#top">Start my free trial <svg class="arw"><use href="#arw"/></svg></a>
       </div>
@@ -785,7 +786,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           <li><svg><use href="#chk"/></svg>A text to you for every new request</li>
           <li><svg><use href="#chk"/></svg>We set it all up. One short call from you.</li>
         </ul>
-        <a class="btn" href="#top">Start my free trial <svg class="arw"><use href="#arw"/></svg></a>
+        <button class="btn" type="button" data-call>Book a setup call <svg class="arw"><use href="#arw"/></svg></button>
       </div>
     </div>
   </div>
@@ -1331,12 +1332,14 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   function enc(o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  document.addEventListener('click', function (e) { var c = e.target.closest('[data-call]'); if (c && window.DBXBuild) window.DBXBuild.open(''); });
   quick.addEventListener('submit', function (e) {
     e.preventDefault();
-    if (window.DBXBuild) window.DBXBuild.open(document.getElementById('qName').value);
+    // the Booking Widget is self-serve: saas.js handles the search box (suggestions, then the builder)
   });
 })();
 </script>
 <script src="build.js"></script>
+<script src="saas.js"></script>
 </body>
 </html>

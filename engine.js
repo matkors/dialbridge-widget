@@ -86,16 +86,28 @@
     var OPEN = isOpen(B);
     document.title = 'Book ' + B.name + ' online';
     var root = document.documentElement.style;
-    root.setProperty('--brand', B.brand);
-    var rgb = [1, 3, 5].map(function (i) { return parseInt(B.brand.substr(i, 2), 16) / 255; }).map(function (c) { return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); });
-    var lum = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
-    root.setProperty('--on-brand', lum > 0.45 ? '#1A1D21' : '#FFFFFF');
+    function setBrand(hex) {
+      root.setProperty('--brand', hex);
+      var rgb = [1, 3, 5].map(function (i) { return parseInt(hex.substr(i, 2), 16) / 255; }).map(function (c) { return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); });
+      var lum = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+      root.setProperty('--on-brand', lum > 0.45 ? '#1A1D21' : '#FFFFFF');
+    }
+    setBrand(B.brand);
     var hostLine = document.getElementById('hostline');
     if (hostLine && !EMBED) hostLine.innerHTML = '<b>' + esc(B.name) + '</b><span>Serving ' + esc(B.area) + ' · <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a></span>';
 
     var S;
     function fresh() { S = { path: null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', msg: '', cb: null, done: null }; }
     fresh();
+    // ?builder=1: the product page's widget builder (same origin) can try a color and an uploaded logo live.
+    // An uploaded logo arrives as a data: image and is only ever shown in an <img>, never saved from here.
+    if (params.get('builder') === '1') window.addEventListener('message', function (e) {
+      if (e.origin !== location.origin || !e.data || e.data.type !== 'dbw:customize') return;
+      if (/^#[0-9a-fA-F]{6}$/.test(e.data.brand || '')) { B.brand = e.data.brand; setBrand(B.brand); }
+      if (e.data.logo === null) B.logo = null;
+      else if (/^data:image\/(png|jpeg|webp|gif);base64,/.test(e.data.logo || '')) B.logo = e.data.logo;
+      render();
+    });
 
     function flowFor(path) {
       if (path === 'book' || path === 'quote') return T.flows[path];
