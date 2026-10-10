@@ -7,7 +7,7 @@
    Also keeps the ad click (fbclid, UTMs) from the first visit, so it survives sign-in and a switch to Safari or Chrome. */
 (function () {
   'use strict';
-  var C = window.DBX = Object.assign({ api: 'https://dialbridge-booking-api.dialbridge-booking-api.workers.dev', googleClientId: '', pixelId: '', setupCallUrl: '' }, window.DBX || {});
+  var C = window.DBX = Object.assign({ api: 'https://dialbridge-booking-api.dialbridge-booking-api.workers.dev', googleClientId: '743909157730-mfbs31gl7ipjb3fsh82969bdrli3jf2j.apps.googleusercontent.com', pixelId: '', setupCallUrl: '' }, window.DBX || {});
 
   // Facebook, Instagram, Messenger and Threads open links in their own browser, where Google sign-in is blocked.
   C.inApp = /FBAN|FBAV|FB_IAB|FB4A|FBIOS|Instagram|Messenger|Barcelona/i.test(navigator.userAgent || '');
