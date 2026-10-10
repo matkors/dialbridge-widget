@@ -200,8 +200,10 @@
             r.method = 'google'; signedIn(r, r.status === 201);
           });
         } });
-        var holder = document.createElement('div'); holder.id = 'gBtn'; $('#gSign').replaceWith(holder);
-        window.google.accounts.id.renderButton(holder, { theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular', width: Math.min(380, holder.parentNode.clientWidth || 380) });
+        // Our own button stays visible; Google's real button sits on top of it, almost invisible, and takes the click.
+        var gb = $('#gSign'), holder = document.createElement('div'); holder.id = 'gBtn';
+        gb.parentNode.classList.add('g-over'); gb.after(holder);
+        window.google.accounts.id.renderButton(holder, { theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular', width: Math.min(400, gb.clientWidth || 380) });
       } catch (e) { }
     };
     document.head.appendChild(gs);
