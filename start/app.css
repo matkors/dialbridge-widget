@@ -703,5 +703,5 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stro
 
 /* Google's real button, layered invisibly over ours (same size, same spot) */
 .g-over{position:relative}
-.g-over #gBtn{position:absolute;left:0;right:0;top:26px;height:48px;display:flex;align-items:center;justify-content:center;opacity:.011;overflow:hidden;z-index:2}
+.g-over #gBtn{position:absolute;left:0;right:0;top:0;height:48px;display:flex;align-items:center;justify-content:center;opacity:.011;overflow:hidden;z-index:2}
 .g-over:has(#gBtn:hover) .gbtn{background:#f8f9fa;border-color:#c4c7c5}
