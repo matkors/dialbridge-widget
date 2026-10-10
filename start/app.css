@@ -700,3 +700,4 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stro
 .su-prev .wz-prev{position:sticky;top:20px}
 .su-prev iframe{height:min(640px,calc(100vh - 170px))}
 @media (max-width:1180px){.setup{grid-template-columns:minmax(0,1fr)}.su-prev{display:none}}
+#gBtn{display:flex;justify-content:center;margin-top:24px;min-height:44px}
