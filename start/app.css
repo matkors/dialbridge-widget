@@ -90,6 +90,8 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stro
 .opt .ck svg{width:13px;height:13px;stroke-width:3}
 .q-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:26px}
 .q-actions .btn{min-width:160px}
+.q-actions #qBack{min-width:0;padding:0 18px 0 14px;gap:4px}
+.q-actions #qBack .i{width:18px;height:18px}
 .bizcard{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--white);box-shadow:inset 0 0 0 1px var(--line)}
 .bizcard[hidden]{display:none}
 .bizcard .pin{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:var(--ok-bg);color:var(--ok)}
@@ -482,6 +484,7 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stro
   .opts.grid{grid-template-columns:1fr}
   .onb-top{padding:0 16px}
   .q-actions .btn{flex:1}
+  .q-actions #qBack{flex:0 0 auto}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
 

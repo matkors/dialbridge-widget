@@ -296,6 +296,12 @@
         '<div class="p2-foot"><span>' + I('chk') + '14 days free</span><span>' + I('chk') + 'No setup fee</span><span>' + I('chk') + 'Cancel anytime</span></div></div>' + act(false, 'See my plan');
     }
     h += '</div>'; m.innerHTML = h;
+    // Back sits next to Continue (and alone under pick-one questions, which move on as soon as they tap)
+    if (i > 0 && s.type !== 'build') {
+      var bk = '<button class="btn ghost" type="button" id="qBack"><svg class="i"><use href="#back"/></svg>Back</button>', qa = m.querySelector('.q-actions');
+      if (qa && qa.firstElementChild && qa.firstElementChild.tagName === 'SPAN') qa.firstElementChild.outerHTML = bk;
+      else if (!qa) m.querySelector('.q').insertAdjacentHTML('beforeend', '<div class="q-actions">' + bk + '</div>');
+    }
     var inp = $('#qIn'); if (inp) setTimeout(function () { inp.focus(); }, 60);
     if (s.type === 'build') runBuild();
     if (s.type === 'biz') bizSearch();
@@ -326,6 +332,7 @@
   });
   $('#onbMain').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.id === 'qIn' && e.target.value.trim()) { e.preventDefault(); next(); } });
   $('#onbMain').addEventListener('click', function (e) {
+    if (e.target.closest('#qBack')) { $('#onbBack').click(); return; }
     if (e.target.closest('#qNext')) {
       if (STEPS[onbIdx].type === 'ready') {
         S.plan = recommend(); save();
