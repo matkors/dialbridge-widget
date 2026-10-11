@@ -528,10 +528,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 /* dashboard section */
 .dshead{grid-template-columns:1fr 1fr;align-items:end}
 .dsh{margin-top:6px}
-.dsh-shot{padding:40px 20px 30px;border-radius:28px;background:radial-gradient(55% 60% at 50% 0%,rgba(255,255,255,.95),transparent 70%),linear-gradient(160deg,#eef1e8,#e3e8da);box-shadow:inset 0 0 0 1px var(--line)}
+.dsh-shot{padding:16px 14px 12px;border-radius:28px;background:radial-gradient(55% 60% at 50% 0%,rgba(255,255,255,.95),transparent 70%),linear-gradient(160deg,#eef1e8,#e3e8da);box-shadow:inset 0 0 0 1px var(--line)}
 .dsh-shot img{display:block;width:100%;max-width:1300px;height:auto;margin:0 auto}
 @media (max-width:1000px){.dshead{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:640px){.dsh-shot{padding:18px 4px 14px;margin-inline:-6px;border-radius:20px}}
+@media (min-width:1260px){.dsh{margin-inline:-50px}}   /* a bit wider than the text column on big screens */
 @media (max-width:1180px){
   .stage.finale .wcard{transform:scale(.94);opacity:.35;filter:saturate(.4)}
   .owner-phone{left:50%;top:auto;bottom:28px;width:230px;transform:translate(-50%,60px)}
@@ -675,6 +676,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .dk-cap{position:absolute;left:50%;bottom:24px;z-index:9;transform:translateX(-50%)}
 .dk-cap-t{display:inline-flex;align-items:center;height:44px;padding:0 22px;border-radius:999px;background:rgba(24,28,26,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font-size:16px;font-weight:600;white-space:nowrap;box-shadow:0 10px 26px -10px rgba(0,0,0,.45);transition:opacity .35s,transform .45s var(--ease)}
 .dk-cap.swap .dk-cap-t{opacity:0;transform:translateY(8px)}
+.dk-cap-t:empty{opacity:0}
 /* step 3: the text and the inbox, big */
 .dk-blur{position:absolute;inset:0;z-index:7;background:rgba(24,28,26,.28);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);opacity:0;transition:opacity .9s var(--ease)}
 .how-stage.q-k3 .dk-blur{opacity:1}
@@ -697,6 +699,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .how-stage.q-inbox .ib{opacity:1;transform:none}
 .how-stage.q-out .dk,.how-stage.q-out .mb-card{opacity:0;transition:opacity .5s var(--ease)}
 .dk,.mb-card{transition:opacity .5s var(--ease)}
+/* loop seam: while hidden, everything snaps back to the first frame with no animation, then fades in */
+.how-stage.q-snap *,.how-stage.q-snap *::before,.how-stage.q-snap *::after{transition:none!important;animation:none!important}
 /* --- phones: the real mobile booking at full size, no phone frame --- */
 @media (max-width:900px){
   .how-stage{height:auto!important}
@@ -843,7 +847,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
             </div>
           </div>
           <div class="dk-blur"></div>
-          <div class="dk-cap"><span class="dk-cap-t">Your website</span></div>
+          <div class="dk-cap"><span class="dk-cap-t"></span></div>
           <div class="dk-notes"><div class="nt"><span class="nt-app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div class="nt-b"><div class="nt-h"><b>DialBridge</b><span>now</span></div><p><strong>New booking: Lena Park</strong><br>Standard clean, 2 bedrooms, Mon Oct 12 at 8 AM. $139 to $159.</p></div></div><div class="ib"><div class="ib-h"><b>Your inbox</b><span>1 new</span></div><div class="ib-r"><span class="ib-av">LP</span><div><b>Lena Park</b><small>Standard clean &#183; Mon 8 AM</small></div><em>New</em><strong>$139+</strong></div></div></div>
         </div>
         <div class="mb"><div class="mb-card">
@@ -1027,7 +1031,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <div><p class="flabel"><span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 13h4M8 16h7"/></svg></span>Your dashboard</p><h2 style="margin-top:14px">Run it all from one dashboard.</h2></div>
       <p>Every booking, call-back and review in one place. See what came in after hours, reply in one tap, and know which link brings the jobs.</p>
     </div>
-    <div class="dsh rv" id="dsh"><div class="dsh-shot"><picture><source media="(max-width:640px)" srcset="img/dashboard-phone.webp" width="520" height="1125"><img src="img/dashboard.webp" alt="DialBridge dashboard: new leads, booked jobs, reply time, Google rating, booking requests chart and leads needing attention, with a new booking text and a new Google review" width="1560" height="900" loading="lazy" decoding="async"></picture></div></div>
+    <div class="dsh rv" id="dsh"><div class="dsh-shot"><picture><source media="(max-width:640px)" srcset="img/dashboard-phone.webp" width="520" height="1125"><img src="img/dashboard.webp" alt="DialBridge dashboard: new leads, booked jobs, reply time, Google rating, booking requests chart and leads needing attention, with a new booking text and a new Google review" width="3128" height="1600" loading="lazy" decoding="async"></picture></div></div>
   </div>
 </section>
 
@@ -1708,16 +1712,28 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   function pp(p) { return [PX + p[0], PY + p[1]]; }
   function dpage(n) { dpgs.forEach(function (pg, i) { pg.classList.toggle('cur', i === n - 1); pg.classList.toggle('past', i < n - 1); }); }
   function dsel(n, l) { dpgs[n - 1].classList.add('l' + (l || 1)); }
+  // Back to the first frame. Coming from the end of a loop the scene is hidden (q-out): snap everything back with
+  // no animation while hidden, then fade the clean first frame in. Nothing slides back into place on screen.
+  function snapReset(apply) {
+    var hidden = stage.classList.contains('q-out');
+    stage.className = 'how-stage q-snap' + (hidden ? ' q-out' : '');
+    apply();
+    stage.offsetWidth;
+    stage.classList.remove('q-snap');
+    if (hidden) requestAnimationFrame(function () { requestAnimationFrame(function () { stage.classList.remove('q-out'); }); });
+  }
   function resetDesk() {
-    stage.className = 'how-stage'; dpgs.forEach(function (pg) { pg.className = 'dpg'; }); dpgs[0].classList.add('cur');
-    cur.classList.remove('on', 'down'); cur.style.transition = 'none'; cur.style.transform = 'translate(760px,600px)'; cur.offsetWidth; cur.style.transition = '';
-    camera(1); capT.textContent = 'A cleaning company website';
+    snapReset(function () {
+      dpgs.forEach(function (pg) { pg.className = 'dpg'; }); dpgs[0].classList.add('cur');
+      cur.classList.remove('on', 'down'); cur.style.transform = 'translate(760px,600px)';
+      camera(1); capT.textContent = '';
+    });
   }
   async function moveClick(x, y, id, settle) { cursorTo(x, y); await sleep(settle || 1000, id); click(); await sleep(170, id); }
   // centre of the Book online button in site coordinates (measured when it is in place, so the click lands on it)
   function btnPoint() { var b = dwbBtn.getBoundingClientRect(), w = win.getBoundingClientRect(), k = w.width / 1280; return [(b.left + b.width / 2 - w.left) / k, (b.top + b.height / 2 - w.top) / k - 44]; }
   async function playDesk(id) {
-    resetDesk(); await sleep(2600, id);
+    resetDesk(); await sleep(1600, id);
     // 1: the button goes on their site
     caption('Add one line of code. The Book online button appears.');
     camera(1.14, 940, 470); await sleep(1300, id); cls('q-btn'); await sleep(2600, id);
@@ -1752,9 +1768,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   function tapSheet(p) { var top = parseFloat(how.querySelector('.sh').style.top) || 204; tapAt(p[0], top + p[1]); }
   function page(n) { pgs.forEach(function (pg, i) { pg.classList.toggle('cur', i === n - 1); pg.classList.toggle('past', i < n - 1); }); }
   function select(n, l) { pgs[n - 1].classList.add('l' + (l || 1)); }
-  function resetMob() { stage.className = 'how-stage'; pgs.forEach(function (pg) { pg.className = 'pg'; }); pgs[0].classList.add('cur'); tp.classList.remove('go'); }
+  function resetMob() { snapReset(function () { pgs.forEach(function (pg) { pg.className = 'pg'; }); pgs[0].classList.add('cur'); tp.classList.remove('go'); }); }
   async function playMob(id) {
-    resetMob(); mcapSet('A cleaning company website'); await sleep(2400, id);
+    resetMob(); mcapSet(''); await sleep(1600, id);
     mcapSet('Add one line of code. The Book online button appears.'); await sleep(900, id); cls('q-btn'); await sleep(2600, id);
     mcapSet('A customer taps Book online');
     var r = wbBtn.getBoundingClientRect(), pr = ps.getBoundingClientRect(), kk = pr.width / 390;
@@ -1788,7 +1804,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   addEventListener('resize', function () { layout(); });
   if (mq.addEventListener) mq.addEventListener('change', function () { if (running) restart(); });
   if (window.ResizeObserver) new ResizeObserver(layout).observe(stage);
-  layout(); resetDesk(); resetMob(); mcapSet('A cleaning company website');
+  layout(); resetDesk(); resetMob();
   [].forEach.call(how.querySelectorAll('img'), function (im) { if (im.decode) im.decode().catch(function () { }); });
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (en) { if (en[0].isIntersecting && !running) loop(); }, { rootMargin: '0px 0px -25% 0px' }).observe(stage);
