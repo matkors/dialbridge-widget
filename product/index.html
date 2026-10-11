@@ -601,198 +601,50 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}:where(*:not(.stage *, .rscene *, .flow *, .gscene *, .ggs *, .dsh *, .how *, .trades-vp *, .hfl, .hfl *)),:where(*:not(.stage *, .rscene *, .flow *, .gscene *, .ggs *, .dsh *, .how *, .trades-vp *, .hfl *))::before,:where(*:not(.stage *, .rscene *, .flow *, .gscene *, .ggs *, .dsh *, .how *, .trades-vp *, .hfl *))::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-delay:0s!important}.js .rv{opacity:1;transform:none}}
 
-/* ===== v5: How it works, full width ===== */
-.how{width:100%;max-width:1180px;margin:64px auto 0;text-align:left}
-.how-k{margin:0 0 34px;text-align:center;font-size:clamp(40px,5vw,64px);font-weight:700;letter-spacing:-.03em;line-height:1.04;color:var(--ink)}
-.how-list{display:none;list-style:none;margin:0 0 28px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
-.hl button{all:unset;box-sizing:border-box;display:flex;flex-direction:column;width:100%;cursor:pointer}
-.hl button:focus-visible{outline:2px solid var(--accent);outline-offset:6px;border-radius:4px}
-.hl-bar{order:0;display:block;height:2px;margin-bottom:18px;border-radius:2px;background:var(--line);overflow:hidden}
-.hl-bar i{display:block;width:100%;height:100%;border-radius:2px;background:var(--ink);transform:scaleX(0);transform-origin:0 50%}
-.hl-t{order:1;font-size:19px;line-height:1.3;font-weight:700;letter-spacing:-.015em;color:#a3a69d;transition:color .5s var(--ease)}
-.hl-s{display:none}
-.hl-d{order:2;display:block;margin-top:6px;font-size:15px;line-height:1.5;color:#a3a69d;transition:color .5s var(--ease)}
-.hl.cur .hl-t,.hl button:hover .hl-t{color:var(--ink)}
-.hl.cur .hl-d{color:var(--ink2)}
-.how-mcap{display:none}
-.how-stage{position:relative;height:690px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.1),0 40px 90px -40px rgba(32,37,31,.5),0 14px 34px -20px rgba(32,37,31,.3)}
-.mb{display:none}
-/* --- desktop: a browser window on a wallpaper, a camera that follows the clicks --- */
-.dk{position:absolute;inset:0}
-.dk-cam{position:absolute;inset:0;transform-origin:0 0;transition:transform 1.4s cubic-bezier(.65,0,.35,1)}
-.dk-win{position:absolute;left:0;top:0;width:1280px;height:784px;transform-origin:0 0;overflow:hidden;background:#fff}
-.dk-bar{position:relative;display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;background:#f3f2ee;border-bottom:1px solid #e6e3da}
-.dk-bar i{width:12px;height:12px;border-radius:50%;background:#e0ddd4}.dk-bar i:nth-child(1){background:#ff5f57}.dk-bar i:nth-child(2){background:#febc2e}.dk-bar i:nth-child(3){background:#28c840}
-.dk-url{position:absolute;left:50%;top:9px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;height:26px;padding:0 90px;border-radius:8px;background:#e8e6df;font:500 13px/1 var(--mono);color:#5f6359}
-.dk-url svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2}
-.dw{position:relative;width:1280px;height:740px;overflow:hidden;background:#fbfaf7;color:#16181a;font-family:Manrope,sans-serif}
-.dw-nav{display:flex;align-items:center;justify-content:space-between;height:86px;padding:0 64px;border-bottom:1px solid #eeebe4}
-.dw-mark{font:400 25px/1 'DM Serif Display',Georgia,serif;letter-spacing:.06em}
-.dw-mark small{display:block;margin-top:5px;font:600 10px/1 Manrope,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#8a8d85}
-.dw-links{display:flex;gap:34px;font-size:15px;font-weight:600;color:#3b3f38}
-.dw-tel{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700}
-.dw-tel svg,.dwb-call svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.dw-hero{display:grid;grid-template-columns:1fr 560px;gap:56px;align-items:center;padding:52px 64px 0}
-.dw-eye{margin:0;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#8a8d85}
-.dw-h{margin:16px 0 0;font:400 76px/.98 'DM Serif Display',Georgia,serif;letter-spacing:-.01em}
-.dw-lede{max-width:430px;margin:22px 0 0;font-size:18px;line-height:1.55;color:#4b4f48}
-.dw-info{display:flex;gap:26px;margin:24px 0 0;font-size:14.5px;font-weight:600;color:#3b3f38}
-.dw-info span{display:flex;align-items:center;gap:8px}.dw-info i{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2)}
-.dw-photo{width:560px;max-width:none;height:420px;object-fit:cover;border-radius:20px}
-.dw-svc{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:34px 64px 0}
-.dw-svc div{display:grid;grid-template-columns:1fr auto;padding:18px 20px;border-radius:14px;background:#fff;box-shadow:0 0 0 1px #ece9e1}
-.dw-svc b{font-size:16px}.dw-svc span{grid-row:2;font-size:13px;color:#8a8d85}.dw-svc em{grid-row:1/3;grid-column:2;align-self:center;font-style:normal;font-weight:700;font-size:17px}
-/* the Book online button, desktop size (same look as the real widget's) */
-.dwb{position:absolute;right:30px;bottom:28px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:8px;opacity:0;transform:translateY(26px) scale(.86);transform-origin:100% 100%;transition:opacity .5s var(--ease),transform .9s cubic-bezier(.34,1.42,.64,1)}
-.dwb-row{display:flex;align-items:center;gap:10px}
-.dwb-btn{display:flex;align-items:center;gap:10px;height:60px;padding:0 30px 0 24px;border-radius:30px;border:2px solid rgba(255,255,255,.55);color:#fff;font:700 18px/1 Manrope,sans-serif;background:linear-gradient(180deg,#5f9a87 0%,#0E6650 58%,#0a4d3c 100%);box-shadow:inset 0 1px 1px rgba(255,255,255,.5),inset 0 -3px 8px rgba(0,0,0,.18),0 0 0 5px rgba(14,102,80,.16),0 14px 30px rgba(14,102,80,.42);transition:transform .14s var(--ease)}
-.dwb-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.dwb-call{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.55);color:#fff;background:linear-gradient(180deg,#5f9a87 0%,#0E6650 58%,#0a4d3c 100%);box-shadow:inset 0 1px 1px rgba(255,255,255,.5),0 0 0 5px rgba(14,102,80,.16),0 14px 30px rgba(14,102,80,.42)}
-.dwb-pw{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#3d4249}
-.dwb-pw i{width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,#f35427 50%,#20251f 50%)}
-.how-stage.q-btn .dwb{opacity:1;transform:none}
-.how-stage.q-press .dwb-btn{transform:scale(.95)}
-.how-stage.q-open .dwb{opacity:0;transform:translateY(8px) scale(.96);transition:opacity .25s,transform .3s}
-/* the real widget popup (desktop) */
-.dpop{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;background:rgba(15,18,22,.46);opacity:0;pointer-events:none;transition:opacity .35s var(--ease)}
-.how-stage.q-open .dpop{opacity:1}
-.dpop-panel{position:relative;width:940px;height:620px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px rgba(16,24,40,.06),0 24px 64px rgba(16,24,40,.32);opacity:0;transform:translateY(26px) scale(.985);transition:opacity .4s var(--ease),transform .55s cubic-bezier(.23,1,.32,1)}
-.how-stage.q-open .dpop-panel{opacity:1;transform:none}
-.dpop-side{position:absolute;left:0;top:0;bottom:0;width:310px;background:url(img/how/cd-1-service.webp) 0 0/940px 620px no-repeat}
-.dpop-view{position:absolute;left:310px;right:0;top:0;bottom:0;overflow:hidden}
-.dpg{position:absolute;inset:0;background:#fff;opacity:0;transform:translateX(28px);transition:opacity .16s ease,transform .16s ease}
-.dpg img{position:absolute;left:-310px;top:0;width:940px;max-width:none;height:620px;display:block}
-.dpg img.s1,.dpg img.s2{opacity:0;transition:opacity .22s ease}
-.dpg.l1 img.s1,.dpg.l2 img.s1,.dpg.l2 img.s2{opacity:1}
-.dpg.cur{opacity:1;transform:none;transition:opacity .34s ease .14s,transform .5s cubic-bezier(.23,1,.32,1) .14s}
-.dpg.past{opacity:0;transform:translateX(-14px)}
-/* the cursor: glides, clicks with a soft ripple */
-.dcur{position:absolute;left:0;top:0;z-index:6;width:30px;height:30px;opacity:0;pointer-events:none;transition:transform 1.1s cubic-bezier(.45,0,.2,1),opacity .35s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
-.dcur svg{position:relative;width:30px;height:30px;transition:transform .12s}
-.dcur.on{opacity:1}
-.dcur.down svg{transform:scale(.86)}
-.dcur-rip{position:absolute;left:-15.5px;top:-17.2px;width:40px;height:40px;border-radius:50%;background:rgba(243,84,39,.22);border:2px solid rgba(243,84,39,.7);opacity:0}
-.dcur.down .dcur-rip{animation:dRip .6s cubic-bezier(.22,1,.36,1)}
-@keyframes dRip{0%{opacity:1;transform:scale(.3)}100%{opacity:0;transform:scale(1.6)}}
-/* caption pill */
-.dk-cap{position:absolute;left:50%;bottom:24px;z-index:9;transform:translateX(-50%)}
-.dk-cap-t{display:inline-flex;align-items:center;height:44px;padding:0 22px;border-radius:999px;background:rgba(24,28,26,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font-size:16px;font-weight:600;white-space:nowrap;box-shadow:0 10px 26px -10px rgba(0,0,0,.45);transition:opacity .35s,transform .45s var(--ease)}
-.dk-cap.swap .dk-cap-t{opacity:0;transform:translateY(8px)}
-.dk-cap-t:empty{opacity:0}
-/* step 3: the text and the inbox, big */
-.dk-blur{position:absolute;inset:0;z-index:7;background:rgba(24,28,26,.28);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);opacity:0;transition:opacity .9s var(--ease)}
-.how-stage.q-k3 .dk-blur{opacity:1}
-.dk-notes,.mb-notes{position:absolute;z-index:8;display:flex;flex-direction:column;gap:14px;pointer-events:none}
-.dk-notes{left:50%;top:50%;width:500px;transform:translate(-50%,-56%)}
-.nt{display:flex;gap:14px;padding:16px 18px;border-radius:24px;background:rgba(246,246,246,.92);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);box-shadow:0 22px 50px -18px rgba(0,0,0,.4),0 0 0 1px rgba(0,0,0,.04);color:#111;opacity:0;transform:translateY(-22px) scale(.96);transition:opacity .5s var(--ease),transform .8s cubic-bezier(.22,1,.36,1)}
-.nt-app{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:11px;background:linear-gradient(#5ff777,#1ec337)}
-.nt-app svg{width:27px;height:27px;fill:#fff}
-.nt-b{flex:1;min-width:0}
-.nt-h{display:flex;justify-content:space-between;font-size:15px}.nt-h b{font-weight:600}.nt-h span{color:#6b6b6b}
-.nt p{margin:3px 0 0;font-size:16.5px;line-height:1.4;color:#111}.nt p strong{font-weight:700}
-.ib{padding:16px 18px;border-radius:20px;background:#fff;box-shadow:0 22px 50px -22px rgba(0,0,0,.35),0 0 0 1px rgba(32,37,31,.06);opacity:0;transform:translateY(16px);transition:opacity .5s var(--ease),transform .8s cubic-bezier(.22,1,.36,1)}
-.ib-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:15px}.ib-h span{padding:3px 9px;border-radius:999px;background:#fdece6;color:#c2410c;font-size:12.5px;font-weight:700}
-.ib-r{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px;border-radius:14px;background:#fdf6f2}
-.ib-av{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#20251f;color:#fff;font-size:14px;font-weight:700}
-.ib-r b{display:block;font-size:16px}.ib-r small{font-size:13.5px;color:#6a6e66}
-.ib-r em{font-style:normal;padding:3px 9px;border-radius:999px;background:#fdece6;color:#c2410c;font-size:12.5px;font-weight:700}
-.ib-r strong{font-size:16px}
-.how-stage.q-note .nt{opacity:1;transform:none}
-.how-stage.q-inbox .ib{opacity:1;transform:none}
-.how-stage.q-out .dk,.how-stage.q-out .mb-card{opacity:0;transition:opacity .5s var(--ease)}
-.dk,.mb-card{transition:opacity .5s var(--ease)}
-/* loop seam: while hidden, everything snaps back to the first frame with no animation, then fades in */
-.how-stage.q-snap *,.how-stage.q-snap *::before,.how-stage.q-snap *::after{transition:none!important;animation:none!important}
-/* --- phones: the real mobile booking at full size, no phone frame --- */
-@media (max-width:900px){
-  .how-stage{height:auto!important}
-  .how{margin-top:40px}
-  .how-k{margin-bottom:20px}
-  .how-list{display:none}
-  .hl{flex:1}
-  .hl-bar{margin-bottom:0;height:3px}
-  .hl-t,.hl-d{display:none}
-  .hl-s{display:block;order:2;margin-top:8px;font-size:12.5px;font-weight:700;text-align:center;color:#9a9d94;transition:color .4s}
-  .hl.cur .hl-s{color:var(--ink)}
-  .how-stage{height:auto;background:none;box-shadow:none;border-radius:0;overflow:visible}
-  .dk-blur{display:none}
-  .dk{display:none}
-  .mb{display:block}
-  .mb-card{position:relative;height:580px;margin-inline:-6px;border-radius:26px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px var(--line),0 24px 50px -30px rgba(32,37,31,.45)}
-  .mb-dim{position:absolute;inset:0;z-index:7;background:rgba(24,28,26,.3);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);opacity:0;transition:opacity .8s var(--ease)}
-  .how-stage.q-k3 .mb-dim{opacity:1}
-  .mb-notes{left:12px;right:12px;top:14px}
-  .mb-notes .nt{padding:13px 14px;border-radius:20px}
-  .mb-notes .nt-app{width:38px;height:38px}.mb-notes .nt-app svg{width:23px;height:23px}
-  .mb-notes .nt p{font-size:15px}.mb-notes .nt-h{font-size:13.5px}
-  .mb-notes .ib{padding:14px}.mb-notes .ib-r{grid-template-columns:auto 1fr auto;gap:10px}.mb-notes .ib-r strong{display:none}
-  .how-mcap{display:block;position:relative;left:50%;width:max-content;max-width:100%;min-height:41px;margin:14px 0 0;padding:11px 18px;border-radius:999px;white-space:nowrap;font-size:clamp(13px,3.85vw,15px);background:rgba(24,28,26,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;text-align:center;font-weight:600;line-height:1.35;box-shadow:0 10px 26px -10px rgba(0,0,0,.45);transform:translateX(-50%);transition:opacity .35s,transform .35s;pointer-events:none}
-  .how-mcap.swap{opacity:0;transform:translate(-50%,8px)}
-  .how-mcap:empty{opacity:0}
-}
-/* the phone world (390 x 844 scaled to the card): the barbershop's mobile site + the real widget sheet */
-.ps{position:absolute;left:0;top:0;width:390px;height:844px;transform-origin:0 0;overflow:hidden;background:#fff;color:#111;font-family:Manrope,sans-serif;text-align:left}
-.bs-hero{position:relative;height:500px;overflow:hidden;background:#151716}
-.bs-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
-.bs-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,.05) 26%,rgba(0,0,0,.1) 52%,rgba(0,0,0,.78) 100%)}
-.bs-nav{position:absolute;left:22px;right:22px;top:24px;display:flex;justify-content:space-between;align-items:flex-start;color:#fff}
-.bs-mark{font:400 22px/1 'DM Serif Display',Georgia,serif;letter-spacing:.06em}
-.bs-mark small{display:block;margin-top:5px;font:600 9.5px/1 Manrope,sans-serif;letter-spacing:.22em;text-transform:uppercase;opacity:.8}
-.bs-menu{display:flex;flex-direction:column;gap:6px;padding-top:6px}.bs-menu i{display:block;width:24px;height:2px;border-radius:2px;background:#fff}
-.bs-copy{position:absolute;left:24px;right:24px;bottom:30px;color:#fff}
-.bs-eye{margin:0;font:600 11px/1 Manrope,sans-serif;letter-spacing:.2em;text-transform:uppercase;opacity:.85}
-.bs-h{margin:12px 0 0;font:400 50px/1 'DM Serif Display',Georgia,serif}
-.bs-open{display:flex;align-items:center;gap:8px;margin:16px 0 0;font:500 14px/1 Manrope,sans-serif;opacity:.92}
-.bs-open i{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.25)}
-.bs-list{padding:24px 24px 0}
-.bs-lt{margin:0 0 6px;font:600 11px/1 Manrope,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#777}
-.bs-row{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid #ececec}
-.bs-row b{display:block;font-size:17px;font-weight:700}.bs-row small{font-size:13px;color:#888}
-.bs-row em{font-style:normal;font-size:17px;font-weight:600}
-/* phone mini site v2: reads as a real mobile website (address bar, nav, short hero, reviews, services) */
-.bs-url{display:flex;align-items:center;justify-content:center;gap:6px;height:40px;background:#f1f1f2;border-bottom:1px solid #e3e3e5;font:500 14px/1 -apple-system,'SF Pro Text',Manrope,sans-serif;color:#1c1c1e}
-.bs-url svg{width:12px;height:12px;fill:none;stroke:#6b6b70;stroke-width:2.4;stroke-linecap:round}
-.bs-top{display:flex;align-items:center;gap:14px;height:60px;padding:0 20px;border-bottom:1px solid #eee;background:#fff}
-.bs-logo{display:flex;align-items:center;gap:9px;margin-right:auto;font:400 22px/1 'DM Serif Display',Georgia,serif;color:#16302a}
-.bs-logo i{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#fff 0 4px,transparent 5px),#1f6f5c}
-.bs-logo small{align-self:flex-end;margin:0 0 2px 2px;font:600 9.5px/1 Manrope,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#7b8580}
-.bs-call{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#eef4f1}
-.bs-call svg{width:17px;height:17px;fill:none;stroke:#1f6f5c;stroke-width:2;stroke-linejoin:round}
-.bs .bs-menu{padding-top:0;gap:5px}.bs .bs-menu i{width:22px;background:#16302a}
-.bs .bs-hero{height:262px}
-.bs .bs-shade{background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.72) 100%)}
-.bs .bs-copy{left:20px;right:20px;bottom:22px}
-.bs .bs-h{margin-top:10px;font-size:38px;line-height:1.02}
-.bs .bs-open{margin-top:12px;font-size:13px}
-.bs-proof{display:flex;align-items:center;gap:6px;padding:14px 20px;border-bottom:1px solid #eee;font:500 13.5px/1 Manrope,sans-serif;color:#555;white-space:nowrap}
-.bs-proof b{color:#111}.bs-stars{color:#f4b400;letter-spacing:1px;font-size:14px}
-.bs-dot{width:3px;height:3px;border-radius:50%;background:#bbb;margin:0 3px}
-.bs .bs-list{padding:18px 20px 0}
-.bs .bs-row{padding:13px 0}
-.wb{position:absolute;right:16px;bottom:24px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:7px;opacity:0;transform:translateY(22px) scale(.86);transform-origin:100% 100%;transition:opacity .45s var(--ease),transform .8s cubic-bezier(.34,1.42,.64,1)}
-.how-stage.q-btn .wb{opacity:1;transform:none}
-.wb-btn{display:flex;align-items:center;gap:10px;height:54px;padding:0 24px 0 20px;border-radius:27px;border:2px solid rgba(255,255,255,.55);color:#fff;font:700 17px/1 Manrope,sans-serif;background:linear-gradient(180deg,#5f9a87 0%,#0E6650 58%,#0a4d3c 100%);box-shadow:inset 0 1px 1px rgba(255,255,255,.5),inset 0 -3px 8px rgba(0,0,0,.18),0 0 0 4px rgba(14,102,80,.16),0 12px 28px rgba(14,102,80,.42);transition:transform .14s var(--ease)}
-.wb-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.how-stage.q-press .wb-btn{transform:scale(.95)}
-.wb-pw{display:flex;align-items:center;gap:5px;font:600 11px/1 Manrope,sans-serif;color:#3d4249}
-.wb-pw i{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,#f35427 50%,#20251f 50%)}
-.how-stage.q-open .wb{opacity:0;transform:translateY(10px) scale(.96);transition:opacity .25s,transform .3s}
-.sh-dim{position:absolute;inset:0;z-index:4;background:rgba(10,12,14,.45);opacity:0;transition:opacity .45s var(--ease)}
-.how-stage.q-open .sh-dim{opacity:1}
-.sh{position:absolute;left:0;right:0;top:232px;bottom:0;z-index:5;border-radius:18px 18px 0 0;overflow:hidden;background:#fff;transform:translateY(102%);transition:transform .62s cubic-bezier(.32,.72,0,1)}
-.how-stage.q-open .sh{transform:none}
-.sh-head{position:absolute;left:0;right:0;top:0;height:74px;z-index:2;background:url(img/how/cm-1-service.webp) 0 0/390px auto no-repeat}
-.sh-grab{position:absolute;left:50%;top:6px;z-index:3;width:38px;height:4px;margin-left:-19px;border-radius:2px;background:rgba(255,255,255,.55)}
-.sh-view{position:absolute;left:0;right:0;top:74px;bottom:0;overflow:hidden}
-.pg{position:absolute;inset:0;overflow:hidden;background:#fff;transform:translateX(100%);transition:transform .56s cubic-bezier(.32,.72,0,1),filter .56s cubic-bezier(.32,.72,0,1)}
-.pg img{position:absolute;left:0;top:-74px;width:390px;max-width:none;height:auto;display:block}
-.pg img.s1,.pg img.s2{opacity:0;transition:opacity .22s ease}
-.pg.l1 img.s1,.pg.l2 img.s1,.pg.l2 img.s2{opacity:1}
-.pg.cur{transform:none}
-.pg.past{transform:translateX(-30%);filter:brightness(.9)}
-.tp{position:absolute;left:0;top:0;z-index:6;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(40,44,52,.16);box-shadow:inset 0 0 0 2px rgba(255,255,255,.95),0 0 0 1px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.2);opacity:0;pointer-events:none}
-.tp.go{animation:tpTap .75s cubic-bezier(.22,1,.36,1) forwards}
-@keyframes tpTap{0%{opacity:0;transform:scale(.55)}22%{opacity:1;transform:scale(1)}42%{transform:scale(.84)}62%{opacity:1;transform:scale(.98)}100%{opacity:0;transform:scale(1.18)}}
+/* ===== How it works: three plain steps (Oct 11, replaced the animation: easier to follow) ===== */
+.how3{margin:76px auto 0;max-width:1180px;text-align:left}
+.how3-k{margin:0;text-align:center;font-size:clamp(38px,5.4vw,68px);letter-spacing:-.045em;line-height:1}
+.how3-sub{margin:14px auto 0;text-align:center;font-size:18px;color:var(--ink2);text-wrap:balance}
+.how3-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin:40px 0 0;padding:0;list-style:none}
+.how3-step{display:flex;flex-direction:column;border-radius:24px;background:var(--white);box-shadow:0 0 0 1px var(--line),0 24px 50px -36px rgba(32,37,31,.45);overflow:hidden}
+.how3-pic{position:relative;height:300px;overflow:hidden;background:linear-gradient(180deg,#eef0e8,#e3e6dc)}
+.how3-tx{display:grid;grid-template-columns:auto 1fr;column-gap:14px;row-gap:6px;padding:22px 24px 26px}
+.how3-n{grid-row:span 2;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:18px}
+.how3-tx h3{margin:6px 0 0;font-size:21px;letter-spacing:-.02em;line-height:1.2}
+.how3-tx p{margin:0;font-size:16px;line-height:1.5;color:var(--ink2)}
+/* step 1: a website with the Book online button on it */
+.h3s{position:absolute;left:22px;right:22px;top:26px;bottom:-10px;border-radius:14px 14px 0 0;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.1),0 20px 40px -24px rgba(32,37,31,.5);overflow:hidden}
+.h3s-bar{display:flex;align-items:center;gap:5px;height:26px;padding:0 10px;background:#f2f2ee;border-bottom:1px solid #e6e4dc}
+.h3s-bar i{width:7px;height:7px;border-radius:50%;background:#d8d6cd}
+.h3s-bar span{margin-left:8px;font:500 10.5px/1 var(--mono, ui-monospace, monospace);color:#6b6e66}
+.h3s-body{position:relative;display:grid;grid-template-columns:1fr 1fr;height:calc(100% - 26px)}
+.h3s-copy{padding:18px 14px}
+.h3s-copy small{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#7b8580}
+.h3s-copy b{display:block;margin-top:8px;font:400 22px/1.02 'DM Serif Display',Georgia,serif;color:#16302a}
+.h3s-copy i{display:block;height:6px;margin-top:10px;border-radius:3px;background:#e8e9e3}
+.h3s-copy i + i{width:70%;margin-top:6px}
+.h3s-body img{width:100%;height:100%;object-fit:cover;object-position:40% 35%}
+.h3s-btn{position:absolute;right:14px;bottom:24px;display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border-radius:999px;background:#1f6f5c;color:#fff;font:700 13.5px/1 Manrope,system-ui,sans-serif;box-shadow:0 0 0 5px rgba(31,111,92,.22),0 12px 24px -10px rgba(0,0,0,.45)}
+.h3s-btn svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2}
+.h3s-tag{position:absolute;right:16px;bottom:72px;padding:5px 9px;border-radius:8px;background:var(--ink);color:#fff;font-size:11.5px;font-weight:700}
+.h3s-tag::after{content:"";position:absolute;right:22px;bottom:-5px;border:5px solid transparent;border-top-color:var(--ink);border-bottom:0}
+/* step 2: the real "pick a time" screen in a phone */
+.h3p{position:absolute;left:50%;top:22px;width:210px;transform:translateX(-50%);border:7px solid #1d1e20;border-bottom:0;border-radius:30px 30px 0 0;background:#fff;overflow:hidden;height:300px;box-shadow:0 24px 40px -24px rgba(0,0,0,.5)}
+.h3p img{display:block;width:100%;height:auto}
+/* step 3: the text, and the same request in the inbox */
+.h3t{position:absolute;left:20px;right:20px;top:34px;display:flex;flex-direction:column;gap:12px}
+.h3t-note{display:grid;grid-template-columns:36px 1fr;gap:11px;padding:12px 13px;border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 0 0 1px rgba(0,0,0,.05),0 18px 34px -18px rgba(32,37,31,.45);font-size:13.5px;line-height:1.38;color:#111}
+.h3t-app{display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:linear-gradient(#5ff777,#1ec337)}
+.h3t-app svg{width:21px;height:21px;fill:#fff}
+.h3t-h{display:flex;justify-content:space-between;font-size:13px}.h3t-h b{font-weight:650}.h3t-h span{color:#8a8a8a}
+.h3t-note p{margin:2px 0 0}
+.h3t-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#fff;box-shadow:0 0 0 1px rgba(32,37,31,.08);font-size:13.5px}
+.h3t-row i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.h3t-row b{display:block}.h3t-row span{display:block;color:#6a6e66;font-size:12.5px}
+.h3t-row em{margin-left:auto;padding:3px 8px;border-radius:999px;background:#fdebe4;color:#c2411a;font-style:normal;font-size:11.5px;font-weight:700}
+.h3t-lab{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7b8078;margin:2px 0 -4px 4px}
+@media (max-width:980px){.how3-grid{grid-template-columns:minmax(0,1fr);max-width:520px;margin-inline:auto}.how3-pic{height:270px}}
+@media (max-width:640px){.how3{margin-top:56px}.how3-sub{font-size:16px}.how3-grid{gap:16px;margin-top:28px}.how3-tx{padding:18px 18px 22px}.how3-tx h3{font-size:19px}.how3-tx p{font-size:15.5px}.how3-pic{height:250px}}
 @media (max-width:640px){.hero h1{font-size:clamp(21px,calc((100vw - 40px) * .08),36px)}}   /* the first line always fits, so the H1 stays two lines */
 
 /* phones: the inbox is the one picture; the text drops in over it */
@@ -882,13 +734,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .dsh-shot img{width:270px;max-width:none;margin:0 auto;border-radius:30px 30px 0 0;border:7px solid #1d1e20;border-bottom:0;box-shadow:0 24px 40px -22px rgba(0,0,0,.5)}
 }
 
-/* ===== phones (Oct 11): How it works fits on one screen; the widget sheet shows without its header bar ===== */
-@media (max-width:900px){
-  .mb-card{height:480px}
-  .sh-head{display:none}
-  .sh-view{top:0}
-  .sh-grab{background:#d3d7dc}
-}
 /* ===== phones (Oct 11): the inbox scene is two steps, not three (the How it works animation already shows the booking) ===== */
 @media (max-width:640px){
   .flow{gap:26px;padding:22px 16px 26px}
@@ -934,7 +779,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     <span class="badge"><i></i>Online booking for service businesses</span>
     <h1 id="h1"><span class="ln"><span>Let customers book online.</span></span><span class="ln"><span><em>Even at 10 PM.</em></span></span></h1>
     <p class="sub">Customers see the price and book in under a minute. You get a text.</p>
-    <div class="quick solo" id="quick"><a class="btn" href="../start/?reset">Build my booking page <svg class="arw"><use href="#arw"/></svg></a><a class="btn ghost" href="#demo" data-fit=".how-stage"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10.2 8.6v6.8l5.4-3.4z" fill="currentColor" stroke="none"/></svg>See how it works</a></div>
+    <div class="quick solo" id="quick"><a class="btn" href="../start/?reset">Build my booking page <svg class="arw"><use href="#arw"/></svg></a><a class="btn ghost" href="#demo" data-fit=".how3-grid"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10.2 8.6v6.8l5.4-3.4z" fill="currentColor" stroke="none"/></svg>See how it works</a></div>
     <div class="hfl hfl-l" aria-hidden="true"><div class="hfl-in">
       <span class="hfl-tag"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>After hours</span>
       <div class="hfl-note">
@@ -954,55 +799,35 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <li><svg><use href="#chk"/></svg><span class="lg">Cancel anytime</span><span class="sm">Cancel anytime</span></li>
     </ul>
 
-    <div class="how" id="demo" aria-label="How it works">
-      <h2 class="how-k">How it works</h2>
-      <div class="how-stage" aria-hidden="true">
-        <div class="dk">
-          <div class="dk-cam">
-            <div class="dk-win">
-              <div class="dk-bar"><i></i><i></i><i></i><span class="dk-url"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>brightsideclean.com</span></div>
-              <div class="dw">
-                <nav class="dw-nav"><span class="dw-mark">BRIGHTSIDE<small>Home Cleaning &#183; Montclair</small></span><span class="dw-links"><a>Services</a><a>Pricing</a><a>Reviews</a><a>Contact</a></span><span class="dw-tel"><svg viewBox="0 0 24 24"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg>(973) 555-0177</span></nav>
-                <div class="dw-hero">
-                  <div class="dw-copy"><p class="dw-eye">House cleaning &#183; Montclair, NJ</p><p class="dw-h">Come home<br>to clean.</p><p class="dw-lede">Weekly, biweekly and one-time cleanings by a vetted, insured local team. Same cleaner every visit.</p><p class="dw-info"><span><i></i>Booking this week</span><span>&#9733; 4.9 from 212 reviews</span></p></div>
-                  <img class="dw-photo" src="img/how/clean-wide.webp" alt="" decoding="async">
-                </div>
-                <div class="dw-svc"><div><b>Standard clean</b><span>Every room, top to bottom</span><em>$129+</em></div><div><b>Deep clean</b><span>Baseboards, inside appliances</span><em>$229+</em></div><div><b>Move in or out</b><span>Empty home, ready to show</span><em>$279+</em></div><div><b>Office</b><span>After hours</span><em>Quote</em></div></div>
-                <div class="dwb"><div class="dwb-row"><span class="dwb-btn"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Book online</span><span class="dwb-call"><svg viewBox="0 0 24 24"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg></span></div><span class="dwb-pw"><i></i>Powered by DialBridge</span></div>
-                <div class="dpop"><div class="dpop-panel"><div class="dpop-side"></div><div class="dpop-view"><div class="dpg cur" data-p="1"><img src="img/how/cd-1-service.webp" alt="" decoding="async"><img class="s1" src="img/how/cd-2-svc-on.webp" alt="" decoding="async"><img class="s2" src="img/how/cd-3-bed-on.webp" alt="" decoding="async"></div><div class="dpg" data-p="2"><img src="img/how/cd-4-time.webp" alt="" decoding="async"><img class="s1" src="img/how/cd-5-time-on.webp" alt="" decoding="async"></div><div class="dpg" data-p="3"><img src="img/how/cd-6-contact.webp" alt="" decoding="async"><img class="s1" src="img/how/cd-7-contact-on.webp" alt="" decoding="async"></div><div class="dpg" data-p="4"><img src="img/how/cd-8-done.webp" alt="" decoding="async"></div></div></div></div>
-                <span class="dcur"><span class="dcur-rip"></span><svg viewBox="0 0 24 24"><path d="M4.5 2.8 19.6 12.3l-6.6 1.5 3.9 7.3-2.7 1.4-3.9-7.3-5 4.5z" fill="#111" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
-              </div>
+    <div class="how3" id="demo">
+      <h2 class="how3-k">How it works</h2>
+      <p class="how3-sub">Three steps. Most owners are set up in about 10 minutes.</p>
+      <ol class="how3-grid">
+        <li class="how3-step">
+          <div class="how3-pic" aria-hidden="true">
+            <div class="h3s"><div class="h3s-bar"><i></i><i></i><i></i><span>sparklehomecleaning.com</span></div>
+              <div class="h3s-body"><div class="h3s-copy"><small>Montclair, NJ</small><b>Come home to clean.</b><i></i><i></i></div><img src="img/how/clean-wide.webp" alt="" loading="lazy" decoding="async"></div>
+              <span class="h3s-tag">Your button</span>
+              <span class="h3s-btn"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Book online</span>
             </div>
           </div>
-          <div class="dk-blur"></div>
-          <div class="dk-cap"><span class="dk-cap-t"></span></div>
-          <div class="dk-notes"><div class="nt"><span class="nt-app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div class="nt-b"><div class="nt-h"><b>DialBridge</b><span>now</span></div><p><strong>New booking: Lena Park</strong><br>Standard clean, 2 bedrooms, Mon Oct 12 at 8 AM. $139 to $159.</p></div></div><div class="ib"><div class="ib-h"><b>Your inbox</b><span>1 new</span></div><div class="ib-r"><span class="ib-av">LP</span><div><b>Lena Park</b><small>Standard clean &#183; Mon 8 AM</small></div><em>New</em><strong>$139+</strong></div></div></div>
-        </div>
-        <div class="mb"><div class="mb-card">
-          <div class="ps">
-            <div class="bs">
-              <div class="bs-url"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>brightsideclean.com</div>
-              <header class="bs-top"><span class="bs-logo"><i></i>Brightside<small>Home Cleaning</small></span><span class="bs-call"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span><span class="bs-menu"><i></i><i></i><i></i></span></header>
-              <div class="bs-hero"><img src="img/how/clean-hero.webp" alt="" decoding="async"><div class="bs-shade"></div>
-                <div class="bs-copy"><p class="bs-eye">House cleaning &#183; Montclair, NJ</p><p class="bs-h">Come home to clean.</p><p class="bs-open"><i></i>Booking this week</p></div>
-              </div>
-              <div class="bs-proof"><span class="bs-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><b>4.9</b> from 212 Google reviews<span class="bs-dot"></span>Insured</div>
-              <div class="bs-list"><p class="bs-lt">Services</p>
-                <div class="bs-row"><span><b>Standard clean</b><small>Every room, top to bottom</small></span><em>$129+</em></div>
-                <div class="bs-row"><span><b>Deep clean</b><small>Baseboards, inside appliances</small></span><em>$229+</em></div>
-                <div class="bs-row"><span><b>Move in or out</b><small>Empty home, ready to show</small></span><em>$279+</em></div>
-              </div>
+          <div class="how3-tx"><span class="how3-n">1</span><h3>Add a Book online button</h3><p>We give you a button for your website and a link for your Google profile and Instagram. We can set it up for you.</p></div>
+        </li>
+        <li class="how3-step">
+          <div class="how3-pic" aria-hidden="true"><div class="h3p"><img src="img/how/clean-time.webp" alt="" loading="lazy" decoding="async"></div></div>
+          <div class="how3-tx"><span class="how3-n">2</span><h3>Customers book in under a minute</h3><p>They pick the job, see your price and choose a time you're open. Any time of day or night.</p></div>
+        </li>
+        <li class="how3-step">
+          <div class="how3-pic" aria-hidden="true">
+            <div class="h3t">
+              <div class="h3t-note"><span class="h3t-app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="h3t-h"><b>DialBridge</b><span>now</span></div><p><strong>New booking:</strong> Lena, Standard clean, 1 bedroom. Mon, Oct 12, 8 AM. Shown $109 to $129.</p></div></div>
+              <p class="h3t-lab">Also in your inbox</p>
+              <div class="h3t-row"><i></i><div><b>Lena K.</b><span>Standard clean &#183; Mon 8 AM</span></div><em>New</em></div>
             </div>
-            <div class="wb"><span class="wb-btn"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Book online</span><span class="wb-pw"><i></i>Powered by DialBridge</span></div>
-            <div class="sh-dim"></div>
-            <div class="sh"><div class="sh-head"></div><span class="sh-grab"></span><div class="sh-view"><div class="pg cur" data-p="1"><img src="img/how/cm-1-service.webp" alt="" decoding="async"><img class="s1" src="img/how/cm-2-svc-on.webp" alt="" decoding="async"><img class="s2" src="img/how/cm-3-bed-on.webp" alt="" decoding="async"></div><div class="pg" data-p="2"><img src="img/how/cm-4-time.webp" alt="" decoding="async"><img class="s1" src="img/how/cm-5-time-on.webp" alt="" decoding="async"></div><div class="pg" data-p="3"><img src="img/how/cm-6-contact.webp" alt="" decoding="async"><img class="s1" src="img/how/cm-7-contact-on.webp" alt="" decoding="async"></div><div class="pg" data-p="4"><img src="img/how/cm-8-done.webp" alt="" decoding="async"></div></div></div>
-            <span class="tp"></span>
           </div>
-          <div class="mb-dim"></div>
-          <div class="mb-notes"><div class="nt"><span class="nt-app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div class="nt-b"><div class="nt-h"><b>DialBridge</b><span>now</span></div><p><strong>New booking: Lena Park</strong><br>Standard clean, 2 bedrooms, Mon Oct 12 at 8 AM. $139 to $159.</p></div></div><div class="ib"><div class="ib-h"><b>Your inbox</b><span>1 new</span></div><div class="ib-r"><span class="ib-av">LP</span><div><b>Lena Park</b><small>Standard clean &#183; Mon 8 AM</small></div><em>New</em><strong>$139+</strong></div></div></div>
-        </div></div>
-      </div>
-      <p class="how-mcap" aria-hidden="true"></p>
+          <div class="how3-tx"><span class="how3-n">3</span><h3>You get a text right away</h3><p>With the job, the time, the price they saw and their number. It's in your inbox too.</p></div>
+        </li>
+      </ol>
     </div>
   </section>
 
@@ -1834,161 +1659,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   }
   setTimeout(cycle, 4200);   // first: both cards sit complete for a beat, then the story starts
   if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { vis = en[0].isIntersecting; }).observe(R);
-})();
-/* v5: How it works. A fixed, choreographed walkthrough.
-   Desktop: browser window on a wallpaper; the camera eases toward each click (Screen Studio style); a cursor glides
-   and clicks; the real desktop widget popup goes service -> time -> details -> sent; then a big text and the inbox.
-   Phones: the real mobile booking at full size (no phone frame), then the text over it. */
-(function () {
-  var how = document.getElementById('demo'); if (!how || !how.classList.contains('how')) return;
-  var stage = how.querySelector('.how-stage'), items = [].slice.call(how.querySelectorAll('.hl')), mcap = how.querySelector('.how-mcap');
-  var mcapSet = function (t) { if (mcap.textContent === t) return; mcap.classList.add('swap'); setTimeout(function () { mcap.textContent = t; mcap.classList.remove('swap'); }, 300); };
-  var DK = {"svc": [442, 204], "bed": [418, 474], "next1": [834, 556], "slot": [625, 261], "next2": [834, 556], "name": [487, 196], "send": [803, 556], "when": "Mon, Oct 12, 8 AM", "price": "$139 to $159", "size": [940, 620]}, MB = {"svc": [72, 254], "bed": [79, 501], "next1": [263, 578], "slot": [195, 315], "next2": [263, 578], "name": [195, 251], "send": [263, 578], "when": "Mon, Oct 12, 8 AM", "price": "$139 to $159", "size": [390, 640]};
-  var mq = matchMedia('(max-width:900px)');
-  var run = 0, running = false;
-  function sleep(ms, id) { return new Promise(function (res, rej) { setTimeout(function () { id === run ? res() : rej('stop'); }, ms); }); }
-  function setStep() { }
-  function cls() { stage.classList.add.apply(stage.classList, arguments); }
-
-  /* ---------- desktop ---------- */
-  var cam = how.querySelector('.dk-cam'), win = how.querySelector('.dk-win'), cur = how.querySelector('.dcur'), cap = how.querySelector('.dk-cap'), capT = how.querySelector('.dk-cap-t');
-  var dpgs = [].slice.call(how.querySelectorAll('.dpg')), dwbBtn = how.querySelector('.dwb-btn');
-  var L = { s0: 1, x: 0, y: 0, w: 0, h: 0 };
-  function layoutDesk() {
-    var W = stage.clientWidth, H = stage.clientHeight; if (!W) return;
-    var s0 = W / 1280; H = Math.round(784 * s0); stage.style.height = H + 'px';
-    L = { s0: s0, x: 0, y: 0, W: W, H: H };
-    win.style.transform = 'translate(' + L.x + 'px,' + L.y + 'px) scale(' + s0 + ')';
-  }
-  // a point of the site (x, y in the 1280 x 740 content) -> stage pixels before the camera
-  function sp(x, y) { return [L.x + x * L.s0, L.y + (44 + y) * L.s0]; }
-  function camera(z, x, y) {
-    if (z === 1) { cam.style.transform = 'translate(0px,0px) scale(1)'; return; }
-    var p = sp(x, y), dx = L.W / 2 - z * p[0], dy = L.H / 2 - z * p[1];
-    var winL = L.x, winR = L.x + 1280 * L.s0, winT = L.y, winB = L.y + 784 * L.s0;
-    if (z * (winR - winL) > L.W) dx = Math.min(-z * winL + 0, Math.max(L.W - z * winR, dx));
-    if (z * (winB - winT) > L.H) dy = Math.min(-z * winT + 0, Math.max(L.H - z * winB, dy));
-    cam.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + z + ')';
-  }
-  // the arrow's tip sits 4.5 / 2.8 px into its 30 px box: place the box so the TIP lands on the point
-  function cursorTo(x, y) { cur.classList.add('on'); cur.style.transform = 'translate(' + (x - 4.5) + 'px,' + (y - 2.8) + 'px)'; }
-  function click() { cur.classList.remove('down'); cur.offsetWidth; cur.classList.add('down'); setTimeout(function () { cur.classList.remove('down'); }, 260); }
-  function caption(t) { if (capT.textContent === t) return; cap.classList.add('swap'); setTimeout(function () { capT.textContent = t; cap.classList.remove('swap'); }, 240); }
-  // popup geometry: 940 x 590 centred in the 1280 x 740 content
-  var PX = (1280 - 940) / 2, PY = (740 - 620) / 2;
-  function pp(p) { return [PX + p[0], PY + p[1]]; }
-  function dpage(n) { dpgs.forEach(function (pg, i) { pg.classList.toggle('cur', i === n - 1); pg.classList.toggle('past', i < n - 1); }); }
-  function dsel(n, l) { dpgs[n - 1].classList.add('l' + (l || 1)); }
-  // Back to the first frame. Coming from the end of a loop the scene is hidden (q-out): snap everything back with
-  // no animation while hidden, then fade the clean first frame in. Nothing slides back into place on screen.
-  function snapReset(apply) {
-    var hidden = stage.classList.contains('q-out');
-    stage.className = 'how-stage q-snap' + (hidden ? ' q-out' : '');
-    apply();
-    stage.offsetWidth;
-    stage.classList.remove('q-snap');
-    if (hidden) requestAnimationFrame(function () { requestAnimationFrame(function () { stage.classList.remove('q-out'); }); });
-  }
-  function resetDesk() {
-    snapReset(function () {
-      dpgs.forEach(function (pg) { pg.className = 'dpg'; }); dpgs[0].classList.add('cur');
-      cur.classList.remove('on', 'down'); cur.style.transform = 'translate(760px,600px)';
-      camera(1); capT.textContent = '';
-    });
-  }
-  async function moveClick(x, y, id, settle) { cursorTo(x, y); await sleep(settle || 1000, id); click(); await sleep(170, id); }
-  // centre of the Book online button in site coordinates (measured when it is in place, so the click lands on it)
-  function btnPoint() { var b = dwbBtn.getBoundingClientRect(), w = win.getBoundingClientRect(), k = w.width / 1280; return [(b.left + b.width / 2 - w.left) / k, (b.top + b.height / 2 - w.top) / k - 44]; }
-  async function playDesk(id) {
-    resetDesk(); await sleep(350, id);
-    // 1: the button goes on their site
-    caption('Add one line of code. The Book online button appears.');
-    camera(1.14, 940, 470); await sleep(850, id); cls('q-btn'); await sleep(2600, id);
-    // 2: a customer books
-    caption('A customer clicks Book online');
-    var bp = btnPoint(); await moveClick(bp[0], bp[1], id, 1300); cls('q-press'); await sleep(140, id); stage.classList.remove('q-press');
-    cls('q-open'); camera(1); await sleep(1500, id);
-    caption('They pick a service and see the price');
-    camera(1.12, 640, 380);
-    var c = pp(DK.svc); await moveClick(c[0], c[1], id, 1200); dsel(1, 1);
-    c = pp(DK.bed); await moveClick(c[0], c[1], id, 1100); dsel(1, 2); await sleep(1500, id);
-    caption('They pick a time that is actually open');
-    c = pp(DK.next1); await moveClick(c[0], c[1], id, 1000); dpage(2);
-    c = pp(DK.slot); await moveClick(c[0], c[1], id, 1200); dsel(2); await sleep(900, id);
-    caption('They leave a name and number');
-    c = pp(DK.next2); await moveClick(c[0], c[1], id, 1000); dpage(3);
-    c = pp(DK.name); await moveClick(c[0], c[1], id, 1100); dsel(3); await sleep(900, id);
-    caption('Booked. It took under a minute.');
-    c = pp(DK.send); await moveClick(c[0], c[1], id, 1000); dpage(4); await sleep(2600, id);
-    // 3: you get the text
-    cur.classList.remove('on'); camera(1); cls('q-k3'); caption('You get a text the second they book');
-    await sleep(900, id); cls('q-note'); await sleep(1200, id); cls('q-inbox');
-    await sleep(4200, id);
-    cls('q-out'); await sleep(600, id);
-  }
-
-  /* ---------- phones ---------- */
-  var card = how.querySelector('.mb-card'), ps = how.querySelector('.ps'), tp = how.querySelector('.tp'), wbBtn = how.querySelector('.wb-btn');
-  var pgs = [].slice.call(how.querySelectorAll('.pg'));
-  // Phones: fit the whole widget sheet (566 tall in the 390-wide world) inside the card. If the card is short, the world gets
-  // a little wider than 390 and the sheet stays 390 wide, centred.
-  var sheetX = 0;
-  function layoutMob() {
-    var w = card.clientWidth, h = card.clientHeight; if (!w) return;
-    var band = 0;
-    var k = Math.min(w / 390, (h - 6 - band) / 566), W = w / k, H = Math.ceil(h / k), B = band / k, sh = how.querySelector('.sh');
-    ps.style.transform = 'scale(' + k + ')'; ps.style.width = W + 'px'; ps.style.height = H + 'px';
-    sheetX = Math.max(0, (W - 390) / 2);
-    sh.style.left = sheetX + 'px'; sh.style.right = 'auto'; sh.style.width = '390px'; sh.style.top = Math.max(6, H - 566 - B) + 'px'; sh.style.bottom = B + 'px';
-    how.querySelector('.wb').style.bottom = (B + 24) + 'px';
-  }
-  function tapAt(x, y) { tp.style.left = x + 'px'; tp.style.top = y + 'px'; tp.classList.remove('go'); tp.offsetWidth; tp.classList.add('go'); }
-  function tapSheet(p) { var top = parseFloat(how.querySelector('.sh').style.top) || 6; tapAt(sheetX + p[0], top + p[1] - 74); }   // the sheet starts below the widget's 74px header
-  function page(n) { pgs.forEach(function (pg, i) { pg.classList.toggle('cur', i === n - 1); pg.classList.toggle('past', i < n - 1); }); }
-  function select(n, l) { pgs[n - 1].classList.add('l' + (l || 1)); }
-  function resetMob() { snapReset(function () { pgs.forEach(function (pg) { pg.className = 'pg'; }); pgs[0].classList.add('cur'); tp.classList.remove('go'); }); }
-  async function playMob(id) {
-    resetMob(); mcapSet(''); await sleep(300, id);
-    mcapSet('One line of code adds a Book online button'); await sleep(900, id); cls('q-btn'); await sleep(2600, id);
-    mcapSet('A customer taps Book online');
-    var r = wbBtn.getBoundingClientRect(), pr = ps.getBoundingClientRect(), kk = pr.width / ps.offsetWidth;
-    await sleep(700, id); tapAt((r.left + r.width / 2 - pr.left) / kk, (r.top + r.height / 2 - pr.top) / kk);
-    await sleep(170, id); cls('q-press'); await sleep(160, id); stage.classList.remove('q-press'); cls('q-open');
-    await sleep(1400, id); mcapSet('They pick a service and see the price');
-    await sleep(500, id); tapSheet(MB.svc); await sleep(170, id); select(1, 1);
-    await sleep(900, id); tapSheet(MB.bed); await sleep(170, id); select(1, 2); await sleep(1300, id);
-    mcapSet('They pick a time that is actually open');
-    tapSheet(MB.next1); await sleep(190, id); page(2);
-    await sleep(1100, id); tapSheet(MB.slot); await sleep(170, id); select(2); await sleep(1000, id);
-    mcapSet('They leave a name and number');
-    tapSheet(MB.next2); await sleep(190, id); page(3);
-    await sleep(1100, id); tapSheet(MB.name); await sleep(200, id); select(3); await sleep(1000, id);
-    mcapSet('Booked. It took under a minute.');
-    tapSheet(MB.send); await sleep(190, id); page(4); await sleep(2400, id);
-    mcapSet('You get a text the second they book');
-    cls('q-k3'); await sleep(700, id); cls('q-note'); await sleep(1100, id); cls('q-inbox');
-    await sleep(4000, id);
-    cls('q-out'); await sleep(600, id);
-  }
-
-  function layout() { if (mq.matches) layoutMob(); else layoutDesk(); }
-  async function loop() {
-    if (running) return; running = true; var id = ++run;
-    try { while (id === run) { layout(); await (mq.matches ? playMob(id) : playDesk(id)); } } catch (e) { }
-    if (id === run) running = false;
-  }
-  function stop() { run++; running = false; }
-  function restart() { stop(); loop(); }
-  addEventListener('resize', function () { layout(); });
-  if (mq.addEventListener) mq.addEventListener('change', function () { if (running) restart(); });
-  if (window.ResizeObserver) new ResizeObserver(layout).observe(stage);
-  layout(); resetDesk(); resetMob();
-  [].forEach.call(how.querySelectorAll('img'), function (im) { if (im.decode) im.decode().catch(function () { }); });
-  if ('IntersectionObserver' in window) {
-    // desktop waits until most of the scene is on screen (a peek under the hero should not start it); phones start right away
-    new IntersectionObserver(function (en) { var r = en[0].intersectionRatio; if (en[0].isIntersecting && !running && (mq.matches ? r >= 0.1 : r >= 0.6)) loop(); }, { threshold: [0.1, 0.6] }).observe(stage);
-    new IntersectionObserver(function (en) { if (!en[0].isIntersecting && running) { stop(); resetDesk(); resetMob(); } }, { threshold: 0 }).observe(stage);
-  } else loop();
 })();
 </script>
 </body>
