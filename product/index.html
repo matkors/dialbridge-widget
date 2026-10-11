@@ -1955,7 +1955,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   layout(); resetDesk(); resetMob();
   [].forEach.call(how.querySelectorAll('img'), function (im) { if (im.decode) im.decode().catch(function () { }); });
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (en) { if (en[0].isIntersecting && !running) loop(); }, { threshold: 0.1 }).observe(stage);
+    // desktop waits until most of the scene is on screen (a peek under the hero should not start it); phones start right away
+    new IntersectionObserver(function (en) { var r = en[0].intersectionRatio; if (en[0].isIntersecting && !running && (mq.matches ? r >= 0.1 : r >= 0.6)) loop(); }, { threshold: [0.1, 0.6] }).observe(stage);
     new IntersectionObserver(function (en) { if (!en[0].isIntersecting && running) { stop(); resetDesk(); resetMob(); } }, { threshold: 0 }).observe(stage);
   } else loop();
 })();
