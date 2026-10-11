@@ -668,38 +668,37 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .quick.solo .btn.ghost{display:none}
 @media (min-width:1180px){
   .hfl{display:block;position:absolute;z-index:1;text-align:left;pointer-events:none}
-  .hfl-l{left:calc(max(36px, 50vw - 720px) - (100vw - min(100vw, 1180px)) / 2 - 28px);top:300px;width:290px}
-  .hfl-r{top:232px;right:calc(max(36px, 50vw - 720px) - (100vw - min(100vw, 1180px)) / 2 - 28px);width:268px}
+  .hfl-l{left:calc(max(36px, 50vw - 720px) - (100vw - min(100vw, 1180px)) / 2 - 28px);top:316px;width:234px}
+  .hfl-r{top:250px;right:calc(max(36px, 50vw - 720px) - (100vw - min(100vw, 1180px)) / 2 - 28px);width:222px}
   /* tilt + float run on the main thread (animated custom properties), so the text is redrawn sharp every frame */
   .hfl-in{position:relative;transform:translateY(var(--fy)) rotate(var(--fa))}
   .hfl-l .hfl-in{animation:hflSwayL 6.5s ease-in-out infinite}
   .hfl-r .hfl-in{animation:hflSwayR 7.5s ease-in-out infinite}
   .hfl{transition:opacity .9s var(--ease),margin-top 1s var(--ease)}
   .hfl.wait{opacity:0;margin-top:28px}
-  /* results, not features: two small dashboard cards for an example business (labelled as an example) */
-  .hfl-in{padding:16px 16px 14px;border-radius:20px;background:#fff;color:#1a1d19;box-shadow:0 0 0 1px rgba(32,37,31,.06),0 1px 2px rgba(0,0,0,.04),0 30px 56px -26px rgba(32,37,31,.48)}
-  .hfl-k{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#3b4238}
-  .hfl-ki{display:grid;place-items:center;width:26px;height:26px;border-radius:8px}
-  .hfl-ki svg{width:15px;height:15px}
+  /* results, not features: two small dashboard cards */
+  .hfl-in{padding:13px 13px 11px;border-radius:17px;background:#fff;color:#1a1d19;box-shadow:0 0 0 1px rgba(32,37,31,.06),0 1px 2px rgba(0,0,0,.04),0 30px 56px -26px rgba(32,37,31,.48)}
+  .hfl-k{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#3b4238}
+  .hfl-ki{display:grid;place-items:center;width:22px;height:22px;border-radius:7px}
+  .hfl-ki svg{width:13px;height:13px}
   .hfl-ki.moon{background:#1d2420}.hfl-ki.moon svg{fill:#f6c453}
   .hfl-ki.up{background:#e8f3ec}.hfl-ki.up svg{fill:none;stroke:#2f7d4f;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  .hfl-big{display:flex;align-items:baseline;gap:8px;margin-top:10px}
-  .hfl-big b{font-size:40px;font-weight:800;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
-  .hfl-big span{font-size:13.5px;color:#6a6e66;font-weight:600}
-  .hfl-sub{margin:6px 0 0;font-size:13px;color:#6a6e66}
-  .hfl-bars{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;align-items:end;height:64px;margin-top:14px}
+  .hfl-big{display:flex;align-items:baseline;gap:7px;margin-top:8px}
+  .hfl-big b{font-size:32px;font-weight:800;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+  .hfl-big span{font-size:12px;color:#6a6e66;font-weight:600}
+  .hfl-sub{margin:4px 0 0;font-size:12px;color:#6a6e66}
+  .hfl-bars{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:46px;margin-top:10px}
   .hfl-bars i{display:flex;flex-direction:column-reverse;border-radius:5px;overflow:hidden;height:100%}
   .hfl-bars b{display:block;background:#1d221c}.hfl-bars b.hfl-ah{background:#f35427;border-radius:5px 5px 0 0}
-  .hfl-days{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:5px;font-size:10.5px;font-weight:600;color:#9a9d94;text-align:center}
-  .hfl-leg{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;color:#6a6e66}
+  .hfl-days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px;font-size:9.5px;font-weight:600;color:#9a9d94;text-align:center}
+  .hfl-leg{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10.5px;color:#6a6e66}
   .hfl-leg i{width:9px;height:9px;border-radius:3px;background:#f35427}
-  .hfl-rows{display:flex;gap:8px;margin-top:12px}
-  .hfl-rows div{flex:1;padding:9px 10px;border-radius:12px;background:#f5f4ef}
-  .hfl-rows b{display:block;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
-  .hfl-rows span{font-size:11.5px;color:#6a6e66}
+  .hfl-rows{display:flex;gap:7px;margin-top:9px}
+  .hfl-rows div{flex:1;padding:7px 9px;border-radius:10px;background:#f5f4ef}
+  .hfl-rows b{display:block;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+  .hfl-rows span{font-size:10.5px;color:#6a6e66}
   .hfl-rows .ok{color:#2f7d4f}
-  .hfl-spark{display:block;width:100%;height:46px;margin-top:12px}
-  .hfl-ex{display:block;margin-top:10px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#a3a69d}
+  .hfl-spark{display:block;width:100%;height:34px;margin-top:9px}
 }
 @media (min-width:641px){
   .quick.solo{gap:12px}
@@ -779,14 +778,12 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <div class="hfl-bars"><i><b style="height:38%"></b><b class="hfl-ah" style="height:22%"></b></i><i><b style="height:30%"></b><b class="hfl-ah" style="height:30%"></b></i><i><b style="height:46%"></b><b class="hfl-ah" style="height:16%"></b></i><i><b style="height:34%"></b><b class="hfl-ah" style="height:28%"></b></i><i><b style="height:40%"></b><b class="hfl-ah" style="height:36%"></b></i><i><b style="height:20%"></b><b class="hfl-ah" style="height:44%"></b></i><i><b style="height:14%"></b><b class="hfl-ah" style="height:40%"></b></i></div>
       <div class="hfl-days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
       <div class="hfl-leg"><i></i>Booked outside business hours</div>
-      <span class="hfl-ex">Example: Sparkle Home Cleaning</span>
     </div></div>
     <div class="hfl hfl-r" aria-hidden="true"><div class="hfl-in">
       <div class="hfl-k"><span class="hfl-ki up"><svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-7"/><path d="M15 8h5v5"/></svg></span>Jobs booked online</div>
       <div class="hfl-big"><b data-count="3870" data-money="1">$3,870</b><span>last 30 days</span></div>
       <svg class="hfl-spark" viewBox="0 0 240 46" preserveAspectRatio="none"><defs><linearGradient id="hflg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f7d4f" stop-opacity=".22"/><stop offset="1" stop-color="#2f7d4f" stop-opacity="0"/></linearGradient></defs><path d="M0 38 L30 35 L60 36 L90 29 L120 30 L150 22 L180 19 L210 12 L240 6 L240 46 L0 46 Z" fill="url(#hflg)"/><path d="M0 38 L30 35 L60 36 L90 29 L120 30 L150 22 L180 19 L210 12 L240 6" fill="none" stroke="#2f7d4f" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="240" cy="6" r="3.5" fill="#2f7d4f"/></svg>
       <div class="hfl-rows"><div><b data-count="23">23</b><span>bookings</span></div><div><b class="ok">+9</b><span>vs last month</span></div></div>
-      <span class="hfl-ex">Example: Sparkle Home Cleaning</span>
     </div></div>
     <ul class="checks">
       <li><svg><use href="#chk"/></svg><span class="lg">14 days free</span><span class="sm">14 days free</span></li>
