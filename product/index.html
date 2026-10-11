@@ -746,6 +746,26 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .bs-row{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid #ececec}
 .bs-row b{display:block;font-size:17px;font-weight:700}.bs-row small{font-size:13px;color:#888}
 .bs-row em{font-style:normal;font-size:17px;font-weight:600}
+/* phone mini site v2: reads as a real mobile website (address bar, nav, short hero, reviews, services) */
+.bs-url{display:flex;align-items:center;justify-content:center;gap:6px;height:40px;background:#f1f1f2;border-bottom:1px solid #e3e3e5;font:500 14px/1 -apple-system,'SF Pro Text',Manrope,sans-serif;color:#1c1c1e}
+.bs-url svg{width:12px;height:12px;fill:none;stroke:#6b6b70;stroke-width:2.4;stroke-linecap:round}
+.bs-top{display:flex;align-items:center;gap:14px;height:60px;padding:0 20px;border-bottom:1px solid #eee;background:#fff}
+.bs-logo{display:flex;align-items:center;gap:9px;margin-right:auto;font:400 22px/1 'DM Serif Display',Georgia,serif;color:#16302a}
+.bs-logo i{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#fff 0 4px,transparent 5px),#1f6f5c}
+.bs-logo small{align-self:flex-end;margin:0 0 2px 2px;font:600 9.5px/1 Manrope,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#7b8580}
+.bs-call{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#eef4f1}
+.bs-call svg{width:17px;height:17px;fill:none;stroke:#1f6f5c;stroke-width:2;stroke-linejoin:round}
+.bs .bs-menu{padding-top:0;gap:5px}.bs .bs-menu i{width:22px;background:#16302a}
+.bs .bs-hero{height:262px}
+.bs .bs-shade{background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.72) 100%)}
+.bs .bs-copy{left:20px;right:20px;bottom:22px}
+.bs .bs-h{margin-top:10px;font-size:38px;line-height:1.02}
+.bs .bs-open{margin-top:12px;font-size:13px}
+.bs-proof{display:flex;align-items:center;gap:6px;padding:14px 20px;border-bottom:1px solid #eee;font:500 13.5px/1 Manrope,sans-serif;color:#555;white-space:nowrap}
+.bs-proof b{color:#111}.bs-stars{color:#f4b400;letter-spacing:1px;font-size:14px}
+.bs-dot{width:3px;height:3px;border-radius:50%;background:#bbb;margin:0 3px}
+.bs .bs-list{padding:18px 20px 0}
+.bs .bs-row{padding:13px 0}
 .wb{position:absolute;right:16px;bottom:24px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:7px;opacity:0;transform:translateY(22px) scale(.86);transform-origin:100% 100%;transition:opacity .45s var(--ease),transform .8s cubic-bezier(.34,1.42,.64,1)}
 .how-stage.q-btn .wb{opacity:1;transform:none}
 .wb-btn{display:flex;align-items:center;gap:10px;height:54px;padding:0 24px 0 20px;border-radius:27px;border:2px solid rgba(255,255,255,.55);color:#fff;font:700 17px/1 Manrope,sans-serif;background:linear-gradient(180deg,#5f9a87 0%,#0E6650 58%,#0a4d3c 100%);box-shadow:inset 0 1px 1px rgba(255,255,255,.5),inset 0 -3px 8px rgba(0,0,0,.18),0 0 0 4px rgba(14,102,80,.16),0 12px 28px rgba(14,102,80,.42);transition:transform .14s var(--ease)}
@@ -772,11 +792,25 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 @keyframes tpTap{0%{opacity:0;transform:scale(.55)}22%{opacity:1;transform:scale(1)}42%{transform:scale(.84)}62%{opacity:1;transform:scale(.98)}100%{opacity:0;transform:scale(1.18)}}
 @media (max-width:640px){.hero h1{font-size:clamp(21px,calc((100vw - 40px) * .08),36px)}}   /* the first line always fits, so the H1 stays two lines */
 
+/* phones: the inbox is the one picture; the text drops in over it */
+.fban{display:none}
+@media (max-width:640px){
+  .flow{display:block;padding:20px 14px 22px}
+  .flow .fp,.flow .fcap,#wires{display:none}
+  .inbox{position:relative}
+  .fban{position:absolute;left:10px;right:10px;top:10px;z-index:3;display:grid;grid-template-columns:36px 1fr;gap:11px;align-items:start;padding:12px 13px;border-radius:18px;background:rgba(246,246,246,.94);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);box-shadow:0 0 0 1px rgba(0,0,0,.05),0 18px 36px -14px rgba(20,24,20,.45);font-size:13.5px;line-height:1.38;color:#111;opacity:0;transform:translateY(-24px) scale(.96);transition:opacity .4s var(--ease),transform .6s cubic-bezier(.34,1.3,.64,1);pointer-events:none}
+  .fban.on{opacity:1;transform:none}
+  .fban.tap{transform:scale(.97);transition:transform .14s}
+  .fban .app{width:36px;height:36px;border-radius:9px;background:linear-gradient(#5ff777,#1ec337);display:grid;place-items:center}
+  .fban .app svg{width:22px;height:22px;fill:#fff}
+  .fban .t{display:flex;justify-content:space-between;font-weight:650;font-size:13.5px}.fban .t span{font-weight:400;color:#777}
+  .fban p{margin:2px 0 0}
+}
 /* ===== trades row slides right to left on phones ===== */
 .trades li[aria-hidden]{display:none}
 @media (max-width:640px){
   .trades-vp{overflow:hidden;margin:32px -20px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
-  .trades-vp .trades{display:flex;flex-wrap:nowrap;justify-content:flex-start;width:max-content;gap:0;margin:0;padding:4px 0;animation:tradesSlide 26s linear infinite}
+  .trades-vp .trades{display:flex;flex-wrap:nowrap;justify-content:flex-start;width:max-content;gap:0;margin:0;padding:4px 0;animation:tradesSlide 26s linear -6s infinite;will-change:transform}
   .trades-vp .trades li{flex:none;padding-right:30px}
   .trades-vp .trades li[aria-hidden]{display:flex}
 }
@@ -877,10 +911,12 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
         <div class="mb"><div class="mb-card">
           <div class="ps">
             <div class="bs">
+              <div class="bs-url"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>brightsideclean.com</div>
+              <header class="bs-top"><span class="bs-logo"><i></i>Brightside<small>Home Cleaning</small></span><span class="bs-call"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span><span class="bs-menu"><i></i><i></i><i></i></span></header>
               <div class="bs-hero"><img src="img/how/clean-hero.webp" alt="" decoding="async"><div class="bs-shade"></div>
-                <header class="bs-nav"><span class="bs-mark">BRIGHTSIDE<small>Home Cleaning &#183; Montclair</small></span><span class="bs-menu"><i></i><i></i></span></header>
-                <div class="bs-copy"><p class="bs-eye">House cleaning &#183; Montclair, NJ</p><p class="bs-h">Come home<br>to clean.</p><p class="bs-open"><i></i>Booking this week</p></div>
+                <div class="bs-copy"><p class="bs-eye">House cleaning &#183; Montclair, NJ</p><p class="bs-h">Come home to clean.</p><p class="bs-open"><i></i>Booking this week</p></div>
               </div>
+              <div class="bs-proof"><span class="bs-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><b>4.9</b> from 212 Google reviews<span class="bs-dot"></span>Insured</div>
               <div class="bs-list"><p class="bs-lt">Services</p>
                 <div class="bs-row"><span><b>Standard clean</b><small>Every room, top to bottom</small></span><em>$129+</em></div>
                 <div class="bs-row"><span><b>Deep clean</b><small>Baseboards, inside appliances</small></span><em>$229+</em></div>
@@ -900,7 +936,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     </div>
   </section>
 
-  <div class="trades-vp"><ul class="trades" aria-label="Built for"><li><svg viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62L18.3 8.38A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Junk removal</li><li><svg viewBox="0 0 24 24"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15v4M17 17h4"/></svg>Cleaning</li><li><svg viewBox="0 0 24 24"><path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M9.5 17h5M3 12h18"/></svg>Mobile detailing</li><li><svg viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/><path d="m9.5 4.5 2.5 2 2.5-2M9.5 19.5l2.5-2 2.5 2"/></svg>HVAC</li><li><svg viewBox="0 0 24 24"><path d="M7 20h10"/><path d="M12 20V10"/><path d="M12 10C12 6 9 4 5 4c0 4 3 6 7 6zM12 13c0-3.5 3-5.5 7-5.5 0 3.5-3 5.5-7 5.5z"/></svg>Landscaping</li><li><svg viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Pressure washing</li></ul></div>
+  <div class="trades-vp"><ul class="trades" aria-label="Built for"><li><svg viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62L18.3 8.38A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Junk removal</li><li><svg viewBox="0 0 24 24"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15v4M17 17h4"/></svg>Cleaning</li><li><svg viewBox="0 0 24 24"><path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M9.5 17h5M3 12h18"/></svg>Mobile detailing</li><li><svg viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/><path d="m9.5 4.5 2.5 2 2.5-2M9.5 19.5l2.5-2 2.5 2"/></svg>HVAC</li><li><svg viewBox="0 0 24 24"><path d="M7 20h10"/><path d="M12 20V10"/><path d="M12 10C12 6 9 4 5 4c0 4 3 6 7 6zM12 13c0-3.5 3-5.5 7-5.5 0 3.5-3 5.5-7 5.5z"/></svg>Landscaping</li><li><svg viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Pressure washing</li><li aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62L18.3 8.38A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Junk removal</li><li aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15v4M17 17h4"/></svg>Cleaning</li><li aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 17H3v-5l2-5h14l2 5v5h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M9.5 17h5M3 12h18"/></svg>Mobile detailing</li><li aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/><path d="m9.5 4.5 2.5 2 2.5-2M9.5 19.5l2.5-2 2.5 2"/></svg>HVAC</li><li aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 20h10"/><path d="M12 20V10"/><path d="M12 10C12 6 9 4 5 4c0 4 3 6 7 6zM12 13c0-3.5 3-5.5 7-5.5 0 3.5-3 5.5-7 5.5z"/></svg>Landscaping</li><li aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Pressure washing</li></ul></div>
 </div>
 
 <section class="s" id="google">
@@ -1015,6 +1051,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
         <p class="fcap"><span>2</span>It lands in your inbox</p>
         <div class="inbox">
           <div class="ihd"><b>Inbox</b><span class="cnt" id="fcnt">2 new</span></div>
+          <div class="fban" id="fban"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="t">DialBridge<span>now</span></div><p><b>New booking:</b> Dana Lopez, Fair Lawn. Furniture and appliances, 1/4 truck. Sat 11 AM to 2 PM. Shown $199 to $279.</p></div></div>
           <div class="irows" id="frows">
             <div class="irow"><i class="dot"></i><div><b>Omar Diaz</b><span>Appliances, 1/4 truck</span></div><em class="bdg new">New</em><small>38m</small></div>
             <div class="irow"><i class="dot"></i><div><b>Kathy Russo</b><span>"Do you haul paint cans?"</span></div><em class="bdg new">New</em><small>1h</small></div>
@@ -1239,7 +1276,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   (function () {
     var flow = document.getElementById('flow'); if (!flow) return;
     var svg = document.getElementById('wires'), w1 = document.getElementById('w1'), w2 = document.getElementById('w2'), d1 = document.getElementById('d1'), d2 = document.getElementById('d2');
-    var fw = document.getElementById('fw'), fin = document.getElementById('fin'), fph = document.getElementById('fph');
+    var fw = document.getElementById('fw'), fin = document.getElementById('fin'), fph = document.getElementById('fph'), fban = document.getElementById('fban');
     var btn = document.getElementById('fbtn'), rows = document.getElementById('frows'), cnt = document.getElementById('fcnt');
     var stack = document.getElementById('fstack'), scr = document.getElementById('fscr'), phone = fph.querySelector('.iphone'), me = document.getElementById('fme'), dl = document.getElementById('fdl'), typ = document.getElementById('ftype'), tin = document.getElementById('fin2'), send = document.getElementById('fsend'), fcur = document.getElementById('fcursor');
     var run = 0, playing = false, inView = false;
@@ -1277,7 +1314,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     var BASE_ROWS = rows.innerHTML;
     function reset() {
       rows.innerHTML = BASE_ROWS; cnt.textContent = '2 new'; stack.innerHTML = ''; scr.classList.remove('open'); me.classList.remove('show'); dl.classList.remove('show'); typ.textContent = ''; tin.classList.remove('on'); send.classList.remove('ok'); fcur.classList.add('gone');
-      btn.classList.remove('sent', 'press'); scr.classList.add('dim'); [fw, fin, fph].forEach(function (c) { c.classList.remove('lit'); });
+      btn.classList.remove('sent', 'press'); fban.classList.remove('on', 'tap'); scr.classList.add('dim'); [fw, fin, fph].forEach(function (c) { c.classList.remove('lit'); });
     }
     function addRow() {
       var kids = [].slice.call(rows.children), first = kids.map(function (k) { return k.getBoundingClientRect().top; });
@@ -1302,6 +1339,18 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       fin.classList.add('lit');
       var r = addRow();
       await pause(900, id);
+      if (!fph.offsetParent) {   // phones: one card, the text lands on top of the inbox
+        fban.classList.add('on'); await pause(2400, id);
+        var fr0 = flow.getBoundingClientRect(), br = fban.getBoundingClientRect();
+        fcur.classList.remove('gone'); fcur.style.transform = 'translate(' + Math.round(br.left - fr0.left + br.width * .6) + 'px,' + Math.round(br.top - fr0.top + br.height * .62) + 'px)';
+        await pause(800, id);
+        fcur.classList.add('down'); fban.classList.add('tap'); await pause(130, id); fcur.classList.remove('click'); fcur.offsetWidth; fcur.classList.add('click'); fcur.classList.remove('down'); fban.classList.remove('tap');
+        await pause(150, id); fcur.classList.add('gone'); fban.classList.remove('on');
+        await pause(500, id);
+        var b0 = r.querySelector('.bdg'); b0.className = 'bdg ok'; b0.textContent = 'Replied'; r.classList.remove('hot'); r.querySelector('i').className = '';
+        cnt.textContent = '2 new';
+        await pause(3400, id); return;
+      }
       await travel(w2, d2, 1000, id);
       fph.classList.add('lit');
       scr.classList.remove('dim'); phone.classList.remove('buzz'); phone.offsetWidth; phone.classList.add('buzz');
@@ -1690,7 +1739,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 <script>
 (function () {
   var ul = document.querySelector('.trades-vp .trades'); if (!ul) return;
-  [].slice.call(ul.children).forEach(function (li) { var c = li.cloneNode(true); c.setAttribute('aria-hidden', 'true'); ul.appendChild(c); });
+  /* clones are in the HTML */
 })();
 /* v5: How it works. A fixed, choreographed walkthrough.
    Desktop: browser window on a wallpaper; the camera eases toward each click (Screen Studio style); a cursor glides
