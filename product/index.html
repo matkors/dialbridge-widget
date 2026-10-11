@@ -825,8 +825,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .hfl{transition:opacity .9s var(--ease),margin-top 1s var(--ease)}
   .hfl.wait{opacity:0;margin-top:28px}
   /* the little story: a time gets picked, the request is sent, the 10:42 PM text lands on the left */
-  .hfl-l.run{transition:opacity .5s var(--ease),margin-top .7s cubic-bezier(.34,1.4,.64,1)}
-  .hfl-l.run.off{opacity:0;margin-top:-18px}
   .hfl-slots span{transition:background-color .35s,color .35s,box-shadow .35s}
   .hfl-btn{transition:background-color .35s,filter .15s}
   .hfl-btn.press{filter:brightness(1.35)}
@@ -1828,12 +1826,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   function at(ms, fn) { t = setTimeout(fn, ms); }
   function cycle() {
     if (!vis || document.hidden) { at(600, cycle); return; }
-    L.classList.add('run', 'off'); slots[1].classList.remove('on'); btn.classList.remove('sent'); btn.textContent = label;
+    slots[1].classList.remove('on'); btn.classList.remove('sent'); btn.textContent = label;
     at(900, function () { slots[1].classList.add('on');
       at(1000, function () { btn.classList.add('press');
         at(180, function () { btn.classList.remove('press'); btn.classList.add('sent'); btn.textContent = 'Request sent';
-          at(600, function () { L.classList.remove('off');
-            at(4600, cycle); }); }); }); });
+          at(5200, cycle); }); }); });
   }
   setTimeout(cycle, 4200);   // first: both cards sit complete for a beat, then the story starts
   if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { vis = en[0].isIntersecting; }).observe(R);
