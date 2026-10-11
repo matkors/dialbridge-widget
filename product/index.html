@@ -724,8 +724,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .mb-notes .nt-app{width:38px;height:38px}.mb-notes .nt-app svg{width:23px;height:23px}
   .mb-notes .nt p{font-size:15px}.mb-notes .nt-h{font-size:13.5px}
   .mb-notes .ib{padding:14px}.mb-notes .ib-r{grid-template-columns:auto 1fr auto;gap:10px}.mb-notes .ib-r strong{display:none}
-  .how-mcap{display:block;min-height:2.6em;max-width:420px;margin:16px auto 0;text-align:center;font-size:17px;font-weight:600;line-height:1.4;color:var(--ink);transition:opacity .35s}
-  .how-mcap.swap{opacity:0}
+  .how-mcap{display:block;position:absolute;left:50%;bottom:16px;z-index:9;width:max-content;max-width:calc(100% - 32px);margin:0;padding:10px 18px;border-radius:20px;background:rgba(24,28,26,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;text-align:center;font-size:15px;font-weight:600;line-height:1.35;box-shadow:0 10px 26px -10px rgba(0,0,0,.45);transform:translateX(-50%);transition:opacity .35s,transform .35s;pointer-events:none}
+  .how-mcap.swap{opacity:0;transform:translate(-50%,8px)}
+  .how-mcap:empty{opacity:0}
 }
 /* the phone world (390 x 844 scaled to the card): the barbershop's mobile site + the real widget sheet */
 .ps{position:absolute;left:0;top:0;width:390px;height:844px;transform-origin:0 0;overflow:hidden;background:#fff;color:#111;font-family:Manrope,sans-serif;text-align:left}
@@ -806,6 +807,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .fban .t{display:flex;justify-content:space-between;font-weight:650;font-size:13.5px}.fban .t span{font-weight:400;color:#777}
   .fban p{margin:2px 0 0}
 }
+/* phones: centered logo, full-width plan buttons */
+@media (max-width:640px){ .nav .wrap{justify-content:center} .plan .btn{display:flex;width:100%;justify-content:center;height:54px;font-size:16.5px} }
 /* ===== trades row slides right to left on phones ===== */
 .trades li[aria-hidden]{display:none}
 @media (max-width:640px){
@@ -823,7 +826,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 /* ===== phones (Oct 11): How it works fits on one screen; the widget sheet shows without its header bar ===== */
 @media (max-width:900px){
-  .mb-card{height:480px}
+  .mb-card{height:540px} .mb .sh{border-radius:18px} .mb-card .how-mcap{bottom:12px}
   .sh-head{display:none}
   .sh-view{top:0}
   .sh-grab{background:#d3d7dc}
@@ -930,9 +933,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           </div>
           <div class="mb-dim"></div>
           <div class="mb-notes"><div class="nt"><span class="nt-app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div class="nt-b"><div class="nt-h"><b>DialBridge</b><span>now</span></div><p><strong>New booking: Lena Park</strong><br>Standard clean, 2 bedrooms, Mon Oct 12 at 8 AM. $139 to $159.</p></div></div><div class="ib"><div class="ib-h"><b>Your inbox</b><span>1 new</span></div><div class="ib-r"><span class="ib-av">LP</span><div><b>Lena Park</b><small>Standard clean &#183; Mon 8 AM</small></div><em>New</em><strong>$139+</strong></div></div></div>
+          <p class="how-mcap" aria-hidden="true"></p>
         </div></div>
       </div>
-      <p class="how-mcap" aria-hidden="true"></p>
     </div>
   </section>
 
@@ -1841,10 +1844,12 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   var sheetX = 0;
   function layoutMob() {
     var w = card.clientWidth, h = card.clientHeight; if (!w) return;
-    var k = Math.min(w / 390, (h - 6) / 566), W = w / k, H = Math.ceil(h / k), sh = how.querySelector('.sh');
+    var band = 64;   // strip at the bottom of the card for the caption, so it never covers what gets tapped
+    var k = Math.min(w / 390, (h - 6 - band) / 566), W = w / k, H = Math.ceil(h / k), B = band / k, sh = how.querySelector('.sh');
     ps.style.transform = 'scale(' + k + ')'; ps.style.width = W + 'px'; ps.style.height = H + 'px';
     sheetX = Math.max(0, (W - 390) / 2);
-    sh.style.left = sheetX + 'px'; sh.style.right = 'auto'; sh.style.width = '390px'; sh.style.top = Math.max(6, H - 566) + 'px';
+    sh.style.left = sheetX + 'px'; sh.style.right = 'auto'; sh.style.width = '390px'; sh.style.top = Math.max(6, H - 566 - B) + 'px'; sh.style.bottom = B + 'px';
+    how.querySelector('.wb').style.bottom = (B + 8) + 'px';
   }
   function tapAt(x, y) { tp.style.left = x + 'px'; tp.style.top = y + 'px'; tp.classList.remove('go'); tp.offsetWidth; tp.classList.add('go'); }
   function tapSheet(p) { var top = parseFloat(how.querySelector('.sh').style.top) || 6; tapAt(sheetX + p[0], top + p[1] - 74); }   // the sheet starts below the widget's 74px header
@@ -1855,7 +1860,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     resetMob(); mcapSet(''); await sleep(300, id);
     mcapSet('Add one line of code. The Book online button appears.'); await sleep(900, id); cls('q-btn'); await sleep(2600, id);
     mcapSet('A customer taps Book online');
-    var r = wbBtn.getBoundingClientRect(), pr = ps.getBoundingClientRect(), kk = pr.width / 390;
+    var r = wbBtn.getBoundingClientRect(), pr = ps.getBoundingClientRect(), kk = pr.width / ps.offsetWidth;
     await sleep(700, id); tapAt((r.left + r.width / 2 - pr.left) / kk, (r.top + r.height / 2 - pr.top) / kk);
     await sleep(170, id); cls('q-press'); await sleep(160, id); stage.classList.remove('q-press'); cls('q-open');
     await sleep(1400, id); mcapSet('They pick a service and see the price');
