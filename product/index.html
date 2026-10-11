@@ -816,9 +816,9 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .quick.solo .btn.ghost{display:none}
 @media (min-width:1180px){
   .hfl{display:block;position:absolute;z-index:1;text-align:left;pointer-events:none}
-  .hfl-l{left:calc(max(36px, 50vw - 720px) - (100vw - min(100vw, 1180px)) / 2 - 28px);top:300px;width:290px;--r:-2deg}
-  .hfl-r{top:232px;right:calc(max(36px, 50vw - 720px) - (100vw - min(100vw, 1180px)) / 2 - 28px);width:268px;--r:2deg}
-  .hfl-in{position:relative;transform:rotate(var(--r));animation:hflFloat 8s ease-in-out infinite}
+  .hfl-l{left:calc(max(36px, 50vw - 720px) - (100vw - min(100vw, 1180px)) / 2 - 28px);top:300px;width:290px}
+  .hfl-r{top:232px;right:calc(max(36px, 50vw - 720px) - (100vw - min(100vw, 1180px)) / 2 - 28px);width:268px}
+  .hfl-in{position:relative;animation:hflFloat 8s ease-in-out infinite}
   .hfl-r .hfl-in{animation-delay:-4s}
   .intro .hfl{animation:hflIn 1.1s var(--ease) both}
   .intro .hfl-l{animation-delay:.5s}.intro .hfl-r{animation-delay:.65s}
@@ -856,7 +856,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .quick.solo .btn.ghost svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
 }
 @keyframes hflIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
-@keyframes hflFloat{0%,100%{transform:rotate(var(--r)) translateY(0)}50%{transform:rotate(var(--r)) translateY(-6px)}}
+@keyframes hflFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-6px,0)}}
 /* ===== trades row slides right to left on phones ===== */
 .trades li[aria-hidden]{display:none}
 @media (max-width:640px){
