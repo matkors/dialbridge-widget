@@ -112,6 +112,8 @@
     // Google sign-in is blocked inside the Facebook / Instagram browser: hide it there and point at the app's menu instead.
     var g = !DBX.inApp && (!LIVE || !!DBX.googleClientId);
     $('#gWrap').hidden = !g;
+    // the same Google button serves sign up and log in: it sits on whichever screen is showing
+    if (v === 'login') $('#liForm').before($('#gWrap')); else if (v === 'signup') $('#signupForm').before($('#gWrap'));
     $('#iabHint').hidden = !(DBX.inApp && v === 'signup' && (!LIVE || !!DBX.googleClientId));
   }
   $('#v-signup').addEventListener('click', function (e) {
@@ -196,7 +198,7 @@
       try {
         window.google.accounts.id.initialize({ client_id: DBX.googleClientId, callback: function (res) {
           api('/v1/acct/google', 'POST', Object.assign({ credential: res.credential, biz: S.biz }, DBX.attr())).then(function (r) {
-            if (!r.ok) return showErr('#suErr', errText(r));
+            if (!r.ok) return showErr($('#loginForm').hidden ? '#suErr' : '#liErr', errText(r));
             r.method = 'google'; signedIn(r, r.status === 201);
           });
         } });
