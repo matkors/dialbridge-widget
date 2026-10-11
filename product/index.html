@@ -786,6 +786,30 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .dsh-shot{padding:22px 0 0;margin-inline:-20px;border-radius:0;background:radial-gradient(60% 50% at 50% 0%,rgba(255,255,255,.9),transparent 70%),linear-gradient(180deg,#eef1e8,#e3e8da);box-shadow:none;overflow:hidden;max-height:560px}
   .dsh-shot img{width:270px;max-width:none;margin:0 auto;border-radius:30px 30px 0 0;border:7px solid #1d1e20;border-bottom:0;box-shadow:0 24px 40px -22px rgba(0,0,0,.5)}
 }
+
+/* ===== phones (Oct 11): How it works fits on one screen; the widget sheet shows without its header bar ===== */
+@media (max-width:900px){
+  .mb-card{height:480px}
+  .sh-head{display:none}
+  .sh-view{top:0}
+  .sh-grab{background:#d3d7dc}
+}
+/* ===== phones (Oct 11): the inbox scene is two steps, not three (the How it works animation already shows the booking) ===== */
+@media (max-width:640px){
+  .flow{gap:26px;padding:22px 16px 26px}
+  .flow .fw{display:none}
+  #w1,#d1{visibility:hidden}
+  .fi2 .fcap span,.fp .fcap span{font-size:0}
+  .fi2 .fcap span::before{content:'1';font-size:11px}
+  .fp .fcap span::before{content:'2';font-size:11px}
+  .fp{width:182px}
+}
+
+/* ===== phones (Oct 11): dashboard shot = the top of the phone dashboard in a slim frame that fades out ===== */
+@media (max-width:640px){
+  .dsh-shot{padding:26px 0 0;max-height:430px;-webkit-mask-image:linear-gradient(180deg,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,#000 72%,transparent 100%)}
+  .dsh-shot img{width:min(300px,78vw);border:8px solid #1d1e20;border-bottom:0;border-radius:40px 40px 0 0;box-shadow:0 0 0 1px rgba(0,0,0,.25),0 30px 50px -24px rgba(0,0,0,.45)}
+}
 </style>
 <link rel="stylesheet" href="build.css">
 <script src="../dbx.js"></script>
@@ -1031,7 +1055,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <div><p class="flabel"><span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 13h4M8 16h7"/></svg></span>Your dashboard</p><h2 style="margin-top:14px">Run it all from one dashboard.</h2></div>
       <p>Every booking, call-back and review in one place. See what came in after hours, reply in one tap, and know which link brings the jobs.</p>
     </div>
-    <div class="dsh rv" id="dsh"><div class="dsh-shot"><picture><source media="(max-width:640px)" srcset="img/dashboard-phone.webp" width="520" height="1125"><img src="img/dashboard.webp" alt="DialBridge dashboard: new leads, booked jobs, reply time, Google rating, booking requests chart and leads needing attention, with a new booking text and a new Google review" width="3360" height="1993" loading="lazy" decoding="async"></picture></div></div>
+    <div class="dsh rv" id="dsh"><div class="dsh-shot"><picture><source media="(max-width:640px)" srcset="img/dashboard-phone.webp" width="780" height="1280"><img src="img/dashboard.webp" alt="DialBridge dashboard: new leads, booked jobs, reply time, Google rating, booking requests chart and leads needing attention, with a new booking text and a new Google review" width="3360" height="1993" loading="lazy" decoding="async"></picture></div></div>
   </div>
 </section>
 
@@ -1274,7 +1298,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       fw.classList.add('lit');
       btn.classList.add('press'); await pause(160, id); btn.classList.remove('press'); btn.classList.add('sent');
       await pause(350, id);
-      await travel(w1, d1, 1000, id);
+      if (fw.offsetParent) await travel(w1, d1, 1000, id); else await pause(300, id);   // phones hide step 1
       fin.classList.add('lit');
       var r = addRow();
       await pause(900, id);
@@ -1763,9 +1787,18 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   /* ---------- phones ---------- */
   var card = how.querySelector('.mb-card'), ps = how.querySelector('.ps'), tp = how.querySelector('.tp'), wbBtn = how.querySelector('.wb-btn');
   var pgs = [].slice.call(how.querySelectorAll('.pg'));
-  function layoutMob() { var w = card.clientWidth, h = card.clientHeight; if (!w) return; var k = w / 390; ps.style.transform = 'scale(' + k + ')'; ps.style.height = Math.ceil(h / k) + 'px'; how.querySelector('.sh').style.top = (Math.ceil(h / k) - 640) + 'px'; }
+  // Phones: fit the whole widget sheet (566 tall in the 390-wide world) inside the card. If the card is short, the world gets
+  // a little wider than 390 and the sheet stays 390 wide, centred.
+  var sheetX = 0;
+  function layoutMob() {
+    var w = card.clientWidth, h = card.clientHeight; if (!w) return;
+    var k = Math.min(w / 390, (h - 6) / 566), W = w / k, H = Math.ceil(h / k), sh = how.querySelector('.sh');
+    ps.style.transform = 'scale(' + k + ')'; ps.style.width = W + 'px'; ps.style.height = H + 'px';
+    sheetX = Math.max(0, (W - 390) / 2);
+    sh.style.left = sheetX + 'px'; sh.style.right = 'auto'; sh.style.width = '390px'; sh.style.top = Math.max(6, H - 566) + 'px';
+  }
   function tapAt(x, y) { tp.style.left = x + 'px'; tp.style.top = y + 'px'; tp.classList.remove('go'); tp.offsetWidth; tp.classList.add('go'); }
-  function tapSheet(p) { var top = parseFloat(how.querySelector('.sh').style.top) || 204; tapAt(p[0], top + p[1]); }
+  function tapSheet(p) { var top = parseFloat(how.querySelector('.sh').style.top) || 6; tapAt(sheetX + p[0], top + p[1] - 74); }   // the sheet starts below the widget's 74px header
   function page(n) { pgs.forEach(function (pg, i) { pg.classList.toggle('cur', i === n - 1); pg.classList.toggle('past', i < n - 1); }); }
   function select(n, l) { pgs[n - 1].classList.add('l' + (l || 1)); }
   function resetMob() { snapReset(function () { pgs.forEach(function (pg) { pg.className = 'pg'; }); pgs[0].classList.add('cur'); tp.classList.remove('go'); }); }
