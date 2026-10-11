@@ -1733,10 +1733,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   // centre of the Book online button in site coordinates (measured when it is in place, so the click lands on it)
   function btnPoint() { var b = dwbBtn.getBoundingClientRect(), w = win.getBoundingClientRect(), k = w.width / 1280; return [(b.left + b.width / 2 - w.left) / k, (b.top + b.height / 2 - w.top) / k - 44]; }
   async function playDesk(id) {
-    resetDesk(); await sleep(1600, id);
+    resetDesk(); await sleep(350, id);
     // 1: the button goes on their site
     caption('Add one line of code. The Book online button appears.');
-    camera(1.14, 940, 470); await sleep(1300, id); cls('q-btn'); await sleep(2600, id);
+    camera(1.14, 940, 470); await sleep(850, id); cls('q-btn'); await sleep(2600, id);
     // 2: a customer books
     caption('A customer clicks Book online');
     var bp = btnPoint(); await moveClick(bp[0], bp[1], id, 1300); cls('q-press'); await sleep(140, id); stage.classList.remove('q-press');
@@ -1770,7 +1770,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   function select(n, l) { pgs[n - 1].classList.add('l' + (l || 1)); }
   function resetMob() { snapReset(function () { pgs.forEach(function (pg) { pg.className = 'pg'; }); pgs[0].classList.add('cur'); tp.classList.remove('go'); }); }
   async function playMob(id) {
-    resetMob(); mcapSet(''); await sleep(1600, id);
+    resetMob(); mcapSet(''); await sleep(300, id);
     mcapSet('Add one line of code. The Book online button appears.'); await sleep(900, id); cls('q-btn'); await sleep(2600, id);
     mcapSet('A customer taps Book online');
     var r = wbBtn.getBoundingClientRect(), pr = ps.getBoundingClientRect(), kk = pr.width / 390;
@@ -1807,7 +1807,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   layout(); resetDesk(); resetMob();
   [].forEach.call(how.querySelectorAll('img'), function (im) { if (im.decode) im.decode().catch(function () { }); });
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (en) { if (en[0].isIntersecting && !running) loop(); }, { rootMargin: '0px 0px -25% 0px' }).observe(stage);
+    new IntersectionObserver(function (en) { if (en[0].isIntersecting && !running) loop(); }, { threshold: 0.1 }).observe(stage);
     new IntersectionObserver(function (en) { if (!en[0].isIntersecting && running) { stop(); resetDesk(); resetMob(); } }, { threshold: 0 }).observe(stage);
   } else loop();
 })();
