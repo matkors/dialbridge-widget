@@ -770,7 +770,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .tp{position:absolute;left:0;top:0;z-index:6;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(40,44,52,.16);box-shadow:inset 0 0 0 2px rgba(255,255,255,.95),0 0 0 1px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.2);opacity:0;pointer-events:none}
 .tp.go{animation:tpTap .75s cubic-bezier(.22,1,.36,1) forwards}
 @keyframes tpTap{0%{opacity:0;transform:scale(.55)}22%{opacity:1;transform:scale(1)}42%{transform:scale(.84)}62%{opacity:1;transform:scale(.98)}100%{opacity:0;transform:scale(1.18)}}
-@media (max-width:640px){.hero h1 .ln{white-space:normal}}
+@media (max-width:640px){.hero h1{font-size:clamp(21px,calc((100vw - 40px) * .08),36px)}}   /* the first line always fits, so the H1 stays two lines */
 
 /* ===== trades row slides right to left on phones ===== */
 .trades li[aria-hidden]{display:none}
@@ -1031,7 +1031,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <div><p class="flabel"><span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 13h4M8 16h7"/></svg></span>Your dashboard</p><h2 style="margin-top:14px">Run it all from one dashboard.</h2></div>
       <p>Every booking, call-back and review in one place. See what came in after hours, reply in one tap, and know which link brings the jobs.</p>
     </div>
-    <div class="dsh rv" id="dsh"><div class="dsh-shot"><picture><source media="(max-width:640px)" srcset="img/dashboard-phone.webp" width="520" height="1125"><img src="img/dashboard.webp" alt="DialBridge dashboard: new leads, booked jobs, reply time, Google rating, booking requests chart and leads needing attention, with a new booking text and a new Google review" width="3128" height="1600" loading="lazy" decoding="async"></picture></div></div>
+    <div class="dsh rv" id="dsh"><div class="dsh-shot"><picture><source media="(max-width:640px)" srcset="img/dashboard-phone.webp" width="520" height="1125"><img src="img/dashboard.webp" alt="DialBridge dashboard: new leads, booked jobs, reply time, Google rating, booking requests chart and leads needing attention, with a new booking text and a new Google review" width="3360" height="1993" loading="lazy" decoding="async"></picture></div></div>
   </div>
 </section>
 
