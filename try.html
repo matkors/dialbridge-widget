@@ -105,7 +105,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
 .fld input,.fld textarea{width:100%;min-height:46px;padding:11px 13px;border:1px solid #d3d2ca;border-radius:11px;background:var(--card);font-size:16px;font-weight:500;transition:border-color .15s,box-shadow .15s}
 .fld textarea{resize:vertical;min-height:110px}
 .fld input:focus,.fld textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
-.fine{margin:0;font-size:12.5px;color:var(--mute)}
+.fine{margin:0;font-size:12.5px;line-height:1.45;color:var(--mute)}.fine a{color:inherit}
 .picked{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:11px 13px;border-radius:12px;background:var(--soft);font-size:14px;font-weight:600}
 .picked svg{width:18px;height:18px;color:var(--accent)}
 .picked button{margin-left:auto;border:0;background:none;color:var(--accent-ink);font-weight:700;cursor:pointer;font-size:13.5px}
@@ -180,7 +180,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     <div class="pow">Powered by <b>Dialbridge</b></div>
   </div>
 </div></div>
-<script src="callbook.js?v=20261012d"></script>
+<script src="callbook.js?v=20261012e"></script>
 <script>
 (function () {
   'use strict';
@@ -214,13 +214,15 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     plan: { pct: 55, side: ['Pick what fits', 'Like your website? Add the Booking Widget. Want a new one? We build it for you.', ['No setup fee', 'Month to month']] },
     interests: { pct: 30, side: ['See it on your business', 'A free 20-minute call with Matviy or Alan. We show you the booking page and answer your questions.', ['No pressure, no hard sell']] },
     time: { pct: 55, side: ['Pick a time that works', 'We send a calendar invite and text you a reminder before the call.', ['20 minutes', 'Zoom or Google Meet']] },
+    wtime: { pct: 55, side: ['We build it with you', 'On a 30-minute call we go over your services, photos and area, then build your new website for you to approve.', ['No free trial: we do the setup work', 'Charged once your site is built']] },
     details: { pct: 80, side: ['Almost done', 'Tell us who you are so we can look at your business before the call.', ['We never share your number']] },
     topic: { pct: 35, side: ['Ask us anything', 'We\'re a small team and answer every message, usually within a few hours.', []] },
     message: { pct: 75, side: ['Ask us anything', 'Your message goes straight to the founders. We reply by email.', []] },
     booked: { pct: 100, side: ['Talk soon', 'Thanks for booking. Bring any questions, and we\'ll show you how it works for your business.', []] },
     sent: { pct: 100, side: ['Talk soon', 'We read every message and reply by email, usually within a few hours.', []] }
   };
-  var S = { path: [], interests: [], topic: '', time: '', f: { first: '', last: '', business: '', email: '', phone: '', msg: '' }, booked: null };
+  // kind: 'demo' (free 20-min demo) or 'website' (the $199 plan: no trial, they book the 30-min website call right here)
+  var S = { kind: 'demo', path: [], interests: [], topic: '', time: '', f: { first: '', last: '', business: '', email: '', phone: '', msg: '' }, booked: null };
   var cur = 'start', NAV = 0, first = true;
 
   function screen() {
@@ -231,17 +233,18 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       '<div class="plan"><span class="tag">Have a website you like</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">14 days free. Cancel anytime.</p><ul>' +
         li('Book online button for your website') + li('Booking page for Google, Facebook and Instagram') + li('A text and an inbox entry for every booking') + li('Set it up yourself in about 10 minutes') +
         '</ul><a class="btn full" target="_top" href="' + esc(signupUrl('widget')) + '" data-go="widget">Start free trial ' + I('arw') + '</a></div>' +
-      '<div class="plan main"><span class="tag">We build it for you</span><h3>Website + Reviews + Booking Widget</h3><div class="amt">$199<small> /month</small></div><p class="note">No free trial. We do the setup work for you.</p><ul>' +
+      '<div class="plan main"><span class="tag">We build it for you</span><h3>Website + Reviews + Booking Widget</h3><div class="amt">$199<small> /month</small></div><p class="note">No free trial. We build it for you, then you\'re charged.</p><ul>' +
         li('A new website built to book jobs') + li('Automatic Google review requests') + li('Everything in Booking Widget') + li('We build it with you on a 30-minute call') +
-        '</ul><a class="btn dark full" target="_top" href="' + esc(signupUrl('full')) + '" data-go="full">Get started ' + I('arw') + '</a></div></div>';
+        '</ul><a class="btn dark full" target="_top" href="#" data-path="website">Book a website call ' + I('arw') + '</a></div></div>';
     if (cur === 'interests') return '<h1>What do you want help with?</h1><p class="lede">Pick any that apply. It helps us prepare.</p><div class="tiles">' +
       INTERESTS.map(function (x) { var on = S.interests.indexOf(x[0]) > -1; return '<button type="button" class="tile sm' + (on ? ' on' : '') + '" data-int="' + x[0] + '" aria-pressed="' + on + '">' + (on ? '<span class="tk">' + I('chk') + '</span>' : '') + '<span class="ic">' + I(x[2]) + '</span><b>' + x[1] + '</b></button>'; }).join('') + '</div>';
-    if (cur === 'time') return '<h1>Pick a time for your demo</h1><p class="lede">20 minutes on Zoom or Google Meet.</p><div id="picker"></div>';
+    if (cur === 'time') return (S.kind === 'website' ? '<h1>Book your website call</h1><p class="lede">30 minutes on Zoom or Google Meet. We build your site with you.</p>'
+      : '<h1>Pick a time for your demo</h1><p class="lede">20 minutes on Zoom or Google Meet.</p>') + '<div id="picker"></div>';
     if (cur === 'details') return '<h1>Your details</h1><p class="lede">So we can look at your business before the call.</p>' +
       '<div class="picked">' + I('cal') + '<span>' + esc(CallBook.when(S.time)) + '</span><button type="button" data-change>Change</button></div><div class="fields">' +
       '<div class="f2">' + fld('first', 'First name', 'given-name', 'text', true) + fld('last', 'Last name', 'family-name', 'text') + '</div>' + fld('business', 'Business name', 'organization', 'text', true) +
       '<div class="f2">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Mobile', 'tel', 'tel', true) + '</div>' +
-      '<p class="fine">We\'ll email a calendar invite and text you a reminder. Reply STOP to opt out.</p></div><div class="hp" aria-hidden="true"><input id="hp" tabindex="-1" autocomplete="off"></div><p class="err" id="err" hidden></p>';
+      '<p class="fine">By booking, you agree to get texts from Dialbridge about your call, like reminders. Msg &amp; data rates may apply. Msg frequency varies. Reply STOP to opt out, HELP for help. <a href="https://dialbridge.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a></p></div><div class="hp" aria-hidden="true"><input id="hp" tabindex="-1" autocomplete="off"></div><p class="err" id="err" hidden></p>';
     if (cur === 'topic') return '<h1>What\'s it about?</h1><p class="lede">Pick the closest one.</p><div class="tiles">' +
       TOPICS.map(function (x) { return '<button type="button" class="tile sm' + (S.topic === x[0] ? ' on' : '') + '" data-topic="' + x[0] + '"><span class="ic">' + I(x[2]) + '</span><b>' + x[1] + '</b></button>'; }).join('') + '</div>';
     if (cur === 'message') return '<h1>Your message</h1><p class="lede">We reply by email, usually within a few hours.</p><div class="fields">' +
@@ -267,12 +270,12 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   function foot() {
     if (cur === 'interests') return '<button class="btn ghost" type="button" data-next="skip">Skip</button><button class="btn" type="button" data-next>Next ' + I('arw') + '</button>';
     if (cur === 'time') return '<button class="btn" type="button" data-next' + (valid() ? '' : ' disabled') + '>Continue ' + I('arw') + '</button>';
-    if (cur === 'details') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>Book my demo</button>';
+    if (cur === 'details') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>' + (S.kind === 'website' ? 'Book my website call' : 'Book my demo') + '</button>';
     if (cur === 'message') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>Send message</button>';
     if (cur === 'booked' || cur === 'sent') return '<button class="btn dark" type="button" data-close>Close</button>';
     return '';
   }
-  function sideHtml() { var s = STEPS[cur].side; return '<h2>' + s[0] + '</h2><p>' + s[1] + '</p>' + (s[2].length ? '<ul>' + s[2].map(li).join('') + '</ul>' : ''); }
+  function sideHtml() { var s = (S.kind === 'website' && cur === 'time' ? STEPS.wtime : STEPS[cur]).side; return '<h2>' + s[0] + '</h2><p>' + s[1] + '</p>' + (s[2].length ? '<ul>' + s[2].map(li).join('') + '</ul>' : ''); }
 
   function render() {
     var bd = $('#bd'), bdi = $('#bdi'), ghost = null;
@@ -291,7 +294,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     $('#ft').innerHTML = foot();
     $('#back').classList.toggle('hide', cur === 'start' || cur === 'booked' || cur === 'sent');
     var pf = $('#pfill'); requestAnimationFrame(function () { pf.style.width = STEPS[cur].pct + '%'; });
-    if (cur === 'time') CallBook.picker($('#picker'), 'demo', function (iso) { S.time = iso; refresh(); }, S.time);
+    if (cur === 'time') CallBook.picker($('#picker'), S.kind, function (iso) { S.time = iso; refresh(); }, S.time);
     NAV = 0; first = false;
     post('dbw:height', { h: innerWidth <= 640 ? 4000 : 640 });   // phones: the sheet takes the full screen
   }
@@ -304,11 +307,11 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   function bookDemo() {
     var b = $('#go'); busy(b, true, 'Booking');
     var names = S.f.first.trim();
-    CallBook.book({ kind: 'demo', firstName: names, lastName: S.f.last.trim(), email: S.f.email.trim(), phone: digits(S.f.phone), business: S.f.business.trim(), startTime: S.time,
+    CallBook.book({ kind: S.kind, plan: S.kind === 'website' ? 'full' : undefined, firstName: names, lastName: S.f.last.trim(), email: S.f.email.trim(), phone: digits(S.f.phone), business: S.f.business.trim(), startTime: S.time,
       interests: S.interests.map(function (k) { return INTERESTS.filter(function (x) { return x[0] === k; })[0][1]; }), company_fax: ($('#hp') || {}).value || '' }).then(function (r) {
-      if (r && r.ok) { S.booked = r.startTime || S.time; post('dbw:submit', { path: 'demo' }); S.path = []; cur = 'booked'; NAV = 1; render(); return; }
-      busy(b, false, 'Book my demo');
-      if (r && r.error === 'slot_taken') { CallBook.forget('demo'); S.time = ''; fail('Someone just took that time. Pick another one.'); setTimeout(function () { cur = 'time'; S.path.pop(); NAV = -1; render(); }, 1400); return; }
+      if (r && r.ok) { S.booked = r.startTime || S.time; post('dbw:submit', { path: S.kind }); S.path = []; cur = 'booked'; NAV = 1; render(); return; }
+      busy(b, false, S.kind === 'website' ? 'Book my website call' : 'Book my demo');
+      if (r && r.error === 'slot_taken') { CallBook.forget(S.kind); S.time = ''; fail('Someone just took that time. Pick another one.'); setTimeout(function () { cur = 'time'; S.path.pop(); NAV = -1; render(); }, 1400); return; }
       if (r && r.error === 'invalid_request') { fail('Check your email and mobile number and try again.'); return; }
       fail('That didn\'t go through. Try again, or send us a message instead.');
     });
@@ -330,7 +333,11 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     if (t.id === 'close' || t.hasAttribute('data-close')) { post('dbw:close'); return; }
     if (t.id === 'back') { back(); return; }
     if (t.hasAttribute('data-go')) { post('dbw:submit', { path: 'plan', plan: t.getAttribute('data-go') }); return; }
-    if (t.hasAttribute('data-path')) { var p = t.getAttribute('data-path'); go(p === 'trial' ? 'plan' : p === 'demo' ? 'interests' : 'topic'); return; }
+    if (t.hasAttribute('data-path')) {
+      var p = t.getAttribute('data-path'); e.preventDefault();
+      if (p === 'demo' || p === 'website') { if (S.kind !== p) { S.kind = p; S.time = ''; } if (p === 'website') CallBook.prefetch('website'); }
+      go(p === 'trial' ? 'plan' : p === 'demo' ? 'interests' : p === 'website' ? 'time' : 'topic'); return;
+    }
     if (t.hasAttribute('data-int')) {
       var k = t.getAttribute('data-int'), i = S.interests.indexOf(k);
       if (i > -1) S.interests.splice(i, 1); else S.interests.push(k);
