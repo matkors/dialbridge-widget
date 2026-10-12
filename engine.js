@@ -39,7 +39,7 @@
       name: 'Your Business', phone: '(201) 555-0148', brand: '#0E6650', area: 'your area', zips: [], rating: null, reviews: null, tz: 'America/New_York', demo: true
     }, p);
     if (!/^#[0-9a-fA-F]{6}$/.test(b.brand)) b.brand = '#0E6650';
-    if (b.logo && !/^https:\/\//.test(b.logo)) b.logo = null;
+    if (b.logo && !/^https:\/\//.test(b.logo) && String(b.logo).indexOf(LIVE_API + '/') !== 0) b.logo = null;
     b.zips = (b.zips || []).map(function (z) { return String(z).replace(/\D/g, ''); }).filter(Boolean);
     b.phoneDigits = String(b.phone).replace(/\D/g, '');
     if (p.prices) Object.keys(p.prices).forEach(function (k) {
@@ -90,9 +90,10 @@
     return Promise.all([getJSON(api + '/config'), getJSON(api + '/slots?days=14').catch(function () { return { slots: [] }; })]).then(function (r) {
       var c = r[0], h = hoursOf(c.hours);
       var T0 = build({ slug: c.slug, trade: c.trade, template: c.template, name: c.name, phone: prettyUs(c.phone), brand: c.brand, area: c.area || 'your area',
-        zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false });
-      // Photos can't be sent through the API yet, so don't offer an upload we would drop.
-      Object.keys(T0.steps).forEach(function (k) { if (T0.steps[k].type === 'details') T0.steps[k].photos = false; });
+        zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false,
+        logo: c.logo || null, website: c.website || null });
+      // Photos can't be sent through the API yet, so don't offer an upload we would drop (details and the truck step).
+      Object.keys(T0.steps).forEach(function (k) { if (T0.steps[k].type === 'details' || T0.steps[k].photos) T0.steps[k].photos = false; });
       return T0;
     });
   }
@@ -147,24 +148,33 @@
     setBrand(B.brand);
     var hostLine = document.getElementById('hostline');
     if (hostLine && !EMBED) hostLine.innerHTML = '<b>' + esc(B.name) + '</b><span>Serving ' + esc(B.area) + ' · <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a></span>';
-    // Live: one 'view' per visit. From the owner's own website this is how we know their widget is up.
-    var sid = '', sent = {};
-    function liveEvent(type) {
-      if (!B.api || sent[type]) return; sent[type] = 1;
-      fetch(B.api + '/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: type, session: sid, ref: document.referrer.slice(0, 300), page: location.href.slice(0, 300) }), keepalive: true }).catch(function () { });
+    // Live traffic for the owner's dashboard: no cookies and nothing stored on the visitor's device, so no consent
+    // box. The session id lives in memory for this page load only. ref and pg come from the page around us (w.js on
+    // their site, or their hosted booking page), so the source is how the visitor found them, not our own frame.
+    // Never names, phones or answers: those only go in the booking itself.
+    var sid = Math.random().toString(36).slice(2, 12), sent = {}, booked = false;
+    var REF = (params.has('ref') ? params.get('ref') : document.referrer) || '', PG = params.get('pg') || location.href;
+    var VIA = /^(site|hosted)$/.test(params.get('via') || '') ? params.get('via') : 'link';
+    var DEVICE = (function () { var m = Math.min(screen.width, screen.height); return m < 600 ? 'phone' : m < 1000 && matchMedia('(pointer: coarse)').matches ? 'tablet' : 'desktop'; })();
+    function liveEvent(type, step) {
+      var k = type + (step ? ':' + step : '');
+      if (!B.api || sent[k]) return; sent[k] = 1;
+      fetch(B.api + '/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+        body: JSON.stringify({ type: type, step: step || undefined, session: sid, ref: REF.slice(0, 300), page: PG.slice(0, 300), via: VIA, device: DEVICE }) }).catch(function () { });
     }
-    if (B.api) { try { sid = sessionStorage.getItem('dbw_sid') || ''; if (!sid) { sid = Math.random().toString(36).slice(2, 12); sessionStorage.setItem('dbw_sid', sid); } } catch (e) { } liveEvent('view'); }
+    if (B.api) liveEvent('view');
 
     var S;
     function fresh() { S = { path: null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', msg: '', cb: null, done: null }; }
     fresh();
     // ?builder=1: the product page's widget builder (same origin) can try a color and an uploaded logo live.
     // An uploaded logo arrives as a data: image and is only ever shown in an <img>, never saved from here.
+    var BUILDERS = /^https:\/\/(app\.matviykorsunskiy\.me|app\.dialbridge\.ai)$|^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
     if (params.get('builder') === '1') window.addEventListener('message', function (e) {
-      if (e.origin !== location.origin || !e.data || e.data.type !== 'dbw:customize') return;
+      if ((e.origin !== location.origin && !BUILDERS.test(e.origin)) || !e.data || e.data.type !== 'dbw:customize') return;
       if (/^#[0-9a-fA-F]{6}$/.test(e.data.brand || '')) { B.brand = e.data.brand; setBrand(B.brand); }
       if (e.data.logo === null) B.logo = null;
-      else if (/^data:image\/(png|jpeg|webp|gif);base64,/.test(e.data.logo || '')) B.logo = e.data.logo;
+      else if (/^data:image\/(png|jpeg|webp|gif);base64,/.test(e.data.logo || '') || /^https:\/\//.test(e.data.logo || '') || String(e.data.logo || '').indexOf(LIVE_API + '/') === 0) B.logo = e.data.logo;
       render();
     });
 
@@ -503,7 +513,7 @@
     function footHtml() {
       var call = '<a class="callus" href="tel:+1' + B.phoneDigits + '">' + ic('phone') + 'Call us</a>';
       // The Demo tag only shows on a standalone demo link; previews inside our own pages leave it out.
-      var pow = '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by DialBridge</a>' + (B.demo && window.top === window.self ? '<span class="demo" title="Demo: requests are not sent anywhere">Demo</span>' : '') + '</div>';
+      var pow = '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by Dialbridge</a>' + (B.demo && window.top === window.self ? '<span class="demo" title="Demo: requests are not sent anywhere">Demo</span>' : '') + '</div>';
       if (S.done) return '<footer class="ft"><span></span><div class="ft-r"><button type="button" class="btn" data-act="' + (CLOSABLE ? 'close' : 'restart') + '">' + (CLOSABLE ? 'Close' : 'Start over') + '</button></div></footer>' + pow;
       if (!S.path) return '<footer class="ft">' + call + '</footer>' + pow;
       var sc = curScreen(), last = S.idx === screens().length - 1, t = stepDef(sc[0]).type;
@@ -557,6 +567,7 @@
       }
       NAV = null; JUST = null;
       watchHeight();
+      var cs = curScreen(); if (cs) liveEvent('step', (S.path === 'book' || S.path === 'quote' ? '' : S.path + '-') + cs[0]);
       if (firstPaint) { firstPaint = false; post('dbw:ready', { light: !!B.logo }); }
     }
     // Eased scroll inside the card (same feel in every browser, unlike native smooth scrolling).
@@ -630,7 +641,7 @@
         name: S.name.trim(), phone: digits(), zip: S.zip || undefined, address: S.addr.trim() || undefined,
         details: S.details.trim() || undefined, message: notes.join('\n') || undefined,
         start: timed && !(S.svc && S.svc.mode === 'estimate') ? S.time : undefined,
-        source: EMBED ? 'website' : 'booking page', page: (document.referrer || location.href).slice(0, 300),
+        source: VIA === 'site' ? 'website' : 'booking page', page: PG.slice(0, 300), ref: REF.slice(0, 300), pg: PG.slice(0, 300),
         idempotencyKey: reqId, company_fax: hp ? hp.value : undefined, elapsed: Date.now() - LOAD_AT
       };
     }
@@ -650,7 +661,7 @@
         .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
         .then(function (x) {
           clearTimeout(timer);
-          if (x.ok) { liveEvent('submit'); return ok(x.j.booking && x.j.booking.ref); }
+          if (x.ok) { booked = true; liveEvent('submit'); return ok(x.j.booking && x.j.booking.ref); }
           if (x.status === 409) {
             // Someone took that time a moment ago: reload real times and send them back to pick again.
             S.time = null;
@@ -724,7 +735,7 @@
       else if (act === 'back') { if (S.idx === 0) { S.path = null; S.svc = null; S.svcs = []; S.ans = {}; } else S.idx--; NAV = 'back'; render(); }
       else if (act === 'photos') { var f = document.getElementById('ph'); if (f) f.click(); }
       else if (act === 'restart') { fresh(); NAV = 'back'; render(); }
-      else if (act === 'close') { post('dbw:close'); if (S.done) { fresh(); render(); } }
+      else if (act === 'close') { if (sent.open && !booked) liveEvent('abandon'); post('dbw:close'); if (S.done) { fresh(); render(); } }
     });
     app.addEventListener('input', function (e) {
       var k = e.target.getAttribute('data-in'); if (!k) return;
