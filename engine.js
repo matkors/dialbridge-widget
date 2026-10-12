@@ -551,7 +551,9 @@
             '<span class="sl-drag" title="Drag to move">&#8942;&#8942;</span><span class="sl-edit">' + (isOff ? 'Hidden. Click to show' : 'Edit') + '</span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></div>';
         }
         return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
-      }).join('') + '</div>';
+      }).join('') + '</div>' +
+        // Phones don't show the side panel, so its open-now and reply-time line goes under the options.
+        '<p class="mtrust"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span><span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span></p>';
     }
 
     function doneHtml() {
