@@ -8,7 +8,8 @@
      help     15 min, signed-up owners who want help going live
 
    window.CallBook
-     .slots(kind)            -> Promise<{ ok, days: [{ date: 'YYYY-MM-DD', slots: [iso] }] }>
+     .slots(kind)            -> Promise<{ ok, days: [{ date: 'YYYY-MM-DD', slots: [iso] }] }> (one request per kind, reused for 2 minutes)
+     .prefetch(kind)         start loading times early (when the popup or page opens), so the picker shows them at once
      .book(data)             -> Promise<{ ok, startTime } | { ok: false, error }>
                                 data: { kind, firstName, lastName, email, phone, business, startTime, interests, note, plan, accountId }
      .picker(el, kind, onPick) renders a day strip + times into el and calls onPick(iso) when one is tapped
@@ -20,10 +21,17 @@
   var TZ = 'America/New_York';
   try { TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || TZ; } catch (e) { }
 
+  // One request per kind, shared by everything that asks within 2 minutes. A failed load is not kept, so the next ask retries.
+  var cache = {};
   function slots(kind) {
-    return fetch(BASE + 'call-slots-k7q2?kind=' + encodeURIComponent(kind) + '&tz=' + encodeURIComponent(TZ))
+    var c = cache[kind];
+    if (c && Date.now() - c.at < 120000) return c.p;
+    var p = fetch(BASE + 'call-slots-k7q2?kind=' + encodeURIComponent(kind) + '&tz=' + encodeURIComponent(TZ))
       .then(function (r) { return r.json(); })
-      .catch(function () { return { ok: false, days: [] }; });
+      .catch(function () { return { ok: false, days: [] }; })
+      .then(function (r) { if (!(r && r.ok && r.days && r.days.length)) delete cache[kind]; return r; });
+    cache[kind] = { p: p, at: Date.now() };
+    return p;
   }
   function book(d) {
     return fetch(BASE + 'call-book-r8m4', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) })
@@ -52,15 +60,12 @@
     '@media (prefers-reduced-motion:reduce){.cb *{animation:none!important;transition:none!important}}';
   function style() { if (document.getElementById('cb-css')) return; var s = document.createElement('style'); s.id = 'cb-css'; s.textContent = CSS; document.head.appendChild(s); }
 
-  // Day strip + times. Keeps the last loaded times, so going back to this step doesn't load again.
-  var cache = {};
+  // Day strip + times. Uses the shared load above, so going back to this step (or a prefetch) shows them at once.
   function picker(el, kind, onPick, picked) {
     style();
     el.innerHTML = '<div class="cb"><div class="cb-days">' + new Array(6).join('<i class="cb-sk"></i>') + '</div><div class="cb-times"><i class="cb-sk"></i><i class="cb-sk"></i><i class="cb-sk"></i></div></div>';
-    var p = cache[kind] ? Promise.resolve(cache[kind]) : slots(kind);
-    return p.then(function (r) {
+    return slots(kind).then(function (r) {
       var days = (r && r.ok && r.days) || [];
-      if (days.length) cache[kind] = r;
       if (!days.length) { el.innerHTML = '<div class="cb"><p class="cb-none">We couldn\'t load open times. Try again in a minute, or send us a message instead.</p></div>'; return false; }
       days = days.slice(0, 6);
       var sel = 0;
@@ -84,5 +89,5 @@
     });
   }
 
-  window.CallBook = { slots: slots, book: book, picker: picker, when: when, forget: function (k) { delete cache[k]; } };
+  window.CallBook = { slots: slots, prefetch: slots, book: book, picker: picker, when: when, forget: function (k) { delete cache[k]; } };
 })();
