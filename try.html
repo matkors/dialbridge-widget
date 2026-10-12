@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Try Dialbridge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* The Try it popup on our own site: how a visitor starts with Dialbridge (free trial, a demo call, or a message).
+   Opened by w.js (data-page="try.html"). Same feel as the booking widget we sell: brand panel that follows the
+   step, thin progress bar, screens that cross-fade. ?start=plan|demo|message opens straight on that path. */
+:root{--accent:#f35427;--accent-ink:#cf4016;--deep:#232a22;--ink:#1d221c;--ink2:#3d433b;--mute:#6b7068;--line:#e4e3dc;--soft:#f4f3ee;--card:#fff;--ok:#2f7d4f;--warn:#a6291b;--warn-bg:#fdf0ee;
+  --ease:cubic-bezier(.23,1,.32,1);--cb-accent:var(--accent);--cb-ink:var(--ink);--cb-mute:var(--mute);--cb-line:var(--line);--cb-soft:var(--soft);--cb-card:var(--card)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Manrope,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--ink);background:#eceae3;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+body.embed{background:var(--card)}
+button,input,textarea{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+.page{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+body.embed .page{padding:0;height:100%}
+.card{position:relative;display:flex;width:100%;max-width:960px;height:min(640px,calc(100dvh - 48px));background:var(--card);border-radius:18px;overflow:hidden;box-shadow:0 24px 64px rgba(29,34,28,.2)}
+body.embed .card{max-width:none;height:100%;border-radius:0;box-shadow:none}
+/* brand panel */
+.side{position:relative;display:flex;flex-direction:column;justify-content:space-between;width:35%;flex-shrink:0;padding:32px 28px 24px;background:var(--deep);color:#fff;overflow:hidden}
+.side::before{content:"";position:absolute;right:-90px;top:-90px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(243,84,39,.35),transparent 70%)}
+.sc{position:relative;display:flex;flex-direction:column;gap:12px}
+.sc.swap h2{animation:up .5s var(--ease) both}.sc.swap p,.sc.swap ul{animation:up .5s .07s var(--ease) both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}}
+.side h2{margin:0;font-size:28px;line-height:1.14;letter-spacing:-.025em;text-wrap:pretty}
+.side p{margin:0;font-size:15px;line-height:1.5;color:rgba(255,255,255,.8);max-width:30ch}
+.side ul{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;font-size:14.5px;font-weight:600}
+.side li{display:flex;align-items:center;gap:9px}
+.side li svg{width:18px;height:18px;color:var(--accent);flex-shrink:0}
+.shot{position:relative;margin:18px -28px -24px 18px;border-radius:14px 0 0 0;overflow:hidden;box-shadow:0 -10px 40px rgba(0,0,0,.35)}
+.shot img{display:block;width:100%;height:auto}
+.logo{position:relative;font-size:19px;font-weight:800;letter-spacing:-.02em}.logo span{color:var(--accent)}
+/* main column */
+.main{position:relative;flex:1;min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:14px;padding:22px 24px 6px}
+.ib{display:grid;place-items:center;width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:var(--ink);cursor:pointer;transition:background-color .15s}
+.ib:hover{background:var(--soft)}.ib svg{width:20px;height:20px}
+.ib.back{border:2px solid var(--ink)}
+.ib.hide{visibility:hidden}
+.ptrack{flex:1;max-width:430px;height:6px;margin:0 auto;border-radius:999px;background:#ebe9e2;overflow:hidden}
+.ptrack i{display:block;height:100%;border-radius:inherit;background:var(--accent);transition:width .6s var(--ease)}
+.bd{position:relative;flex:1;min-height:0;overflow-y:auto;padding:18px 40px 20px}
+.bdi{max-width:540px;margin:0 auto}
+.bd.in .bdi{animation:inF .34s var(--ease) both}.bd.inb .bdi{animation:inB .34s var(--ease) both}
+@keyframes inF{from{opacity:0;transform:translateY(14px)}}@keyframes inB{from{opacity:0;transform:translateY(-10px)}}
+.fadeold{position:absolute;left:0;right:0;z-index:3;overflow:hidden;pointer-events:none;background:var(--card);animation:gOut .2s var(--ease) forwards}
+@keyframes gOut{to{opacity:0;transform:translateY(-6px)}}
+h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-align:center;text-wrap:balance}
+.lede{margin:0 0 20px;text-align:center;color:var(--mute);font-size:15px}
+/* big choice tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tiles.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:150px;padding:18px 12px;border:1px solid var(--line);border-radius:16px;background:var(--card);text-align:center;cursor:pointer;transition:border-color .15s,box-shadow .2s var(--ease),transform .15s var(--ease),background-color .15s}
+.tile:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:0 10px 24px -14px rgba(29,34,28,.3);transform:translateY(-2px)}
+.tile:active{transform:scale(.98)}
+.tile .ic{display:grid;place-items:center;width:52px;height:52px;border-radius:15px;background:color-mix(in srgb,var(--accent) 11%,#fff);color:var(--accent);transition:transform .25s var(--ease)}
+.tile:hover .ic{transform:translateY(-2px) rotate(-4deg)}
+.tile .ic svg{width:26px;height:26px}
+.tile b{font-size:16px}.tile span{font-size:13px;color:var(--mute);line-height:1.35}
+.tile.sm{min-height:0;flex-direction:row;justify-content:flex-start;gap:12px;padding:14px 30px 14px 14px;text-align:left}
+.tile.sm .ic{width:38px;height:38px;border-radius:11px}.tile.sm .ic svg{width:20px;height:20px}.tile.sm b{font-size:14.5px}
+.tile.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:color-mix(in srgb,var(--accent) 5%,#fff)}
+.tile .tk{position:absolute;top:8px;right:8px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;animation:pop .3s cubic-bezier(.34,1.56,.64,1) both}
+.tile .tk svg{width:12px;height:12px}
+@keyframes pop{from{transform:scale(.3);opacity:0}}
+/* plans */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.plan{display:flex;flex-direction:column;gap:10px;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+.plan.main{border-color:var(--deep);box-shadow:0 0 0 1px var(--deep)}
+.plan .tag{align-self:flex-start;padding:3px 9px;border-radius:999px;background:var(--soft);font-size:11.5px;font-weight:700;color:var(--ink2)}
+.plan.main .tag{background:var(--deep);color:#fff}
+.plan h3{margin:0;font-size:16px;line-height:1.25}
+.plan .amt{font-size:28px;font-weight:800;letter-spacing:-.02em}.plan .amt small{font-size:13px;font-weight:600;color:var(--mute)}
+.plan .note{margin:-6px 0 0;font-size:12.5px;color:var(--mute)}
+.plan ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--ink2);flex:1}
+.plan li{display:flex;gap:7px}.plan li svg{width:15px;height:15px;flex-shrink:0;margin-top:2px;color:var(--ok)}
+/* forms */
+.fields{display:flex;flex-direction:column;gap:12px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fld{display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700}
+.fld em{font-style:normal;color:var(--warn)}.fld small{font-weight:500;color:var(--mute)}
+.fld input,.fld textarea{width:100%;min-height:46px;padding:11px 13px;border:1px solid #d3d2ca;border-radius:11px;background:var(--card);font-size:16px;font-weight:500;transition:border-color .15s,box-shadow .15s}
+.fld textarea{resize:vertical;min-height:110px}
+.fld input:focus,.fld textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+.fine{margin:0;font-size:12.5px;color:var(--mute)}
+.picked{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:11px 13px;border-radius:12px;background:var(--soft);font-size:14px;font-weight:600}
+.picked svg{width:18px;height:18px;color:var(--accent)}
+.picked button{margin-left:auto;border:0;background:none;color:var(--accent-ink);font-weight:700;cursor:pointer;font-size:13.5px}
+.err{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-size:13.5px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+/* done */
+.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding-top:30px}
+.okc{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:var(--ok);color:#fff;animation:pop .45s cubic-bezier(.34,1.56,.64,1) both;box-shadow:0 0 0 8px color-mix(in srgb,var(--ok) 14%,transparent)}
+.okc svg{width:28px;height:28px}
+.done h1{margin-top:8px}.done p{margin:0;color:var(--mute);max-width:42ch}
+.when{margin-top:6px;padding:10px 16px;border-radius:12px;background:var(--soft);font-weight:700}
+/* footer */
+.ft{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 40px 8px}
+.ft:empty{display:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 24px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-size:15.5px;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;box-shadow:0 1px 2px rgba(29,34,28,.16),inset 0 1px 0 rgba(255,255,255,.2);transition:background-color .15s,transform .12s var(--ease),opacity .2s}
+.btn:hover{background:var(--accent-ink)}.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;background:var(--accent)}
+.btn.dark{background:var(--deep)}.btn.dark:hover{background:#000}
+.btn.ghost{background:var(--soft);color:var(--ink);box-shadow:none}.btn.ghost:hover{background:#e9e7df}
+.btn.full{width:100%}
+.btn svg{width:17px;height:17px}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pow{padding:2px 0 12px;text-align:center;font-size:11.5px;color:#9a9e95}
+.pow b{color:var(--ink2)}
+@media (max-width:760px){
+  .page{padding:0}
+  .card{max-width:none;height:100dvh;border-radius:0;box-shadow:none}
+  .side{display:none}
+  .top{padding:14px 12px 4px}
+  .bd{padding:14px 16px 18px}
+  .ft{padding:12px 16px calc(8px + env(safe-area-inset-bottom,0px))}
+  .ft .btn{flex:1}
+  h1{font-size:23px}
+  .tiles.three{grid-template-columns:1fr}
+  .tiles.three .tile{min-height:0;flex-direction:row;justify-content:flex-start;text-align:left;padding:16px}
+  .tiles.three .tile div{display:flex;flex-direction:column;gap:2px}
+  .plans,.f2{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-rocket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></symbol>
+  <symbol id="i-arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></symbol>
+  <symbol id="i-site" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-hands" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3M3 4h8"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></symbol>
+</svg>
+<div class="page"><div class="card">
+  <aside class="side" aria-hidden="true"><div class="sc" id="sc"></div><div class="shot" id="shot"><img src="img/try-shot.webp" alt=""></div></aside>
+  <div class="main" id="main">
+    <div class="top"><button class="ib back hide" type="button" id="back" aria-label="Back"><svg><use href="#i-back"/></svg></button><div class="ptrack" role="progressbar" aria-label="Progress"><i id="pfill" style="width:12%"></i></div><button class="ib" type="button" id="close" aria-label="Close"><svg><use href="#i-x"/></svg></button></div>
+    <div class="bd" id="bd"><div class="bdi" id="bdi"></div></div>
+    <div class="ft" id="ft"></div>
+    <div class="pow">Powered by <b>Dialbridge</b></div>
+  </div>
+</div></div>
+<script src="callbook.js"></script>
+<script>
+(function () {
+  'use strict';
+  var params = new URLSearchParams(location.search);
+  var EMBED = params.get('embed') === '1';
+  if (EMBED) document.body.classList.add('embed');
+  var APP = 'https://app.matviykorsunskiy.me/';
+  var API = 'https://dialbridge-booking-api.dialbridge-booking-api.workers.dev';
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var I = function (id) { return '<svg><use href="#i-' + id + '"/></svg>'; };
+  var post = function (type, d) { try { if (EMBED && parent !== window) parent.postMessage(Object.assign({ type: type }, d || {}), '*'); } catch (e) { } };
+
+  // Ad tags and Meta ids from the landing page visit, passed to sign-up so the ad still gets credit on the app domain.
+  function attrQuery() {
+    var A = {}; try { A = JSON.parse(localStorage.getItem('dbx_attr') || '{}'); } catch (e) { }
+    var q = new URLSearchParams();
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'].forEach(function (k) { if (A[k]) q.set(k, A[k]); });
+    if (A.fbc_at) q.set('fbc_at', A.fbc_at);
+    return q;
+  }
+  function signupUrl(plan) { var q = attrQuery(); q.set('plan', plan); return APP + 'signup?' + q.toString(); }
+
+  var INTERESTS = [['site', 'Book online button on my website', 'globe'], ['page', 'A booking page for Google and Instagram', 'pin'], ['web', 'A new website', 'site'], ['reviews', 'More Google reviews', 'star'],
+    ['texts', 'Text confirmations and reminders', 'bell'], ['inbox', 'One inbox for every request', 'inbox'], ['price', 'Showing my prices online', 'tag'], ['other', 'Something else', 'dots']];
+  var TOPICS = [['pricing', 'Pricing and plans', 'tag'], ['account', 'Help with my account', 'user'], ['partner', 'Partnerships', 'hands'], ['other', 'Something else', 'dots']];
+
+  // Every screen: its path, the brand panel words, and how far along the bar is.
+  var STEPS = {
+    start: { pct: 12, side: ['Get booked online, even at 10 PM', 'Customers see your price and book in under a minute. You get a text.', ['14 days free on the Booking Widget', 'Set it up yourself in about 10 minutes', 'Cancel anytime']] },
+    plan: { pct: 55, side: ['Pick what fits', 'Like your website? Add the Booking Widget. Want a new one? We build it for you.', ['No setup fee', 'Month to month']] },
+    interests: { pct: 30, side: ['See it on your business', 'A free 20-minute call with Matviy or Alan. We show you the booking page and answer your questions.', ['No pressure, no hard sell']] },
+    time: { pct: 55, side: ['Pick a time that works', 'We send a calendar invite and text you a reminder before the call.', ['20 minutes', 'Zoom or Google Meet']] },
+    details: { pct: 80, side: ['Almost done', 'Tell us who you are so we can look at your business before the call.', ['We never share your number']] },
+    topic: { pct: 35, side: ['Ask us anything', 'We\'re a small team and answer every message, usually within a few hours.', []] },
+    message: { pct: 75, side: ['Ask us anything', 'Your message goes straight to the founders. We reply by email.', []] },
+    booked: { pct: 100, side: ['Talk soon', 'Thanks for booking. Bring any questions, and we\'ll show you how it works for your business.', []] },
+    sent: { pct: 100, side: ['Talk soon', 'We read every message and reply by email, usually within a few hours.', []] }
+  };
+  var S = { path: [], interests: [], topic: '', time: '', f: { first: '', last: '', business: '', email: '', phone: '', msg: '' }, booked: null };
+  var cur = 'start', NAV = 0, first = true;
+
+  function screen() {
+    if (cur === 'start') return '<h1>How do you want to start?</h1><p class="lede">Pick one. It takes about a minute.</p><div class="tiles three">' +
+      tile('trial', 'rocket', 'Start free trial', '14 days free on the Booking Widget') + tile('demo', 'cal', 'Book a demo', 'A free 20-minute call with us') + tile('msg', 'msg', 'Send a message', 'Questions, pricing or anything else') + '</div>';
+    if (cur === 'plan') return '<h1>Pick your plan</h1><p class="lede">Month to month. No setup fee.</p><div class="plans">' +
+      '<div class="plan"><span class="tag">Have a website you like</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">14 days free. Cancel anytime.</p><ul>' +
+        li('Book online button for your website') + li('Booking page for Google, Facebook and Instagram') + li('A text and an inbox entry for every booking') + li('Set it up yourself in about 10 minutes') +
+        '</ul><a class="btn full" target="_top" href="' + esc(signupUrl('widget')) + '" data-go="widget">Start free trial ' + I('arw') + '</a></div>' +
+      '<div class="plan main"><span class="tag">We build it for you</span><h3>Website + Reviews + Booking Widget</h3><div class="amt">$199<small> /month</small></div><p class="note">No free trial. We do the setup work for you.</p><ul>' +
+        li('A new website built to book jobs') + li('Automatic Google review requests') + li('Everything in Booking Widget') + li('We build it with you on a 30-minute call') +
+        '</ul><a class="btn dark full" target="_top" href="' + esc(signupUrl('full')) + '" data-go="full">Get started ' + I('arw') + '</a></div></div>';
+    if (cur === 'interests') return '<h1>What do you want help with?</h1><p class="lede">Pick any that apply. It helps us prepare.</p><div class="tiles">' +
+      INTERESTS.map(function (x) { var on = S.interests.indexOf(x[0]) > -1; return '<button type="button" class="tile sm' + (on ? ' on' : '') + '" data-int="' + x[0] + '" aria-pressed="' + on + '">' + (on ? '<span class="tk">' + I('chk') + '</span>' : '') + '<span class="ic">' + I(x[2]) + '</span><b>' + x[1] + '</b></button>'; }).join('') + '</div>';
+    if (cur === 'time') return '<h1>Pick a time for your demo</h1><p class="lede">20 minutes on Zoom or Google Meet.</p><div id="picker"></div>';
+    if (cur === 'details') return '<h1>Your details</h1><p class="lede">So we can look at your business before the call.</p>' +
+      '<div class="picked">' + I('cal') + '<span>' + esc(CallBook.when(S.time)) + '</span><button type="button" data-change>Change</button></div><div class="fields">' +
+      '<div class="f2">' + fld('first', 'First name', 'given-name', 'text', true) + fld('last', 'Last name', 'family-name', 'text') + '</div>' + fld('business', 'Business name', 'organization', 'text', true) +
+      '<div class="f2">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Mobile', 'tel', 'tel', true) + '</div>' +
+      '<p class="fine">We\'ll email a calendar invite and text you a reminder. Reply STOP to opt out.</p></div><div class="hp" aria-hidden="true"><input id="hp" tabindex="-1" autocomplete="off"></div><p class="err" id="err" hidden></p>';
+    if (cur === 'topic') return '<h1>What\'s it about?</h1><p class="lede">Pick the closest one.</p><div class="tiles">' +
+      TOPICS.map(function (x) { return '<button type="button" class="tile sm' + (S.topic === x[0] ? ' on' : '') + '" data-topic="' + x[0] + '"><span class="ic">' + I(x[2]) + '</span><b>' + x[1] + '</b></button>'; }).join('') + '</div>';
+    if (cur === 'message') return '<h1>Your message</h1><p class="lede">We reply by email, usually within a few hours.</p><div class="fields">' +
+      '<label class="fld"><span>How can we help? <em>*</em></span><textarea data-f="msg" rows="4" placeholder="Tell us a little about your business and your question">' + esc(S.f.msg) + '</textarea></label>' +
+      '<div class="f2">' + fld('first', 'First name', 'given-name', 'text', true) + fld('email', 'Email', 'email', 'email', true) + '</div>' + fld('business', 'Business name', 'organization', 'text') +
+      '</div><div class="hp" aria-hidden="true"><input id="hp" tabindex="-1" autocomplete="off"></div><p class="err" id="err" hidden></p>';
+    if (cur === 'booked') return '<div class="done"><span class="okc">' + I('chk') + '</span><h1>You\'re booked, ' + esc(S.f.first) + '</h1><p>We emailed a calendar invite to ' + esc(S.f.email) + ' and we\'ll text you a reminder before the call.</p><span class="when">' + esc(CallBook.when(S.booked)) + '</span></div>';
+    if (cur === 'sent') return '<div class="done"><span class="okc">' + I('chk') + '</span><h1>Message sent</h1><p>Thanks, ' + esc(S.f.first) + '. We\'ll reply to ' + esc(S.f.email) + ', usually within a few hours.</p></div>';
+    return '';
+  }
+  function tile(go, icon, title, sub) { return '<button type="button" class="tile" data-path="' + go + '"><span class="ic">' + I(icon) + '</span><div><b>' + title + '</b><br><span>' + sub + '</span></div></button>'; }
+  function li(t) { return '<li>' + I('chk') + '<span>' + t + '</span></li>'; }
+  function fld(k, label, ac, type, req) { return '<label class="fld"><span>' + label + (req ? ' <em>*</em>' : ' <small>(optional)</small>') + '</span><input data-f="' + k + '" type="' + type + '" autocomplete="' + ac + '"' + (type === 'tel' ? ' inputmode="tel"' : '') + ' value="' + esc(S.f[k]) + '"></label>'; }
+
+  function digits(v) { var d = String(v || '').replace(/\D/g, ''); return d.length === 11 && d[0] === '1' ? d.slice(1) : d; }
+  var emailOk = function (v) { return /^[^@\s]+@[^@\s.]+\.[a-z]{2,}$/i.test(String(v).trim()); };
+  function valid() {
+    if (cur === 'time') return !!S.time;
+    if (cur === 'details') return S.f.first.trim() && S.f.business.trim() && emailOk(S.f.email) && digits(S.f.phone).length === 10;
+    if (cur === 'message') return S.f.msg.trim().length >= 5 && S.f.first.trim() && emailOk(S.f.email);
+    return true;
+  }
+  function foot() {
+    if (cur === 'interests') return '<button class="btn ghost" type="button" data-next="skip">Skip</button><button class="btn" type="button" data-next>Next ' + I('arw') + '</button>';
+    if (cur === 'time') return '<button class="btn" type="button" data-next' + (valid() ? '' : ' disabled') + '>Continue ' + I('arw') + '</button>';
+    if (cur === 'details') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>Book my demo</button>';
+    if (cur === 'message') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>Send message</button>';
+    if (cur === 'booked' || cur === 'sent') return '<button class="btn dark" type="button" data-close>Close</button>';
+    return '';
+  }
+  function sideHtml() { var s = STEPS[cur].side; return '<h2>' + s[0] + '</h2><p>' + s[1] + '</p>' + (s[2].length ? '<ul>' + s[2].map(li).join('') + '</ul>' : ''); }
+
+  function render() {
+    var bd = $('#bd'), bdi = $('#bdi'), ghost = null;
+    if (NAV && !first) {
+      ghost = document.createElement('div'); ghost.className = 'fadeold'; ghost.setAttribute('aria-hidden', 'true');
+      ghost.style.top = bd.offsetTop + 'px'; ghost.style.height = bd.clientHeight + 'px';
+      ghost.innerHTML = '<div class="bd" style="height:100%;overflow:hidden"><div class="bdi" style="transform:translateY(' + -bd.scrollTop + 'px)">' + bdi.innerHTML + '</div></div>';
+      [].forEach.call(ghost.querySelectorAll('[id],[data-path],[data-int],[data-topic],[data-f]'), function (n) { n.removeAttribute('id'); });
+      $('#main').appendChild(ghost);
+      ghost.addEventListener('animationend', function () { ghost.remove(); });
+    }
+    var sideWas = $('#sc').innerHTML, side = sideHtml();
+    if (side !== sideWas) { $('#sc').innerHTML = side; if (!first) { $('#sc').classList.remove('swap'); void $('#sc').offsetWidth; $('#sc').classList.add('swap'); } }
+    bdi.innerHTML = screen(); bd.scrollTop = 0;
+    bd.classList.remove('in', 'inb'); void bd.offsetWidth; if (NAV && !first) bd.classList.add(NAV > 0 ? 'in' : 'inb');
+    $('#ft').innerHTML = foot();
+    $('#back').classList.toggle('hide', cur === 'start' || cur === 'booked' || cur === 'sent');
+    var pf = $('#pfill'); requestAnimationFrame(function () { pf.style.width = STEPS[cur].pct + '%'; });
+    if (cur === 'time') CallBook.picker($('#picker'), 'demo', function (iso) { S.time = iso; refresh(); }, S.time);
+    NAV = 0; first = false;
+    post('dbw:height', { h: innerWidth <= 640 ? 4000 : 640 });   // phones: the sheet takes the full screen
+  }
+  function refresh() { var b = $('#ft [data-next]:not([data-next="skip"])'); if (b) b.disabled = !valid(); }
+  function go(step) { S.path.push(cur); cur = step; NAV = 1; render(); }
+  function back() { if (!S.path.length) return; cur = S.path.pop(); NAV = -1; render(); }
+  function fail(t) { var e = $('#err'); if (e) { e.textContent = t; e.hidden = false; } }
+  function busy(b, on, label) { if (!b) return; b.disabled = on; b.innerHTML = on ? '<span class="spin"></span>' + label : label; }
+
+  function bookDemo() {
+    var b = $('#go'); busy(b, true, 'Booking');
+    var names = S.f.first.trim();
+    CallBook.book({ kind: 'demo', firstName: names, lastName: S.f.last.trim(), email: S.f.email.trim(), phone: digits(S.f.phone), business: S.f.business.trim(), startTime: S.time,
+      interests: S.interests.map(function (k) { return INTERESTS.filter(function (x) { return x[0] === k; })[0][1]; }), company_fax: ($('#hp') || {}).value || '' }).then(function (r) {
+      if (r && r.ok) { S.booked = r.startTime || S.time; post('dbw:submit', { path: 'demo' }); S.path = []; cur = 'booked'; NAV = 1; render(); return; }
+      busy(b, false, 'Book my demo');
+      if (r && r.error === 'slot_taken') { CallBook.forget('demo'); S.time = ''; fail('Someone just took that time. Pick another one.'); setTimeout(function () { cur = 'time'; S.path.pop(); NAV = -1; render(); }, 1400); return; }
+      if (r && r.error === 'invalid_request') { fail('Check your email and mobile number and try again.'); return; }
+      fail('That didn\'t go through. Try again, or send us a message instead.');
+    });
+  }
+  function sendMessage() {
+    var b = $('#go'); busy(b, true, 'Sending');
+    var topic = (TOPICS.filter(function (x) { return x[0] === S.topic; })[0] || [0, 'Something else'])[1];
+    fetch(API + '/v1/support', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: (S.f.first + ' ' + S.f.last).trim(), email: S.f.email.trim(), topic: 'website: ' + topic,
+      message: (S.f.business.trim() ? 'Business: ' + S.f.business.trim() + '\n\n' : '') + S.f.msg.trim(), page: document.referrer || location.href, company_fax: ($('#hp') || {}).value || '' }) })
+      .then(function (r) { return r.ok; }).catch(function () { return false; }).then(function (ok) {
+        if (ok) { post('dbw:submit', { path: 'message' }); S.path = []; cur = 'sent'; NAV = 1; render(); return; }
+        busy(b, false, 'Send message'); fail('That didn\'t send. Email us at support@dialbridge.ai instead.');
+      });
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-path],[data-int],[data-topic],[data-next],[data-change],[data-close],#back,#close,[data-go]');
+    if (!t) return;
+    if (t.id === 'close' || t.hasAttribute('data-close')) { post('dbw:close'); return; }
+    if (t.id === 'back') { back(); return; }
+    if (t.hasAttribute('data-go')) { post('dbw:submit', { path: 'plan', plan: t.getAttribute('data-go') }); return; }
+    if (t.hasAttribute('data-path')) { var p = t.getAttribute('data-path'); go(p === 'trial' ? 'plan' : p === 'demo' ? 'interests' : 'topic'); return; }
+    if (t.hasAttribute('data-int')) {
+      var k = t.getAttribute('data-int'), i = S.interests.indexOf(k);
+      if (i > -1) S.interests.splice(i, 1); else S.interests.push(k);
+      var on = i < 0; t.classList.toggle('on', on); t.setAttribute('aria-pressed', on);
+      var tk = t.querySelector('.tk'); if (on && !tk) t.insertAdjacentHTML('afterbegin', '<span class="tk">' + I('chk') + '</span>'); if (!on && tk) tk.remove();
+      return;
+    }
+    if (t.hasAttribute('data-topic')) { S.topic = t.getAttribute('data-topic'); go('message'); return; }
+    if (t.hasAttribute('data-change')) { back(); return; }
+    if (t.hasAttribute('data-next')) {
+      if (t.disabled) return;
+      if (cur === 'interests') { if (t.getAttribute('data-next') === 'skip') S.interests = []; go('time'); }
+      else if (cur === 'time') go('details');
+      else if (cur === 'details') bookDemo();
+      else if (cur === 'message') sendMessage();
+    }
+  });
+  document.addEventListener('input', function (e) {
+    var k = e.target.getAttribute('data-f'); if (!k) return;
+    S.f[k] = e.target.value;
+    if (k === 'phone') { var d = digits(e.target.value); if (d.length === 10 && !/^delete/.test(e.inputType || '')) e.target.value = '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6); }
+    refresh();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') post('dbw:close'); });
+
+  var st = params.get('start');
+  if (st === 'plan') { S.path = ['start']; cur = 'plan'; }
+  else if (st === 'demo') { S.path = ['start']; cur = 'interests'; }
+  else if (st === 'message') { S.path = ['start']; cur = 'topic'; }
+  render();
+  post('dbw:ready', { light: true });
+})();
+</script>
+</body>
+</html>

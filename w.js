@@ -1,6 +1,9 @@
 /* DialBridge widget loader. Install with one line:
    <script async src="https://matviykorsunskiy.me/dialbridge-widget/w.js" data-business="harbor-haul" data-color="#0E6650"></script>
-   Optional: data-label="Book a pickup", data-position="left", data-config="<base64url>" (demo generator).
+   Optional: data-label="Book a pickup", data-position="left", data-config="<base64url>" (demo generator),
+   data-icon="none" (label only), data-bubble="Skip the call and book online" + data-avatar="<image url>" (a speech
+   bubble above the button on desktop; closing it hides it for the visit). Pages with their own bottom bar can lift the
+   button: document.dispatchEvent(new CustomEvent('dialbridge:lift', { detail: { px: 70 } })).
    Inline mode for builders that block floating buttons: <div data-dialbridge-inline="harbor-haul"></div>
    Desktop opens a centered popup that grows out of the button; phones get a bottom sheet that fits each step.
    Closing keeps the half-filled form, so an accidental tap outside never loses a customer's answers. */
@@ -18,8 +21,16 @@
   var label = s.getAttribute('data-label') || 'Book online';
   var left = s.getAttribute('data-position') === 'left';
   var phone = (s.getAttribute('data-phone') || '').replace(/[^\d+]/g, '');   // optional: adds a round call button next to Book online
+  var noIcon = s.getAttribute('data-icon') === 'none';
+  var font = (s.getAttribute('data-font') || '').replace(/[^\w ]/g, '');   // a font the page already loads, e.g. Manrope
+  var bubble = (s.getAttribute('data-bubble') || '').replace(/[<>&"]/g, '').slice(0, 80);
+  var avatar = (s.getAttribute('data-avatar') || '').replace(/["'()<>\s]/g, '');
+  if (avatar && !/^https:\/\//.test(avatar)) avatar = /^[\w.\/-]+$/.test(avatar) ? new URL(avatar, document.baseURI).href : '';
+  var bubbleGone = false; try { bubbleGone = sessionStorage.getItem('dbw_bubble_x') === '1'; } catch (e) { }
   var q = (cfg ? 'c=' + cfg : 'b=' + (slug || 'harbor-haul') + live);
-  var src = base + 'book.html?embed=1&' + q;
+  // data-page="try.html": open one of our own pages instead of a business's booking page (the Try it popup on our site).
+  var page = (s.getAttribute('data-page') || '').replace(/[^a-z0-9.-]/g, '');
+  var src = page ? base + page + '?embed=1' : base + 'book.html?embed=1&' + q;
   var EASE = 'cubic-bezier(.23,1,.32,1)', DRAWER = 'cubic-bezier(.32,.72,0,1)';
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -37,7 +48,17 @@
   root.innerHTML = '<style>' +
     ':host{all:initial}' +
     '*{box-sizing:border-box}' +
-    '.w{position:fixed;bottom:24px;' + (left ? 'left' : 'right') + ':24px;display:flex;flex-direction:column;align-items:' + (left ? 'flex-start' : 'flex-end') + ';gap:7px;font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;animation:wIn .5s .4s ' + EASE + ' both;transition:opacity .2s,transform .25s ' + EASE + '}' +
+    '.w{position:fixed;bottom:calc(24px + var(--lift,0px));' + (left ? 'left' : 'right') + ':24px;display:flex;flex-direction:column;align-items:' + (left ? 'flex-start' : 'flex-end') + ';gap:7px;font-family:' + (font ? '"' + font + '",' : '') + '"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;animation:wIn .5s .4s ' + EASE + ' both;transition:opacity .2s,transform .25s ' + EASE + ',bottom .3s ' + EASE + '}' +
+    // speech bubble (desktop): photo + a short line, a tail pointing at the button, a small close button
+    '.bb{position:relative;display:flex;align-items:center;gap:13px;max-width:260px;margin-bottom:12px;padding:14px 18px 14px 14px;border:0;border-radius:18px;background:#fff;color:#14171a;text-align:left;cursor:pointer;font:500 15.5px/1.4 inherit;font-family:inherit;box-shadow:0 0 0 1px rgba(16,24,40,.05),0 12px 30px rgba(16,24,40,.16);animation:bbIn .55s 1.6s ' + EASE + ' both;transform-origin:' + (left ? '20%' : '60%') + ' 100%;transition:transform .2s ' + EASE + ',box-shadow .2s ' + EASE + '}' +
+    '.bb:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(16,24,40,.06),0 16px 36px rgba(16,24,40,.2)}' +
+    '.bb::after{content:"";position:absolute;bottom:-7px;' + (left ? 'left:44px' : 'right:' + (phone ? '128px' : '60px')) + ';width:16px;height:16px;background:#fff;border-radius:3px;transform:rotate(45deg);box-shadow:3px 3px 6px rgba(16,24,40,.06)}' +
+    '.bb img{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(16,24,40,.1)}' +
+    '.bx{position:absolute;top:-9px;' + (left ? 'right' : 'left') + ':-9px;display:grid;place-items:center;width:24px;height:24px;border:0;border-radius:50%;background:#fff;color:#5d646d;cursor:pointer;box-shadow:0 0 0 1px rgba(16,24,40,.1),0 2px 6px rgba(16,24,40,.14);opacity:0;transition:opacity .15s}' +
+    '.bwrap{position:relative}.bwrap:hover .bx,.bx:focus-visible{opacity:1}' +
+    '.bwrap.gone{display:none}' +
+    '@keyframes bbIn{from{opacity:0;transform:translateY(8px) scale(.9)}}' +
+    '@media (max-width:640px){.bwrap{display:none}}' +
     '.row{display:flex;align-items:center;gap:10px;flex-direction:' + (left ? 'row-reverse' : 'row') + '}' +
     '.go,.call{position:relative;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.55);color:' + fg + ';cursor:pointer;text-decoration:none;font-family:inherit;-webkit-tap-highlight-color:transparent;' +
       'background:linear-gradient(180deg,color-mix(in srgb,' + color + ' 62%,#fff) 0%,' + color + ' 58%,color-mix(in srgb,' + color + ' 88%,#000) 100%);' +
@@ -45,6 +66,8 @@
       'transition:transform .2s ' + EASE + ',box-shadow .2s ' + EASE + ',filter .15s}' +
     '.go{gap:10px;height:58px;padding:0 28px 0 22px;border-radius:29px;font:650 17px/1 inherit;font-family:inherit;letter-spacing:-.01em}' +
     '.call{width:58px;height:58px;border-radius:50%}' +
+    '.go.ni{padding:0 32px;font-size:19px;font-weight:700}' +
+    '.w.hid{opacity:0;transform:translateY(12px);pointer-events:none}' +
     '.go:hover,.call:hover{transform:translateY(-2px);filter:brightness(1.05);box-shadow:inset 0 1px 1px rgba(255,255,255,.55),inset 0 -3px 8px rgba(0,0,0,.14),0 0 0 6px color-mix(in srgb,' + color + ' 18%,transparent),0 16px 34px color-mix(in srgb,' + color + ' 45%,transparent)}' +
     '.go:active,.call:active{transform:scale(.96);transition-duration:.1s}' +
     '.go:focus-visible,.call:focus-visible{outline:3px solid ' + color + ';outline-offset:4px}' +
@@ -78,10 +101,12 @@
     '.gr{display:flex;justify-content:center;align-items:center;position:absolute;top:0;left:0;right:0;height:16px;z-index:3;touch-action:none;cursor:grab}' +
     '.gr::before{content:"";width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.55)}' +
     '.pn.light .gr::before{background:#d3d7dc}' +
-    '.w{bottom:16px;' + (left ? 'left' : 'right') + ':16px}.go{height:52px;font-size:16px;padding:0 22px 0 18px}.call{width:52px;height:52px}.pw{padding-' + (left ? 'left' : 'right') + ':' + (phone ? '62px' : '0') + '}}' +
+    '.w{bottom:calc(16px + var(--lift,0px));' + (left ? 'left' : 'right') + ':16px}.go{height:52px;font-size:16px;padding:0 22px 0 18px}.call{width:52px;height:52px}.pw{padding-' + (left ? 'left' : 'right') + ':' + (phone ? '62px' : '0') + '}}' +
     '@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}' +
     '</style>' +
-    '<div class="w"><div class="row"><button type="button" class="go" aria-haspopup="dialog"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>' +
+    '<div class="w">' + (bubble && !bubbleGone ? '<div class="bwrap"><button type="button" class="bb" aria-haspopup="dialog">' + (avatar ? '<img src="' + avatar + '" alt="">' : '') + '<span>' + bubble + '</span></button>' +
+      '<button type="button" class="bx" aria-label="Hide this message"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>' : '') +
+    '<div class="row"><button type="button" class="go' + (noIcon ? ' ni' : '') + '" aria-haspopup="dialog">' + (noIcon ? '' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>') +
     label.replace(/[<>&]/g, '') + '</button>' + (phone ? '<a class="call" href="tel:' + phone + '" aria-label="Call us"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg></a>' : '') + '</div><span class="pw"><i></i>Powered by DialBridge</span></div>' +
     '<div class="ov" role="presentation"><div class="pn" role="dialog" aria-modal="true" aria-label="Book online"><div class="gr" aria-hidden="true"></div>' +
     '<div class="sk" aria-hidden="true"><i class="h"></i><i class="t"></i><i class="r"></i><i class="r"></i><i class="r"></i></div></div></div>';
@@ -110,7 +135,7 @@
   function open(start, from) {
     if (isOpen) return;
     isOpen = true; clearTimeout(closeT);
-    var st = /^(book|quote|text|call)$/.test(start || '') ? start : null;
+    var st = /^(book|quote|text|call|plan|demo|message)$/.test(start || '') ? start : null;
     if (!frame || (st && st !== frameStart)) {
       if (frame) frame.remove();
       pn.classList.remove('ready', 'fit'); wantH = 0; pn.style.height = '';
@@ -176,6 +201,12 @@
   });
 
   btn.addEventListener('click', function () { open(null, btn); });
+  // The page can open the popup itself, e.g. a pricing button: window.DialBridge.open('plan').
+  window.DialBridge = { open: function (start) { open(start, btn); } };
+  var bb = root.querySelector('.bb'), bx = root.querySelector('.bx');
+  if (bb) { bb.addEventListener('click', function () { open(null, btn); }); bb.addEventListener('mouseenter', function () { prefetch(); }); }
+  if (bx) bx.addEventListener('click', function () { root.querySelector('.bwrap').classList.add('gone'); try { sessionStorage.setItem('dbw_bubble_x', '1'); } catch (e) { } });
+  document.addEventListener('dialbridge:lift', function (e) { var d = e.detail || {}, px = +d.px; wrap.style.setProperty('--lift', (px > 0 ? Math.min(px, 200) : 0) + 'px'); wrap.classList.toggle('hid', d.hide === true); });
   btn.addEventListener('mouseenter', prefetch);
   btn.addEventListener('touchstart', prefetch, { passive: true });
   setTimeout(prefetch, 3000);
