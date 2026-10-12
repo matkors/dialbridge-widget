@@ -149,6 +149,21 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   .plans,.f2{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* checkout (plan -> details -> card -> password), like Avenue: one screen per step inside the same popup */
+.sum{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-radius:14px;background:var(--soft)}
+.sum b{display:block;font-size:15px}
+.sum small{display:block;margin-top:2px;font-size:13px;color:var(--mute)}
+.sum .zero{display:inline;font-size:13px;color:var(--ok)}
+.sum .amt{flex:none;text-align:right;font-size:20px;font-weight:800;letter-spacing:-.02em}
+.sum .amt small{display:inline;margin:0;font-size:12px;font-weight:600}
+.sum + .fields{margin-top:18px}
+.paybox{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+.or{display:flex;align-items:center;gap:12px;color:var(--mute);font-size:13px;font-weight:600}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.paywait{display:flex;align-items:center;justify-content:center;gap:10px;min-height:120px;color:var(--mute);font-size:14px}
+.secure{display:flex;align-items:center;justify-content:center;gap:6px;margin:4px 0 0;font-size:12.5px;color:var(--mute)}
+.secure svg{width:14px;height:14px}
+.pwhint{margin:-2px 0 0;font-size:12.5px;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -159,6 +174,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></symbol>
   <symbol id="i-arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
   <symbol id="i-chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
@@ -189,6 +205,8 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   if (EMBED) document.body.classList.add('embed');
   var APP = 'https://app.matviykorsunskiy.me/';
   var API = 'https://dialbridge-booking-api.dialbridge-booking-api.workers.dev';
+  // Local testing: the dev server serves this page and the API on one origin.
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && params.get('local') !== '0') { API = location.origin; APP = location.origin + '/'; }
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var I = function (id) { return '<svg><use href="#i-' + id + '"/></svg>'; };
@@ -218,11 +236,21 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     details: { pct: 80, side: ['Almost done', 'Tell us who you are so we can look at your business before the call.', ['We never share your number']] },
     topic: { pct: 35, side: ['Ask us anything', 'We\'re a small team and answer every message, usually within a few hours.', []] },
     message: { pct: 75, side: ['Ask us anything', 'Your message goes straight to the founders. We reply by email.', []] },
+    checkout: { pct: 68, side: ['Almost there', 'Your card is saved with Stripe, the same checkout big companies use. We never see your card number.', ['14 days free on the Booking Widget', 'Cancel anytime from your dashboard']] },
+    card: { pct: 84, side: ['Almost there', 'Your card is saved with Stripe, the same checkout big companies use. We never see your card number.', ['$0 today', 'Cancel anytime from your dashboard']] },
+    password: { pct: 96, side: ['You\'re in', 'Set a password and we\'ll take you straight to building your booking page.', ['About 10 minutes to set up', 'Help is one tap away']] },
     booked: { pct: 100, side: ['Talk soon', 'Thanks for booking. Bring any questions, and we\'ll show you how it works for your business.', []] },
     sent: { pct: 100, side: ['Talk soon', 'We read every message and reply by email, usually within a few hours.', []] }
   };
   // kind: 'demo' (free 20-min demo) or 'website' (the $199 plan: no trial, they book the 30-min website call right here)
-  var S = { kind: 'demo', path: [], interests: [], topic: '', time: '', f: { first: '', last: '', business: '', email: '', phone: '', msg: '' }, booked: null };
+  var S = { kind: 'demo', path: [], interests: [], topic: '', time: '', f: { first: '', last: '', business: '', email: '', phone: '', msg: '', pw: '' }, booked: null,
+    plan: 'widget', co: null, payReady: false, finish: null };
+  var PLAN = {
+    widget: { name: 'Booking Widget', price: 99, note: function () { return '<b class="zero">$0 today.</b> 14-day free trial, then $99/month starting ' + md(Date.now() + 14 * 864e5) + '. Cancel before then and you pay nothing.'; }, today: '$0 today' },
+    full: { name: 'Website + Reviews + Booking Widget', price: 199, note: function () { return '<b class="zero">$0 today.</b> You\'re only charged $199/month after we meet with you, build your website and it goes live.'; }, today: '$0 today' }
+  };
+  function md(ms) { return new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+  function sumBox() { var p = PLAN[S.plan]; return '<div class="sum"><div><b>' + p.name + '</b><small>' + p.note() + '</small></div><div class="amt">$' + p.price + '<small>/mo</small></div></div>'; }
   var cur = 'start', NAV = 0, first = true;
 
   function screen() {
@@ -230,12 +258,12 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       tile('trial', 'rocket', 'Start free trial', '14 days free on the Booking Widget', 'See plans') + tile('demo', 'cal', 'Book a demo', 'A free 20-minute call with us', 'Pick a time') + tile('msg', 'msg', 'Send a message', 'Questions, pricing or anything else', 'Write to us') + '</div>' +
       '<p class="below">Already have an account? <a href="' + APP + 'login" target="_top">Log in</a></p>';
     if (cur === 'plan') return '<h1>Pick your plan</h1><p class="lede">Month to month. No setup fee.</p><div class="plans">' +
-      '<div class="plan"><span class="tag">Have a website you like</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">14 days free. Cancel anytime.</p><ul>' +
+      '<div class="plan"><span class="tag">Have a website you like</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">$0 today. 14 days free, then $99/month. Cancel anytime.</p><ul>' +
         li('Book online button for your website') + li('Booking page for Google, Facebook and Instagram') + li('A text and an inbox entry for every booking') + li('Set it up yourself in about 10 minutes') +
-        '</ul><a class="btn full" target="_top" href="' + esc(signupUrl('widget')) + '" data-go="widget">Start free trial ' + I('arw') + '</a></div>' +
-      '<div class="plan main"><span class="tag">We build it for you</span><h3>Website + Reviews + Booking Widget</h3><div class="amt">$199<small> /month</small></div><p class="note">No free trial. We build it for you, then you\'re charged.</p><ul>' +
+        '</ul><button class="btn full" type="button" data-buy="widget">Start free trial ' + I('arw') + '</button></div>' +
+      '<div class="plan main"><span class="tag">We build it for you</span><h3>Website + Reviews + Booking Widget</h3><div class="amt">$199<small> /month</small></div><p class="note">$0 today. Charged only after your website is built and live.</p><ul>' +
         li('A new website built to book jobs') + li('Automatic Google review requests') + li('Everything in Booking Widget') + li('We build it with you on a 30-minute call') +
-        '</ul><a class="btn dark full" target="_top" href="#" data-path="website">Book a website call ' + I('arw') + '</a></div></div>';
+        '</ul><button class="btn dark full" type="button" data-buy="full">Get started ' + I('arw') + '</button></div></div>';
     if (cur === 'interests') return '<h1>What do you want help with?</h1><p class="lede">Pick any that apply. It helps us prepare.</p><div class="tiles">' +
       INTERESTS.map(function (x) { var on = S.interests.indexOf(x[0]) > -1; return '<button type="button" class="tile sm' + (on ? ' on' : '') + '" data-int="' + x[0] + '" aria-pressed="' + on + '">' + (on ? '<span class="tk">' + I('chk') + '</span>' : '') + '<span class="ic">' + I(x[2]) + '</span><b>' + x[1] + '</b></button>'; }).join('') + '</div>';
     if (cur === 'time') return (S.kind === 'website' ? '<h1>Book your website call</h1><p class="lede">30 minutes on Zoom or Google Meet. We build your site with you.</p>'
@@ -251,6 +279,15 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       '<label class="fld"><span>How can we help? <em>*</em></span><textarea data-f="msg" rows="4" placeholder="Tell us a little about your business and your question">' + esc(S.f.msg) + '</textarea></label>' +
       '<div class="f2">' + fld('first', 'First name', 'given-name', 'text', true) + fld('email', 'Email', 'email', 'email', true) + '</div>' + fld('business', 'Business name', 'organization', 'text') +
       '</div><div class="hp" aria-hidden="true"><input id="hp" tabindex="-1" autocomplete="off"></div><p class="err" id="err" hidden></p>';
+    if (cur === 'checkout') return '<h1>Complete your checkout</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. We only charge once your new website is live.' : 'You won\'t be charged today. Your 14-day free trial starts now.') + '</p>' + sumBox() +
+      '<div class="fields">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Mobile', 'tel', 'tel', true) + fld('business', 'Business name', 'organization', 'text') +
+      '<p class="fine">By continuing, you agree to get texts from Dialbridge about your account. Msg &amp; data rates may apply. Reply STOP to opt out. <a href="https://dialbridge.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a></p></div><p class="err" id="err" hidden></p>';
+    if (cur === 'card') return '<h1>Add your card</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. Your card is only charged after we meet, build your website and it goes live.' : 'You won\'t be charged today. Your first $99 payment is on ' + md(Date.now() + 14 * 864e5) + ', after your 14-day free trial.') + '</p>' + sumBox() +
+      '<div class="paybox"><div id="xco"></div><div class="or" id="xcoOr" hidden>Or pay with a card</div><div id="pe"><div class="paywait"><span class="spin dark"></span>Loading secure checkout</div></div></div>' +
+      '<p class="secure">' + I('lock') + 'Secured by Stripe. We never see your card number.</p><p class="err" id="err" hidden></p>';
+    if (cur === 'password') return '<div class="done" style="padding-top:0"><span class="okc">' + I('chk') + '</span><h1>' + (S.plan === 'full' ? 'Card saved. Nothing charged yet.' : 'Your free trial has started') + '</h1><p>' + (S.plan === 'full' ? 'We only charge once your website is live. ' : 'Nothing charged today. ') + 'Last step: set a password so you can log in.</p></div>' +
+      '<div class="fields">' + fld('first', 'First name', 'given-name', 'text', true) + '<label class="fld"><span>Password <em>*</em></span><input data-f="pw" type="password" autocomplete="new-password" minlength="8" value="' + esc(S.f.pw) + '"></label>' +
+      '<p class="pwhint">At least 8 characters. You log in with ' + esc(S.f.email.trim()) + '.</p></div><p class="err" id="err" hidden></p>';
     if (cur === 'booked') return '<div class="done"><span class="okc">' + I('chk') + '</span><h1>You\'re booked, ' + esc(S.f.first) + '</h1><p>We emailed a calendar invite to ' + esc(S.f.email) + ' and we\'ll text you a reminder before the call.</p><span class="when">' + esc(CallBook.when(S.booked)) + '</span></div>';
     if (cur === 'sent') return '<div class="done"><span class="okc">' + I('chk') + '</span><h1>Message sent</h1><p>Thanks, ' + esc(S.f.first) + '. We\'ll reply to ' + esc(S.f.email) + ', usually within a few hours.</p></div>';
     return '';
@@ -265,6 +302,9 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     if (cur === 'time') return !!S.time;
     if (cur === 'details') return S.f.first.trim() && S.f.business.trim() && emailOk(S.f.email) && digits(S.f.phone).length === 10;
     if (cur === 'message') return S.f.msg.trim().length >= 5 && S.f.first.trim() && emailOk(S.f.email);
+    if (cur === 'checkout') return emailOk(S.f.email) && digits(S.f.phone).length === 10;
+    if (cur === 'card') return S.payReady;
+    if (cur === 'password') return S.f.first.trim() && S.f.pw.length >= 8;
     return true;
   }
   function foot() {
@@ -272,6 +312,9 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     if (cur === 'time') return '<button class="btn" type="button" data-next' + (valid() ? '' : ' disabled') + '>Continue ' + I('arw') + '</button>';
     if (cur === 'details') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>' + (S.kind === 'website' ? 'Book my website call' : 'Book my demo') + '</button>';
     if (cur === 'message') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>Send message</button>';
+    if (cur === 'checkout') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>Continue to payment ' + I('arw') + '</button>';
+    if (cur === 'card') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>' + (S.plan === 'full' ? 'Save my card ($0 today)' : 'Start my free trial ($0 today)') + '</button>';
+    if (cur === 'password') return '<button class="btn" type="button" id="go" data-next' + (valid() ? '' : ' disabled') + '>' + (S.plan === 'full' ? 'Continue' : 'Set up my booking page') + ' ' + I('arw') + '</button>';
     if (cur === 'booked' || cur === 'sent') return '<button class="btn dark" type="button" data-close>Close</button>';
     return '';
   }
@@ -292,9 +335,10 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     bdi.innerHTML = screen(); bd.scrollTop = 0;
     bd.classList.remove('in', 'inb'); void bd.offsetWidth; if (NAV && !first) bd.classList.add(NAV > 0 ? 'in' : 'inb');
     $('#ft').innerHTML = foot();
-    $('#back').classList.toggle('hide', cur === 'start' || cur === 'booked' || cur === 'sent');
+    $('#back').classList.toggle('hide', cur === 'start' || cur === 'booked' || cur === 'sent' || cur === 'password');
     var pf = $('#pfill'); requestAnimationFrame(function () { pf.style.width = STEPS[cur].pct + '%'; });
     if (cur === 'time') CallBook.picker($('#picker'), S.kind, function (iso) { S.time = iso; refresh(); }, S.time);
+    if (cur === 'card') mountCard();
     NAV = 0; first = false;
     post('dbw:height', { h: innerWidth <= 640 ? 4000 : 640 });   // phones: the sheet takes the full screen
   }
@@ -316,6 +360,76 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       fail('That didn\'t go through. Try again, or send us a message instead.');
     });
   }
+  /* ---- checkout: Stripe (test mode until live keys exist; the server refuses live keys) ---- */
+  function postJson(path, body) {
+    return fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j.status = r.status; return j; }); })
+      .catch(function () { return { ok: false, status: 0 }; });
+  }
+  function attrBody() { var A = {}; try { A = JSON.parse(localStorage.getItem('dbx_attr') || '{}'); } catch (e) { } var o = {}; ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'].forEach(function (k) { if (A[k]) o[k] = A[k]; }); return o; }
+  function startCheckout() {
+    var b = $('#go'); busy(b, true, 'One moment');
+    var tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { }
+    postJson('/v1/pay/start', Object.assign({ plan: S.plan, email: S.f.email.trim(), phone: digits(S.f.phone), business: S.f.business.trim(), tz: tz }, attrBody())).then(function (r) {
+      if (r.ok) { S.co = { id: r.checkoutId, secret: r.clientSecret, pk: r.publishableKey }; S.payReady = false; go('card'); return; }
+      busy(b, false, 'Continue to payment ' + I('arw'));
+      var e = (r.errors || [])[0];
+      if (e === 'account_exists') { fail(''); $('#err').innerHTML = 'You already have an account with this email. <a href="' + APP + 'login" target="_top">Log in</a>'; return; }
+      if (e === 'email' || e === 'phone') { fail('Check your email and mobile number.'); return; }
+      if (e === 'payments_not_connected') { fail('Checkout isn\'t switched on yet. Book a quick call instead and we\'ll set you up.'); return; }
+      fail('That didn\'t go through. Try again in a moment.');
+    });
+  }
+  var stripe = null, elements = null;
+  function loadStripe(cb) {
+    if (window.Stripe) return cb();
+    var s = document.createElement('script'); s.src = 'https://js.stripe.com/v3/'; s.onload = cb;
+    s.onerror = function () { fail('The secure checkout didn\'t load. Check your connection and try again.'); };
+    document.head.appendChild(s);
+  }
+  function mountCard() {
+    if (!S.co || !S.co.pk) { fail('Checkout isn\'t switched on yet.'); return; }
+    loadStripe(function () {
+      stripe = stripe || window.Stripe(S.co.pk);
+      elements = stripe.elements({ clientSecret: S.co.secret, fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&display=swap' }],
+        appearance: { theme: 'stripe', variables: { colorPrimary: '#232a22', colorText: '#1d221c', colorDanger: '#a6291b', fontFamily: 'Manrope, system-ui, sans-serif', borderRadius: '10px', spacingUnit: '4px' } } });
+      var pe = elements.create('payment', { layout: { type: 'tabs' }, defaultValues: { billingDetails: { email: S.f.email.trim(), phone: '+1' + digits(S.f.phone) } } });
+      $('#pe').innerHTML = ''; pe.mount('#pe');
+      pe.on('change', function (ev) { S.payReady = !!ev.complete; refresh(); });
+      // Apple Pay, Google Pay and Link in one tap, when the browser has them.
+      try {
+        var xc = elements.create('expressCheckout', { buttonHeight: 48, buttonType: { applePay: 'plain', googlePay: 'plain' }, paymentMethods: { applePay: 'auto', googlePay: 'auto', link: 'auto', amazonPay: 'never', paypal: 'never', klarna: 'never' } });
+        xc.on('ready', function (ev) { var any = ev.availablePaymentMethods && Object.keys(ev.availablePaymentMethods).some(function (k) { return ev.availablePaymentMethods[k]; }); var o = $('#xcoOr'); if (o) o.hidden = !any; });
+        xc.on('confirm', function () { confirmCard(true); });
+        xc.mount('#xco');
+      } catch (e) { }
+    });
+  }
+  function confirmCard(express) {
+    var b = $('#go'); if (!express) busy(b, true, 'Saving your card');
+    var done = function (msg) { busy(b, false, S.plan === 'full' ? 'Save my card ($0 today)' : 'Start my free trial ($0 today)'); if (msg) fail(msg); refresh(); };
+    (express ? Promise.resolve({}) : elements.submit()).then(function (sub) {
+      if (sub && sub.error) { done(sub.error.message); return; }
+      return stripe.confirmSetup({ elements: elements, clientSecret: S.co.secret, redirect: 'if_required', confirmParams: { return_url: location.href.split('#')[0] } }).then(function (res) {
+        if (res.error) { done(res.error.message || 'Your card wasn\'t saved. Try another card.'); return; }
+        return postJson('/v1/pay/finish', { checkoutId: S.co.id }).then(function (f) {
+          if (!f.ok) { done('Your card is saved, but we couldn\'t finish. Try again, or message us and we\'ll fix it.'); return; }
+          S.finish = f.finishToken; post('dbw:submit', { path: 'checkout', plan: S.plan }); S.path = []; cur = 'password'; NAV = 1; render();
+        });
+      });
+    });
+  }
+  function makeAccount() {
+    var b = $('#go'); busy(b, true, 'Setting up');
+    postJson('/v1/pay/account', { checkoutId: S.co.id, finishToken: S.finish, firstName: S.f.first.trim(), password: S.f.pw }).then(function (r) {
+      if (r.ok && r.next) { window.top.location.href = r.next; return; }
+      busy(b, false, (S.plan === 'full' ? 'Continue' : 'Set up my booking page') + ' ' + I('arw'));
+      var e = (r.errors || [])[0];
+      if (e === 'password') { fail('Use at least 8 characters.'); return; }
+      if (e === 'checkout_expired') { fail('This step timed out. Log in with your email, or message us and we\'ll help.'); return; }
+      fail('That didn\'t go through. Try again.');
+    });
+  }
   function sendMessage() {
     var b = $('#go'); busy(b, true, 'Sending');
     var topic = (TOPICS.filter(function (x) { return x[0] === S.topic; })[0] || [0, 'Something else'])[1];
@@ -328,11 +442,12 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   }
 
   document.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-path],[data-int],[data-topic],[data-next],[data-change],[data-close],#back,#close,[data-go]');
+    var t = e.target.closest('[data-path],[data-int],[data-topic],[data-next],[data-change],[data-close],#back,#close,[data-go],[data-buy]');
     if (!t) return;
     if (t.id === 'close' || t.hasAttribute('data-close')) { post('dbw:close'); return; }
     if (t.id === 'back') { back(); return; }
     if (t.hasAttribute('data-go')) { post('dbw:submit', { path: 'plan', plan: t.getAttribute('data-go') }); return; }
+    if (t.hasAttribute('data-buy')) { S.plan = t.getAttribute('data-buy'); post('dbw:submit', { path: 'plan', plan: S.plan }); go('checkout'); return; }
     if (t.hasAttribute('data-path')) {
       var p = t.getAttribute('data-path'); e.preventDefault();
       if (p === 'demo' || p === 'website') { if (S.kind !== p) { S.kind = p; S.time = ''; } if (p === 'website') CallBook.prefetch('website'); }
@@ -353,6 +468,9 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       else if (cur === 'time') go('details');
       else if (cur === 'details') bookDemo();
       else if (cur === 'message') sendMessage();
+      else if (cur === 'checkout') startCheckout();
+      else if (cur === 'card') confirmCard(false);
+      else if (cur === 'password') makeAccount();
     }
   });
   document.addEventListener('input', function (e) {
@@ -367,6 +485,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   if (st === 'plan') { S.path = ['start']; cur = 'plan'; }
   else if (st === 'demo') { S.path = ['start']; cur = 'interests'; }
   else if (st === 'message') { S.path = ['start']; cur = 'topic'; }
+  else if (st === 'widget' || st === 'full') { S.plan = st; S.path = ['start', 'plan']; cur = 'checkout'; }
   render();
   post('dbw:ready', { light: true });
   CallBook.prefetch('demo');   // demo times load while they read the first screens

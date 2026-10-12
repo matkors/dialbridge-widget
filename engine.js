@@ -206,15 +206,31 @@
     function combined() {
       var list = S.svcs.map(svcById).filter(Boolean);
       if (!list.length) return null;
-      if (list.length === 1) return list[0];
+      if (list.length === 1) return Object.assign({}, list[0], { parts: list });
       return {
         id: S.svcs.join('+'), label: list.map(function (x) { return x.label; }).join(', '),
         mode: list.some(function (x) { return x.mode === 'estimate'; }) ? 'estimate' : list[0].mode,
-        heavy: list.some(function (x) { return x.heavy; }), icon: list[0].icon
+        heavy: list.some(function (x) { return x.heavy; }), icon: list[0].icon, parts: list
       };
     }
     function optOf(stepId) { var d = T.steps[stepId]; return d && d.options && d.options.filter(function (o) { return o.id === S.ans[stepId]; })[0]; }
 
+    // The owner's own price for a service (pricing: fixed | from | range | none), or null when the answers price it.
+    // Same rules as the server (api/src/pricing.js), so the customer sees the price the owner gets.
+    function ownPrice(s) {
+      var n = function (v) { return typeof v === 'number' && isFinite(v) && v >= 0 ? Math.round(v) : null; };
+      if (s.pricing === 'fixed' && n(s.fixed) !== null) return { lo: n(s.fixed), hi: n(s.fixed) };
+      if (s.pricing === 'from' && n(s.from) !== null) return { lo: n(s.from), hi: null };
+      if (s.pricing === 'range' && s.range && n(s.range[0]) !== null && n(s.range[1]) !== null) return { lo: n(s.range[0]), hi: Math.max(n(s.range[0]), n(s.range[1])) };
+      if (s.pricing === 'none') return { none: true };
+      return null;
+    }
+    function priceText(lo, hi) { return hi === null ? 'From $' + lo : lo === hi ? '$' + lo : '$' + lo + ' to $' + hi; }
+    function svcTag(s) {
+      if (s.mode === 'estimate') return 'Free estimate';
+      var o = ownPrice(s); if (o) return o.none ? '' : priceText(o.lo, o.hi);
+      return s.fixed ? '$' + s.fixed : s.fee ? '$' + s.fee + ' visit' : s.heavy ? 'By weight' : '';
+    }
     function priceInfo() {
       if (!B.showPrices || !S.svc) return null;
       if (S.svc.mode === 'estimate') return { text: 'Free estimate', note: 'Priced after a quick walkthrough' };
@@ -224,6 +240,13 @@
         if (d.type === 'choice') { var o = optOf(id); if (o && o.price) { lo += o.price[0]; hi += o.price[1]; has = true; } if (o && o.mult) m *= o.mult; }
         if (d.type === 'addons') d.options.forEach(function (o) { if (S.addons[o.id] && o.add) { alo += o.add[0]; ahi += o.add[1]; } });
       });
+      var own = (S.svc.parts || [S.svc]).map(ownPrice);
+      if (own.every(Boolean)) {
+        if (own.some(function (x) { return x.none; })) return null;
+        var L = own.reduce(function (a, x) { return a + x.lo; }, 0) + alo, open = own.some(function (x) { return x.hi === null; });
+        var H = open ? null : own.reduce(function (a, x) { return a + x.hi; }, 0) + ahi;
+        return { text: priceText(L, H), note: T.priceNote || 'Final price confirmed before we start.' };
+      }
       if (!has) {
         if (S.svc.fixed) return { text: '$' + S.svc.fixed, note: 'Flat price for the visit' };
         if (S.svc.fee) return { text: '$' + S.svc.fee + ' visit', note: 'Diagnostic visit fee. Repair priced on site.' };
@@ -235,6 +258,11 @@
     }
     function bookRange() {
       var lo = null, hi = null;
+      var own = T.services.filter(function (s) { return s.mode !== 'estimate'; }).map(ownPrice);
+      if (own.length && own.every(function (x) { return x && !x.none; })) {
+        return [Math.min.apply(null, own.map(function (x) { return x.lo; })), null, true];
+      }
+      if (own.some(Boolean)) return null;
       T.flows.book.forEach(function (id) { var d = T.steps[id]; if (!d || d.type !== 'choice' || lo !== null) return; d.options.forEach(function (o) { if (!o.price) return; lo = lo === null ? o.price[0] : Math.min(lo, o.price[0]); hi = hi === null ? o.price[1] : Math.max(hi, o.price[1]); }); });
       return lo === null ? null : [lo, hi];
     }
@@ -376,8 +404,8 @@
         if (T.multiService && d.multiHint) h += '<p class="lede">' + esc(d.multiHint) + '</p>';
         h += '<div class="tiles' + (T.services.some(function (x) { return x.image; }) ? '' : ' icons') + '" style="--n:' + (T.services.length <= 6 ? T.services.length : 5) + '">' + T.services.map(function (s) {
           var on = S.svcs.indexOf(s.id) > -1;
-          var tag = s.mode === 'estimate' ? 'Free estimate' : s.fixed ? '$' + s.fixed : s.fee ? '$' + s.fee + ' visit' : s.heavy ? 'By weight' : '';
-          var tick = on ? '<span class="tick">' + ic('check') + '</span>' : '', tt = tag && B.showPrices ? '<span class="tt">' + tag + '</span>' : '';
+          var tag = svcTag(s);
+          var tick = on ? '<span class="tick">' + ic('check') + '</span>' : '', tt = tag && B.showPrices ? '<span class="tt">' + esc(tag) + '</span>' : '';
           // Photo tiles: picture with the label underneath. Icon tiles: one card with the icon, label and tag inside.
           if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + s.id + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>';
           return '<button type="button" class="tile it' + (on ? ' on' : '') + '" data-act="svc" data-v="' + s.id + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.icon) + '</span><span class="tl">' + esc(s.label) + '</span>' + tt + '</span></button>';
@@ -391,7 +419,7 @@
         if (o && o.urgent) h += '<div class="alert">' + ic('triangle-alert') + '<span>No heat or no cooling right now? Calling is fastest.</span><a href="tel:+1' + B.phoneDigits + '">Call now</a></div>';
         if (d.ui === 'truck' && o) {
           var p = priceInfo();
-          h += '<div class="pricebox">' + truck(o.frac) + '<div><b>' + (p ? p.text : esc(o.label)) + '</b><span>' + (p ? p.note : 'Final price confirmed on site.') + '</span></div></div>';
+          h += '<div class="pricebox">' + truck(o.frac) + '<div><b>' + esc(p ? p.text : o.label) + '</b><span>' + esc(p ? p.note : 'Final price confirmed on site.') + '</span></div></div>';
           if (d.photos) h += photosHtml(S.path === 'quote' ? 'Add photos for a tighter price' : 'Add photos (optional)');
         }
       }
@@ -448,8 +476,9 @@
       if (t === 'service') return S.path === 'quote' ? ['Get a price without a visit', 'Tell us about the job and ' + B.name + ' texts you a price.']
         : B.showPrices ? ['See your price first', 'Prices show as you pick, before you book anything.'] : ['What do you need?', 'Pick what fits. You can add details next.'];
       if (t === 'details') return ['Photos help', 'A couple of photos usually get you an exact price instead of a range.'];
-      if (t === 'time') return ['Pick a time that works', 'These are open times. ' + B.name + ' texts you to confirm.'];
-      if (t === 'contact') return ['Last step', 'No account and no spam. ' + B.name + ' texts you to confirm the details.'];
+      var confirmWord = T.confirmBy === 'call' ? ' calls you to confirm' : ' texts you to confirm', inst = S.svc && S.svc.mode === 'book';
+      if (t === 'time') return ['Pick a time that works', inst ? 'These are open times. Pick one and it\'s booked.' : 'These are open times. ' + B.name + confirmWord + '.'];
+      if (t === 'contact') return ['Last step', 'No account and no spam. ' + (inst ? B.name + ' texts you the confirmation.' : B.name + confirmWord + ' the details.')];
       if (t === 'message') return ['Ask anything', 'Your question goes straight to the owner\'s phone. Replies come by text.'];
       if (t === 'call' || t === 'callback') return ['Talk to a person', OPEN ? 'Call now, or pick a time and ' + B.name + ' calls you back.' : B.name + ' calls you back at the time you pick.'];
       return first;
@@ -465,19 +494,30 @@
         (B.rating ? '<span><b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</span>' : '') + '</div></div></aside>';
     }
     function menuHtml() {
-      var order = OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call'];
-      return '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2">' + order.map(function (k) {
+      // The owner's order and which options show (tiles.order / tiles.off). Without one: Call first while open.
+      var ALL = ['book', 'quote', 'text', 'call'], tiles = T.tiles || {};
+      var mine = Array.isArray(tiles.order) ? tiles.order.filter(function (k) { return ALL.indexOf(k) > -1 && T.tiles[k]; }) : null;
+      var order = mine && mine.length ? mine.concat(ALL.filter(function (k) { return mine.indexOf(k) < 0; })) : (OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call']);
+      var off = Array.isArray(tiles.off) ? tiles.off : [];
+      order = order.filter(function (k) { return off.indexOf(k) < 0 && T.tiles[k]; });
+      if (!order.length) order = ['book'];
+      return '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
-        if (k === 'book' && t.priced && B.showPrices) { var rg = bookRange(); if (rg) desc = t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
+        if (k === 'book' && t.priced && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
         if (k === 'call') { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
-        return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + IMG[k] + '"></span><span class="mt"><b>' + title + '</b><span>' + desc + '</span></span></button>';
+        return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + IMG[k] + '"></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
       }).join('') + '</div>';
     }
 
     function doneHtml() {
       var who = esc(S.name.trim().split(' ')[0] || 'there'), ph = esc(prettyPhone());
       var title, text, foot = OPEN ? 'They usually reply within ' + B.replyMins + ' minutes.' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect a text shortly after.';
-      if (S.path === 'book') { title = S.svc.mode === 'estimate' ? (T.estimateDone || 'Walkthrough requested') : 'Request sent'; text = esc(B.name) + ' will text ' + ph + ' to confirm. Need to change something? Just reply to the text.'; }
+      var byCall = T.confirmBy === 'call', instant = S.path === 'book' && S.svc.mode === 'book' && !!S.time;
+      if (S.path === 'book') {
+        title = S.svc.mode === 'estimate' ? esc(T.estimateDone || 'Walkthrough requested') : instant ? 'You\'re booked' : 'Request sent';
+        text = instant ? esc(B.name) + ' will text ' + ph + ' a reminder before the visit. Need to change something? Just reply to the text.'
+          : byCall ? esc(B.name) + ' will call ' + ph + ' to confirm the time and details.' : esc(B.name) + ' will text ' + ph + ' to confirm. Need to change something? Just reply to the text.';
+      }
       else if (S.path === 'quote') { title = 'Price request sent'; text = esc(B.name) + ' will text your price to ' + ph + '.'; foot = 'Photos usually get you an exact number instead of a range.'; }
       else if (S.path === 'text') { title = 'Message sent'; text = esc(B.name) + ' will reply to ' + ph + ' by text.'; }
       else { title = 'Call back requested'; text = esc(B.name) + ' will call ' + ph + ' ' + esc((S.cb || 'soon').toLowerCase()) + '.'; foot = 'Save ' + esc(B.phone) + ' so you know it is them.'; }
@@ -491,7 +531,7 @@
       if (whenText()) rows.push(['When', whenText()]);
       var p = priceInfo(); if (p && (S.path === 'book' || S.path === 'quote')) rows.push(['Estimate', p.text]);
       var h = '<div class="donehd"><span class="okc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="draw" pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><h3>' + title + ', ' + who + '</h3><p class="lede">' + text + '</p></div></div>';
-      if (rows.length) h += '<dl class="receipt"><div class="rh"><span>Request #' + S.done.id + '</span><span>Waiting for confirmation</span></div>' + rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
+      if (rows.length) h += '<dl class="receipt"><div class="rh"><span>' + (instant ? 'Booking' : 'Request') + ' #' + S.done.id + '</span><span>' + (instant ? 'Confirmed' : 'Waiting for confirmation') + '</span></div>' + rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
       return h + '<p class="meta">' + foot + '</p>';
     }
 
@@ -506,7 +546,7 @@
       }
       var hasTruck = sc.some(function (id) { return stepDef(id).ui === 'truck'; });
       var p = priceInfo();
-      if (p && sc.indexOf('service') > -1 && !hasTruck) h += '<div class="pricebox simple"><div><b>' + p.text + '</b><span>' + p.note + '</span></div></div>';
+      if (p && sc.indexOf('service') > -1 && !hasTruck) h += '<div class="pricebox simple"><div><b>' + esc(p.text) + '</b><span>' + esc(p.note) + '</span></div></div>';
       return h;
     }
 

@@ -157,7 +157,7 @@
   function open(start, from) {
     if (isOpen) return;
     isOpen = true; clearTimeout(closeT);
-    var st = /^(book|quote|text|call|plan|demo|message)$/.test(start || '') ? start : null;
+    var st = /^(book|quote|text|call|plan|demo|message|widget|full)$/.test(start || '') ? start : null;
     if (!frame || (st && st !== frameStart)) {
       if (frame) frame.remove();
       pn.classList.remove('ready', 'fit'); wantH = 0; pn.style.height = '';
