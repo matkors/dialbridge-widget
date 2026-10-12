@@ -70,6 +70,15 @@
     '@media (prefers-reduced-motion:reduce){.cb *{animation:none!important;transition:none!important}}';
   function style() { if (document.getElementById('cb-css')) return; var s = document.createElement('style'); s.id = 'cb-css'; s.textContent = CSS; document.head.appendChild(s); }
 
+  // At most 9 times a day (three rows), spread evenly from first to last so mornings and afternoons both show.
+  var MAX = 9;
+  function spread(list, n) {
+    if (list.length <= n) return list;
+    var out = [];
+    for (var i = 0; i < n; i++) { var s = list[Math.round(i * (list.length - 1) / (n - 1))]; if (out.indexOf(s) < 0) out.push(s); }
+    return out;
+  }
+
   // Day strip + times. Uses the shared load above, so going back to this step (or a prefetch) shows them at once.
   function picker(el, kind, onPick, picked) {
     style();
@@ -77,7 +86,7 @@
     return slots(kind).then(function (r) {
       var days = (r && r.ok && r.days) || [];
       if (!days.length) { el.innerHTML = '<div class="cb"><p class="cb-none">We couldn\'t load open times. Try again in a minute, or send us a message instead.</p></div>'; return false; }
-      days = days.slice(0, 6);
+      days = days.slice(0, 6).map(function (d) { return { date: d.date, slots: spread(d.slots, MAX) }; });
       var sel = 0;
       if (picked) days.forEach(function (d, i) { if (d.slots.indexOf(picked) > -1) sel = i; });
       function draw() {
