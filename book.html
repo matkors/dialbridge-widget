@@ -376,12 +376,26 @@ html.editing .side .sb::after{content:"";position:absolute;inset:14px;border-rad
 .slot-srate:hover{box-shadow:inset 0 0 0 2px var(--brand);transform:translateY(-1px)}
 .sl-badge{position:absolute;top:52%;left:50%;transform:translateX(-50%);z-index:1;white-space:nowrap;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.92);color:#111;font-size:11.5px;font-weight:700;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .side:hover .sl-badge{opacity:0}
+
+/* Logos sized by shape (fitLogos): wide wordmarks lower, square badges bigger, so every logo reads at the same weight */
+.slogo img[data-shape="wide"],.slot-slogo img[data-shape="wide"]{height:30px;max-width:190px}
+.slogo img[data-shape="mid"],.slot-slogo img[data-shape="mid"]{height:40px;max-width:170px}
+.slogo img[data-shape="square"],.slot-slogo img[data-shape="square"]{height:58px;width:58px;max-width:58px}
+.slogo:has(img[data-shape="square"]){padding:6px;border-radius:14px}
+.hd.light .logo[data-shape="wide"]{height:38px;max-width:230px}
+.hd.light .logo[data-shape="mid"]{height:46px;max-width:200px}
+.hd.light .logo[data-shape="square"]{height:54px;width:54px}
+.logo[data-shape="square"]{height:40px;width:40px}
+/* A light logo sits on a dark chip */
+.slogo.dark,.slot-slogo.has.dark{background:#16191c}
+/* The owner's own side photo shows more of itself: the brand color fades out sooner */
+.side.own .sb::before{background:linear-gradient(180deg,var(--brand) 0%,color-mix(in srgb,var(--brand) 88%,transparent) 18%,color-mix(in srgb,var(--brand) 45%,transparent) 40%,rgba(10,12,14,.08) 62%,rgba(10,12,14,.6) 100%)}
 </style>
 </head>
 <body>
 <div class="page"><div class="hostline" id="hostline"></div><div class="card" id="app"><div class="err">Loading…</div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js"></script>
-<script src="templates.js?v=20261012i"></script>
-<script src="engine.js?v=20261012i"></script>
+<script src="templates.js?v=20261012j"></script>
+<script src="engine.js?v=20261012j"></script>
 </body>
 </html>

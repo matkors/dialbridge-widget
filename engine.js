@@ -9,6 +9,9 @@
   var LIVE_API = 'https://dialbridge-booking-api.dialbridge-booking-api.workers.dev';
   // Local testing only: a page served from this computer may point at a local API (?api=http://127.0.0.1:8791).
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(params.get('api') || '')) LIVE_API = params.get('api');
+  // Pictures: https, our API's own links, or (only on a page served from this computer) a local test server's.
+  var LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  function srcOk(u) { u = String(u || ''); return /^https:\/\//.test(u) || u.indexOf(LIVE_API + '/') === 0 || (LOCAL && /^http:\/\/(localhost|127\.0\.0\.1):\d+\//.test(u)); }
   var LIVE = params.get('live') === '1' && !params.get('c') && params.get('builder') !== '1';
   var EMBED = params.get('embed') === '1';
   var LOAD_AT = Date.now();
@@ -39,9 +42,9 @@
       name: 'Your Business', phone: '(201) 555-0148', brand: '#0E6650', area: 'your area', zips: [], rating: null, reviews: null, tz: 'America/New_York', demo: true
     }, p);
     if (!/^#[0-9a-fA-F]{6}$/.test(b.brand)) b.brand = '#0E6650';
-    if (b.logo && !/^https:\/\//.test(b.logo) && String(b.logo).indexOf(LIVE_API + '/') !== 0) b.logo = null;
+    if (b.logo && !srcOk(b.logo)) b.logo = null;
     // The template's pictures (side photo, tile photos): https, or our API's own image links.
-    var okUrl = function (u) { return /^https:\/\//.test(u || '') || String(u || '').indexOf(LIVE_API + '/') === 0; };
+    var okUrl = srcOk;
     var im = p.images && typeof p.images === 'object' ? p.images : {};
     if (okUrl(im.side)) b.hero = im.side; else if (b.hero && !okUrl(b.hero)) b.hero = null;
     b.tileImg = {}; ['book', 'quote', 'text', 'call'].forEach(function (k) { if (okUrl(im['tile-' + k])) b.tileImg[k] = im['tile-' + k]; });
@@ -179,16 +182,18 @@
     // the Google rating) show as outlined boxes; clicking one asks the dashboard to fill it. Nothing is booked from here.
     var EDIT = params.get('builder') === '1' && params.get('edit') === '1';
     if (EDIT) document.documentElement.classList.add('editing');
-    var imgOk = function (u) { return /^data:image\/(png|jpeg|webp);base64,/.test(u || '') || /^https:\/\//.test(u || '') || String(u || '').indexOf(LIVE_API + '/') === 0; };
+    var imgOk = function (u) { return /^data:image\/(png|jpeg|webp);base64,/.test(u || '') || srcOk(u); };
     if (params.get('builder') === '1') window.addEventListener('message', function (e) {
       if ((e.origin !== location.origin && !BUILDERS.test(e.origin)) || !e.data || e.data.type !== 'dbw:customize') return;
       if (/^#[0-9a-fA-F]{6}$/.test(e.data.brand || '')) { B.brand = e.data.brand; setBrand(B.brand); }
       if (e.data.logo === null) B.logo = null;
-      else if (/^data:image\/(png|jpeg|webp|gif);base64,/.test(e.data.logo || '') || /^https:\/\//.test(e.data.logo || '') || String(e.data.logo || '').indexOf(LIVE_API + '/') === 0) B.logo = e.data.logo;
+      else if (/^data:image\/(png|jpeg|webp|gif);base64,/.test(e.data.logo || '') || srcOk(e.data.logo)) B.logo = e.data.logo;
       if (e.data.hero === null) B.hero = null; else if (imgOk(e.data.hero)) B.hero = e.data.hero;
       if (e.data.tileImg && typeof e.data.tileImg === 'object') { B.tileImg = {}; Object.keys(e.data.tileImg).forEach(function (k) { if (imgOk(e.data.tileImg[k])) B.tileImg[k] = e.data.tileImg[k]; }); }
       if (e.data.tiles && typeof e.data.tiles === 'object') ['book', 'quote', 'text', 'call', 'order', 'off'].forEach(function (k) { if (e.data.tiles[k] !== undefined) T.tiles[k] = e.data.tiles[k]; });
       if (e.data.rating !== undefined) { B.rating = e.data.rating || null; B.reviews = e.data.reviews || null; }
+      if (e.data.logoTone !== undefined) T.logoTone = e.data.logoTone === 'light' ? 'light' : '';
+      if (e.data.heroPos !== undefined) T.heroPos = /^\d{1,3}% \d{1,3}%$/.test(e.data.heroPos || '') ? e.data.heroPos : '';
       if (typeof e.data.name === 'string' && e.data.name.trim()) B.name = e.data.name.trim().slice(0, 80);
       render();
     });
@@ -366,12 +371,22 @@
 
     /* ---------- render ---------- */
     function stars() { return '<span class="stars" aria-hidden="true">' + new Array(6).join('★') + '</span>'; }
+    // Logos come in every shape: wide wordmarks, square badges, round icons. Each gets the size that reads best
+    // (a square one is drawn bigger than the height of a wide one), measured from the picture itself.
+    function fitLogos() {
+      Array.prototype.forEach.call(app.querySelectorAll('img.logo, .slogo img, .slot-slogo img'), function (img) {
+        var set = function () { var r = img.naturalWidth / (img.naturalHeight || 1); img.setAttribute('data-shape', r >= 2.6 ? 'wide' : r >= 1.35 ? 'mid' : 'square'); };
+        if (img.complete && img.naturalWidth) set(); else img.addEventListener('load', set, { once: true });
+      });
+    }
+    // A white or very light logo would vanish on a white chip: T.logoTone 'light' puts it on a dark one instead.
+    var lightLogo = function () { return T.logoTone === 'light'; };
     function headerHtml() {
       var brand = B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt="' + esc(B.name) + '">' : '<span class="wordmark">' + esc(B.name) + '</span>';
       if (EDIT) brand = '<button type="button" class="slot slot-logo' + (B.logo ? ' has' : '') + '" data-edit="logo">' + (B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span>Upload logo</span>') + '</button>';
       var sub = 'Book online' + (B.rating ? ' <span class="dot">·</span> ' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ' reviews)' : '');
       if (EDIT) sub = 'Book online ' + (B.rating ? '<button type="button" class="slot slot-rate has" data-edit="rating">' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ')<span class="sl-tip">Change</span></button>' : '<button type="button" class="slot slot-rate" data-edit="rating"><span class="sl-plus">+</span>Add your Google rating</button>');
-      return '<header class="hd' + (B.logo ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
+      return '<header class="hd' + (B.logo && !lightLogo() ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
         (CLOSABLE ? '<button class="x" data-act="close" aria-label="Close">' + ic('x') + '</button>' : '') + '</header>';
     }
     // A thin progress bar (like Avenue's): the first screen counts as a step, and the done screen fills it.
@@ -503,11 +518,12 @@
     function sideHtml() {
       var photo = imgOk(B.hero) ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
       var c = sideCopy();
-      return '<aside class="side"' + (EDIT ? '' : ' aria-hidden="true"') + '><div class="sb"><img alt="" src="' + esc(photo) + '">' +
+      var pos = /^\d{1,3}% \d{1,3}%$/.test(T.heroPos || '') && imgOk(B.hero) ? ' style="object-position:' + T.heroPos + '"' : '';
+      return '<aside class="side' + (imgOk(B.hero) ? ' own' : '') + '"' + (EDIT ? '' : ' aria-hidden="true"') + '><div class="sb"><img alt="" src="' + esc(photo) + '"' + pos + '>' +
         (EDIT ? '<button type="button" class="slot slot-side' + (B.hero ? ' has' : '') + '" data-edit="side"><span class="sl-plus">+</span><span>' + (B.hero ? 'Change side photo' : 'Add your own photo') + '</span><small>Tall photo, at least 600 &times; 900</small></button>' +
           '<span class="sl-badge">' + (B.hero ? 'Your photo' : 'Side photo: click to add yours') + '</span>' : '') + '<div class="st">' +
-        (EDIT ? '<button type="button" class="slot slot-slogo' + (B.logo ? ' has' : '') + '" data-edit="logo">' + (B.logo ? '<img src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span><b>Upload your logo</b><small>At least 300 &times; 80, wide or square</small></span>') + '</button>'
-          : B.logo ? '<span class="slogo"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname"><span class="smark">' + esc((B.name || 'B').trim().charAt(0).toUpperCase()) + '</span>' + esc(B.name) + '</span>') +
+        (EDIT ? '<button type="button" class="slot slot-slogo' + (B.logo ? ' has' : '') + (B.logo && lightLogo() ? ' dark' : '') + '" data-edit="logo">' + (B.logo ? '<img src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span><b>Upload your logo</b><small>At least 300 &times; 80, wide or square</small></span>') + '</button>'
+          : B.logo ? '<span class="slogo' + (lightLogo() ? ' dark' : '') + '"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname"><span class="smark">' + esc((B.name || 'B').trim().charAt(0).toUpperCase()) + '</span>' + esc(B.name) + '</span>') +
         '<div class="scopy"><h2>' + esc(c[0]) + '</h2><p>' + esc(c[1]) + '</p></div></div>' +
         '<div class="sinfo"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span>' +
         '<span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span>' +
@@ -637,6 +653,7 @@
       NAV = null; JUST = null;
       watchHeight();
       var cs = curScreen(); if (cs) liveEvent('step', (S.path === 'book' || S.path === 'quote' ? '' : S.path + '-') + cs[0]);
+      fitLogos();
       if (firstPaint) { firstPaint = false; post('dbw:ready', { light: !!B.logo }); }
     }
     // Eased scroll inside the card (same feel in every browser, unlike native smooth scrolling).
@@ -784,7 +801,8 @@
       app.addEventListener('click', function (e) {
         var s = e.target.closest('[data-edit]'); if (!s) return;
         e.preventDefault(); e.stopPropagation();
-        post('dbw:edit', { slot: s.getAttribute('data-edit'), key: s.getAttribute('data-k') || null });
+        var box = s.closest('.side');
+        post('dbw:edit', { slot: s.getAttribute('data-edit'), key: s.getAttribute('data-k') || null, w: box ? box.clientWidth : null, h: box ? box.clientHeight : null });
       }, true);
       app.addEventListener('dragstart', function (e) { var t = e.target.closest('.slot-tile'); if (!t) return; dragK = t.getAttribute('data-k'); t.classList.add('dragging'); try { e.dataTransfer.setData('text/plain', dragK); e.dataTransfer.effectAllowed = 'move'; } catch (x) { } });
       app.addEventListener('dragend', function () { dragK = null; Array.prototype.forEach.call(app.querySelectorAll('.slot-tile'), function (t) { t.classList.remove('dragging', 'over'); }); });
