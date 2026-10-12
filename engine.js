@@ -544,13 +544,13 @@
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
         if (k === 'book' && t.priced && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
         if (k === 'call' && !t.custom) { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
-        var pic = (B.tileImg && B.tileImg[k]) || IMG[k];
+        var pic = (B.tileImg && B.tileImg[k]) || IMG[k], ipos = /^\d{1,3}% \d{1,3}%$/.test(t.imgPos || '') ? ' style="object-position:' + t.imgPos + '"' : '';
         if (EDIT) {
           var isOff = off.indexOf(k) > -1;
-          return '<div class="mtile slot slot-tile' + (isOff ? ' off' : '') + '" draggable="true" data-edit="tile" data-k="' + k + '" role="button" tabindex="0"><span class="mimg"><img alt="" src="' + esc(pic) + '"></span>' +
+          return '<div class="mtile slot slot-tile' + (isOff ? ' off' : '') + '" draggable="true" data-edit="tile" data-k="' + k + '" role="button" tabindex="0"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span>' +
             '<span class="sl-drag" title="Drag to move">&#8942;&#8942;</span><span class="sl-edit">' + (isOff ? 'Hidden. Click to show' : 'Edit') + '</span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></div>';
         }
-        return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
+        return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
       }).join('') + '</div>' +
         // Phones don't show the side panel, so its open-now and reply-time line goes under the options.
         '<p class="mtrust"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span><span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span></p>';
