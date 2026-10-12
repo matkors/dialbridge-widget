@@ -40,6 +40,11 @@
     }, p);
     if (!/^#[0-9a-fA-F]{6}$/.test(b.brand)) b.brand = '#0E6650';
     if (b.logo && !/^https:\/\//.test(b.logo) && String(b.logo).indexOf(LIVE_API + '/') !== 0) b.logo = null;
+    // The template's pictures (side photo, tile photos): https, or our API's own image links.
+    var okUrl = function (u) { return /^https:\/\//.test(u || '') || String(u || '').indexOf(LIVE_API + '/') === 0; };
+    var im = p.images && typeof p.images === 'object' ? p.images : {};
+    if (okUrl(im.side)) b.hero = im.side; else if (b.hero && !okUrl(b.hero)) b.hero = null;
+    b.tileImg = {}; ['book', 'quote', 'text', 'call'].forEach(function (k) { if (okUrl(im['tile-' + k])) b.tileImg[k] = im['tile-' + k]; });
     b.zips = (b.zips || []).map(function (z) { return String(z).replace(/\D/g, ''); }).filter(Boolean);
     b.phoneDigits = String(b.phone).replace(/\D/g, '');
     if (p.prices) Object.keys(p.prices).forEach(function (k) {
@@ -91,7 +96,7 @@
       var c = r[0], h = hoursOf(c.hours);
       var T0 = build({ slug: c.slug, trade: c.trade, template: c.template, name: c.name, phone: prettyUs(c.phone), brand: c.brand, area: c.area || 'your area',
         zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false,
-        logo: c.logo || null, website: c.website || null });
+        logo: c.logo || null, website: c.website || null, images: c.images || {}, rating: c.rating || null, reviews: c.reviews || null });
       // Photos can't be sent through the API yet, so don't offer an upload we would drop (details and the truck step).
       Object.keys(T0.steps).forEach(function (k) { if (T0.steps[k].type === 'details' || T0.steps[k].photos) T0.steps[k].photos = false; });
       return T0;
@@ -170,11 +175,21 @@
     // ?builder=1: the product page's widget builder (same origin) can try a color and an uploaded logo live.
     // An uploaded logo arrives as a data: image and is only ever shown in an <img>, never saved from here.
     var BUILDERS = /^https:\/\/(app\.matviykorsunskiy\.me|app\.dialbridge\.ai)$|^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
+    // ?builder=1&edit=1: the dashboard's page builder. The template's slots (logo, side photo, the four start options,
+    // the Google rating) show as outlined boxes; clicking one asks the dashboard to fill it. Nothing is booked from here.
+    var EDIT = params.get('builder') === '1' && params.get('edit') === '1';
+    if (EDIT) document.documentElement.classList.add('editing');
+    var imgOk = function (u) { return /^data:image\/(png|jpeg|webp);base64,/.test(u || '') || /^https:\/\//.test(u || '') || String(u || '').indexOf(LIVE_API + '/') === 0; };
     if (params.get('builder') === '1') window.addEventListener('message', function (e) {
       if ((e.origin !== location.origin && !BUILDERS.test(e.origin)) || !e.data || e.data.type !== 'dbw:customize') return;
       if (/^#[0-9a-fA-F]{6}$/.test(e.data.brand || '')) { B.brand = e.data.brand; setBrand(B.brand); }
       if (e.data.logo === null) B.logo = null;
       else if (/^data:image\/(png|jpeg|webp|gif);base64,/.test(e.data.logo || '') || /^https:\/\//.test(e.data.logo || '') || String(e.data.logo || '').indexOf(LIVE_API + '/') === 0) B.logo = e.data.logo;
+      if (e.data.hero === null) B.hero = null; else if (imgOk(e.data.hero)) B.hero = e.data.hero;
+      if (e.data.tileImg && typeof e.data.tileImg === 'object') { B.tileImg = {}; Object.keys(e.data.tileImg).forEach(function (k) { if (imgOk(e.data.tileImg[k])) B.tileImg[k] = e.data.tileImg[k]; }); }
+      if (e.data.tiles && typeof e.data.tiles === 'object') ['book', 'quote', 'text', 'call', 'order', 'off'].forEach(function (k) { if (e.data.tiles[k] !== undefined) T.tiles[k] = e.data.tiles[k]; });
+      if (e.data.rating !== undefined) { B.rating = e.data.rating || null; B.reviews = e.data.reviews || null; }
+      if (typeof e.data.name === 'string' && e.data.name.trim()) B.name = e.data.name.trim().slice(0, 80);
       render();
     });
 
@@ -353,7 +368,9 @@
     function stars() { return '<span class="stars" aria-hidden="true">' + new Array(6).join('★') + '</span>'; }
     function headerHtml() {
       var brand = B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt="' + esc(B.name) + '">' : '<span class="wordmark">' + esc(B.name) + '</span>';
+      if (EDIT) brand = '<button type="button" class="slot slot-logo' + (B.logo ? ' has' : '') + '" data-edit="logo">' + (B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span>Upload logo</span>') + '</button>';
       var sub = 'Book online' + (B.rating ? ' <span class="dot">·</span> ' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ' reviews)' : '');
+      if (EDIT) sub = 'Book online ' + (B.rating ? '<button type="button" class="slot slot-rate has" data-edit="rating">' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ')<span class="sl-tip">Change</span></button>' : '<button type="button" class="slot slot-rate" data-edit="rating"><span class="sl-plus">+</span>Add your Google rating</button>');
       return '<header class="hd' + (B.logo ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
         (CLOSABLE ? '<button class="x" data-act="close" aria-label="Close">' + ic('x') + '</button>' : '') + '</header>';
     }
@@ -484,14 +501,18 @@
       return first;
     }
     function sideHtml() {
-      var photo = /^https:\/\//.test(B.hero || '') ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
+      var photo = imgOk(B.hero) ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
       var c = sideCopy();
-      return '<aside class="side" aria-hidden="true"><div class="sb"><img alt="" src="' + esc(photo) + '"><div class="st">' +
-        (B.logo ? '<span class="slogo"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname"><span class="smark">' + esc((B.name || 'B').trim().charAt(0).toUpperCase()) + '</span>' + esc(B.name) + '</span>') +
+      return '<aside class="side"' + (EDIT ? '' : ' aria-hidden="true"') + '><div class="sb"><img alt="" src="' + esc(photo) + '">' +
+        (EDIT ? '<button type="button" class="slot slot-side' + (B.hero ? ' has' : '') + '" data-edit="side"><span class="sl-plus">+</span><span>' + (B.hero ? 'Change side photo' : 'Add your own photo') + '</span><small>Tall photo, at least 600 &times; 900</small></button>' +
+          '<span class="sl-badge">' + (B.hero ? 'Your photo' : 'Side photo: click to add yours') + '</span>' : '') + '<div class="st">' +
+        (EDIT ? '<button type="button" class="slot slot-slogo' + (B.logo ? ' has' : '') + '" data-edit="logo">' + (B.logo ? '<img src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span><b>Upload your logo</b><small>At least 300 &times; 80, wide or square</small></span>') + '</button>'
+          : B.logo ? '<span class="slogo"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname"><span class="smark">' + esc((B.name || 'B').trim().charAt(0).toUpperCase()) + '</span>' + esc(B.name) + '</span>') +
         '<div class="scopy"><h2>' + esc(c[0]) + '</h2><p>' + esc(c[1]) + '</p></div></div>' +
         '<div class="sinfo"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span>' +
         '<span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span>' +
-        (B.rating ? '<span><b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</span>' : '') + '</div></div></aside>';
+        (EDIT ? '<button type="button" class="slot slot-srate' + (B.rating ? ' has' : '') + '" data-edit="rating">' + (B.rating ? '<b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews<span class="sl-tip">Change</span>' : '<span class="sl-plus">+</span>Show your Google rating') + '</button>'
+          : B.rating ? '<span><b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</span>' : '') + '</div></div></aside>';
     }
     function menuHtml() {
       // The owner's order and which options show (tiles.order / tiles.off). Without one: Call first while open.
@@ -499,13 +520,21 @@
       var mine = Array.isArray(tiles.order) ? tiles.order.filter(function (k) { return ALL.indexOf(k) > -1 && T.tiles[k]; }) : null;
       var order = mine && mine.length ? mine.concat(ALL.filter(function (k) { return mine.indexOf(k) < 0; })) : (OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call']);
       var off = Array.isArray(tiles.off) ? tiles.off : [];
+      var hidden = EDIT ? order.filter(function (k) { return off.indexOf(k) > -1 && T.tiles[k]; }) : [];
       order = order.filter(function (k) { return off.indexOf(k) < 0 && T.tiles[k]; });
       if (!order.length) order = ['book'];
+      if (EDIT) order = order.concat(hidden);
       return '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
         if (k === 'book' && t.priced && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
-        if (k === 'call') { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
-        return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + IMG[k] + '"></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
+        if (k === 'call' && !t.custom) { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
+        var pic = (B.tileImg && B.tileImg[k]) || IMG[k];
+        if (EDIT) {
+          var isOff = off.indexOf(k) > -1;
+          return '<div class="mtile slot slot-tile' + (isOff ? ' off' : '') + '" draggable="true" data-edit="tile" data-k="' + k + '" role="button" tabindex="0"><span class="mimg"><img alt="" src="' + esc(pic) + '"></span>' +
+            '<span class="sl-drag" title="Drag to move">&#8942;&#8942;</span><span class="sl-edit">' + (isOff ? 'Hidden. Click to show' : 'Edit') + '</span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></div>';
+        }
+        return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
       }).join('') + '</div>';
     }
 
@@ -750,6 +779,25 @@
     }
     function post(type, data) { try { if (EMBED && parent !== window) parent.postMessage(Object.assign({ type: type }, data || {}), '*'); } catch (e) { } }
 
+    if (EDIT) {
+      var dragK = null;
+      app.addEventListener('click', function (e) {
+        var s = e.target.closest('[data-edit]'); if (!s) return;
+        e.preventDefault(); e.stopPropagation();
+        post('dbw:edit', { slot: s.getAttribute('data-edit'), key: s.getAttribute('data-k') || null });
+      }, true);
+      app.addEventListener('dragstart', function (e) { var t = e.target.closest('.slot-tile'); if (!t) return; dragK = t.getAttribute('data-k'); t.classList.add('dragging'); try { e.dataTransfer.setData('text/plain', dragK); e.dataTransfer.effectAllowed = 'move'; } catch (x) { } });
+      app.addEventListener('dragend', function () { dragK = null; Array.prototype.forEach.call(app.querySelectorAll('.slot-tile'), function (t) { t.classList.remove('dragging', 'over'); }); });
+      app.addEventListener('dragover', function (e) { var t = e.target.closest('.slot-tile'); if (!t || !dragK) return; e.preventDefault(); Array.prototype.forEach.call(app.querySelectorAll('.slot-tile'), function (x) { x.classList.toggle('over', x === t && x.getAttribute('data-k') !== dragK); }); });
+      app.addEventListener('drop', function (e) {
+        var t = e.target.closest('.slot-tile'); if (!t || !dragK) return; e.preventDefault();
+        var keys = Array.prototype.map.call(app.querySelectorAll('.slot-tile'), function (x) { return x.getAttribute('data-k'); });
+        var to = keys.indexOf(t.getAttribute('data-k')), from = keys.indexOf(dragK); if (to < 0 || from < 0 || to === from) return;
+        keys.splice(to, 0, keys.splice(from, 1)[0]);
+        T.tiles.order = keys; render();
+        post('dbw:edit', { slot: 'order', order: keys });
+      });
+    }
     app.addEventListener('click', function (e) {
       var el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
       var act = el.getAttribute('data-act'), v = el.getAttribute('data-v');

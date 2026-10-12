@@ -280,7 +280,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       '<div class="f2">' + fld('first', 'First name', 'given-name', 'text', true) + fld('email', 'Email', 'email', 'email', true) + '</div>' + fld('business', 'Business name', 'organization', 'text') +
       '</div><div class="hp" aria-hidden="true"><input id="hp" tabindex="-1" autocomplete="off"></div><p class="err" id="err" hidden></p>';
     if (cur === 'checkout') return '<h1>Complete your checkout</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. We only charge once your new website is live.' : 'You won\'t be charged today. Your 14-day free trial starts now.') + '</p>' + sumBox() +
-      '<div class="fields">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Mobile', 'tel', 'tel', true) + fld('business', 'Business name', 'organization', 'text') +
+      '<div class="fields">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Mobile', 'tel', 'tel', true) + fld('business', 'Business name', 'organization', 'text', true) +
       '<p class="fine">By continuing, you agree to get texts from Dialbridge about your account. Msg &amp; data rates may apply. Reply STOP to opt out. <a href="https://dialbridge.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a></p></div><p class="err" id="err" hidden></p>';
     if (cur === 'card') return '<h1>Add your card</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. Your card is only charged after we meet, build your website and it goes live.' : 'You won\'t be charged today. Your first $99 payment is on ' + md(Date.now() + 14 * 864e5) + ', after your 14-day free trial.') + '</p>' + sumBox() +
       '<div class="paybox"><div id="xco"></div><div class="or" id="xcoOr" hidden>Or pay with a card</div><div id="pe"><div class="paywait"><span class="spin dark"></span>Loading secure checkout</div></div></div>' +
@@ -302,7 +302,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     if (cur === 'time') return !!S.time;
     if (cur === 'details') return S.f.first.trim() && S.f.business.trim() && emailOk(S.f.email) && digits(S.f.phone).length === 10;
     if (cur === 'message') return S.f.msg.trim().length >= 5 && S.f.first.trim() && emailOk(S.f.email);
-    if (cur === 'checkout') return emailOk(S.f.email) && digits(S.f.phone).length === 10;
+    if (cur === 'checkout') return emailOk(S.f.email) && digits(S.f.phone).length === 10 && S.f.business.trim().length > 1;
     if (cur === 'card') return S.payReady;
     if (cur === 'password') return S.f.first.trim() && S.f.pw.length >= 8;
     return true;
@@ -375,7 +375,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       busy(b, false, 'Continue to payment ' + I('arw'));
       var e = (r.errors || [])[0];
       if (e === 'account_exists') { fail(''); $('#err').innerHTML = 'You already have an account with this email. <a href="' + APP + 'login" target="_top">Log in</a>'; return; }
-      if (e === 'email' || e === 'phone') { fail('Check your email and mobile number.'); return; }
+      if (e === 'email' || e === 'phone' || e === 'business') { fail('Check your email, mobile number and business name.'); return; }
       if (e === 'payments_not_connected') { fail('Checkout isn\'t switched on yet. Book a quick call instead and we\'ll set you up.'); return; }
       fail('That didn\'t go through. Try again in a moment.');
     });

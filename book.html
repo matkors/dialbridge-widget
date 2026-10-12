@@ -330,12 +330,58 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
   .callus svg{width:19px;height:19px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}.okc .draw{stroke-dashoffset:0}}
+
+/* Page builder (?builder=1&edit=1): the template's slots, outlined like an equipment slot in a game */
+.slot{position:relative;cursor:pointer;font:inherit;transition:box-shadow .18s var(--ease),transform .18s var(--ease),background-color .18s}
+button.slot{border:0}
+.slot:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.slot-logo{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:150px;height:52px;padding:0 14px;border-radius:12px;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 2px rgba(255,255,255,.55);color:#fff;font-size:13px;font-weight:700;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 6px,transparent 6px 12px)}
+.hd.light .slot-logo{background-color:#f6f7f9;box-shadow:inset 0 0 0 2px #c7ccd4;color:var(--ink)}
+.slot-logo.has{padding:4px 8px;background:none;box-shadow:inset 0 0 0 2px transparent}
+.slot-logo:hover{box-shadow:inset 0 0 0 2px var(--brand),0 0 0 4px rgba(0,0,0,.06);transform:translateY(-1px)}
+.hd:not(.light) .slot-logo:hover{box-shadow:inset 0 0 0 2px #fff,0 0 0 4px rgba(255,255,255,.18)}
+.sl-plus{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:currentColor;font-size:15px;font-weight:800;line-height:1}
+.sl-plus{color:inherit}.slot .sl-plus{background:rgba(127,127,127,.18)}
+.sl-tip{position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);padding:2px 8px;border-radius:6px;background:#111;color:#fff;font-size:11px;font-weight:700;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}
+.slot:hover .sl-tip{opacity:1}
+.slot-rate{display:inline-flex;align-items:center;gap:6px;margin-left:6px;padding:3px 9px;border-radius:999px;background:transparent;box-shadow:inset 0 0 0 1.5px currentColor;color:inherit;font-size:12px;font-weight:700;opacity:.85;border:0}
+.slot-rate:hover{opacity:1;transform:translateY(-1px)}
+.slot-rate .sl-plus{width:16px;height:16px;font-size:12px}
+.slot-side{position:absolute;inset:14px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-radius:16px;background:rgba(0,0,0,.18);box-shadow:inset 0 0 0 2px rgba(255,255,255,.6);color:#fff;font-size:14px;font-weight:700;opacity:0;text-align:center;backdrop-filter:blur(1px)}
+.slot-side small{font-size:11.5px;font-weight:600;opacity:.85}
+.slot-side .sl-plus{width:34px;height:34px;font-size:22px;background:rgba(255,255,255,.25)}
+.side:hover .slot-side,.slot-side:focus-visible{opacity:1}
+html.editing .side .sb::after{content:"";position:absolute;inset:14px;border-radius:16px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);pointer-events:none}
+.slot-tile{outline:none}
+.slot-tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 2px rgba(255,255,255,.0);transition:box-shadow .18s}
+.slot-tile:hover::after{box-shadow:inset 0 0 0 3px var(--brand),0 0 0 4px rgba(0,0,0,.05)}
+.slot-tile:hover{transform:translateY(-2px)}
+.slot-tile.off{opacity:.45;filter:grayscale(1)}
+.slot-tile.off::after{box-shadow:inset 0 0 0 2px rgba(255,255,255,.7);border:2px dashed rgba(0,0,0,.25)}
+.slot-tile.dragging{opacity:.4}
+.slot-tile.over::after{box-shadow:inset 0 0 0 3px var(--brand),0 0 0 6px rgba(0,0,0,.08)}
+.sl-drag{position:absolute;top:8px;left:8px;z-index:2;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.45);color:#fff;font-size:12px;letter-spacing:-2px;cursor:grab}
+.sl-edit{position:absolute;top:8px;right:8px;z-index:2;padding:3px 9px;border-radius:999px;background:#fff;color:#111;font-size:11.5px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+
+.slot-slogo{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;max-width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 2px rgba(255,255,255,.6);color:#fff;text-align:left;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 6px,transparent 6px 12px);border:0}
+.slot-slogo b{display:block;font-size:14px}
+.slot-slogo small{display:block;font-size:11.5px;font-weight:600;opacity:.8}
+.slot-slogo .sl-plus{flex:none;width:26px;height:26px;font-size:18px;background:rgba(255,255,255,.25)}
+.slot-slogo.has{padding:8px 10px;background:#fff;background-image:none;box-shadow:inset 0 0 0 2px transparent}
+.slot-slogo.has img{display:block;max-height:44px;max-width:180px;object-fit:contain}
+.slot-slogo:hover{box-shadow:inset 0 0 0 2px #fff,0 0 0 5px rgba(255,255,255,.18);transform:translateY(-1px)}
+.slot-slogo.has:hover{box-shadow:inset 0 0 0 2px var(--brand),0 0 0 5px rgba(255,255,255,.25)}
+.slot-srate{display:flex;align-items:center;gap:6px;width:100%;margin-top:2px;padding:8px 10px;border-radius:10px;background:var(--soft,#f3f4f6);box-shadow:inset 0 0 0 1.5px #c7ccd4;font-size:13px;font-weight:700;color:inherit;text-align:left;border:0}
+.slot-srate .sl-plus{width:18px;height:18px;font-size:13px}
+.slot-srate:hover{box-shadow:inset 0 0 0 2px var(--brand);transform:translateY(-1px)}
+.sl-badge{position:absolute;top:52%;left:50%;transform:translateX(-50%);z-index:1;white-space:nowrap;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.92);color:#111;font-size:11.5px;font-weight:700;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.side:hover .sl-badge{opacity:0}
 </style>
 </head>
 <body>
 <div class="page"><div class="hostline" id="hostline"></div><div class="card" id="app"><div class="err">Loading…</div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js"></script>
-<script src="templates.js?v=20261012h"></script>
-<script src="engine.js?v=20261012h"></script>
+<script src="templates.js?v=20261012i"></script>
+<script src="engine.js?v=20261012i"></script>
 </body>
 </html>
