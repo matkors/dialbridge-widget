@@ -224,7 +224,7 @@ html[data-mode="app"] .demo-tag{bottom:auto;top:12px;left:auto;right:12px}
   .fld{grid-template-columns:minmax(0,1fr);gap:6px}
   .funnel .fr{grid-template-columns:110px 1fr 54px;font-size:13px}
   .bk-time{width:96px;font-size:13px}
-  html[data-mode="app"] .demo-tag{top:auto;bottom:76px;right:auto;left:12px}
+  html[data-mode="app"] .demo-tag{top:auto;bottom:76px;right:auto;left:12px;max-width:calc(100vw - 24px);padding:4px 9px;font-size:11px;opacity:.92;pointer-events:none}   /* never blocks a button under it */
   .ib-pg .ib-top{gap:10px}
 }
 .nav a[hidden],.sheet-box a[hidden],.tabbar a[hidden]{display:none!important}

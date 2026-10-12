@@ -51,21 +51,10 @@ body.embed .card{max-width:none;height:100%;min-height:0;border-radius:0;box-sha
 .x:active{transform:scale(.92)}
 .x svg{width:20px;height:20px;transition:transform .2s var(--ease)}
 .x:hover svg{transform:rotate(90deg)}
-/* stepper */
-.steps{display:flex;margin:0;padding:13px 14px 11px;list-style:none;border-bottom:1px solid var(--line2);flex-shrink:0}
-.steps li{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;font-size:12.5px;color:var(--mute)}
-.steps li:not(:first-child)::before,.steps li:not(:first-child)::after{content:"";position:absolute;top:13px;right:calc(50% + 17px);left:calc(-50% + 17px);height:2px;border-radius:2px;background:#d6dade}
-.steps li:not(:first-child)::after{background:var(--brand);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
-.steps li.done::after,.steps li.now::after{transform:none}
-.steps li.grow::after{animation:lineGrow .45s var(--ease) both}
-@keyframes lineGrow{from{transform:scaleX(0)}}
-.bub{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;border:2px solid #a2a9b1;color:#6b727b;background:#fff;transition:background-color .2s,border-color .2s,color .2s}
-.bub svg{width:14px;height:14px;stroke-width:2.2}
-.steps li.now .bub{border-color:var(--brand);color:var(--brand);box-shadow:0 0 0 4px var(--ring)}
-.steps li.grow .bub{animation:bubIn .4s .12s var(--spring) both}
-@keyframes bubIn{from{transform:scale(.6);box-shadow:0 0 0 0 var(--ring)}}
-.steps li.done .bub{border-color:var(--brand);background:var(--brand);color:var(--on-brand)}
-.steps li.now .lab{color:var(--ink);font-weight:600}
+/* progress bar (like Avenue's): one thin rounded track, the fill grows between steps */
+.prog{display:flex;justify-content:center;padding:16px 20px 4px;flex-shrink:0}
+.ptrack{width:100%;max-width:430px;height:6px;border-radius:999px;background:#e9ebee;overflow:hidden}
+.ptrack i{display:block;height:100%;border-radius:inherit;background:var(--brand);transition:width .6s var(--ease)}
 /* body */
 .bd{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:22px 26px 26px;scrollbar-width:thin}
 .bd.in-fwd .bdi{animation:inFwd .32s var(--ease) both}
@@ -75,6 +64,10 @@ body.embed .card{max-width:none;height:100%;min-height:0;border-radius:0;box-sha
 @keyframes inBack{from{opacity:0;transform:translateY(-10px)}}
 .bd.in-fwd .stag,.bd.in-back .stag{animation:reveal .4s var(--ease) both;animation-delay:calc(var(--i) * 40ms + 60ms)}
 @keyframes inDone{from{opacity:0;transform:translateY(8px)}}
+/* the old screen, fading out on top while the new one comes in */
+.ghost{position:absolute;left:0;right:0;z-index:3;overflow:hidden;pointer-events:none;background:#fff;animation:ghostOut .2s var(--ease) forwards}
+.ghost .bd{height:100%;overflow:hidden}
+@keyframes ghostOut{to{opacity:0;transform:translateY(-6px)}}
 .blk{display:flex;flex-direction:column;gap:12px}
 .bdi > h3{margin-bottom:14px}
 .bdi > h3 + .lede{margin:-8px 0 16px}
@@ -283,12 +276,17 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
   .sb{position:relative;display:flex;flex-direction:column;justify-content:space-between;width:100%;background:var(--brand)}
   .sb > img{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover}
   .sb::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,var(--brand) 0%,var(--brand) 26%,color-mix(in srgb,var(--brand) 60%,transparent) 52%,rgba(10,12,14,.15) 70%,rgba(10,12,14,.7) 100%)}
-  .st{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px;padding:30px 26px;color:var(--on-brand)}
-  .sname{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.9}
+  .st{position:relative;z-index:2;display:flex;flex-direction:column;gap:22px;padding:30px 28px;color:var(--on-brand)}
+  .sname{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:700;letter-spacing:-.005em}
+  .smark{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--on-brand);color:var(--brand);font-size:15px;font-weight:800;flex-shrink:0}
   .slogo{align-self:flex-start;padding:8px 10px;border-radius:10px;background:#fff}
   .slogo img{display:block;height:34px;width:auto;max-width:150px;object-fit:contain}
-  .st h2{margin:0;font-size:26px;line-height:1.12;letter-spacing:-.02em;text-wrap:balance}
-  .st p{margin:0;font-size:14.5px;line-height:1.45;opacity:.92;font-weight:500}
+  .scopy{display:flex;flex-direction:column;gap:10px}
+  .scopy.swap h2{animation:sideIn .5s var(--ease) both}
+  .scopy.swap p{animation:sideIn .5s .07s var(--ease) both}
+  @keyframes sideIn{from{opacity:0;transform:translateY(10px)}}
+  .st h2{margin:0;font-size:28px;font-weight:700;line-height:1.14;letter-spacing:-.025em;text-wrap:pretty}
+  .st p{margin:0;max-width:30ch;font-size:15px;line-height:1.5;opacity:.86;font-weight:500}
   .sinfo{position:relative;z-index:2;display:flex;flex-direction:column;gap:7px;margin:18px;padding:14px 15px;border-radius:14px;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:13px;color:#3a4048;box-shadow:0 10px 30px -12px rgba(0,0,0,.4)}
   .sinfo b{color:#1a1d21}
   .sinfo .stars{color:#e8a200}
@@ -300,7 +298,7 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
   .main > .hd .hd-l{display:none}
   .main > .hd .x{color:var(--ink);background:#f1f2f4}
   .main > .hd .x:hover{background:#e4e6e9}
-  .steps{padding:20px 60px 12px;border-bottom:0}
+  .prog{padding:28px 64px 6px}
   .bd{padding:26px 40px 24px}
   .bdi{max-width:540px;margin:0 auto}
   .mhead{margin:14px 0 18px}
@@ -316,8 +314,6 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
   .hostline{display:none}
   .card{max-width:none;height:100dvh;min-height:0;border-radius:0;box-shadow:none;animation:none}
   .bd{padding:18px 16px 22px}
-  .steps{padding:11px 6px 9px}
-  .steps li{font-size:11px}
   .ft{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
   body.embed .ft{padding-bottom:12px}
   .ft-r{flex:1;justify-content:flex-end}

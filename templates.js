@@ -47,7 +47,7 @@ window.DBW_TEMPLATES = {
       },
       vehicle: { type: 'details', title: 'Tell us about the vehicle', showIf: ['estimate'], placeholder: '2021 black Tahoe, light swirls on the hood, daily driver', photos: true },
       time: { type: 'time', title: 'Pick a day and time', estimateTitle: 'Pick a time for a free inspection' },
-      contact: { type: 'contact', title: 'Where should we come?', askAddress: true }
+      contact: { type: 'contact', title: 'Where should we come?', askAddress: true, addressLabel: 'Address where the vehicle will be' }
     }
   },
 

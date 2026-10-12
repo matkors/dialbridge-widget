@@ -71,13 +71,14 @@ nav .tel{font-weight:600}
   };
   load.then(function(b){
     var T=window.DBW_TEMPLATES[b.trade]||window.DBW_TEMPLATES.junk, C=COPY[b.trade]||COPY.junk;
+    var X=b.site||{}; if(X.h1||X.lede||X.label) C={h1:X.h1||C.h1,lede:X.lede||C.lede,label:X.label||C.label}; // optional page wording set by the business itself
     var brand=/^#[0-9a-fA-F]{6}$/.test(b.brand||'')?b.brand:'#0E6650';
     document.documentElement.style.setProperty('--brand',brand);
     var c=[1,3,5].map(function(i){var v=parseInt(brand.substr(i,2),16)/255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);});
     document.documentElement.style.setProperty('--on-brand',(0.2126*c[0]+0.7152*c[1]+0.0722*c[2])>0.45?'#1A1D21':'#fff');
-    document.title=b.name+' | '+T.trade;
+    document.title=b.name+' | '+(b.tradeLabel||T.trade);
     document.getElementById('bname').textContent=b.name;
-    document.getElementById('mark').textContent=(b.name||'B').trim()[0].toUpperCase();
+    document.getElementById('mark').textContent=(X.mark||b.name||'B').trim()[0].toUpperCase();
     if(/^https:\/\//.test(b.logo||'')){var m=document.getElementById('mark');m.outerHTML='<img src="'+esc(b.logo)+'" alt="'+esc(b.name)+'" style="height:52px;width:auto">';}
     var tel='tel:+1'+String(b.phone||'').replace(/\D/g,'');
     var t=document.getElementById('tel'); t.textContent=b.phone; t.href=tel;
@@ -86,9 +87,9 @@ nav .tel{font-weight:600}
     document.getElementById('lede').textContent=C.lede;
     document.getElementById('heroBook').textContent=C.label;
     if(/^https:\/\//.test(b.hero||'')){var v=document.getElementById('visual');v.style.background='center/cover no-repeat url("'+b.hero.replace(/["()]/g,'')+'")';v.innerHTML='';}
-    else document.getElementById('visual').innerHTML='<i data-lucide="'+T.illustration+'"></i>';
-    document.getElementById('strip').innerHTML=(b.rating?'<span><b>'+esc(b.rating)+' stars</b> from '+esc(b.reviews)+' Google reviews</span>':'')+'<span>Serving <b>'+esc(b.area||'your area')+'</b></span><span><b>Book online</b> any time, day or night</span>';
-    document.getElementById('cards').innerHTML=T.services.map(function(s){return '<div class="c"><i data-lucide="'+s.icon+'"></i><h3>'+esc(s.label)+'</h3><p>'+esc(s.hint)+'</p></div>';}).join('');
+    else document.getElementById('visual').innerHTML='<i data-lucide="'+esc(X.illustration||T.illustration)+'"></i>';
+    document.getElementById('strip').innerHTML=(b.rating?'<span><b>'+esc(b.rating)+' stars</b> from '+esc(b.reviews)+' Google reviews</span>':'')+(Array.isArray(X.strip)?X.strip.map(function(x){return '<span>'+esc(x)+'</span>';}).join(''):'<span>Serving <b>'+esc(b.area||'your area')+'</b></span><span><b>Book online</b> any time, day or night</span>');
+    document.getElementById('cards').innerHTML=(Array.isArray(b.services)&&b.services.length?b.services:T.services).map(function(s){return '<div class="c"><i data-lucide="'+s.icon+'"></i><h3>'+esc(s.label)+'</h3><p>'+esc(s.hint)+'</p></div>';}).join('');
     if(window.lucide) lucide.createIcons();
     var sc=document.createElement('script');
     sc.src='w.js'; sc.async=true;

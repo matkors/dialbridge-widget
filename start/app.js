@@ -39,6 +39,7 @@
     var an = a.answers || {}; ['mode', 'reach', 'calls', 'goal'].forEach(function (k) { if (an[k] !== undefined) S[k] = an[k]; }); if (an.trade_label) S.tradeLabel = an.trade_label;
     S.paid = a.subStatus === 'trialing' || a.subStatus === 'active' || a.subStatus === 'past_due';
     if (a.plan) S.plan = a.plan;
+    if (a.business) { S.install = { slug: a.business.slug, embed: a.business.embed, bookingUrl: a.business.bookingUrl, status: a.business.status }; if (!S.area && a.business.area) S.area = a.business.area; }
     save();
   }
 
@@ -309,6 +310,12 @@
   }
   function act(disabled, label) { return '<div class="q-actions"><span></span><button class="btn dark" type="button" id="qNext"' + (disabled ? ' disabled' : '') + '>' + (label || 'Continue') + ' ' + I('arw') + '</button></div>'; }
   function phoneOk(v) { var d = String(v || '').replace(/\D/g, ''); if (d.length === 11 && d[0] === '1') d = d.slice(1); return /^[2-9]\d{2}[2-9]\d{6}$/.test(d); }
+  // Phone fields tidy themselves into (201) 555-0148 once all 10 digits are in (never mid-typing, so the cursor stays put).
+  document.addEventListener('input', function (e) {
+    var t = e.target; if (!t || t.type !== 'tel' || /^delete/.test(e.inputType || '')) return;
+    var d = t.value.replace(/\D/g, ''); if (d.length === 11 && d[0] === '1') d = d.slice(1);
+    if (d.length === 10 && t.value !== fmtPhone(d)) t.value = fmtPhone(d);
+  });
   function fmtPhone(v) { var d = String(v || '').replace(/\D/g, ''); if (d.length === 11 && d[0] === '1') d = d.slice(1); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : (v || ''); }
   // What each answer is called on the backend.
   function syncStep(s) {
@@ -451,8 +458,37 @@
     { n: 'Lauren Nguyen', t: 'Hot tub removal', a: 'Wayne 07470', w: 'Free estimate', p: 'Estimate', s: 'sch', src: 'Booking page', ago: '4d' }
   ];
   var PILL = { new: ['new', 'New'], sch: ['sch', 'Scheduled'], won: ['won', 'Booked'], lost: ['lost', 'Lost'] };
+  // Live accounts see their real bookings instead of the sample list above (the ?preview=1 product shot keeps
+  // the samples). Until the first load comes back the list is empty, so a real owner never sees made-up leads.
+  var REAL = LIVE && !PREVIEW, leadsLoaded = 0;
+  if (REAL) LEADS.length = 0;
+  var FROM_API = { request: 'new', booked: 'new', confirmed: 'sch', completed: 'won', won: 'won', cancelled: 'lost', lost: 'lost' };
+  var TO_API = { new: 'request', sch: 'confirmed', won: 'won', lost: 'lost' };
+  function agoText(ms) { var m = Math.max(0, Math.round((Date.now() - ms) / 60000)); return m < 60 ? m + 'm' : m < 1440 ? Math.round(m / 60) + 'h' : Math.round(m / 1440) + 'd'; }
+  function usPretty(p) { var d = String(p || '').replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : String(p || ''); }
+  function toLead(b) {
+    var when = b.start ? new Date(b.start).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + (b.window && !/^\d{1,2}(:\d{2})? [AP]M$/.test(b.window) ? ' (' + b.window + ')' : '')
+      : b.path === 'text' ? 'Text question' : b.path === 'callback' ? 'Call back' : b.mode === 'estimate' ? 'Free estimate' : 'No time picked';
+    var what = b.path === 'text' ? '"' + (b.message || '').slice(0, 80) + '"' : (b.service || (b.path === 'callback' ? 'Call back request' : 'Request')) + (b.details ? ', ' + b.details.slice(0, 60) : '');
+    return { id: b.id, n: b.name || 'Customer', t: what, a: [b.address, b.zip].filter(Boolean).join(' ') || '', w: when, p: b.price || (b.mode === 'estimate' ? 'Estimate' : ''),
+      s: FROM_API[b.status] || 'new', src: b.source === 'website' ? 'Website' : 'Booking page', ago: agoText(b.createdAt), ph: usPretty(b.phone), note: b.message && b.path !== 'text' ? b.message : '' };
+  }
+  var STATS = null;
+  function loadLeads() {
+    var st = api('/v1/owner/stats?days=30').then(function (r) { if (r.ok) STATS = r.body; }).catch(function () { });
+    var bk = api('/v1/owner/bookings').then(function (r) {
+      if (!r.ok) return false;
+      LEADS.length = 0; (r.body.bookings || []).forEach(function (b) { LEADS.push(toLead(b)); });
+      return true;
+    }).catch(function () { return false; });
+    return Promise.all([bk, st]).then(function (x) { return x[0]; });
+  }
+  function num(v) { return typeof v === 'number' ? v : 0; }
+  var SRC_NAME = { google: 'Google', website: 'Your website', facebook: 'Facebook', instagram: 'Instagram', direct: 'Direct link', nextdoor: 'Nextdoor', yelp: 'Yelp', other: 'Other sites' };
   var TITLES = { setup: 'Setup', home: 'Home', leads: 'Leads', bookings: 'Bookings', reviews: 'Reviews', traffic: 'Traffic', widget: 'Booking page', settings: 'Settings' };
   function app(pg) {
+    // Fresh numbers each time they open a page that shows bookings (at most every 20 seconds).
+    if (REAL && token() && /^(home|leads|bookings|traffic)$/.test(pg) && Date.now() - leadsLoaded > 20000) { leadsLoaded = Date.now(); loadLeads().then(function (ok) { if (ok && location.hash.indexOf('#app/' + pg) === 0) app(pg); }); }
     if (pg === 'test') { S.tested = true; save(); window.open('../book.html?c=' + previewSrc().split('?c=')[1].split('&')[0], '_blank'); toast('Booking page opened in a new tab. Book something and watch it land in Leads.'); location.replace('#app/home'); return; }
     if (!TITLES[pg]) pg = 'home';
     $$('.nav a, .nav-s, .tabbar a, .sheet-box a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-pg') === pg); });
@@ -541,6 +577,17 @@
     },
     home: function () {
       var c = leadCounts(), up = LEADS.filter(function (l) { return l.s === 'sch'; });
+      if (REAL) {
+        var won = LEADS.filter(function (l) { return l.s === 'won'; }).length, fn0 = STATS && STATS.funnel ? num(STATS.funnel.view) : null;
+        return '<div class="pg"><h2 class="ttl">' + greet() + ', ' + esc(first()) + '</h2>' +
+          '<p class="lead-p">' + (c.reply ? '<b>' + c.reply + (c.reply === 1 ? ' request needs' : ' requests need') + ' a reply.</b> ' : (LEADS.length ? 'You\'re all caught up. ' : 'No booking requests yet. They show up here the moment someone books. ')) + up.length + (up.length === 1 ? ' job' : ' jobs') + ' coming up.</p>' +
+          '<div class="stats"><div><span>Booking requests</span><b>' + LEADS.length + '</b><small>All time</small></div><div><span>Scheduled</span><b>' + up.length + '</b><small>Coming up</small></div>' +
+          '<div><span>Booked and done</span><b>' + won + '</b><small>Marked booked</small></div><div><span>Booking page visits</span><b>' + (fn0 === null ? '-' : fn0) + '</b><small>Last 30 days</small></div></div>' +
+          '<div class="g2"><div class="box"><div class="box-h"><h3>Needs a reply</h3><a href="#app/leads">Open leads</a></div><ul class="rows">' +
+          (LEADS.filter(function (l) { return l.s === 'new'; }).map(function (l) { return '<li><a href="#app/leads"><i class="dot"></i><div class="m"><b>' + esc(l.n) + '</b><span>' + esc(l.t) + '</span></div><span class="e">' + l.ago + '</span></a></li>'; }).join('') || '<li class="empty">Nothing waiting.</li>') + '</ul></div>' +
+          '<div class="box"><div class="box-h"><h3>Coming up</h3><a href="#app/bookings">All bookings</a></div><ul class="rows">' +
+          (up.map(function (l) { return '<li><a href="#app/bookings"><div class="m"><b>' + esc(l.n) + '</b><span>' + esc(l.w) + '</span></div></a></li>'; }).join('') || '<li class="empty">No jobs scheduled yet.</li>') + '</ul></div></div></div>';
+      }
       return '<div class="pg"><h2 class="ttl">' + greet() + ', ' + esc(first()) + '<span class="tag-s">Sample data</span></h2>' +
         '<p class="lead-p">' + (c.reply ? '<b>' + c.reply + ' requests need a reply.</b> ' : 'You\'re all caught up. ') + up.length + ' jobs coming up this week.</p>' +
         '<div class="stats"><div><span>New requests</span><b>34</b><small class="up">+21% vs last month</small></div><div><span>Booked jobs</span><b>18</b><small>$10,686 in jobs</small></div>' +
@@ -553,14 +600,14 @@
     },
     leads: function () {
       var c = leadCounts();
-      return '<div class="pg ib-pg"><div class="ib-top"><p class="ib-sum">' + (c.reply ? '<b>' + c.reply + ' waiting for a reply.</b> Oldest: 1 hour.' : 'You\'re all caught up.') + '<span class="ib-sample">Sample leads</span></p>' +
+      return '<div class="pg ib-pg"><div class="ib-top"><p class="ib-sum">' + (c.reply ? '<b>' + c.reply + ' waiting for a reply.</b> ' + (REAL ? 'Oldest: ' + (LEADS.filter(function (l) { return l.s === 'new'; }).slice(-1)[0] || {}).ago + ' ago.' : 'Oldest: 1 hour.') : (REAL && !LEADS.length ? 'No booking requests yet.' : 'You\'re all caught up.')) + (REAL ? '' : '<span class="ib-sample">Sample leads</span>') + '</p>' +
         '<div class="ib-views" id="ibViews">' + [['reply', 'Needs reply'], ['sch', 'Scheduled'], ['closed', 'Closed']].map(function (v) { return '<button type="button" data-v="' + v[0] + '"' + (v[0] === ibView ? ' class="on"' : '') + '>' + v[1] + ' <span>' + c[v[0]] + '</span></button>'; }).join('') + '</div></div>' +
         '<div class="inbox" id="ibox"><div class="ib-list" id="ibList"></div><div class="ib-d" id="ibD"></div></div></div>';
     },
     bookings: function () {
       var up = LEADS.filter(function (l) { return l.s === 'sch' || l.s === 'won'; });
       var days = {}; up.forEach(function (l) { var d = (/^(\w{3} \w{3} \d+)/.exec(l.w) || [, 'To schedule'])[1]; (days[d] = days[d] || []).push(l); });
-      return '<div class="pg"><p class="lead-p" style="margin:0"><b>' + up.length + ' jobs on the schedule.</b> Times are in your time zone.<span class="tag-s">Sample data</span></p>' +
+      return '<div class="pg"><p class="lead-p" style="margin:0"><b>' + up.length + ' jobs on the schedule.</b> Times are in your time zone.' + (REAL ? '' : '<span class="tag-s">Sample data</span>') + '</p>' +
         '<div class="box" style="margin-top:16px;padding:6px 12px 10px">' + Object.keys(days).map(function (d) {
           return '<p class="bk-day">' + esc(d) + '</p><ul class="rows" style="padding:0">' + days[d].map(function (l) {
             var tm = l.w.replace(/^\w{3} \w{3} \d+,? ?/, '') || 'Time to confirm';
@@ -586,6 +633,20 @@
         '<div class="bubble">Hi Dana, thanks for choosing ' + esc(BIZ()) + '! Mind leaving us a quick review? It helps a small business a lot.<small>What customers get</small></div></div></div></div>';
     },
     traffic: function () {
+      if (REAL) {
+        var fu = (STATS && STATS.funnel) || {}, vs = (STATS && STATS.visitsBySource) || {};
+        var F2 = [['Visited your booking page', num(fu.view)], ['Started a booking', num(fu.open)], ['Sent a request', num(STATS && STATS.requests)]];
+        var S2 = Object.keys(vs).filter(function (k) { return k !== 'internal'; }).map(function (k) { return [SRC_NAME[k] || k, vs[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+        var top = Math.max(1, F2[0][1]), topS = Math.max(1, (S2[0] || [0, 1])[1]);
+        return '<div class="pg"><p class="lead-p" style="margin:0"><b>Last 30 days:</b> ' + (STATS ? F2[0][1] + (F2[0][1] === 1 ? ' person' : ' people') + ' saw your booking page and ' + num(STATS.requests) + ' sent a request.' : 'Loading your numbers.') + '</p>' +
+          '<div class="stats"><div><span>Visits</span><b>' + F2[0][1] + '</b><small>Last 30 days</small></div><div><span>Started a booking</span><b>' + F2[1][1] + '</b><small>' + (F2[0][1] ? Math.round(F2[1][1] / F2[0][1] * 100) + '% of visits' : '&nbsp;') + '</small></div>' +
+          '<div><span>Requests</span><b>' + num(STATS && STATS.requests) + '</b><small>' + (F2[0][1] ? (Math.round(num(STATS && STATS.requests) / F2[0][1] * 1000) / 10) + '% of visits' : '&nbsp;') + '</small></div><div><span>After hours</span><b>' + num(STATS && STATS.afterHours) + '</b><small>Requests outside your hours</small></div></div>' +
+          '<div class="g2"><div class="box"><div class="box-h"><h3>From visit to booking</h3></div><div class="funnel">' +
+          F2.map(function (f) { return '<div class="fr"><span>' + f[0] + '</span><i><b style="width:' + Math.max(3, f[1] / top * 100) + '%"></b></i><em>' + f[1] + '</em></div>'; }).join('') + '</div></div>' +
+          '<div class="box"><div class="box-h"><h3>Where visitors come from</h3><span>Visits</span></div><ul class="rows">' +
+          (S2.map(function (x) { return '<li><div><div class="m"><b>' + esc(x[0]) + '</b><span class="srcbar"><b style="width:' + x[1] / topS * 100 + '%"></b></span></div><span class="e"><b>' + x[1] + '</b></span></div></li>'; }).join('') || '<li class="empty">No visits yet. Add your booking button to your website and the link to your Google profile.</li>') + '</ul></div></div>' +
+          '<p class="foot-note">Counts visits to pages that have your booking button, and to your booking link. It doesn\'t track the rest of your website.</p></div>';
+      }
       var F = [['Visited your booking page', 412], ['Opened the booking form', 168], ['Started a booking', 61], ['Sent a request', 34]];
       var SRC = [['Google', 169, 15], ['Your website', 115, 11], ['Facebook', 70, 5], ['Instagram', 37, 2], ['Direct link', 21, 1]];
       return '<div class="pg"><p class="lead-p" style="margin:0"><b>Last 30 days:</b> 412 people saw your booking page and 34 sent a request.<span class="tag-s">Sample data</span></p>' +
@@ -602,7 +663,7 @@
       return '<div class="pg"><p class="lead-p" style="margin:0">Your changes show in the preview right away.</p><div class="wz">' +
         '<ol class="card wz-steps" id="wzSteps">' + [['Hours and area', 'When and where you work'], ['Services and prices', 'What customers can book'], ['Your look', 'Logo and color'], ['Go live', 'Website, Google, social']].map(function (s, i) { return '<li data-s="' + (i + 1) + '"><button type="button"><i>' + (i + 1) + '</i><div><b>' + s[0] + '</b><span>' + s[1] + '</span></div></button></li>'; }).join('') + '</ol>' +
         '<div class="card wz-form" id="wzForm"></div>' +
-        '<div class="wz-prev"><div class="card"><div class="bar"><i></i><i></i><i></i><span id="wzUrl">book.dialbridge.ai/' + slug() + '</span></div><iframe id="wzFrame" title="Your booking widget preview"></iframe></div><p>Live preview. Tap through it like a customer.</p></div></div></div>';
+        '<div class="wz-prev"><div class="card"><div class="bar"><i></i><i></i><i></i><span id="wzUrl">' + esc(bookLink()) + '</span></div><iframe id="wzFrame" title="Your booking widget preview"></iframe></div><p>Live preview. Tap through it like a customer.</p></div></div></div>';
     },
     settings: function () {
       var t = theme();
@@ -657,11 +718,12 @@
   }
   var STATUS = { new: 'New', sch: 'Scheduled', won: 'Booked', lost: 'Lost' };
   function leadDetail(i) {
-    var l = LEADS[i], fn = l.n.split(' ')[0], ph = '(201) 555-0' + (140 + i);
-    var photos = i % 2 ? '' : '<div class="rq-ph"><img src="../img/tiles/junk-book.webp" alt=""><img src="../img/tiles/junk-hero.webp" alt=""></div>';
-    var thread = l.s === 'sch' || l.s === 'won' ? '<div class="msg us"><p>Hi ' + esc(fn) + ', this is Mike from ' + esc(BIZ()) + '. You\'re all set for ' + esc(l.w) + '. We\'ll text when we\'re on the way.</p><small>You · ' + (l.s === 'won' ? '1d ago' : '4h ago') + '</small></div>' : '';
+    if (!l0Guard(i)) { $('#ibD').innerHTML = '<p class="ib-empty">' + (REAL ? 'New booking requests show up here.' : 'Nothing here right now.') + '</p>'; return; }
+    var l = LEADS[i], fn = l.n.split(' ')[0], ph = l.ph || '(201) 555-0' + (140 + i);
+    var photos = REAL || i % 2 ? '' : '<div class="rq-ph"><img src="../img/tiles/junk-book.webp" alt=""><img src="../img/tiles/junk-hero.webp" alt=""></div>';
+    var thread = REAL ? (l.note ? '<div class="msg them"><p>' + esc(l.note) + '</p><small>' + esc(fn) + '</small></div>' : '') : l.s === 'sch' || l.s === 'won' ? '<div class="msg us"><p>Hi ' + esc(fn) + ', this is Mike from ' + esc(BIZ()) + '. You\'re all set for ' + esc(l.w) + '. We\'ll text when we\'re on the way.</p><small>You · ' + (l.s === 'won' ? '1d ago' : '4h ago') + '</small></div>' : '';
     $('#ibD').innerHTML =
-      '<div class="ib-dh"><button class="ib-back" type="button" aria-label="Back to leads">' + I('back') + '</button><div class="who"><h3>' + esc(l.n) + '</h3><p>' + ph + ' · ' + esc(l.a) + '</p></div>' +
+      '<div class="ib-dh"><button class="ib-back" type="button" aria-label="Back to leads">' + I('back') + '</button><div class="who"><h3>' + esc(l.n) + '</h3><p>' + ph + (l.a ? ' · ' + esc(l.a) : '') + '</p></div>' +
         '<a class="btn sm ghost" href="tel:' + ph.replace(/\D/g, '') + '">' + I('phone') + 'Call</a>' +
         '<div class="stsel"><button type="button" class="stbtn" id="stBtn">' + STATUS[l.s] + '<svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button><div class="stmenu" id="stMenu" hidden>' + ['sch', 'won', 'lost', 'new'].filter(function (k) { return k !== l.s; }).map(function (k) { return '<button type="button" data-st="' + k + '">' + ({ sch: 'Mark scheduled', won: 'Mark booked', lost: 'Mark lost', new: 'Move back to new' })[k] + '</button>'; }).join('') + '</div></div></div>' +
       '<div class="ib-thread">' + (/question/i.test(l.w) ? '<div class="msg them"><p>' + esc(l.t.replace(/^"|"$/g, '')) + '</p><small>' + esc(fn) + ' · ' + esc(l.src) + ' · ' + l.ago + ' ago</small></div>' :
@@ -673,6 +735,7 @@
         ['Confirm the time', 'Send the price', 'Ask for photos', 'On the way'].map(function (t) { return '<button type="button">' + t + '</button>'; }).join('') + '</div>' +
         '<div class="cb"><button type="button" class="link" id="tplBtn">Templates</button><span>From your business number</span><button class="btn sm" type="button" id="sendTx">Send text</button></div></div>';
   }
+  function l0Guard(i) { return !!LEADS[i]; }
   function leadsInit() {
     $('#ibList').innerHTML = ibRows(); leadDetail(ibSel);
     var open = function (i) { ibSel = i; $$('.ib-row').forEach(function (x) { x.classList.toggle('on', +x.getAttribute('data-i') === i); }); leadDetail(i); $('#ibox').classList.add('show-d'); };
@@ -683,7 +746,8 @@
       if (e.target.closest('#stBtn')) { var m = $('#stMenu'); m.hidden = !m.hidden; return; }
       var st = e.target.closest('[data-st]');
       if (st) {
-        var l = LEADS[ibSel], to = st.getAttribute('data-st'); l.s = to;
+        var l = LEADS[ibSel], to = st.getAttribute('data-st'), was = l.s; l.s = to;
+        if (REAL && l.id) api('/v1/owner/bookings/' + l.id, 'PATCH', { status: TO_API[to] }).then(function (r) { if (!r.ok) { l.s = was; $('#ibList').innerHTML = ibRows(); leadDetail(ibSel); toast('That did not save. Try again.'); } });
         var nextI = LEADS.map(function (x, i) { return [x, i]; }).filter(function (x) { return VIEW[x[0].s] === ibView; })[0];
         var c = leadCounts(); $$('#ibViews button').forEach(function (b) { $('span', b).textContent = c[b.getAttribute('data-v')]; });
         $('#ibList').innerHTML = ibRows();
@@ -694,7 +758,7 @@
       if (e.target.closest('#tplBtn')) { var t = $('#tpl'); t.hidden = !t.hidden; return; }
       var tb = e.target.closest('#tpl button');
       if (tb) { var l2 = LEADS[ibSel]; $('#ibTx').value = { 'Confirm the time': 'Hi ' + l2.n.split(' ')[0] + '! You\'re all set for ' + l2.w + '. We\'ll text when we\'re on the way.', 'Send the price': 'Thanks for the details! Your price is ' + (l2.p || '$199 to $279') + ', confirmed on site.', 'Ask for photos': 'Could you text a couple of photos? It helps us give you an exact price.', 'On the way': 'We\'re on the way, about 20 minutes out.' }[tb.textContent]; $('#tpl').hidden = true; $('#ibTx').focus(); return; }
-      if (e.target.closest('#sendTx')) toast('Demo: text not sent');
+      if (e.target.closest('#sendTx')) toast(REAL ? 'Texting from here is not on yet. Text them from your phone for now.' : 'Demo: text not sent');
     });
   }
   /* widget wizard */
@@ -721,6 +785,62 @@
   var reloadT = null;
   function preview(now) { clearTimeout(reloadT); reloadT = setTimeout(function () { var f = $('#wzFrame'); if (!f) return; f.src = previewSrc(); f.onload = function () { if (S.logo) send(); }; }, now ? 0 : 450); }
   function send() { var f = $('#wzFrame'); try { f.contentWindow.postMessage({ type: 'dbw:customize', brand: S.brand, logo: S.logo || null }, location.origin); } catch (e) { } }
+  // ---- saving the widget (live accounts only) ----
+  // The whole widget goes to the API: their trade's template with their services and prices, their hours
+  // and area. The server prices every booking from this copy, so the price a customer sees is the one saved here.
+  function widgetTemplate() {
+    var base = window.DBW_TEMPLATES && window.DBW_TEMPLATES[trade()];
+    if (!base) return null;
+    var t = JSON.parse(JSON.stringify(base));
+    var hide = SVC[trade()].filter(function (x) { return S.svc[x[0]] === false; }).map(function (x) { return x[0]; });
+    var keep = t.services.filter(function (x) { return hide.indexOf(x.id) < 0; });
+    if (keep.length) t.services = keep;
+    // Their own price only replaces a flat price. Trades priced by size or options keep the template's ranges.
+    t.services.forEach(function (x) {
+      var v = S.price && S.price[x.id];
+      var orig = base.services.filter(function (y) { return y.id === x.id; })[0];
+      if (v === undefined || v === '' || !orig || !('fixed' in orig)) return;
+      v = parseInt(v, 10);
+      if (v > 0) x.fixed = v; else delete x.fixed;
+    });
+    if (S.tradeLabel) t.trade = String(S.tradeLabel).slice(0, 40);
+    return t;
+  }
+  // Arrival windows of about 3 hours inside their opening hours (8 to 6 becomes 8-11, 11-2, 2-6).
+  function windowsFor(open, close) {
+    var hm = function (v) { var a = String(v).split(':'); return (+a[0]) * 60 + (+(a[1] || 0)); };
+    var tx = function (m) { return (m < 600 ? '0' : '') + Math.floor(m / 60) + ':' + (m % 60 < 10 ? '0' : '') + (m % 60); };
+    var o = hm(open), c = hm(close), out = [];
+    for (var t = o; t + 180 <= c; t += 180) out.push({ id: 'w' + (out.length + 1), start: tx(t), end: tx(t + 180) });
+    if (!out.length) out.push({ id: 'w1', start: tx(o), end: tx(c) });
+    else if (hm(out[out.length - 1].end) < c) out[out.length - 1].end = tx(c);
+    return out;
+  }
+  function widgetSettings() {
+    var weekly = {};
+    S.days.forEach(function (d) { weekly[d] = [[S.open, S.close]]; });
+    var base = (window.DBW_TEMPLATES && window.DBW_TEMPLATES[trade()]) || {};
+    var slots = (base.defaults || {}).timeMode === 'slots';
+    var st = slots ? { mode: 'slots', weekly: weekly, durationMinutes: 60, intervalMinutes: 60, bufferMinutes: 0 }
+      : { mode: 'windows', weekly: weekly, windows: windowsFor(S.open, S.close), durationMinutes: 120, bufferMinutes: 30 };
+    try { var tz = Intl.DateTimeFormat().resolvedOptions().timeZone; if (tz) st.timezone = tz; } catch (e) { }
+    var cap = parseInt(S.cap, 10); if (cap > 0) st.dailyCap = cap;
+    return st;
+  }
+  function asksZip() { var b = window.DBW_TEMPLATES && window.DBW_TEMPLATES[trade()]; return !b || !b.flows || (b.flows.book || []).indexOf('zip') > -1; }
+  function saveWidget() {
+    if (!LIVE || !token()) return Promise.resolve({ ok: true, demo: true });
+    var zips = String(S.zips || '').split(/[\s,]+/).filter(Boolean);
+    return api('/v1/acct/business', 'POST', { name: BIZ(), brand: S.brand, phone: S.bizPhone || S.phone || undefined, trade: trade(), area: S.area || '',
+      zips: asksZip() ? zips : [], template: widgetTemplate(), settings: widgetSettings() }).then(function (r) {
+      if (r.ok) { ACCT = r.body.account; S.install = { slug: r.body.slug, embed: r.body.embed, bookingUrl: r.body.bookingUrl, status: r.body.status }; save(); }
+      return r;
+    });
+  }
+  function bookLink() { return LIVE && S.install ? S.install.bookingUrl : 'book.dialbridge.ai/' + slug(); }
+  function installCode() { return LIVE && S.install ? S.install.embed : '<script async src="https://book.dialbridge.ai/w.js" data-business="' + slug() + '"></script>'; }
+  function copyText(v) { try { navigator.clipboard.writeText(v).then(function () { toast('Copied'); }, function () { toast('Copy it by hand'); }); } catch (e) { toast('Copy it by hand'); } }
+
   function wizard() {
     var m = (location.hash.match(/#app\/widget\/(\d)/) || [])[1]; wzStep = +m || 1;
     preview(true); wzRender();
@@ -734,16 +854,19 @@
     var sec = [3, 2, 1, 4][wzStep - 1];
     if (sec === 1) h = '<div><h3>Your look</h3><p>Add your logo and pick your brand color.</p></div><div class="wz-body"><div class="field">Logo<label class="drop">' + (S.logo ? '<img src="' + S.logo + '" alt="">' : I('up')) + '<span>' + (S.logo ? 'Change logo' : 'Upload your logo (PNG or JPG)') + '</span><input type="file" id="wzLogo" accept="image/png,image/jpeg,image/webp"></label></div>' +
       '<div class="field">Brand color<div class="sw">' + COLORS.map(function (c) { return '<button type="button" data-c="' + c + '" style="background:' + c + '"' + (c.toLowerCase() === S.brand.toLowerCase() ? ' class="on"' : '') + ' aria-label="' + c + '"></button>'; }).join('') + '</div></div>' +
-      '<label class="field">Business name<input class="in" id="wzName" value="' + esc(BIZ()) + '"></label></div>';
+      '<label class="field">Business name<input class="in" id="wzName" value="' + esc(BIZ()) + '"></label>' +
+      '<label class="field">Phone customers can call<input class="in" id="wzPhone" type="tel" inputmode="tel" placeholder="(201) 555-0123" value="' + esc(S.bizPhone || S.phone || '') + '"></label></div>';
     else if (sec === 2) h = '<div><h3>Services and prices</h3><p>Turn on what you offer. Prices show as "from" ranges; 0 means free estimate.</p></div><div class="wz-body">' +
-      SVC[trade()].map(function (x) { var on = S.svc[x[0]] !== false; return '<div class="svc"><button type="button" class="tog' + (on ? ' on' : '') + '" data-svc="' + x[0] + '" aria-label="Offer ' + x[1] + '"></button><div><b>' + x[1] + '</b><span>' + (x[2] ? 'Price shown up front' : 'Free estimate') + '</span></div><label class="pr">From $<input value="' + (x[2] || 0) + '" inputmode="numeric"></label></div>'; }).join('') + '</div>';
+      SVC[trade()].map(function (x) { var on = S.svc[x[0]] !== false; return '<div class="svc"><button type="button" class="tog' + (on ? ' on' : '') + '" data-svc="' + x[0] + '" aria-label="Offer ' + x[1] + '"></button><div><b>' + x[1] + '</b><span>' + (x[2] ? 'Price shown up front' : 'Free estimate') + '</span></div><label class="pr">From $<input data-price="' + x[0] + '" value="' + esc(S.price && S.price[x[0]] !== undefined ? S.price[x[0]] : (x[2] || 0)) + '" inputmode="numeric"></label></div>'; }).join('') + '</div>';
     else if (sec === 3) h = '<div><h3>Hours and area</h3><p>Customers only see times you can actually take.</p></div><div class="wz-body"><div class="field">Days you work<div class="days" id="wzDays">' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (d, i) { return '<button type="button" data-d="' + i + '"' + (S.days.indexOf(i) > -1 ? ' class="on"' : '') + '>' + d + '</button>'; }).join('') + '</div></div>' +
       '<div class="row2"><label class="field">Start<select class="in" id="wzOpen">' + hrs(S.open) + '</select></label><label class="field">End<select class="in" id="wzClose">' + hrs(S.close) + '</select></label></div>' +
-      '<label class="field">Area you serve<input class="in" id="wzArea" value="' + esc(S.area) + '" placeholder="Bergen County, NJ"></label><label class="field">ZIP codes you cover <em>first 3 digits work too</em><input class="in" placeholder="074, 076, 07601"></label><label class="field">Most jobs per day<input class="in" value="4" inputmode="numeric"></label></div>';
+      '<label class="field">' + (asksZip() ? 'Area you serve' : 'Where customers find you') + '<input class="in" id="wzArea" value="' + esc(S.area) + '" placeholder="' + (asksZip() ? 'Bergen County, NJ' : 'Downtown Hoboken') + '"></label>' +
+      (asksZip() ? '<label class="field">ZIP codes you cover <em>first 3 digits work too</em><input class="in" id="wzZips" value="' + esc(S.zips || '') + '" placeholder="074, 076, 07601"></label>' : '') +
+      '<label class="field">Most ' + (asksZip() ? 'jobs' : 'appointments') + ' per day<input class="in" id="wzCap" value="' + esc(S.cap || '') + '" placeholder="No limit" inputmode="numeric"></label></div>';
     else h = '<div><h3>Go live</h3><p>Put your Book online button where customers find you.</p></div><div class="wz-body">' + (S.widgetDone ? '<div class="live-ok">' + I('chk') + 'Your booking page is live.</div>' : '') +
-      '<div class="field">Your booking link <em>for Google, Facebook and Instagram</em><div class="linkbox"><span>book.dialbridge.ai/' + slug() + '</span><button class="btn sm dark" type="button" id="wzCopy">' + I('copy') + 'Copy</button></div></div>' +
+      '<div class="field">Your booking link <em>for Google, Facebook and Instagram</em><div class="linkbox"><span>' + esc(bookLink()) + '</span><button class="btn sm dark" type="button" id="wzCopy">' + I('copy') + 'Copy</button></div></div>' +
       '<div class="field">Add the button to your website<div class="inst-tabs" id="wzTabs">' + ['WordPress', 'Wix', 'Squarespace', 'GoDaddy', 'Other'].map(function (t, i) { return '<button type="button"' + (i ? '' : ' class="on"') + '>' + t + '</button>'; }).join('') + '</div>' +
-      '<div class="codebox">&lt;script async src="https://book.dialbridge.ai/w.js" data-business="' + slug() + '"&gt;&lt;/script&gt;<button type="button" id="wzCode">Copy</button></div><p style="margin:2px 0 0;font-size:13px;color:var(--mute);font-weight:500" id="wzHow">WordPress: Appearance, Theme File Editor, footer.php, paste above &lt;/body&gt;. Or use a plugin like WPCode.</p></div>' +
+      '<div class="codebox">' + esc(installCode()) + '<button type="button" id="wzCode">Copy</button></div><p style="margin:2px 0 0;font-size:13px;color:var(--mute);font-weight:500" id="wzHow">WordPress: Appearance, Theme File Editor, footer.php, paste above &lt;/body&gt;. Or use a plugin like WPCode.</p></div>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm ghost" type="button" id="wzEmail">' + I('msg') + 'Email it to my web person</button><button class="btn sm ghost" type="button" id="wzCall">' + I('phone') + 'Book a free install call</button></div></div>';
     h += '<div class="wz-nav">' + (wzStep > 1 ? '<button class="link" type="button" id="wzPrev">Back</button>' : '<span></span>') + '<button class="btn' + (wzStep === 4 ? '' : ' dark') + '" type="button" id="wzNext">' + (wzStep === 4 ? (S.widgetDone ? 'Back to home' : 'Publish my booking page') : 'Continue') + ' ' + I('arw') + '</button></div>';
     f.innerHTML = h; f.classList.remove('swap');
@@ -755,21 +878,41 @@
     var sv = t.closest('[data-svc]'); if (sv) { var k = sv.getAttribute('data-svc'); S.svc[k] = S.svc[k] === false; sv.classList.toggle('on', S.svc[k] !== false); save(); preview(); return; }
     var d = t.closest('[data-d]'); if (d) { var n = +d.getAttribute('data-d'), i = S.days.indexOf(n); if (i > -1) S.days.splice(i, 1); else S.days.push(n); d.classList.toggle('on'); save(); return; }
     var tab = t.closest('#wzTabs button'); if (tab) { $$('#wzTabs button').forEach(function (b) { b.classList.toggle('on', b === tab); }); $('#wzHow').innerHTML = { WordPress: 'WordPress: Appearance, Theme File Editor, footer.php, paste above &lt;/body&gt;. Or use a plugin like WPCode.', Wix: 'Wix: Settings, Custom code, Add code, paste it, place it in Body - end, apply to all pages.', Squarespace: 'Squarespace: Settings, Advanced, Code injection, paste it into Footer.', GoDaddy: 'GoDaddy: Edit website, add an HTML section to your footer, paste it.', Other: 'Paste it right before &lt;/body&gt; on every page, or send it to whoever manages your site.' }[tab.textContent]; return; }
-    if (t.closest('#wzCopy') || t.closest('#wzCode')) { toast('Copied'); return; }
-    if (t.closest('#wzEmail')) { toast('Demo: email not sent'); return; }
+    if (t.closest('#wzCopy')) { copyText(bookLink()); return; }
+    if (t.closest('#wzCode')) { copyText(installCode()); return; }
+    if (t.closest('#wzEmail')) {
+      if (!LIVE) { toast('Demo: email not sent'); return; }
+      location.href = 'mailto:?subject=' + encodeURIComponent('Booking button for our website') + '&body=' + encodeURIComponent('Hi, can you add this one line to every page of our website, right before </body>?\n\n' + installCode() + '\n\nIt adds a Book online button. Thanks!');
+      return;
+    }
     if (t.closest('#wzCall')) { location.href = '../product/?call=1'; return; }
     if (t.closest('#wzPrev')) { wzStep--; wzRender(); return; }
     if (t.closest('#wzNext')) {
-      if (wzStep < 4) { S.wzDone = Math.max(S.wzDone || 0, wzStep); save(); wzStep++; wzRender(); $('.main').scrollTo && scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); return; }
-      if (S.widgetDone) { location.hash = '#app/home'; return; }
-      S.widgetDone = true; save(); track('WidgetPublished', {}, true); wzRender();
-      modal('<div class="okc">' + I('chk') + '</div><h3>Your booking page is live</h3><p>Customers can book ' + esc(BIZ()) + ' at book.dialbridge.ai/' + slug() + '. Add the button to your website and the link to Google to start getting bookings.</p><button class="btn" type="button" data-close>Got it</button>');
+      if (wzStep < 4) {
+        S.wzDone = Math.max(S.wzDone || 0, wzStep); save();
+        // Progress is saved to their account on every step, so nothing is lost if they leave.
+        saveWidget().then(function (r) { if (!r.ok) toast('Saved on this device. Check your connection.'); });
+        wzStep++; wzRender(); $('.main').scrollTo && scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); return;
+      }
+      if (S.widgetDone && (!LIVE || S.install)) { location.hash = '#app/home'; return; }
+      var nb = $('#wzNext'); if (nb) nb.disabled = true;
+      saveWidget().then(function (r) {
+        if (nb) nb.disabled = false;
+        if (!r.ok) { toast(r.status === 422 ? 'Check your business name and phone' : 'That did not save. Try again.'); return; }
+        S.widgetDone = true; save(); track('WidgetPublished', {}, true); wzRender();
+        var on = !LIVE || (S.install && S.install.status === 'live');
+        modal('<div class="okc">' + I('chk') + '</div><h3>' + (on ? 'Your booking page is live' : 'Your booking page is saved') + '</h3><p>' + (on ? 'Customers can book ' + esc(BIZ()) + ' at ' + esc(bookLink()) + '. Add the button to your website and the link to Google to start getting bookings.' : 'It starts taking bookings as soon as your free trial starts.') + '</p><button class="btn" type="button" data-close>Got it</button>');
+      });
     }
   }
   function wzInput(e) {
     var t = e.target;
-    if (t.id === 'wzName') { S.biz = t.value.trim(); save(); $('#bizName').textContent = BIZ(); $('#wzUrl').textContent = 'book.dialbridge.ai/' + slug(); preview(); }
+    if (t.id === 'wzName') { S.biz = t.value.trim(); save(); $('#bizName').textContent = BIZ(); $('#wzUrl').textContent = bookLink(); preview(); }
     if (t.id === 'wzArea') { S.area = t.value.trim(); save(); preview(); }
+    if (t.id === 'wzPhone') { S.bizPhone = t.value.trim(); save(); }
+    if (t.id === 'wzZips') { S.zips = t.value; save(); }
+    if (t.id === 'wzCap') { S.cap = t.value.replace(/\D/g, ''); save(); }
+    if (t.hasAttribute && t.hasAttribute('data-price')) { S.price = S.price || {}; S.price[t.getAttribute('data-price')] = t.value.replace(/\D/g, ''); save(); }
     if (t.id === 'wzOpen') { S.open = t.value; save(); preview(); }
     if (t.id === 'wzClose') { S.close = t.value; save(); preview(); }
     if (t.id === 'wzLogo' && e.type === 'change') { var file = t.files && t.files[0]; if (!file || file.size > 4e6) return; var r = new FileReader(); r.onload = function () { S.logo = r.result; save(); send(); wzRender(); }; r.readAsDataURL(file); }

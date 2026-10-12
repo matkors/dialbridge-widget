@@ -6,17 +6,19 @@
    Closing keeps the half-filled form, so an accidental tap outside never loses a customer's answers. */
 (function () {
   'use strict';
-  var s = document.currentScript || document.querySelector('script[src*="w.js"][data-business],script[src*="w.js"][data-config]');
+  var s = document.currentScript || document.querySelector('script[src*="w.js"][data-business],script[src*="w.js"][data-b],script[src*="w.js"][data-config]');
   if (!s || window.__dbwLoaded) return;
   window.__dbwLoaded = true;
   var base = s.src.replace(/w\.js(\?.*)?$/, '');
-  var slug = (s.getAttribute('data-business') || '').replace(/[^a-z0-9-]/g, '');
+  var slug = (s.getAttribute('data-business') || s.getAttribute('data-b') || '').replace(/[^a-z0-9-]/g, '');
+  // data-live="1": a real business saved in our API (the install code from the app always has it).
+  var live = s.getAttribute('data-live') === '1' ? '&live=1' : '';
   var cfg = (s.getAttribute('data-config') || '').replace(/[^A-Za-z0-9_-]/g, '');
   var color = /^#[0-9a-fA-F]{6}$/.test(s.getAttribute('data-color') || '') ? s.getAttribute('data-color') : '#0E6650';
   var label = s.getAttribute('data-label') || 'Book online';
   var left = s.getAttribute('data-position') === 'left';
   var phone = (s.getAttribute('data-phone') || '').replace(/[^\d+]/g, '');   // optional: adds a round call button next to Book online
-  var q = (cfg ? 'c=' + cfg : 'b=' + (slug || 'harbor-haul'));
+  var q = (cfg ? 'c=' + cfg : 'b=' + (slug || 'harbor-haul') + live);
   var src = base + 'book.html?embed=1&' + q;
   var EASE = 'cubic-bezier(.23,1,.32,1)', DRAWER = 'cubic-bezier(.32,.72,0,1)';
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -183,7 +185,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-dialbridge-inline]'), function (el) {
       var b = (el.getAttribute('data-dialbridge-inline') || slug).replace(/[^a-z0-9-]/g, '');
       var f = document.createElement('iframe');
-      f.src = base + 'book.html?embed=1&inline=1&' + (cfg ? 'c=' + cfg : 'b=' + b);
+      f.src = base + 'book.html?embed=1&inline=1&' + (cfg ? 'c=' + cfg : 'b=' + b + live);
       f.title = 'Book online';
       f.style.cssText = 'display:block;width:100%;height:620px;border:0;border-radius:16px;box-shadow:0 0 0 1px rgba(16,24,40,.08),0 12px 32px rgba(16,24,40,.1);transition:height .32s ' + EASE;
       el.appendChild(f); inline.push(f);

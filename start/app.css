@@ -435,7 +435,7 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stro
 .inst-tabs{display:flex;gap:6px;flex-wrap:wrap}
 .inst-tabs button{height:34px;padding:0 12px;border:1px solid var(--line2);border-radius:9px;background:var(--white);font-size:13px;font-weight:700;cursor:pointer}
 .inst-tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.codebox{position:relative;padding:14px;border-radius:12px;background:#1d221c;color:#d7e3c8;font-family:var(--mono);font-size:12.5px;line-height:1.6;word-break:break-all}
+.codebox{position:relative;padding:42px 14px 14px;border-radius:12px;background:#1d221c;color:#d7e3c8;font-family:var(--mono);font-size:12.5px;line-height:1.6;word-break:break-all}
 .codebox button{position:absolute;top:8px;right:8px;height:28px;padding:0 10px;border:0;border-radius:7px;background:rgba(255,255,255,.12);color:#fff;font-size:12px;font-weight:700;cursor:pointer}
 .linkbox{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 12px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--line);font-family:var(--mono);font-size:13px}
 .linkbox span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

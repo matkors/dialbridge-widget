@@ -4,7 +4,14 @@
 (function () {
   'use strict';
   var params = new URLSearchParams(location.search);
+  // ?live=1 (set by w.js data-live and the owner's booking link): a real business saved in our API, with real
+  // open times and real bookings. Without it, ?b= reads the demo files in flows/ and nothing leaves the page.
+  var LIVE_API = 'https://dialbridge-booking-api.dialbridge-booking-api.workers.dev';
+  // Local testing only: a page served from this computer may point at a local API (?api=http://127.0.0.1:8791).
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(params.get('api') || '')) LIVE_API = params.get('api');
+  var LIVE = params.get('live') === '1' && !params.get('c') && params.get('builder') !== '1';
   var EMBED = params.get('embed') === '1';
+  var LOAD_AT = Date.now();
   var CLOSABLE = EMBED && params.get('inline') !== '1';
   var app = document.getElementById('app');
   if (EMBED) document.body.classList.add('embed');
@@ -24,7 +31,10 @@
   }
 
   function build(p) {
-    var t = JSON.parse(JSON.stringify(window.DBW_TEMPLATES[p.trade] || window.DBW_TEMPLATES.junk));
+    // A live business brings its own saved template (services, prices, steps); demos use the trade's built-in one.
+    var saved = p.template && Array.isArray(p.template.services) && p.template.services.length && p.template.steps && p.template.flows;
+    var t = JSON.parse(JSON.stringify(saved ? p.template : (window.DBW_TEMPLATES[p.trade] || window.DBW_TEMPLATES.junk)));
+    delete p.template;
     var b = Object.assign({}, t.defaults, {
       name: 'Your Business', phone: '(201) 555-0148', brand: '#0E6650', area: 'your area', zips: [], rating: null, reviews: null, tz: 'America/New_York', demo: true
     }, p);
@@ -43,11 +53,52 @@
       if (keep.length) t.services = keep;
     }
     if (p.tradeLabel) t.trade = String(p.tradeLabel).slice(0, 40);   // their own words, e.g. "Barbershop"
+    // Optional, only when a business sets them: its own service list, step wording and button words (e.g. a lamp repair shop on the general template).
+    if (Array.isArray(p.services)) {
+      var own = p.services.filter(function (x) { return x && x.id && x.label; }).map(function (x) {
+        return { id: String(x.id).replace(/[^a-z0-9-]/g, ''), label: String(x.label).slice(0, 60), hint: String(x.hint || '').slice(0, 80), icon: String(x.icon || 'clipboard-list').replace(/[^a-z0-9-]/g, ''), mode: ['book', 'request', 'estimate'].indexOf(x.mode) > -1 ? x.mode : 'estimate' };
+      });
+      if (own.length) t.services = own;
+    }
+    if (p.stepText && typeof p.stepText === 'object') Object.keys(p.stepText).forEach(function (k) {
+      var st = t.steps[k], o = p.stepText[k];
+      if (!st || !o) return;
+      ['title', 'estimateTitle', 'placeholder'].forEach(function (f) { if (typeof o[f] === 'string') st[f] = o[f].slice(0, 120); });
+      if (typeof o.askAddress === 'boolean') st.askAddress = o.askAddress;
+    });
+    if (p.words && typeof p.words === 'object') ['estimateSubmit', 'estimateDone'].forEach(function (f) { if (typeof p.words[f] === 'string') t[f] = p.words[f].slice(0, 40); });
     t.biz = b;
     return t;
   }
 
+  function getJSON(u) { return fetch(u, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); }
+  function prettyUs(p) { var d = String(p || '').replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : ''; }
+  // Their weekly hours -> the days, opening and closing time the "open now" check and the call tile use.
+  function hoursOf(h) {
+    var w = (h && h.weekly) || {}, days = [], open = null, close = null;
+    for (var d = 0; d < 7; d++) {
+      var iv = w[d] || w[String(d)];
+      if (!iv || !iv.length) continue;
+      days.push(d);
+      iv.forEach(function (x) { if (!open || x[0] < open) open = x[0]; if (!close || x[1] > close) close = x[1]; });
+    }
+    return { days: days, open: open || '08:00', close: close || '18:00', mode: h && h.mode === 'slots' ? 'slots' : 'window' };
+  }
+  function loadLive() {
+    var slug = (params.get('b') || '').replace(/[^a-z0-9-]/g, '');
+    var api = LIVE_API + '/v1/w/' + slug;
+    return Promise.all([getJSON(api + '/config'), getJSON(api + '/slots?days=14').catch(function () { return { slots: [] }; })]).then(function (r) {
+      var c = r[0], h = hoursOf(c.hours);
+      var T0 = build({ slug: c.slug, trade: c.trade, template: c.template, name: c.name, phone: prettyUs(c.phone), brand: c.brand, area: c.area || 'your area',
+        zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false });
+      // Photos can't be sent through the API yet, so don't offer an upload we would drop.
+      Object.keys(T0.steps).forEach(function (k) { if (T0.steps[k].type === 'details') T0.steps[k].photos = false; });
+      return T0;
+    });
+  }
+
   function loadConfig() {
+    if (LIVE && params.get('b')) return loadLive();
     if (params.get('c')) {
       // Link-based demo configs can never send data anywhere: submitUrl only comes from our own flows/*.json files.
       try { var dc = b64dec(params.get('c')); delete dc.submitUrl; dc.demo = true; return Promise.resolve(build(dc)); } catch (e) { return Promise.reject(e); }
@@ -96,6 +147,13 @@
     setBrand(B.brand);
     var hostLine = document.getElementById('hostline');
     if (hostLine && !EMBED) hostLine.innerHTML = '<b>' + esc(B.name) + '</b><span>Serving ' + esc(B.area) + ' · <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a></span>';
+    // Live: one 'view' per visit. From the owner's own website this is how we know their widget is up.
+    var sid = '', sent = {};
+    function liveEvent(type) {
+      if (!B.api || sent[type]) return; sent[type] = 1;
+      fetch(B.api + '/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: type, session: sid, ref: document.referrer.slice(0, 300), page: location.href.slice(0, 300) }), keepalive: true }).catch(function () { });
+    }
+    if (B.api) { try { sid = sessionStorage.getItem('dbw_sid') || ''; if (!sid) { sid = Math.random().toString(36).slice(2, 12); sessionStorage.setItem('dbw_sid', sid); } } catch (e) { } liveEvent('view'); }
 
     var S;
     function fresh() { S = { path: null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', msg: '', cb: null, done: null }; }
@@ -132,7 +190,6 @@
       return out;
     }
     function curScreen() { if (!S.path || S.done) return null; return screens()[S.idx] || null; }
-    var LABELS = { zip: ['Location', 'map-pin'], service: ['Service', 'clipboard-list'], details: ['Details', 'camera'], time: ['Schedule', 'clock'], contact: ['Contact', 'user-round'], message: ['Message', 'message-square-text'], call: ['Call', 'phone'], callback: ['Call back', 'phone-incoming'] };
 
     function svcById(id) { return T.services.filter(function (s) { return s.id === id; })[0]; }
     // Several picks (junk removal) act as one combined service: any walkthrough-only pick makes the whole job a walkthrough.
@@ -172,7 +229,28 @@
       return lo === null ? null : [lo, hi];
     }
 
+    // Live: the next 7 days in their time zone, starting with the first day that has an open time.
+    // A day with no open times shows as closed. Times come straight from /slots, so they can actually be booked.
+    function liveDays() {
+      var have = {}; B.apiSlots.forEach(function (s) { have[s.day] = 1; });
+      var p = new Intl.DateTimeFormat('en-CA', { timeZone: B.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-');
+      var all = [];
+      for (var i = 0; i < 15; i++) {
+        var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + i, 12));
+        var key = d.toISOString().slice(0, 10);
+        all.push({ key: key, dow: DOW[d.getUTCDay()], num: d.getUTCDate(), mon: MON3[d.getUTCMonth()], off: !have[key], today: i === 0 });
+      }
+      var first = 0; while (first < all.length - 7 && all[first].off) first++;
+      return all.slice(first, first + 7);
+    }
+    function liveTimes(day) {
+      return B.apiSlots.filter(function (s) { return s.day === day.key; }).map(function (s) {
+        var hm = /T(\d{2}):(\d{2})/.exec(s.start) || [0, 0, 0];
+        return { id: s.start, label: s.label, start: (+hm[1]) * 60 + (+hm[2]), full: s.remaining !== undefined && s.remaining <= 0 };
+      });
+    }
     function dayList() {
+      if (B.api) return liveDays();
       var n = bizNow(B), out = [], base = new Date();
       var startOffset = n.m > mins(B.close) - 120 ? 1 : 0;
       for (var i = startOffset; out.length < 7; i++) {
@@ -182,6 +260,7 @@
       return out;
     }
     function windows(day) {
+      if (B.api) return liveTimes(day);
       var o = mins(B.open), c = mins(B.close), n = bizNow(B), list;
       if (B.timeMode === 'slots') {
         list = [];
@@ -214,6 +293,9 @@
     function inArea() { return !B.zips.length || B.zips.some(function (z) { return S.zip.indexOf(z) === 0; }); }
     function zipOk() { return /^\d{5}$/.test(S.zip) && inArea(); }
     function hasZipStep() { return flowFor(S.path).indexOf('zip') > -1; }
+    // Ask for a ZIP on the contact step only when there was no ZIP step and the business limits its area.
+    // Customers who go to the business (barbers, salons) are never asked.
+    function contactNeedsZip() { return !hasZipStep() && B.zips.length > 0; }
     function contactOk() { return S.name.trim().length > 1 && digits().length >= 10; }
     function valid(id) {
       var d = stepDef(id);
@@ -221,7 +303,7 @@
       if (d.type === 'choice') return !!S.ans[id];
       if (d.type === 'time') return !!(S.day && S.time);
       if (d.type === 'zip') return zipOk();
-      if (d.type === 'contact') return contactOk() && (!d.askAddress || S.addr.trim().length > 4) && (hasZipStep() || zipOk());
+      if (d.type === 'contact') return contactOk() && (!d.askAddress || S.addr.trim().length > 4) && (!contactNeedsZip() || zipOk());
       if (d.type === 'message') return contactOk() && S.msg.trim().length >= 3;
       if (d.type === 'callback') return contactOk() && !!S.cb;
       if (d.type === 'call') return false;
@@ -237,15 +319,19 @@
       return '<header class="hd' + (B.logo ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
         (CLOSABLE ? '<button class="x" data-act="close" aria-label="Close">' + ic('x') + '</button>' : '') + '</header>';
     }
+    // A thin progress bar (like Avenue's): the first screen counts as a step, and the done screen fills it.
+    // It starts at the last screen's width and grows to the new one, so every step change animates.
+    var PROG = 0;
+    function progress() {
+      if (S.done) return 1;
+      if (!S.path) return .12;
+      var n = screens().length;
+      return Math.min(1, (S.idx + 1) / (n + 1));
+    }
     function stepperHtml() {
-      if (!S.path || S.done || S.path === 'call') return '';
-      var scs = screens();
-      if (scs.length < 2) return '';
-      return '<ol class="steps">' + scs.map(function (sc, i) {
-        var t = stepDef(sc[0]).type, L = LABELS[t] || [t, 'circle'];
-        var st = i < S.idx ? 'done' : i === S.idx ? 'now' : '';
-        return '<li class="' + st + '"><span class="bub">' + ic(i < S.idx ? 'check' : L[1]) + '</span><span class="lab">' + L[0] + '</span></li>';
-      }).join('') + '</ol>';
+      var to = progress(), n = S.path ? screens().length : 0;
+      var label = S.done ? 'Done' : S.path && n ? 'Step ' + (S.idx + 1) + ' of ' + n : 'Start';
+      return '<div class="prog"><div class="ptrack" role="progressbar" aria-label="' + label + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(to * 100) + '"><i id="pfill" style="width:' + (PROG * 100) + '%"></i></div></div>';
     }
     function truck(frac) {
       var w = Math.round(150 * (frac || 0));
@@ -260,7 +346,9 @@
     }
     function nameFields(n) {
       return '<div class="f2"><label class="fld"><span>Name <em>*</em></span><input data-in="name" autocomplete="name" placeholder="Jordan Lee" value="' + esc(S.name) + '"></label>' +
-        '<label class="fld"><span>Mobile <em>*</em></span><input data-in="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(201) 555-0123" value="' + esc(S.phone) + '"></label></div>';
+        '<label class="fld"><span>Mobile <em>*</em></span><input data-in="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(201) 555-0123" value="' + esc(S.phone) + '"></label></div>' +
+        // Spam trap: hidden from people and screen readers; bots that fill every field give themselves away.
+        '<div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Company fax<input id="hpf" name="company_fax" tabindex="-1" autocomplete="off"></label></div>';
     }
 
     function blockHtml(id) {
@@ -319,7 +407,7 @@
         }
       }
       if (d.type === 'contact') {
-        h += nameFields(1) + (d.askAddress ? '<label class="fld"><span>Address where the vehicle will be <em>*</em></span><input data-in="addr" autocomplete="street-address" placeholder="123 Main St" value="' + esc(S.addr) + '"></label>' : '') + (hasZipStep() ? '' : '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>') +
+        h += nameFields(1) + (d.askAddress ? '<label class="fld"><span>' + esc(d.addressLabel || 'Address of the job') + ' <em>*</em></span><input data-in="addr" autocomplete="street-address" placeholder="123 Main St" value="' + esc(S.addr) + '"></label>' : '') + (contactNeedsZip() ? '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>' : '') +
           '<p class="fine">By sending, you agree that ' + esc(B.name) + ' may text you about this request. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>';
       }
       if (d.type === 'message') {
@@ -339,13 +427,29 @@
     // Photos for the first screen (free Unsplash licence, files in img/tiles, credits in img/tiles/CREDITS.json).
     var TRADE = { junk: 'junk', cleaning: 'cleaning', detailing: 'detailing', hvac: 'hvac', general: 'general', appointments: 'appointments' }[B.trade] || 'junk';
     var IMG = { book: 'img/tiles/' + TRADE + '-book.webp', quote: 'img/tiles/quote.webp', text: 'img/tiles/text.webp', call: 'img/tiles/call.webp' };
-    function sideHtml() {
+    // The brand panel follows the customer: one short line for the screen they are on (wide layout only).
+    function sideCopy() {
       var area = B.area && B.area !== 'your area' ? B.area : '';
-      var head = B.tagline || (T.trade + (area ? ' in ' + area : ', booked online'));
+      var first = [B.tagline || (T.trade + (area ? ' in ' + area : ', booked online')), T.sideLine || 'Tell us what you need, see your price and pick a time.'];
+      if (S.done) return ['You\'re all set', B.name + ' has your request. Watch for a text from ' + B.phone + '.'];
+      var sc = curScreen(); if (!sc) return first;
+      var t = stepDef(sc[0]).type;
+      if (t === 'zip') return ['We come to you', area ? B.name + ' serves ' + area + '. Your ZIP tells us you\'re covered.' : 'Your ZIP tells us ' + B.name + ' covers your address.'];
+      if (t === 'service') return S.path === 'quote' ? ['Get a price without a visit', 'Tell us about the job and ' + B.name + ' texts you a price.']
+        : B.showPrices ? ['See your price first', 'Prices show as you pick, before you book anything.'] : ['What do you need?', 'Pick what fits. You can add details next.'];
+      if (t === 'details') return ['Photos help', 'A couple of photos usually get you an exact price instead of a range.'];
+      if (t === 'time') return ['Pick a time that works', 'These are open times. ' + B.name + ' texts you to confirm.'];
+      if (t === 'contact') return ['Last step', 'No account and no spam. ' + B.name + ' texts you to confirm the details.'];
+      if (t === 'message') return ['Ask anything', 'Your question goes straight to the owner\'s phone. Replies come by text.'];
+      if (t === 'call' || t === 'callback') return ['Talk to a person', OPEN ? 'Call now, or pick a time and ' + B.name + ' calls you back.' : B.name + ' calls you back at the time you pick.'];
+      return first;
+    }
+    function sideHtml() {
       var photo = /^https:\/\//.test(B.hero || '') ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
+      var c = sideCopy();
       return '<aside class="side" aria-hidden="true"><div class="sb"><img alt="" src="' + esc(photo) + '"><div class="st">' +
-        (B.logo ? '<span class="slogo"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname">' + esc(B.name) + '</span>') +
-        '<h2>' + esc(head) + '</h2><p>' + esc(T.sideLine || 'Tell us what you need, see your price and pick a time.') + '</p></div>' +
+        (B.logo ? '<span class="slogo"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname"><span class="smark">' + esc((B.name || 'B').trim().charAt(0).toUpperCase()) + '</span>' + esc(B.name) + '</span>') +
+        '<div class="scopy"><h2>' + esc(c[0]) + '</h2><p>' + esc(c[1]) + '</p></div></div>' +
         '<div class="sinfo"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span>' +
         '<span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span>' +
         (B.rating ? '<span><b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</span>' : '') + '</div></div></aside>';
@@ -363,7 +467,7 @@
     function doneHtml() {
       var who = esc(S.name.trim().split(' ')[0] || 'there'), ph = esc(prettyPhone());
       var title, text, foot = OPEN ? 'They usually reply within ' + B.replyMins + ' minutes.' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect a text shortly after.';
-      if (S.path === 'book') { title = S.svc.mode === 'estimate' ? 'Walkthrough requested' : 'Request sent'; text = esc(B.name) + ' will text ' + ph + ' to confirm. Need to change something? Just reply to the text.'; }
+      if (S.path === 'book') { title = S.svc.mode === 'estimate' ? (T.estimateDone || 'Walkthrough requested') : 'Request sent'; text = esc(B.name) + ' will text ' + ph + ' to confirm. Need to change something? Just reply to the text.'; }
       else if (S.path === 'quote') { title = 'Price request sent'; text = esc(B.name) + ' will text your price to ' + ph + '.'; foot = 'Photos usually get you an exact number instead of a range.'; }
       else if (S.path === 'text') { title = 'Message sent'; text = esc(B.name) + ' will reply to ' + ph + ' by text.'; }
       else { title = 'Call back requested'; text = esc(B.name) + ' will call ' + ph + ' ' + esc((S.cb || 'soon').toLowerCase()) + '.'; foot = 'Save ' + esc(B.phone) + ' so you know it is them.'; }
@@ -398,12 +502,13 @@
 
     function footHtml() {
       var call = '<a class="callus" href="tel:+1' + B.phoneDigits + '">' + ic('phone') + 'Call us</a>';
-      var pow = '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by DialBridge</a>' + (B.demo ? '<span class="demo" title="Demo: requests are not sent anywhere">Demo</span>' : '') + '</div>';
+      // The Demo tag only shows on a standalone demo link; previews inside our own pages leave it out.
+      var pow = '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by DialBridge</a>' + (B.demo && window.top === window.self ? '<span class="demo" title="Demo: requests are not sent anywhere">Demo</span>' : '') + '</div>';
       if (S.done) return '<footer class="ft"><span></span><div class="ft-r"><button type="button" class="btn" data-act="' + (CLOSABLE ? 'close' : 'restart') + '">' + (CLOSABLE ? 'Close' : 'Start over') + '</button></div></footer>' + pow;
       if (!S.path) return '<footer class="ft">' + call + '</footer>' + pow;
       var sc = curScreen(), last = S.idx === screens().length - 1, t = stepDef(sc[0]).type;
       var label = 'Continue';
-      if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? 'Request walkthrough' : 'Send booking request') : 'Send price request';
+      if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? (T.estimateSubmit || 'Request walkthrough') : 'Send booking request') : 'Send price request';
       if (t === 'message') label = 'Send message';
       if (t === 'callback') label = 'Request a call back';
       var next = t === 'call' ? '' : '<button type="button" class="btn" id="next" data-act="next"' + (screenValid(sc) ? '' : ' disabled') + '>' + label + (label === 'Continue' ? ic('arrow-right', 'arr') : '') + '</button>';
@@ -413,14 +518,37 @@
     // NAV = 'fwd' | 'back' | 'done' when the screen changes (slides the new screen in); null for taps inside a screen.
     // JUST = selector of the control that was just tapped, so only it plays the select animation.
     var NAV = null, JUST = null, RO = null, firstPaint = true;
+    var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     function render(scrollTo) {
       var old = document.getElementById('bd'), keep = old && !NAV ? old.scrollTop : 0;
-      var hadSteps = !!app.querySelector('.steps');
+      var oldSide = app.querySelector('.scopy'), sideWas = oldSide ? oldSide.textContent : '';
+      // Cross-fade between screens: a copy of the old screen fades out on top while the new one fades in.
+      // The real DOM swaps right away, so taps, keyboard and the product page's scripted demo never wait.
+      var ghost = null;
+      if (NAV && !firstPaint && old && !REDUCED) {
+        ghost = document.createElement('div');
+        ghost.className = 'ghost'; ghost.setAttribute('aria-hidden', 'true');
+        ghost.style.top = old.offsetTop + 'px'; ghost.style.height = old.clientHeight + 'px';
+        ghost.innerHTML = '<div class="bd"><div class="bdi">' + document.getElementById('bdi').innerHTML + '</div></div>';
+        Array.prototype.forEach.call(ghost.querySelectorAll('[id],[data-act],[data-in]'), function (n) { n.removeAttribute('id'); n.removeAttribute('data-act'); n.removeAttribute('data-in'); });
+        var gs = old.scrollTop;
+        ghost.firstChild.firstChild.style.transform = 'translateY(' + -gs + 'px)';
+      }
       app.innerHTML = sideHtml() + '<div class="main" id="main">' + headerHtml() + stepperHtml() + '<div class="bd" id="bd"><div class="bdi" id="bdi">' + bodyHtml() + '</div></div>' + footHtml() + '</div>';
       if (window.lucide) window.lucide.createIcons();
       var bd = document.getElementById('bd');
+      if (ghost) {
+        ghost.style.top = bd.offsetTop + 'px'; ghost.style.height = bd.clientHeight + 'px';
+        document.getElementById('main').appendChild(ghost);
+        ghost.addEventListener('animationend', function () { ghost.remove(); });
+        setTimeout(function () { if (ghost.parentNode) ghost.remove(); }, 600);
+      }
+      var newSide = app.querySelector('.scopy');
+      if (newSide && sideWas && newSide.textContent !== sideWas && !firstPaint) newSide.classList.add('swap');
       if (NAV && !firstPaint) bd.classList.add(NAV === 'back' ? 'in-back' : NAV === 'done' ? 'in-done' : 'in-fwd');
-      if (NAV === 'fwd' && hadSteps) { var now = app.querySelector('.steps li.now'); if (now) now.classList.add('grow'); }
+      var pf = document.getElementById('pfill'), to = progress();
+      if (pf) { if (firstPaint || to === PROG) pf.style.width = to * 100 + '%'; else requestAnimationFrame(function () { requestAnimationFrame(function () { pf.style.width = to * 100 + '%'; }); }); }
+      PROG = to;
       if (NAV && !firstPaint) Array.prototype.slice.call(app.querySelectorAll('#bdi .mrow, #bdi .tile, #bdi .radio, #bdi .chip, #bdi .day'), 0, 12).forEach(function (el, i) { el.classList.add('stag'); el.style.setProperty('--i', i); });
       if (JUST) { try { var j = app.querySelector(JUST); if (j) j.classList.add('just'); } catch (e) { } }
       if (bd) {
@@ -442,6 +570,7 @@
     function wantedHeight() {
       var h = 0, main = document.getElementById('main') || app;
       Array.prototype.forEach.call(main.children, function (c) {
+        if (c.classList.contains('ghost')) return;
         if (c.id !== 'bd') { h += c.offsetHeight; return; }
         var cs = getComputedStyle(c), inner = document.getElementById('bdi');
         h += (inner ? inner.offsetHeight : 0) + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
@@ -456,7 +585,7 @@
         if (RO) RO.disconnect();
         RO = new ResizeObserver(sendHeight);
         var bdi = document.getElementById('bdi'); if (bdi) RO.observe(bdi);
-        Array.prototype.forEach.call((document.getElementById('main') || app).children, function (c) { if (c.id !== 'bd') RO.observe(c); });
+        Array.prototype.forEach.call((document.getElementById('main') || app).children, function (c) { if (c.id !== 'bd' && !c.classList.contains('ghost')) RO.observe(c); });
       }
       requestAnimationFrame(sendHeight);
     }
@@ -484,14 +613,71 @@
         page: document.referrer || location.href, submittedAt: new Date().toISOString()
       };
     }
+    // Live: what the API needs. Ids (not labels) so the server prices it from their saved template.
+    function liveBody(reqId) {
+      var answers = {};
+      visible().forEach(function (id) { if (stepDef(id).type === 'choice' && S.ans[id]) answers[id] = S.ans[id]; });
+      var addons = T.steps.addons && T.steps.addons.options ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.id; }) : [];
+      var timed = S.path === 'book' && S.time && /T\d{2}:\d{2}/.test(S.time);
+      var notes = [];
+      if (S.msg.trim()) notes.push(S.msg.trim());
+      if (S.cb) notes.push('Best time to call back: ' + S.cb);
+      // An estimate visit has no booked slot, so the time they picked goes to the owner as a preference.
+      if (timed && S.svc && S.svc.mode === 'estimate') notes.push('Preferred time: ' + whenText());
+      var hp = document.getElementById('hpf');
+      return {
+        path: S.path, services: S.svcs.length ? S.svcs.slice() : (S.svc ? [S.svc.id] : []), answers: answers, addons: addons,
+        name: S.name.trim(), phone: digits(), zip: S.zip || undefined, address: S.addr.trim() || undefined,
+        details: S.details.trim() || undefined, message: notes.join('\n') || undefined,
+        start: timed && !(S.svc && S.svc.mode === 'estimate') ? S.time : undefined,
+        source: EMBED ? 'website' : 'booking page', page: (document.referrer || location.href).slice(0, 300),
+        idempotencyKey: reqId, company_fax: hp ? hp.value : undefined, elapsed: Date.now() - LOAD_AT
+      };
+    }
+    function sendLive(reqId, ok) {
+      var btn = document.getElementById('next');
+      if (btn) { btn.disabled = true; btn.classList.add('busy'); btn.innerHTML = '<span class="spin" aria-hidden="true"></span>Sending'; }
+      var call = B.phone ? ' Or call ' + esc(B.name) + ' at <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a>.' : '';
+      var fail = function (msg) {
+        if (btn) { btn.disabled = false; btn.classList.remove('busy'); btn.textContent = 'Try again'; }
+        var bd = document.getElementById('bd'), old = document.getElementById('sendErr');
+        if (old) old.remove();
+        if (bd) bd.insertAdjacentHTML('beforeend', '<p class="warn" id="sendErr">' + msg + call + '</p>');
+      };
+      var ctl = window.AbortController ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 12000);
+      fetch(B.api + '/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': reqId }, body: JSON.stringify(liveBody(reqId)), signal: ctl ? ctl.signal : undefined })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
+        .then(function (x) {
+          clearTimeout(timer);
+          if (x.ok) { liveEvent('submit'); return ok(x.j.booking && x.j.booking.ref); }
+          if (x.status === 409) {
+            // Someone took that time a moment ago: reload real times and send them back to pick again.
+            S.time = null;
+            var at = screens().map(function (sc) { return sc.some(function (id) { return stepDef(id).type === 'time'; }); }).indexOf(true);
+            getJSON(B.api + '/slots?days=14').then(function (s) { B.apiSlots = s.slots || []; }).catch(function () { }).then(function () {
+              if (at > -1) { S.idx = at; NAV = 'back'; render(); }
+              var bd = document.getElementById('bd');
+              if (bd) bd.insertAdjacentHTML('afterbegin', '<p class="warn" id="sendErr">That time was just booked by someone else. Pick another one.</p>');
+            });
+            return;
+          }
+          if (x.status === 410) return fail('Online booking for ' + esc(B.name) + ' is not open yet.');
+          if (x.status === 429) return fail('Too many tries. Wait a minute and try again.');
+          var e = (x.j.errors || [])[0];
+          fail(e === 'zip_out_of_area' ? 'That ZIP code is outside the area ' + esc(B.name) + ' serves.' : e === 'phone' ? 'Check the phone number and try again.' : 'That did not go through. Try again.');
+        })
+        .catch(function () { clearTimeout(timer); fail('That did not go through. Check your connection and try again.'); });
+    }
     function finish() {
-      var reqId = (B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000);
+      var reqId =(B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000);
       var done = function () {
         S.done = { id: reqId }; NAV = 'done'; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id });
         // Demo only: hand the booking to the DialBridge dashboard demo on the same site, so it shows up in the owner inbox.
         if (B.demo) { try { var q = JSON.parse(localStorage.getItem('dbx_inbox_queue') || '[]'); q.push(payload(reqId)); localStorage.setItem('dbx_inbox_queue', JSON.stringify(q.slice(-20))); } catch (e) { } }
         render();
       };
+      if (B.api) return sendLive(reqId, function (ref) { if (ref) reqId = ref; done(); });
       // Demos have no submitUrl, so nothing leaves the page. A real business config points this at its intake webhook.
       if (!B.submitUrl || !/^https:\/\//.test(B.submitUrl)) return done();
       var btn = document.getElementById('next');
@@ -517,7 +703,7 @@
       var el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
       var act = el.getAttribute('data-act'), v = el.getAttribute('data-v');
       var sel = function (a) { return '[data-act="' + a + '"][data-v="' + (window.CSS && CSS.escape ? CSS.escape(v || '') : v) + '"]'; };
-      if (act === 'start') { S.path = v === 'call' ? (OPEN ? 'call' : 'callback') : v; S.idx = 0; NAV = 'fwd'; render(); }
+      if (act === 'start') { S.path = v === 'call' ? (OPEN ? 'call' : 'callback') : v; S.idx = 0; NAV = 'fwd'; liveEvent('open'); render(); }
       else if (act === 'svc') {
         var before = S.svc ? S.svc.mode : null;
         if (T.multiService) { var at = S.svcs.indexOf(v); if (at > -1) S.svcs.splice(at, 1); else S.svcs.push(v); }
