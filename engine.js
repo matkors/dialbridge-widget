@@ -102,7 +102,7 @@
     return Promise.all([getJSON(api + '/config'), getJSON(api + '/slots?days=14').catch(function () { return { slots: [] }; })]).then(function (r) {
       var c = r[0], h = hoursOf(c.hours);
       var T0 = build({ slug: c.slug, trade: c.trade, template: c.template, name: c.name, phone: prettyUs(c.phone), brand: c.brand, area: c.area || 'your area',
-        zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false,
+        zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false, templateOnly: c.setupDone === false,
         logo: c.logo || null, website: c.website || null, images: c.images || {}, rating: c.rating || null, reviews: c.reviews || null });
       // Photos can't be sent through the API yet, so don't offer an upload we would drop (details and the truck step).
       Object.keys(T0.steps).forEach(function (k) { if (T0.steps[k].type === 'details' || T0.steps[k].photos) T0.steps[k].photos = false; });
@@ -391,7 +391,9 @@
       var sub = 'Book online' + (B.rating ? ' <span class="dot">·</span> ' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ' reviews)' : '');
       if (EDIT) sub = 'Book online ' + (B.rating ? '<button type="button" class="slot slot-rate has" data-edit="rating">' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ')<span class="sl-tip">Change</span></button>' : '<button type="button" class="slot slot-rate" data-edit="rating"><span class="sl-plus">+</span>Add your Google rating</button>');
       return '<header class="hd' + (B.logo && !lightLogo() ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
-        (CLOSABLE ? '<button class="x" data-act="close" aria-label="Close">' + ic('x') + '</button>' : '') + '</header>';
+        (CLOSABLE ? '<button class="x" data-act="close" aria-label="Close">' + ic('x') + '</button>' : '') + '</header>' +
+        // The owner hasn't finished the builder yet: say so, so nobody mistakes the starter template for their real page.
+        (B.templateOnly && !EDIT ? '<div class="tpl-note"><b>Starter template.</b> This page is not set up yet. <a href="https://app.matviykorsunskiy.me/booking-page/1" target="_top">Finish setting it up</a></div>' : '');
     }
     // A thin progress bar (like Avenue's): the first screen counts as a step, and the done screen fills it.
     // It starts at the last screen's width and grows to the new one, so every step change animates.
