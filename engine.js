@@ -766,7 +766,8 @@
             return;
           }
           if (x.status === 410) return fail('Online booking for ' + esc(B.name) + ' is not open yet.');
-          if (x.status === 429) return fail('Too many tries. Wait a minute and try again.');
+          // too_many_bookings: this phone already has requests waiting here (the API caps open ones per phone).
+          if (x.status === 429) return fail((x.j.errors || [])[0] === 'too_many_bookings' ? 'You already have requests waiting with ' + esc(B.name) + '. They will text you back soon.' : 'Too many tries. Wait a minute and try again.');
           var e = (x.j.errors || [])[0];
           fail(e === 'zip_out_of_area' ? 'That ZIP code is outside the area ' + esc(B.name) + ' serves.' : e === 'phone' ? 'Check the phone number and try again.' : 'That did not go through. Try again.');
         })
