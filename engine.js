@@ -215,6 +215,7 @@
     function visible() {
       return flowFor(S.path).filter(function (id) {
         var d = stepDef(id);
+        if (d.forSvc && d.forSvc.length && !S.svcs.some(function (x) { return d.forSvc.indexOf(x) > -1; })) return false;
         if (!d.showIf) return true;
         if (!S.svc) return false;
         return d.showIf.indexOf(S.svc.mode) > -1;
@@ -241,6 +242,12 @@
         heavy: list.some(function (x) { return x.heavy; }), icon: list[0].icon, parts: list
       };
     }
+    function qtyOf(d, v) {
+      var n = typeof v === 'string' && v.trim() !== '' ? Number(v) : v;
+      if (typeof n !== 'number' || !isFinite(n)) return null;
+      var lo = typeof d.minQty === 'number' ? d.minQty : 0, hi = typeof d.maxQty === 'number' ? d.maxQty : 100000;
+      return Math.round(Math.min(hi, Math.max(lo, n)) * 100) / 100;
+    }
     function optOf(stepId) { var d = T.steps[stepId]; return d && d.options && d.options.filter(function (o) { return o.id === S.ans[stepId]; })[0]; }
 
     // The owner's own price for a service (pricing: fixed | from | range | none), or null when the answers price it.
@@ -265,9 +272,12 @@
       var lo = 0, hi = 0, has = false, m = S.svc.mult || 1, alo = 0, ahi = 0;
       visible().forEach(function (id) {
         var d = stepDef(id);
-        if (d.type === 'choice') { var o = optOf(id); if (o && o.price) { lo += o.price[0]; hi += o.price[1]; has = true; } if (o && o.mult) m *= o.mult; }
+        if (d.type === 'choice') { var o = optOf(id); if (o && o.price) { lo += o.price[0]; hi += o.price[1]; has = true; } if (o && o.mult > 0) m *= o.mult; }
+        if (d.type === 'qty' && d.rate > 0) { var q = qtyOf(d, S.ans[id]); if (q !== null) { lo += q * d.rate; hi += q * d.rate; has = true; } }
         if (d.type === 'addons') d.options.forEach(function (o) { if (S.addons[o.id] && o.add) { alo += o.add[0]; ahi += o.add[1]; } });
       });
+      var parts = S.svc.parts || [S.svc];
+      var base = parts.reduce(function (a, x) { return a + (x.base > 0 ? x.base : 0); }, 0), floor = parts.reduce(function (a, x) { return Math.max(a, x.minPrice > 0 ? x.minPrice : 0); }, 0);
       var own = (S.svc.parts || [S.svc]).map(ownPrice);
       if (own.every(Boolean)) {
         if (own.some(function (x) { return x.none; })) return null;
@@ -275,13 +285,16 @@
         var H = open ? null : own.reduce(function (a, x) { return a + x.hi; }, 0) + ahi;
         return { text: priceText(L, H), note: T.priceNote || 'Final price confirmed before we start.' };
       }
+      if (base > 0) { lo += base; hi += base; has = true; }
       if (!has) {
         if (S.svc.fixed) return { text: '$' + S.svc.fixed, note: 'Flat price for the visit' };
         if (S.svc.fee) return { text: '$' + S.svc.fee + ' visit', note: 'Diagnostic visit fee. Repair priced on site.' };
+        if (floor > 0) return { text: priceText(floor + alo, floor + ahi), note: T.priceNote || 'Final price confirmed before we start.' };
         return null;
       }
       if (m !== 1) { lo = Math.round(lo * m / 5) * 5; hi = Math.round(hi * m / 5) * 5; }
-      lo += alo; hi += ahi;
+      lo = Math.round(lo + alo); hi = Math.round(hi + ahi);
+      if (floor > 0) { lo = Math.max(lo, floor); hi = Math.max(hi, floor); }
       return { text: lo === hi ? '$' + lo : '$' + lo + ' to $' + hi, note: (S.svc.heavy ? 'Dirt, concrete and rock are priced by weight, so the final price may be higher. ' : '') + (T.priceNote || 'Based on your answers. Final price confirmed before we start.') };
     }
     function bookRange() {
@@ -291,7 +304,9 @@
         return [Math.min.apply(null, own.map(function (x) { return x.lo; })), null, true];
       }
       if (own.some(Boolean)) return null;
+      var floors = T.services.filter(function (s) { return s.mode !== 'estimate' && (s.minPrice > 0 || s.base > 0); }).map(function (s) { return Math.max(s.minPrice || 0, s.base || 0); });
       T.flows.book.forEach(function (id) { var d = T.steps[id]; if (!d || d.type !== 'choice' || lo !== null) return; d.options.forEach(function (o) { if (!o.price) return; lo = lo === null ? o.price[0] : Math.min(lo, o.price[0]); hi = hi === null ? o.price[1] : Math.max(hi, o.price[1]); }); });
+      if (lo === null && floors.length) return [Math.min.apply(null, floors), null, true];
       return lo === null ? null : [lo, hi];
     }
 
@@ -367,6 +382,8 @@
       var d = stepDef(id);
       if (d.type === 'service') return !!S.svc;
       if (d.type === 'choice') return !!S.ans[id];
+      if (d.type === 'qty') return d.optional || qtyOf(d, S.ans[id]) !== null;
+      if (d.type === 'ask') return d.optional || String(S.ans[id] || '').trim().length > 0;
       if (d.type === 'time') return !!(S.day && S.time);
       if (d.type === 'zip') return zipOk();
       if (d.type === 'contact') return contactOk() && (!d.askAddress || S.addr.trim().length > 4) && (!contactNeedsZip() || zipOk());
@@ -464,6 +481,22 @@
           h += '<div class="pricebox">' + truck(o.frac) + '<div><b>' + esc(p ? p.text : o.label) + '</b><span>' + esc(p ? p.note : 'Final price confirmed on site.') + '</span></div></div>';
           if (d.photos) h += photosHtml(S.path === 'quote' ? 'Add photos for a tighter price' : 'Add photos (optional)');
         }
+      }
+      if (d.type === 'qty') {
+        var unit = d.unit ? ' ' + esc(d.unit) : '';
+        if (d.input === 'number') {
+          h += '<label class="fld narrow qtyin"><span class="inwrap"><input data-q="' + esc(id) + '" type="number" inputmode="decimal" min="' + (d.minQty || 0) + '"' + (d.maxQty ? ' max="' + d.maxQty + '"' : '') + ' step="any" placeholder="' + esc(d.placeholder || '') + '" value="' + esc(S.ans[id] === undefined ? '' : S.ans[id]) + '"><i>' + unit + '</i></span></label>';
+        } else {
+          if (S.ans[id] === undefined) S.ans[id] = typeof d.minQty === 'number' && d.minQty > 0 ? d.minQty : 1;
+          var n = qtyOf(d, S.ans[id]);
+          h += '<div class="stepper" role="group" aria-label="' + esc(title) + '"><button type="button" data-act="qty" data-s="' + esc(id) + '" data-v="-1" aria-label="Fewer"' + (n <= (d.minQty || 0) ? ' disabled' : '') + '>' + ic('minus') + '</button>' +
+            '<b data-qv="' + esc(id) + '">' + esc(n) + unit + '</b><button type="button" data-act="qty" data-s="' + esc(id) + '" data-v="1" aria-label="More"' + (d.maxQty && n >= d.maxQty ? ' disabled' : '') + '>' + ic('plus') + '</button></div>';
+        }
+        if (d.help) h += '<p class="lede small">' + esc(d.help) + '</p>';
+      }
+      if (d.type === 'ask') {
+        h += d.long ? '<label class="fld"><textarea data-q="' + esc(id) + '" rows="3" placeholder="' + esc(d.placeholder || '') + '">' + esc(S.ans[id] || '') + '</textarea></label>'
+          : '<label class="fld"><input data-q="' + esc(id) + '" placeholder="' + esc(d.placeholder || '') + '" value="' + esc(S.ans[id] || '') + '"></label>';
       }
       if (d.type === 'addons') {
         h += '<div class="chips">' + d.options.map(function (x) { var on = !!S.addons[x.id]; return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-act="addon" data-v="' + esc(x.id) + '" aria-pressed="' + on + '">' + (on ? ic('check', 'ci') : ic('plus', 'ci')) + esc(x.label) + (B.showPrices && x.add ? ' <span class="amt">+$' + esc(x.add[0]) + '</span>' : '') + '</button>'; }).join('') + '</div>';
@@ -580,7 +613,9 @@
       else { title = 'Call back requested'; text = esc(B.name) + ' will call ' + ph + ' ' + esc((S.cb || 'soon').toLowerCase()) + '.'; foot = 'Save ' + esc(B.phone) + ' so you know it is them.'; }
       var rows = [];
       if (S.svc) rows.push([S.svcs.length > 1 ? 'Items' : 'Service', S.svc.label]);
-      visible().forEach(function (id) { var dd = stepDef(id); if (dd.type === 'choice') { var o = optOf(id); if (o) rows.push([dd.sum || dd.title, o.short || o.label]); } });
+      visible().forEach(function (id) { var dd = stepDef(id); if (dd.type === 'choice') { var o = optOf(id); if (o) rows.push([dd.sum || dd.title, o.short || o.label]); }
+        if (dd.type === 'qty' && qtyOf(dd, S.ans[id]) !== null) rows.push([dd.sum || dd.title, qtyOf(dd, S.ans[id]) + (dd.unit ? ' ' + dd.unit : '')]);
+        if (dd.type === 'ask' && String(S.ans[id] || '').trim()) rows.push([dd.sum || dd.title, String(S.ans[id]).trim().slice(0, 70)]); });
       var extras = T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [];
       if (extras.length) rows.push(['Extras', extras.join(', ')]);
       if (S.details.trim()) rows.push(['Details', S.details.trim().length > 70 ? S.details.trim().slice(0, 67) + '...' : S.details.trim()]);
@@ -709,7 +744,9 @@
 
     function payload(reqId) {
       var answers = {};
-      visible().forEach(function (id) { var d = stepDef(id); if (d.type === 'choice') { var o = optOf(id); if (o) answers[d.sum || id] = o.short || o.label; } });
+      visible().forEach(function (id) { var d = stepDef(id); if (d.type === 'choice') { var o = optOf(id); if (o) answers[d.sum || id] = o.short || o.label; }
+        if (d.type === 'qty' && qtyOf(d, S.ans[id]) !== null) answers[d.sum || id] = qtyOf(d, S.ans[id]) + (d.unit ? ' ' + d.unit : '');
+        if (d.type === 'ask' && String(S.ans[id] || '').trim()) answers[d.sum || id] = String(S.ans[id]).trim(); });
       var p = priceInfo();
       return {
         requestId: reqId, business: B.slug || B.name, businessName: B.name, path: S.path,
@@ -725,7 +762,10 @@
     // Live: what the API needs. Ids (not labels) so the server prices it from their saved template.
     function liveBody(reqId) {
       var answers = {};
-      visible().forEach(function (id) { if (stepDef(id).type === 'choice' && S.ans[id]) answers[id] = S.ans[id]; });
+      visible().forEach(function (id) { var t = stepDef(id).type;
+        if (t === 'choice' && S.ans[id]) answers[id] = S.ans[id];
+        if (t === 'qty' && qtyOf(stepDef(id), S.ans[id]) !== null) answers[id] = qtyOf(stepDef(id), S.ans[id]);
+        if (t === 'ask' && String(S.ans[id] || '').trim()) answers[id] = String(S.ans[id]).trim().slice(0, 300); });
       var addons = T.steps.addons && T.steps.addons.options ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.id; }) : [];
       var timed = S.path === 'book' && S.time && /T\d{2}:\d{2}/.test(S.time);
       var notes = [];
@@ -852,11 +892,19 @@
       else if (act === 'callback') { S.path = 'callback'; S.idx = 0; NAV = 'fwd'; render(); }
       else if (act === 'next') { if (screenValid(curScreen())) advance(); }
       else if (act === 'back') { if (S.idx === 0) { S.path = null; S.svc = null; S.svcs = []; S.ans = {}; } else S.idx--; NAV = 'back'; render(); }
+      else if (act === 'qty') { var qd = stepDef(el.getAttribute('data-s')), qid = el.getAttribute('data-s'); var cur = qtyOf(qd, S.ans[qid]); S.ans[qid] = qtyOf(qd, (cur === null ? (qd.minQty || 0) : cur) + (+v) * (qd.stepBy || 1)); render(); }
       else if (act === 'photos') { var f = document.getElementById('ph'); if (f) f.click(); }
       else if (act === 'restart') { fresh(); NAV = 'back'; render(); }
       else if (act === 'close') { if (sent.open && !booked) liveEvent('abandon'); post('dbw:close'); if (S.done) { fresh(); render(); } }
     });
     app.addEventListener('input', function (e) {
+      var qk = e.target.getAttribute('data-q');
+      if (qk) {
+        S.ans[qk] = e.target.value;
+        var pb = app.querySelector('.pricebox.simple b'), pi = priceInfo();
+        if (pb && pi) pb.textContent = pi.text; else if (!pb && pi && stepDef(qk).type === 'qty') { render(); var again = app.querySelector('[data-q="' + qk + '"]'); if (again) { again.focus(); try { var l = again.value.length; again.setSelectionRange(l, l); } catch (x) { } } }
+        refreshNav(); return;
+      }
       var k = e.target.getAttribute('data-in'); if (!k) return;
       S[k] = k === 'zip' ? e.target.value.replace(/\D/g, '').slice(0, 5) : e.target.value;
       refreshNav();
