@@ -127,7 +127,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
 .btn.ghost{background:var(--soft);color:var(--ink);box-shadow:none}.btn.ghost:hover{background:#e9e7df}
 .btn.full{width:100%}
 .btn svg{width:17px;height:17px}
-.spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin 1.2s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .pow{padding:2px 0 12px;text-align:center;font-size:11.5px;color:#9a9e95}
 .pow b{color:var(--ink2)}
@@ -347,7 +347,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     NAV = 0; first = false;
     post('dbw:height', { h: innerWidth <= 640 ? 4000 : 640 });   // phones: the sheet takes the full screen
   }
-  function refresh() { var b = $('#ft [data-next]:not([data-next="skip"])'); if (b) b.disabled = !valid(); }
+  function refresh() { if (S.paying) return; var b = $('#ft [data-next]:not([data-next="skip"])'); if (b) b.disabled = !valid(); }
   function go(step) { S.path.push(cur); cur = step; NAV = 1; render(); }
   function back() { if (!S.path.length) return; cur = S.path.pop(); NAV = -1; render(); }
   function fail(t) { var e = $('#err'); if (e) { e.textContent = t; e.hidden = false; } }
@@ -411,18 +411,29 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     });
   }
   function confirmCard(express) {
+    if (S.paying) return;   // one save at a time: Stripe's change events can re-enable the button mid-save
+    S.paying = true;
     var b = $('#go'); if (!express) busy(b, true, 'Saving your card');
-    var done = function (msg) { busy(b, false, S.plan === 'full' ? 'Save my card ($0 today)' : 'Start my free trial ($0 today)'); if (msg) fail(msg); refresh(); };
+    var done = function (msg) { S.paying = false; busy(b, false, S.plan === 'full' ? 'Save my card ($0 today)' : 'Start my free trial ($0 today)'); if (msg) fail(msg); refresh(); };
+    var finish = function () {
+      return postJson('/v1/pay/finish', { checkoutId: S.co.id }).then(function (f) {
+        if (!f.ok) { done('Your card is saved, but we couldn\'t finish. Try again, or message us and we\'ll fix it.'); return; }
+        S.paying = false; S.finish = f.finishToken; post('dbw:submit', { path: 'checkout', plan: S.plan }); S.path = []; cur = 'password'; NAV = 1; render();
+      });
+    };
     (express ? Promise.resolve({}) : elements.submit()).then(function (sub) {
       if (sub && sub.error) { done(sub.error.message); return; }
       return stripe.confirmSetup({ elements: elements, clientSecret: S.co.secret, redirect: 'if_required', confirmParams: { return_url: location.href.split('#')[0] } }).then(function (res) {
-        if (res.error) { done(res.error.message || 'Your card wasn\'t saved. Try another card.'); return; }
-        return postJson('/v1/pay/finish', { checkoutId: S.co.id }).then(function (f) {
-          if (!f.ok) { done('Your card is saved, but we couldn\'t finish. Try again, or message us and we\'ll fix it.'); return; }
-          S.finish = f.finishToken; post('dbw:submit', { path: 'checkout', plan: S.plan }); S.path = []; cur = 'password'; NAV = 1; render();
-        });
+        if (!res.error) return finish();
+        // Stripe can report an error (e.g. a Link hiccup) after the card was actually saved: ask Stripe before showing it.
+        // The server checks the SetupIntent again in /v1/pay/finish, so this can't skip a real failure.
+        var msg = res.error.message || 'Your card wasn\'t saved. Try another card.';
+        return stripe.retrieveSetupIntent(S.co.secret).then(function (r) {
+          if (r && r.setupIntent && r.setupIntent.status === 'succeeded') return finish();
+          done(msg);
+        }, function () { done(msg); });
       });
-    });
+    }).catch(function () { done('That didn\'t go through. Try again in a moment.'); });
   }
   function makeAccount() {
     var b = $('#go'); busy(b, true, 'Setting up');
