@@ -38,6 +38,10 @@
     var saved = p.template && Array.isArray(p.template.services) && p.template.services.length && p.template.steps && p.template.flows;
     var t = JSON.parse(JSON.stringify(saved ? p.template : (window.DBW_TEMPLATES[p.trade] || window.DBW_TEMPLATES.junk)));
     delete p.template;
+    // Ids end up inside HTML attributes: letters, digits, - and _ only, whatever a saved template or a link says.
+    var safeId = function (v) { return String(v == null ? '' : v).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60); };
+    (t.services || []).forEach(function (x) { if (x) x.id = safeId(x.id); });
+    Object.keys(t.steps || {}).forEach(function (k) { var st = t.steps[k]; if (st && Array.isArray(st.options)) st.options.forEach(function (o) { if (o) o.id = safeId(o.id); }); });
     var b = Object.assign({}, t.defaults, {
       name: 'Your Business', phone: '(201) 555-0148', brand: '#0E6650', area: 'your area', zips: [], rating: null, reviews: null, tz: 'America/New_York', demo: true
     }, p);
@@ -439,14 +443,14 @@
           var tag = svcTag(s);
           var tick = on ? '<span class="tick">' + ic('check') + '</span>' : '', tt = tag && B.showPrices ? '<span class="tt">' + esc(tag) + '</span>' : '';
           // Photo tiles: picture with the label underneath. Icon tiles: one card with the icon, label and tag inside.
-          if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + s.id + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>';
-          return '<button type="button" class="tile it' + (on ? ' on' : '') + '" data-act="svc" data-v="' + s.id + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.icon) + '</span><span class="tl">' + esc(s.label) + '</span>' + tt + '</span></button>';
+          if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>';
+          return '<button type="button" class="tile it' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.icon) + '</span><span class="tl">' + esc(s.label) + '</span>' + tt + '</span></button>';
         }).join('') + '</div>';
       }
       if (d.type === 'choice') {
         var o = optOf(id);
         h += '<div class="chips' + (d.ui === 'list' ? ' col' : '') + '">' + d.options.map(function (x) {
-          return '<button type="button" class="chip' + (S.ans[id] === x.id ? ' on' : '') + '" data-act="opt" data-s="' + id + '" data-v="' + x.id + '">' + esc(d.ui === 'grid' ? x.label : (x.short && d.ui === 'truck' ? x.label : x.label)) + (x.badge ? '<span class="save">' + esc(x.badge) + '</span>' : '') + '</button>';
+          return '<button type="button" class="chip' + (S.ans[id] === x.id ? ' on' : '') + '" data-act="opt" data-s="' + esc(id) + '" data-v="' + esc(x.id) + '">' + esc(d.ui === 'grid' ? x.label : (x.short && d.ui === 'truck' ? x.label : x.label)) + (x.badge ? '<span class="save">' + esc(x.badge) + '</span>' : '') + '</button>';
         }).join('') + '</div>';
         if (o && o.urgent) h += '<div class="alert">' + ic('triangle-alert') + '<span>No heat or no cooling right now? Calling is fastest.</span><a href="tel:+1' + B.phoneDigits + '">Call now</a></div>';
         if (d.ui === 'truck' && o) {
@@ -456,7 +460,7 @@
         }
       }
       if (d.type === 'addons') {
-        h += '<div class="chips">' + d.options.map(function (x) { var on = !!S.addons[x.id]; return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-act="addon" data-v="' + x.id + '" aria-pressed="' + on + '">' + (on ? ic('check', 'ci') : ic('plus', 'ci')) + esc(x.label) + (B.showPrices && x.add ? ' <span class="amt">+$' + x.add[0] + '</span>' : '') + '</button>'; }).join('') + '</div>';
+        h += '<div class="chips">' + d.options.map(function (x) { var on = !!S.addons[x.id]; return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-act="addon" data-v="' + esc(x.id) + '" aria-pressed="' + on + '">' + (on ? ic('check', 'ci') : ic('plus', 'ci')) + esc(x.label) + (B.showPrices && x.add ? ' <span class="amt">+$' + esc(x.add[0]) + '</span>' : '') + '</button>'; }).join('') + '</div>';
       }
       if (d.type === 'details') {
         h += '<label class="fld"><span>Describe the job</span><textarea data-in="details" rows="4" placeholder="' + esc(d.placeholder || '') + '">' + esc(S.details) + '</textarea></label>' + (d.photos ? photosHtml('Upload photos') : '');
@@ -558,7 +562,7 @@
 
     function doneHtml() {
       var who = esc(S.name.trim().split(' ')[0] || 'there'), ph = esc(prettyPhone());
-      var title, text, foot = OPEN ? 'They usually reply within ' + B.replyMins + ' minutes.' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect a text shortly after.';
+      var title, text, foot = OPEN ? 'They usually reply within ' + esc(B.replyMins) + ' minutes.' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect a text shortly after.';
       var byCall = T.confirmBy === 'call', instant = S.path === 'book' && S.svc.mode === 'book' && !!S.time;
       if (S.path === 'book') {
         title = S.svc.mode === 'estimate' ? esc(T.estimateDone || 'Walkthrough requested') : instant ? 'You\'re booked' : 'Request sent';
@@ -578,7 +582,7 @@
       if (whenText()) rows.push(['When', whenText()]);
       var p = priceInfo(); if (p && (S.path === 'book' || S.path === 'quote')) rows.push(['Estimate', p.text]);
       var h = '<div class="donehd"><span class="okc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="draw" pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><h3>' + title + ', ' + who + '</h3><p class="lede">' + text + '</p></div></div>';
-      if (rows.length) h += '<dl class="receipt"><div class="rh"><span>' + (instant ? 'Booking' : 'Request') + ' #' + S.done.id + '</span><span>' + (instant ? 'Confirmed' : 'Waiting for confirmation') + '</span></div>' + rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
+      if (rows.length) h += '<dl class="receipt"><div class="rh"><span>' + (instant ? 'Booking' : 'Request') + ' #' + esc(S.done.id) + '</span><span>' + (instant ? 'Confirmed' : 'Waiting for confirmation') + '</span></div>' + rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
       return h + '<p class="meta">' + foot + '</p>';
     }
 
@@ -587,7 +591,7 @@
       if (!S.path) return menuHtml();
       var sc = curScreen(), h = '';
       for (var i = 0; i < sc.length; i++) {
-        h += '<section class="blk" id="blk-' + sc[i] + '">' + blockHtml(sc[i]) + '</section>';
+        h += '<section class="blk" id="blk-' + esc(sc[i]) + '">' + blockHtml(sc[i]) + '</section>';
         var t = stepDef(sc[i]).type;
         if ((t === 'service' || t === 'choice') && !valid(sc[i])) break; // reveal the next question only after this one is answered
       }
@@ -605,7 +609,7 @@
       if (!S.path) return '<footer class="ft">' + call + '</footer>' + pow;
       var sc = curScreen(), last = S.idx === screens().length - 1, t = stepDef(sc[0]).type;
       var label = 'Continue';
-      if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? (T.estimateSubmit || 'Request walkthrough') : 'Send booking request') : 'Send price request';
+      if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? esc(T.estimateSubmit || 'Request walkthrough') : 'Send booking request') : 'Send price request';
       if (t === 'message') label = 'Send message';
       if (t === 'callback') label = 'Request a call back';
       var next = t === 'call' ? '' : '<button type="button" class="btn" id="next" data-act="next"' + (screenValid(sc) ? '' : ' disabled') + '>' + label + (label === 'Continue' ? ic('arrow-right', 'arr') : '') + '</button>';

@@ -1,0 +1,8 @@
+# Public repo: never commit local secrets or editor junk.
+.env*
+.dev.vars*
+*.sqlite
+*.log
+node_modules/
+.wrangler/
+.DS_Store

@@ -54,7 +54,7 @@ nav .tel{font-weight:600}
 <div class="visual" id="visual"></div></section>
 <div class="strip" id="strip"></div>
 <section class="svcs" id="svcs"><h2>What we do</h2><div class="cards" id="cards"></div></section>
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js" integrity="sha384-0v3Wh0ZtiQBYCYywQoeMDA5mAw5Z01p0lhorqy0BlwFrcN6u3lmN7K0U/e1uezmr" crossorigin="anonymous"></script>
 <script src="templates.js"></script>
 <script>
 (function(){
@@ -89,7 +89,7 @@ nav .tel{font-weight:600}
     if(/^https:\/\//.test(b.hero||'')){var v=document.getElementById('visual');v.style.background='center/cover no-repeat url("'+b.hero.replace(/["()]/g,'')+'")';v.innerHTML='';}
     else document.getElementById('visual').innerHTML='<i data-lucide="'+esc(X.illustration||T.illustration)+'"></i>';
     document.getElementById('strip').innerHTML=(b.rating?'<span><b>'+esc(b.rating)+' stars</b> from '+esc(b.reviews)+' Google reviews</span>':'')+(Array.isArray(X.strip)?X.strip.map(function(x){return '<span>'+esc(x)+'</span>';}).join(''):'<span>Serving <b>'+esc(b.area||'your area')+'</b></span><span><b>Book online</b> any time, day or night</span>');
-    document.getElementById('cards').innerHTML=(Array.isArray(b.services)&&b.services.length?b.services:T.services).map(function(s){return '<div class="c"><i data-lucide="'+s.icon+'"></i><h3>'+esc(s.label)+'</h3><p>'+esc(s.hint)+'</p></div>';}).join('');
+    document.getElementById('cards').innerHTML=(Array.isArray(b.services)&&b.services.length?b.services:T.services).map(function(s){return '<div class="c"><i data-lucide="'+esc(s.icon)+'"></i><h3>'+esc(s.label)+'</h3><p>'+esc(s.hint)+'</p></div>';}).join('');
     if(window.lucide) lucide.createIcons();
     var sc=document.createElement('script');
     sc.src='w.js'; sc.async=true;
