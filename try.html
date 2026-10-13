@@ -246,11 +246,12 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   var S = { kind: 'demo', path: [], interests: [], topic: '', time: '', f: { first: '', last: '', business: '', email: '', phone: '', msg: '', pw: '' }, booked: null,
     plan: 'widget', co: null, payReady: false, finish: null };
   var PLAN = {
-    widget: { name: 'Booking Widget', price: 99, note: function () { return '<b class="zero">$0 today.</b> 14-day free trial, then $99/month starting ' + md(Date.now() + 14 * 864e5) + '. Cancel before then and you pay nothing.'; }, today: '$0 today' },
-    full: { name: 'Website + Reviews + Booking Widget', price: 199, note: function () { return '<b class="zero">$0 today.</b> You\'re only charged $199/month after we meet with you, build your website and it goes live.'; }, today: '$0 today' }
+    widget: { name: 'Booking Widget', price: 99, today: '$0 today' },
+    full: { name: 'Website + Reviews + Booking Widget', price: 199, today: '$0 today' }
   };
   function md(ms) { return new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
-  function sumBox() { var p = PLAN[S.plan]; return '<div class="sum"><div><b>' + p.name + '</b><small>' + p.note() + '</small></div><div class="amt">$' + p.price + '<small>/mo</small></div></div>'; }
+  // Plan and price only: the line under the heading already says what is charged and when.
+  function sumBox() { var p = PLAN[S.plan]; return '<div class="sum"><div><b>' + p.name + '</b></div><div class="amt">$' + p.price + '<small>/mo</small></div></div>'; }
   var cur = 'start', NAV = 0, first = true;
 
   function screen() {
@@ -318,7 +319,11 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     if (cur === 'booked' || cur === 'sent') return '<button class="btn dark" type="button" data-close>Close</button>';
     return '';
   }
-  function sideHtml() { var s = (S.kind === 'website' && cur === 'time' ? STEPS.wtime : STEPS[cur]).side; return '<h2>' + s[0] + '</h2><p>' + s[1] + '</p>' + (s[2].length ? '<ul>' + s[2].map(li).join('') + '</ul>' : ''); }
+  function sideHtml() {
+    var s = (S.kind === 'website' && cur === 'time' ? STEPS.wtime : STEPS[cur]).side;
+    // The $199 plan has no free trial: its checkout says what it does instead.
+    if (cur === 'checkout' && S.plan === 'full') s = [s[0], s[1], ['$0 today', 'Charged only once your website is live']];
+    return '<h2>' + s[0] + '</h2><p>' + s[1] + '</p>' + (s[2].length ? '<ul>' + s[2].map(li).join('') + '</ul>' : ''); }
 
   function render() {
     var bd = $('#bd'), bdi = $('#bdi'), ghost = null;
