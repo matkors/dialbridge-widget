@@ -1,4 +1,4 @@
-/* DialBridge widget loader. Install with one line:
+/* Dialbridge widget loader. Install with one line:
    <script async src="https://matviykorsunskiy.me/dialbridge-widget/w.js" data-business="harbor-haul" data-color="#0E6650"></script>
    Optional: data-label="Book a pickup", data-position="left", data-config="<base64url>" (demo generator),
    data-icon="none" (label only), data-bubble="Skip the call and book online" + data-avatar="<image url>" (a speech

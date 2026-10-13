@@ -1,4 +1,4 @@
-/* DialBridge booking widget engine. One renderer, any business: config = trade template + business overrides.
+/* Dialbridge booking widget engine. One renderer, any business: config = trade template + business overrides.
    Loads from ?b=<slug> (flows/<slug>.json) or ?c=<base64url JSON> (demo generator). ?embed=1 when opened by w.js.
    Steps are grouped into screens: the service screen also holds the questions that follow it, revealed one at a time. */
 (function () {
@@ -772,7 +772,7 @@
       var reqId =(B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000);
       var done = function () {
         S.done = { id: reqId }; NAV = 'done'; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id });
-        // Demo only: hand the booking to the DialBridge dashboard demo on the same site, so it shows up in the owner inbox.
+        // Demo only: hand the booking to the Dialbridge dashboard demo on the same site, so it shows up in the owner inbox.
         if (B.demo) { try { var q = JSON.parse(localStorage.getItem('dbx_inbox_queue') || '[]'); q.push(payload(reqId)); localStorage.setItem('dbx_inbox_queue', JSON.stringify(q.slice(-20))); } catch (e) { } }
         render();
       };

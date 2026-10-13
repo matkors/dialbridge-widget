@@ -1,4 +1,4 @@
-/* DialBridge shared setup for the product page and the trial app (start/).
+/* Dialbridge shared setup for the product page and the trial app (start/).
    Fill these in at launch. While api is empty, the app runs as a demo: nothing is saved, sent or charged.
      api            the booking API, e.g. https://dialbridge-booking-api.<sub>.workers.dev
      googleClientId Google Sign-In web client ID (shown only in normal browsers)
