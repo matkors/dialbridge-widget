@@ -271,7 +271,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     if (cur === 'details') return '<h1>Your details</h1><p class="lede">So we can look at your business before the call.</p>' +
       '<div class="picked">' + I('cal') + '<span>' + esc(CallBook.when(S.time)) + '</span><button type="button" data-change>Change</button></div><div class="fields">' +
       '<div class="f2">' + fld('first', 'First name', 'given-name', 'text', true) + fld('last', 'Last name', 'family-name', 'text') + '</div>' + fld('business', 'Business name', 'organization', 'text', true) +
-      '<div class="f2">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Mobile', 'tel', 'tel', true) + '</div>' +
+      '<div class="f2">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Phone number', 'tel', 'tel', true) + '</div>' +
       '<p class="fine">By booking, you agree to get texts from Dialbridge about your call, like reminders. Msg &amp; data rates may apply. Msg frequency varies. Reply STOP to opt out, HELP for help. <a href="https://dialbridge.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a></p></div><div class="hp" aria-hidden="true"><input id="hp" tabindex="-1" autocomplete="off"></div><p class="err" id="err" hidden></p>';
     if (cur === 'topic') return '<h1>What\'s it about?</h1><p class="lede">Pick the closest one.</p><div class="tiles">' +
       TOPICS.map(function (x) { return '<button type="button" class="tile sm' + (S.topic === x[0] ? ' on' : '') + '" data-topic="' + x[0] + '"><span class="ic">' + I(x[2]) + '</span><b>' + x[1] + '</b></button>'; }).join('') + '</div>';
@@ -280,7 +280,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       '<div class="f2">' + fld('first', 'First name', 'given-name', 'text', true) + fld('email', 'Email', 'email', 'email', true) + '</div>' + fld('business', 'Business name', 'organization', 'text') +
       '</div><div class="hp" aria-hidden="true"><input id="hp" tabindex="-1" autocomplete="off"></div><p class="err" id="err" hidden></p>';
     if (cur === 'checkout') return '<h1>Complete your checkout</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. We only charge once your new website is live.' : 'You won\'t be charged today. Your 14-day free trial starts now.') + '</p>' + sumBox() +
-      '<div class="fields">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Mobile', 'tel', 'tel', true) + fld('business', 'Business name', 'organization', 'text', true) +
+      '<div class="fields">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Phone number', 'tel', 'tel', true) + fld('business', 'Business name', 'organization', 'text', true) +
       '<p class="fine">By continuing, you agree to get texts from Dialbridge about your account. Msg &amp; data rates may apply. Reply STOP to opt out. <a href="https://dialbridge.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a></p></div><p class="err" id="err" hidden></p>';
     if (cur === 'card') return '<h1>Add your card</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. Your card is only charged after we meet, build your website and it goes live.' : 'You won\'t be charged today. Your first $99 payment is on ' + md(Date.now() + 14 * 864e5) + ', after your 14-day free trial.') + '</p>' + sumBox() +
       '<div class="paybox"><div id="xco"></div><div class="or" id="xcoOr" hidden>Or pay with a card</div><div id="pe"><div class="paywait"><span class="spin dark"></span>Loading secure checkout</div></div></div>' +
@@ -291,7 +291,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   }
   function tile(go, icon, title, sub, act) { return '<button type="button" class="tile" data-path="' + go + '"><span class="ic">' + I(icon) + '</span><div class="tt"><b>' + title + '</b><span class="sub">' + sub + '</span></div><span class="act">' + act + I('arw') + '</span></button>'; }
   function li(t) { return '<li>' + I('chk') + '<span>' + t + '</span></li>'; }
-  function fld(k, label, ac, type, req) { return '<label class="fld"><span>' + label + (req ? ' <em>*</em>' : ' <small>(optional)</small>') + '</span><input data-f="' + k + '" type="' + type + '" autocomplete="' + ac + '"' + (type === 'tel' ? ' inputmode="tel"' : '') + ' value="' + esc(S.f[k]) + '"></label>'; }
+  function fld(k, label, ac, type, req) { return '<label class="fld"><span>' + label + (req ? ' <em>*</em>' : ' <small>(optional)</small>') + '</span><input data-f="' + k + '" name="' + k + '" type="' + type + '" autocomplete="' + ac + '"' + (type === 'tel' ? ' inputmode="tel"' : '') + ' value="' + esc(S.f[k]) + '"></label>'; }
 
   function digits(v) { var d = String(v || '').replace(/\D/g, ''); return d.length === 11 && d[0] === '1' ? d.slice(1) : d; }
   var emailOk = function (v) { return /^[^@\s]+@[^@\s.]+\.[a-z]{2,}$/i.test(String(v).trim()); };
@@ -355,7 +355,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       if (r && r.ok) { S.booked = r.startTime || S.time; post('dbw:submit', { path: S.kind }); S.path = []; cur = 'booked'; NAV = 1; render(); return; }
       busy(b, false, S.kind === 'website' ? 'Book my website call' : 'Book my demo');
       if (r && r.error === 'slot_taken') { CallBook.forget(S.kind); S.time = ''; fail('Someone just took that time. Pick another one.'); setTimeout(function () { cur = 'time'; S.path.pop(); NAV = -1; render(); }, 1400); return; }
-      if (r && r.error === 'invalid_request') { fail('Check your email and mobile number and try again.'); return; }
+      if (r && r.error === 'invalid_request') { fail('Check your email and phone number and try again.'); return; }
       fail('That didn\'t go through. Try again, or send us a message instead.');
     });
   }
@@ -374,7 +374,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       busy(b, false, 'Continue to payment ' + I('arw'));
       var e = (r.errors || [])[0];
       if (e === 'account_exists') { fail(''); $('#err').innerHTML = 'You already have an account with this email. <a href="' + APP + 'login" target="_top">Log in</a>'; return; }
-      if (e === 'email' || e === 'phone' || e === 'business') { fail('Check your email, mobile number and business name.'); return; }
+      if (e === 'email' || e === 'phone' || e === 'business') { fail('Check your email, phone number and business name.'); return; }
       if (e === 'payments_not_connected') { fail('Checkout isn\'t switched on yet. Book a quick call instead and we\'ll set you up.'); return; }
       fail('That didn\'t go through. Try again in a moment.');
     });
