@@ -312,6 +312,13 @@
 
     // Live: the next 7 days in their time zone, starting with the first day that has an open time.
     // A day with no open times shows as closed. Times come straight from /slots, so they can actually be booked.
+    // Each service can take its own time: ask the API for open times that fit the picked ones.
+    function svcKey() { var ids = S.svcs.slice().sort(); return ids.some(function (id) { return (svcById(id) || {}).duration > 0; }) ? ids.join(',') : ''; }
+    function slotsUrl() { var k = svcKey(); return B.api + '/slots?days=14' + (k ? '&svc=' + encodeURIComponent(k) : ''); }
+    function slotsFor() {
+      if (!B.api) return; var k = svcKey(); if ((B.slotKey || '') === k) return; B.slotKey = k;
+      getJSON(slotsUrl()).then(function (r) { if ((B.slotKey || '') !== k) return; B.apiSlots = r.slots || []; var sc = curScreen(); if (sc && sc.indexOf('time') > -1) render(); }).catch(function () { });
+    }
     function liveDays() {
       var have = {}; B.apiSlots.forEach(function (s) { have[s.day] = 1; });
       var p = new Intl.DateTimeFormat('en-CA', { timeZone: B.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-');
@@ -804,7 +811,7 @@
             // Someone took that time a moment ago: reload real times and send them back to pick again.
             S.time = null;
             var at = screens().map(function (sc) { return sc.some(function (id) { return stepDef(id).type === 'time'; }); }).indexOf(true);
-            getJSON(B.api + '/slots?days=14').then(function (s) { B.apiSlots = s.slots || []; }).catch(function () { }).then(function () {
+            getJSON(slotsUrl()).then(function (s) { B.apiSlots = s.slots || []; }).catch(function () { }).then(function () {
               if (at > -1) { S.idx = at; NAV = 'back'; render(); }
               var bd = document.getElementById('bd');
               if (bd) bd.insertAdjacentHTML('afterbegin', '<p class="warn" id="sendErr">That time was just booked by someone else. Pick another one.</p>');
@@ -880,6 +887,7 @@
         else S.svcs = [v];
         S.svc = combined();
         if (!T.multiService || !S.svc || S.svc.mode !== before) { S.ans = {}; S.addons = {}; }
+        slotsFor();
         JUST = sel('svc');
         render(T.multiService ? 'service' : nextBlockAfter('service'));
       }
