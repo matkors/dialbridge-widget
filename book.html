@@ -395,12 +395,23 @@ html.editing .side .sb::after{content:"";position:absolute;inset:14px;border-rad
 .slogo.dark,.slot-slogo.has.dark{background:#16191c}
 /* The owner's own side photo shows more of itself: the brand color fades out sooner */
 .side.own .sb::before{background:linear-gradient(180deg,var(--brand) 0%,color-mix(in srgb,var(--brand) 88%,transparent) 18%,color-mix(in srgb,var(--brand) 45%,transparent) 40%,rgba(10,12,14,.08) 62%,rgba(10,12,14,.6) 100%)}
+
+/* Phone width: a logo header stacks (logo, then "Book online" and the rating under it) so nothing gets squeezed */
+.slot-logo{flex-shrink:0}
+.slot-logo.has{height:auto;min-height:44px}
+@container card (max-width: 520px){
+  .hd.light .hd-l{flex-direction:column;align-items:flex-start;gap:6px}
+  .hd.light .logo{height:44px;max-width:190px}
+  .hd.light .logo[data-shape="wide"]{height:32px;max-width:210px}
+  .hd.light .logo[data-shape="mid"]{height:40px;max-width:180px}
+  .hd.light .logo[data-shape="square"]{height:46px;width:46px}
+}
 </style>
 </head>
 <body>
 <div class="page"><div class="hostline" id="hostline"></div><div class="card" id="app"><div class="err">Loading…</div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js"></script>
-<script src="templates.js?v=20261012l"></script>
-<script src="engine.js?v=20261012l"></script>
+<script src="templates.js?v=20261012m"></script>
+<script src="engine.js?v=20261012m"></script>
 </body>
 </html>
