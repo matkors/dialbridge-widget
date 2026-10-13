@@ -134,7 +134,10 @@
     '<div class="sk" aria-hidden="true"><i class="h"></i><i class="t"></i><i class="r"></i><i class="r"></i><i class="r"></i></div></div></div>';
 
   var wrap = root.querySelector('.w'), btn = root.querySelector('.go'), ov = root.querySelector('.ov'), pn = root.querySelector('.pn'), grab = root.querySelector('.gr');
-  var frame = null, frameStart = null, isOpen = false, lastFocus = null, prefetched = false, wantH = 0, focusOn = false, closeT = null;
+  // Two frames. 'home' belongs to the floating button and keeps its place between opens (a half-filled form survives
+  // an accidental close). 'task' is opened by the page for one job (a pricing button, ?book=quote) and starts fresh
+  // every time, so it never resumes something else and never disturbs the floating button's place.
+  var home = null, task = null, cur = null, frame = null, isOpen = false, lastFocus = null, prefetched = false, wantH = 0, focusOn = false, closeT = null;
 
   function mobile() { return window.matchMedia('(max-width: 640px)').matches; }
   function prefetch() {
@@ -154,21 +157,30 @@
     var r = el.getBoundingClientRect(), p = pn.getBoundingClientRect();
     pn.style.transformOrigin = Math.round(r.left + r.width / 2 - p.left) + 'px ' + Math.round(r.top + r.height / 2 - p.top) + 'px';
   }
+  function makeFrame(st) {
+    var o = { el: document.createElement('iframe'), wantH: 0, ready: false, light: false };
+    o.el.src = src + (st ? '&start=' + st : '');
+    o.el.title = 'Book online';
+    o.el.setAttribute('allow', 'camera');
+    o.el.addEventListener('load', function () { setTimeout(function () { o.ready = true; if (cur === o) pn.classList.add('ready'); }, 1200); });
+    pn.appendChild(o.el);
+    return o;
+  }
+  // Put one frame on screen and restore its own size and state.
+  function show(o) {
+    cur = o; frame = o.el;
+    [home, task].forEach(function (x) { if (x) x.el.style.display = x === o ? '' : 'none'; });
+    pn.classList.toggle('ready', o.ready); pn.classList.toggle('light', o.light);
+    wantH = o.wantH; pn.classList.toggle('fit', !!wantH); if (!wantH) pn.style.height = '';
+  }
   function open(start, from) {
     if (isOpen) return;
     isOpen = true; clearTimeout(closeT);
     var st = /^(book|quote|text|call|plan|demo|message|widget|full)$/.test(start || '') ? start : null;
-    if (!frame || (st && st !== frameStart)) {
-      if (frame) frame.remove();
-      pn.classList.remove('ready', 'fit'); wantH = 0; pn.style.height = '';
-      frame = document.createElement('iframe');
-      frame.src = src + (st ? '&start=' + st : '');
-      frame.title = 'Book online';
-      frame.setAttribute('allow', 'camera');
-      frameStart = st;
-      frame.addEventListener('load', function () { setTimeout(function () { pn.classList.add('ready'); }, 1200); });
-      pn.appendChild(frame);
-    }
+    if (task) { task.el.remove(); task = null; }
+    if (st) task = makeFrame(st);
+    else if (!home) home = makeFrame(null);
+    show(st ? task : home);
     lastFocus = document.activeElement;
     ov.classList.remove('out'); ov.classList.add('on');
     wrap.classList.add('away');
@@ -207,15 +219,16 @@
   var inline = [];
   window.addEventListener('message', function (e) {
     if (!e.data || typeof e.data.type !== 'string') return;
-    if (frame && e.source === frame.contentWindow) {
-      var t = e.data.type;
-      if (t === 'dbw:close') close();
-      else if (t === 'dbw:ready') { pn.classList.add('ready'); pn.classList.toggle('light', !!e.data.light); }
+    var o = home && e.source === home.el.contentWindow ? home : task && e.source === task.el.contentWindow ? task : null;
+    if (o) {
+      var t = e.data.type, on = o === cur;
+      if (t === 'dbw:close') { if (on) close(); }
+      else if (t === 'dbw:ready') { o.ready = true; o.light = !!e.data.light; if (on) { pn.classList.add('ready'); pn.classList.toggle('light', o.light); } }
       else if (t === 'dbw:height' && e.data.h > 0) {
-        var first = !wantH; wantH = +e.data.h; fit();
-        if (first) requestAnimationFrame(function () { pn.classList.add('fit'); });
+        o.wantH = +e.data.h;
+        if (on) { var first = !wantH; wantH = o.wantH; fit(); if (first) requestAnimationFrame(function () { pn.classList.add('fit'); }); }
       }
-      else if (t === 'dbw:focus') { focusOn = !!e.data.on; if (mobile()) fit(); }
+      else if (t === 'dbw:focus') { if (on) { focusOn = !!e.data.on; if (mobile()) fit(); } }
       else if (t === 'dbw:submit') document.dispatchEvent(new CustomEvent('dialbridge:submit', { detail: e.data }));
       return;
     }
