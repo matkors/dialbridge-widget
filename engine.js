@@ -184,7 +184,9 @@
     var BUILDERS = /^https:\/\/(app\.matviykorsunskiy\.me|app\.dialbridge\.ai)$|^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
     // ?builder=1&edit=1: the dashboard's page builder. The template's slots (logo, side photo, the four start options,
     // the Google rating) show as outlined boxes; clicking one asks the dashboard to fill it. Nothing is booked from here.
-    var EDIT = params.get('builder') === '1' && params.get('edit') === '1';
+    // edit=1: every box. edit=brand: only the left side (logo, side photo, rating). edit=tiles: only the four options.
+    var EDIT = params.get('builder') === '1' && /^(1|brand|tiles)$/.test(params.get('edit') || '');
+    var EDITB = EDIT && params.get('edit') !== 'tiles', EDITT = EDIT && params.get('edit') !== 'brand';
     if (EDIT) document.documentElement.classList.add('editing');
     var imgOk = function (u) { return /^data:image\/(png|jpeg|webp);base64,/.test(u || '') || srcOk(u); };
     if (params.get('builder') === '1') window.addEventListener('message', function (e) {
@@ -387,9 +389,9 @@
     var lightLogo = function () { return T.logoTone === 'light'; };
     function headerHtml() {
       var brand = B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt="' + esc(B.name) + '">' : '<span class="wordmark">' + esc(B.name) + '</span>';
-      if (EDIT) brand = '<button type="button" class="slot slot-logo' + (B.logo ? ' has' : '') + '" data-edit="logo">' + (B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span>Upload logo</span>') + '</button>';
+      if (EDITB) brand = '<button type="button" class="slot slot-logo' + (B.logo ? ' has' : '') + '" data-edit="logo">' + (B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span>Upload logo</span>') + '</button>';
       var sub = 'Book online' + (B.rating ? ' <span class="dot">·</span> ' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ' reviews)' : '');
-      if (EDIT) sub = 'Book online ' + (B.rating ? '<button type="button" class="slot slot-rate has" data-edit="rating">' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ')<span class="sl-tip">Change</span></button>' : '<button type="button" class="slot slot-rate" data-edit="rating"><span class="sl-plus">+</span>Add your Google rating</button>');
+      if (EDITB) sub = 'Book online ' + (B.rating ? '<button type="button" class="slot slot-rate has" data-edit="rating">' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ')<span class="sl-tip">Change</span></button>' : '<button type="button" class="slot slot-rate" data-edit="rating"><span class="sl-plus">+</span>Add your Google rating</button>');
       return '<header class="hd' + (B.logo && !lightLogo() ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
         (CLOSABLE ? '<button class="x" data-act="close" aria-label="Close">' + ic('x') + '</button>' : '') + '</header>' +
         // The owner hasn't finished the builder yet: say so, so nobody mistakes the starter template for their real page.
@@ -525,15 +527,15 @@
       var photo = imgOk(B.hero) ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
       var c = sideCopy();
       var pos = /^\d{1,3}% \d{1,3}%$/.test(T.heroPos || '') && imgOk(B.hero) ? ' style="object-position:' + T.heroPos + '"' : '';
-      return '<aside class="side' + (imgOk(B.hero) ? ' own' : '') + '"' + (EDIT ? '' : ' aria-hidden="true"') + '><div class="sb"><img alt="" src="' + esc(photo) + '"' + pos + '>' +
-        (EDIT ? '<button type="button" class="slot slot-side' + (B.hero ? ' has' : '') + '" data-edit="side"><span class="sl-plus">+</span><span>' + (B.hero ? 'Change side photo' : 'Add your own photo') + '</span><small>Tall photo, at least 600 &times; 900</small></button>' +
+      return '<aside class="side' + (imgOk(B.hero) ? ' own' : '') + '"' + (EDITB ? '' : ' aria-hidden="true"') + '><div class="sb"><img alt="" src="' + esc(photo) + '"' + pos + '>' +
+        (EDITB ? '<button type="button" class="slot slot-side' + (B.hero ? ' has' : '') + '" data-edit="side"><span class="sl-plus">+</span><span>' + (B.hero ? 'Change side photo' : 'Add your own photo') + '</span><small>Tall photo, at least 600 &times; 900</small></button>' +
           '<span class="sl-badge">' + (B.hero ? 'Your photo' : 'Side photo: click to add yours') + '</span>' : '') + '<div class="st">' +
-        (EDIT ? '<button type="button" class="slot slot-slogo' + (B.logo ? ' has' : '') + (B.logo && lightLogo() ? ' dark' : '') + '" data-edit="logo">' + (B.logo ? '<img src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span><b>Upload your logo</b><small>At least 300 &times; 80, wide or square</small></span>') + '</button>'
+        (EDITB ? '<button type="button" class="slot slot-slogo' + (B.logo ? ' has' : '') + (B.logo && lightLogo() ? ' dark' : '') + '" data-edit="logo">' + (B.logo ? '<img src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span><b>Upload your logo</b><small>At least 300 &times; 80, wide or square</small></span>') + '</button>'
           : B.logo ? '<span class="slogo' + (lightLogo() ? ' dark' : '') + '"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname"><span class="smark">' + esc((B.name || 'B').trim().charAt(0).toUpperCase()) + '</span>' + esc(B.name) + '</span>') +
         '<div class="scopy"><h2>' + esc(c[0]) + '</h2><p>' + esc(c[1]) + '</p></div></div>' +
         '<div class="sinfo"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span>' +
         '<span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span>' +
-        (EDIT ? '<button type="button" class="slot slot-srate' + (B.rating ? ' has' : '') + '" data-edit="rating">' + (B.rating ? '<b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews<span class="sl-tip">Change</span>' : '<span class="sl-plus">+</span>Show your Google rating') + '</button>'
+        (EDITB ? '<button type="button" class="slot slot-srate' + (B.rating ? ' has' : '') + '" data-edit="rating">' + (B.rating ? '<b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews<span class="sl-tip">Change</span>' : '<span class="sl-plus">+</span>Show your Google rating') + '</button>'
           : B.rating ? '<span><b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</span>' : '') + '</div></div></aside>';
     }
     function menuHtml() {
@@ -542,16 +544,16 @@
       var mine = Array.isArray(tiles.order) ? tiles.order.filter(function (k) { return ALL.indexOf(k) > -1 && T.tiles[k]; }) : null;
       var order = mine && mine.length ? mine.concat(ALL.filter(function (k) { return mine.indexOf(k) < 0; })) : (OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call']);
       var off = Array.isArray(tiles.off) ? tiles.off : [];
-      var hidden = EDIT ? order.filter(function (k) { return off.indexOf(k) > -1 && T.tiles[k]; }) : [];
+      var hidden = EDITT ? order.filter(function (k) { return off.indexOf(k) > -1 && T.tiles[k]; }) : [];
       order = order.filter(function (k) { return off.indexOf(k) < 0 && T.tiles[k]; });
       if (!order.length) order = ['book'];
-      if (EDIT) order = order.concat(hidden);
+      if (EDITT) order = order.concat(hidden);
       return '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
         if (k === 'book' && t.priced && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
         if (k === 'call' && !t.custom) { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
         var pic = (B.tileImg && B.tileImg[k]) || IMG[k], ipos = /^\d{1,3}% \d{1,3}%$/.test(t.imgPos || '') ? ' style="object-position:' + t.imgPos + '"' : '';
-        if (EDIT) {
+        if (EDITT) {
           var isOff = off.indexOf(k) > -1;
           return '<div class="mtile slot slot-tile' + (isOff ? ' off' : '') + '" draggable="true" data-edit="tile" data-k="' + k + '" role="button" tabindex="0"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span>' +
             '<span class="sl-drag" title="Drag to move">&#8942;&#8942;</span><span class="sl-edit">' + (isOff ? 'Hidden. Click to show' : 'Edit') + '</span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></div>';
