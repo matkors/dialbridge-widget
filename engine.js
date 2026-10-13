@@ -238,9 +238,14 @@
       if (list.length === 1) return Object.assign({}, list[0], { parts: list });
       return {
         id: S.svcs.join('+'), label: list.map(function (x) { return x.label; }).join(', '),
-        mode: list.some(function (x) { return x.mode === 'estimate'; }) ? 'estimate' : list[0].mode,
+        mode: list.some(function (x) { return x.mode === 'estimate'; }) ? 'estimate' : list.some(function (x) { return x.mode !== 'book'; }) ? 'request' : 'book',
         heavy: list.some(function (x) { return x.heavy; }), icon: list[0].icon, parts: list
       };
+    }
+    function unitFor(d, n) {
+      var u = String(d.unit || ''); if (!u) return '';
+      if (n === 1 && /s$/i.test(u) && !/ss$/i.test(u)) u = /(sses|ches|shes|xes)$/i.test(u) ? u.slice(0, -2) : u.slice(0, -1);
+      return ' ' + u;
     }
     function qtyOf(d, v) {
       var n = typeof v === 'string' && v.trim() !== '' ? Number(v) : v;
@@ -313,7 +318,7 @@
     // Live: the next 7 days in their time zone, starting with the first day that has an open time.
     // A day with no open times shows as closed. Times come straight from /slots, so they can actually be booked.
     // Each service can take its own time: ask the API for open times that fit the picked ones.
-    function svcKey() { var ids = S.svcs.slice().sort(); return ids.some(function (id) { return (svcById(id) || {}).duration > 0; }) ? ids.join(',') : ''; }
+    function svcKey() { if (S.svc && S.svc.mode === 'estimate') return ''; var ids = S.svcs.slice().sort(); return ids.some(function (id) { return (svcById(id) || {}).duration > 0; }) ? ids.join(',') : ''; }
     function slotsUrl() { var k = svcKey(); return B.api + '/slots?days=14' + (k ? '&svc=' + encodeURIComponent(k) : ''); }
     function slotsFor() {
       if (!B.api) return; var k = svcKey(); if ((B.slotKey || '') === k) return; B.slotKey = k;
@@ -474,7 +479,7 @@
           var tick = on ? '<span class="tick">' + ic('check') + '</span>' : '', tt = tag && B.showPrices ? '<span class="tt">' + esc(tag) + '</span>' : '';
           // Photo tiles: picture with the label underneath. Icon tiles: one card with the icon, label and tag inside.
           if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>';
-          return '<button type="button" class="tile it' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.icon) + '</span><span class="tl">' + esc(s.label) + '</span>' + tt + '</span></button>';
+          return '<button type="button" class="tile it' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.icon) + '</span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + tt + '</span></button>';
         }).join('') + '</div>';
       }
       if (d.type === 'choice') {
@@ -494,10 +499,10 @@
         if (d.input === 'number') {
           h += '<label class="fld narrow qtyin"><span class="inwrap"><input data-q="' + esc(id) + '" type="number" inputmode="decimal" min="' + (d.minQty || 0) + '"' + (d.maxQty ? ' max="' + d.maxQty + '"' : '') + ' step="any" placeholder="' + esc(d.placeholder || '') + '" value="' + esc(S.ans[id] === undefined ? '' : S.ans[id]) + '"><i>' + unit + '</i></span></label>';
         } else {
-          if (S.ans[id] === undefined) S.ans[id] = typeof d.minQty === 'number' && d.minQty > 0 ? d.minQty : 1;
+          if (S.ans[id] === undefined) S.ans[id] = typeof d.minQty === 'number' && d.minQty > 0 ? d.minQty : 0;
           var n = qtyOf(d, S.ans[id]);
           h += '<div class="stepper" role="group" aria-label="' + esc(title) + '"><button type="button" data-act="qty" data-s="' + esc(id) + '" data-v="-1" aria-label="Fewer"' + (n <= (d.minQty || 0) ? ' disabled' : '') + '>' + ic('minus') + '</button>' +
-            '<b data-qv="' + esc(id) + '">' + esc(n) + unit + '</b><button type="button" data-act="qty" data-s="' + esc(id) + '" data-v="1" aria-label="More"' + (d.maxQty && n >= d.maxQty ? ' disabled' : '') + '>' + ic('plus') + '</button></div>';
+            '<b data-qv="' + esc(id) + '">' + esc(n) + esc(unitFor(d, n)) + '</b><button type="button" data-act="qty" data-s="' + esc(id) + '" data-v="1" aria-label="More"' + (d.maxQty && n >= d.maxQty ? ' disabled' : '') + '>' + ic('plus') + '</button></div>';
         }
         if (d.help) h += '<p class="lede small">' + esc(d.help) + '</p>';
       }
@@ -513,7 +518,7 @@
       }
       if (d.type === 'time') {
         h += '<div class="tabs"><button type="button" class="' + (S.tmode === 'first' ? 'on' : '') + '" data-act="tmode" data-v="first">First available</button><button type="button" class="' + (S.tmode === 'day' ? 'on' : '') + '" data-act="tmode" data-v="day">Pick a day</button></div>';
-        h += '<p class="meta">' + ic('globe') + ({ 'America/Chicago': 'Central', 'America/Denver': 'Mountain', 'America/Phoenix': 'Arizona', 'America/Los_Angeles': 'Pacific' }[B.tz] || 'Eastern') + ' Time. ' + (B.timeMode === 'slots' ? 'Pick a start time.' : 'Pick an arrival window; we text to confirm.') + '</p>';
+        h += '<p class="meta">' + ic('globe') + ({ 'America/Chicago': 'Central', 'America/Denver': 'Mountain', 'America/Phoenix': 'Arizona', 'America/Los_Angeles': 'Pacific' }[B.tz] || 'Eastern') + ' Time. ' + (B.timeMode === 'slots' ? 'Pick a start time.' : (S.svc && S.svc.mode === 'book' ? 'Pick when we can arrive.' : 'Pick an arrival window; we text to confirm.')) + '</p>';
         if (S.tmode === 'first') {
           h += '<div class="radios">' + firstAvailable().map(function (r) { var on = S.day === r.day.key && S.time === r.w.id; return '<button type="button" class="radio' + (on ? ' on' : '') + '" data-act="slot" data-d="' + esc(r.day.key) + '" data-v="' + esc(r.w.id) + '"><span class="rb"></span>' + dayLabel(r.day) + ', ' + r.w.label + '</button>'; }).join('') + '</div>';
         } else {
@@ -551,7 +556,7 @@
     function sideCopy() {
       var area = B.area && B.area !== 'your area' ? B.area : '';
       var first = [B.tagline || (T.trade + (area ? ' in ' + area : ', booked online')), T.sideLine || 'Tell us what you need, see your price and pick a time.'];
-      if (S.done) return ['You\'re all set', B.name + ' has your request. Watch for a text from ' + B.phone + '.'];
+      if (S.done) return ['You\'re all set', S.path === 'book' && S.svc && S.svc.mode === 'book' && S.time ? B.name + ' has you on the calendar. Watch for a reminder text from ' + B.phone + '.' : B.name + ' has your request. Watch for a text from ' + B.phone + '.'];
       var sc = curScreen(); if (!sc) return first;
       var t = stepDef(sc[0]).type;
       if (t === 'zip') return ['We come to you', area ? B.name + ' serves ' + area + '. Your ZIP tells us you\'re covered.' : 'Your ZIP tells us ' + B.name + ' covers your address.'];
@@ -576,7 +581,7 @@
           : B.logo ? '<span class="slogo' + (lightLogo() ? ' dark' : '') + '"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname"><span class="smark">' + esc((B.name || 'B').trim().charAt(0).toUpperCase()) + '</span>' + esc(B.name) + '</span>') +
         '<div class="scopy"><h2>' + esc(c[0]) + '</h2><p>' + esc(c[1]) + '</p></div></div>' +
         '<div class="sinfo"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span>' +
-        '<span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span>' +
+        '<span>Replies by text</span>' +
         (EDITB ? '<button type="button" class="slot slot-srate' + (B.rating ? ' has' : '') + '" data-edit="rating">' + (B.rating ? '<b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews<span class="sl-tip">Change</span>' : '<span class="sl-plus">+</span>Show your Google rating') + '</button>'
           : B.rating ? '<span><b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</span>' : '') + '</div></div></aside>';
     }
@@ -592,7 +597,7 @@
       if (EDITT) order = order.concat(hidden);
       return (EDITB && !EDITT ? '<div class="next-note">The four options are the next step</div>' : '') + '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
-        if (k === 'book' && t.priced && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
+        if (k === 'book' && t.priced && !t.custom && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
         if (k === 'call' && !t.custom) { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
         var pic = (B.tileImg && B.tileImg[k]) || IMG[k], ipos = /^\d{1,3}% \d{1,3}%$/.test(t.imgPos || '') ? ' style="object-position:' + t.imgPos + '"' : '';
         if (EDITT) {
@@ -603,15 +608,16 @@
         return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
       }).join('') + '</div>' +
         // Phones don't show the side panel, so its open-now and reply-time line goes under the options.
-        '<p class="mtrust"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span><span>Usually replies in ' + esc(B.replyMins || 15) + ' minutes</span></p>';
+        '<p class="mtrust"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span><span>Replies by text</span></p>';
     }
 
     function doneHtml() {
       var who = esc(S.name.trim().split(' ')[0] || 'there'), ph = esc(prettyPhone());
-      var title, text, foot = OPEN ? 'They usually reply within ' + esc(B.replyMins) + ' minutes.' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect a text shortly after.';
+      var title, text, foot = OPEN ? 'Expect a text soon.' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect a text after that.';
       var byCall = T.confirmBy === 'call', instant = S.path === 'book' && S.svc.mode === 'book' && !!S.time;
       if (S.path === 'book') {
         title = S.svc.mode === 'estimate' ? esc(T.estimateDone || 'Walkthrough requested') : instant ? 'You\'re booked' : 'Request sent';
+        if (instant) foot = '';
         text = instant ? esc(B.name) + ' will text ' + ph + ' a reminder before the visit. Need to change something? Just reply to the text.'
           : byCall ? esc(B.name) + ' will call ' + ph + ' to confirm the time and details.' : esc(B.name) + ' will text ' + ph + ' to confirm. Need to change something? Just reply to the text.';
       }
@@ -621,7 +627,7 @@
       var rows = [];
       if (S.svc) rows.push([S.svcs.length > 1 ? 'Items' : 'Service', S.svc.label]);
       visible().forEach(function (id) { var dd = stepDef(id); if (dd.type === 'choice') { var o = optOf(id); if (o) rows.push([dd.sum || dd.title, o.short || o.label]); }
-        if (dd.type === 'qty' && qtyOf(dd, S.ans[id]) !== null) rows.push([dd.sum || dd.title, qtyOf(dd, S.ans[id]) + (dd.unit ? ' ' + dd.unit : '')]);
+        if (dd.type === 'qty' && qtyOf(dd, S.ans[id])) rows.push([dd.sum || dd.title, qtyOf(dd, S.ans[id]) + unitFor(dd, qtyOf(dd, S.ans[id]))]);
         if (dd.type === 'ask' && String(S.ans[id] || '').trim()) rows.push([dd.sum || dd.title, String(S.ans[id]).trim().slice(0, 70)]); });
       var extras = T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [];
       if (extras.length) rows.push(['Extras', extras.join(', ')]);
@@ -631,7 +637,7 @@
       var p = priceInfo(); if (p && (S.path === 'book' || S.path === 'quote')) rows.push(['Estimate', p.text]);
       var h = '<div class="donehd"><span class="okc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="draw" pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><h3>' + title + ', ' + who + '</h3><p class="lede">' + text + '</p></div></div>';
       if (rows.length) h += '<dl class="receipt"><div class="rh"><span>' + (instant ? 'Booking' : 'Request') + ' #' + esc(S.done.id) + '</span><span>' + (instant ? 'Confirmed' : 'Waiting for confirmation') + '</span></div>' + rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
-      return h + '<p class="meta">' + foot + '</p>';
+      return h + (foot ? '<p class="meta">' + foot + '</p>' : '');
     }
 
     function bodyHtml() {
@@ -752,7 +758,7 @@
     function payload(reqId) {
       var answers = {};
       visible().forEach(function (id) { var d = stepDef(id); if (d.type === 'choice') { var o = optOf(id); if (o) answers[d.sum || id] = o.short || o.label; }
-        if (d.type === 'qty' && qtyOf(d, S.ans[id]) !== null) answers[d.sum || id] = qtyOf(d, S.ans[id]) + (d.unit ? ' ' + d.unit : '');
+        if (d.type === 'qty' && qtyOf(d, S.ans[id])) answers[d.sum || id] = qtyOf(d, S.ans[id]) + (d.unit ? ' ' + d.unit : '');
         if (d.type === 'ask' && String(S.ans[id] || '').trim()) answers[d.sum || id] = String(S.ans[id]).trim(); });
       var p = priceInfo();
       return {
@@ -778,14 +784,12 @@
       var notes = [];
       if (S.msg.trim()) notes.push(S.msg.trim());
       if (S.cb) notes.push('Best time to call back: ' + S.cb);
-      // An estimate visit has no booked slot, so the time they picked goes to the owner as a preference.
-      if (timed && S.svc && S.svc.mode === 'estimate') notes.push('Preferred time: ' + whenText());
       var hp = document.getElementById('hpf');
       return {
         path: S.path, services: S.svcs.length ? S.svcs.slice() : (S.svc ? [S.svc.id] : []), answers: answers, addons: addons,
         name: S.name.trim(), phone: digits(), zip: S.zip || undefined, address: S.addr.trim() || undefined,
         details: S.details.trim() || undefined, message: notes.join('\n') || undefined,
-        start: timed && !(S.svc && S.svc.mode === 'estimate') ? S.time : undefined,
+        start: timed ? S.time : undefined,
         source: VIA === 'site' ? 'website' : 'booking page', page: PG.slice(0, 300), ref: REF.slice(0, 300), pg: PG.slice(0, 300),
         idempotencyKey: reqId, company_fax: hp ? hp.value : undefined, elapsed: Date.now() - LOAD_AT
       };
