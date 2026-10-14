@@ -51,7 +51,7 @@
     var okUrl = srcOk;
     var im = p.images && typeof p.images === 'object' ? p.images : {};
     if (okUrl(im.side)) b.hero = im.side; else if (b.hero && !okUrl(b.hero)) b.hero = null;
-    b.tileImg = {}; ['book', 'quote', 'text', 'call'].forEach(function (k) { if (okUrl(im['tile-' + k])) b.tileImg[k] = im['tile-' + k]; });
+    b.tileImg = {}; ['estimate', 'book', 'quote', 'text', 'call'].forEach(function (k) { if (okUrl(im['tile-' + k])) b.tileImg[k] = im['tile-' + k]; });
     b.zips = (b.zips || []).map(function (z) { return String(z).replace(/\D/g, ''); }).filter(Boolean);
     b.phoneDigits = String(b.phone).replace(/\D/g, '');
     if (p.prices) Object.keys(p.prices).forEach(function (k) {
@@ -198,7 +198,7 @@
       else if (/^data:image\/(png|jpeg|webp|gif);base64,/.test(e.data.logo || '') || srcOk(e.data.logo)) B.logo = e.data.logo;
       if (e.data.hero === null) B.hero = null; else if (imgOk(e.data.hero)) B.hero = e.data.hero;
       if (e.data.tileImg && typeof e.data.tileImg === 'object') { B.tileImg = {}; Object.keys(e.data.tileImg).forEach(function (k) { if (imgOk(e.data.tileImg[k])) B.tileImg[k] = e.data.tileImg[k]; }); }
-      if (e.data.tiles && typeof e.data.tiles === 'object') ['book', 'quote', 'text', 'call', 'order', 'off'].forEach(function (k) { if (e.data.tiles[k] !== undefined) T.tiles[k] = e.data.tiles[k]; });
+      if (e.data.tiles && typeof e.data.tiles === 'object') ['estimate', 'book', 'quote', 'text', 'call', 'order', 'off'].forEach(function (k) { if (e.data.tiles[k] !== undefined) T.tiles[k] = e.data.tiles[k]; });
       if (e.data.rating !== undefined) { B.rating = e.data.rating || null; B.reviews = e.data.reviews || null; }
       if (e.data.logoTone !== undefined) T.logoTone = e.data.logoTone === 'light' ? 'light' : '';
       if (e.data.heroPos !== undefined) T.heroPos = /^\d{1,3}% \d{1,3}%$/.test(e.data.heroPos || '') ? e.data.heroPos : '';
@@ -216,6 +216,7 @@
       return flowFor(S.path).filter(function (id) {
         var d = stepDef(id);
         if (d.forSvc && d.forSvc.length && !S.svcs.some(function (x) { return d.forSvc.indexOf(x) > -1; })) return false;
+        if (d.type === 'service' && oneEst()) return false;   // the estimate option with one service: already picked
         if (!d.showIf) return true;
         if (!S.svc) return false;
         return d.showIf.indexOf(S.svc.mode) > -1;
@@ -231,6 +232,17 @@
     function curScreen() { if (!S.path || S.done) return null; return screens()[S.idx] || null; }
 
     function svcById(id) { return T.services.filter(function (s) { return s.id === id; })[0]; }
+    // A page with priced services AND free-estimate services gets two start options: "Book a free estimate" (estimate
+    // services only, straight to the questions when there is one) and "Book a service" (the priced ones).
+    function isEst(s) { return s.mode === 'estimate'; }
+    function split() { return !!T.svcSet && T.services.some(isEst) && T.services.some(function (s) { return !isEst(s); }); }
+    function laneSvcs() { return !S.lane ? T.services : T.services.filter(function (s) { return isEst(s) === (S.lane === 'estimate'); }); }
+    function oneEst() { var l = S.lane === 'estimate' ? laneSvcs() : []; return l.length === 1 ? l[0] : null; }
+    function estTile() {
+      var one = T.services.filter(isEst);
+      return { title: 'Book a free estimate', desc: one.length === 1 && one[0].hint ? one[0].hint : 'Pick a time. We come out and give you a price.', icon: 'clipboard-list' };
+    }
+    if (split() && T.tiles && !T.tiles.estimate) T.tiles.estimate = estTile();
     // Several picks (junk removal) act as one combined service: any walkthrough-only pick makes the whole job a walkthrough.
     function combined() {
       var list = S.svcs.map(svcById).filter(Boolean);
@@ -473,10 +485,12 @@
           '<p class="warn narrow" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>We don\'t cover that ZIP yet. ' + esc(B.name) + ' serves ' + esc(B.area) + '. <a href="tel:+1' + B.phoneDigits + '">Call to ask</a></p>';
         return h;
       }
+      if (d.type === 'service' && S.lane === 'estimate') title = 'What should we look at?';
       h += '<h3>' + esc(title) + '</h3>';
       if (d.type === 'service') {
         if (T.multiService && d.multiHint) h += '<p class="lede">' + esc(d.multiHint) + '</p>';
-        h += '<div class="tiles' + (T.services.some(function (x) { return x.image; }) ? '' : ' icons') + '" style="--n:' + (T.services.length <= 6 ? T.services.length : 5) + '">' + T.services.map(function (s) {
+        var L = laneSvcs(), pics = L.some(function (x) { return x.image; });
+        h += '<div class="tiles' + (pics ? '' : ' icons') + (!pics && L.length <= 4 ? ' rows' : '') + '" style="--n:' + (L.length <= 6 ? L.length : 5) + '">' + L.map(function (s) {
           var on = S.svcs.indexOf(s.id) > -1;
           var tag = svcTag(s);
           var tick = on ? '<span class="tick">' + ic('check') + '</span>' : '', tt = tag && B.showPrices ? '<span class="tt">' + esc(tag) + '</span>' : '';
@@ -554,7 +568,7 @@
 
     // Photos for the first screen (free Unsplash licence, files in img/tiles, credits in img/tiles/CREDITS.json).
     var TRADE = { junk: 'junk', cleaning: 'cleaning', detailing: 'detailing', hvac: 'hvac', general: 'general', appointments: 'appointments' }[B.trade] || 'junk';
-    var IMG = { book: 'img/tiles/' + TRADE + '-book.webp', quote: 'img/tiles/quote.webp', text: 'img/tiles/text.webp', call: 'img/tiles/call.webp' };
+    var IMG = { estimate: 'img/tiles/quote.webp', book: 'img/tiles/' + TRADE + '-book.webp', quote: 'img/tiles/quote.webp', text: 'img/tiles/text.webp', call: 'img/tiles/call.webp' };
     // The brand panel follows the customer: one short line for the screen they are on (wide layout only).
     function sideCopy() {
       var area = B.area && B.area !== 'your area' ? B.area : '';
@@ -563,6 +577,7 @@
       var sc = curScreen(); if (!sc) return first;
       var t = stepDef(sc[0]).type;
       if (t === 'zip') return ['We come to you', area ? B.name + ' serves ' + area + '. Your ZIP tells us you\'re covered.' : 'Your ZIP tells us ' + B.name + ' covers your address.'];
+      if (S.lane === 'estimate' && (t === 'service' || t === 'details' || t === 'choice' || t === 'ask')) return ['A free estimate', 'Tell us a bit about the job and pick a time. ' + B.name + ' comes out and gives you a price.'];
       if (t === 'service') return S.path === 'quote' ? ['Get a price without a visit', 'Tell us about the job and ' + B.name + ' texts you a price.']
         : B.showPrices ? ['See your price first', 'Prices show as you pick, before you book anything.'] : ['What do you need?', 'Pick what fits. You can add details next.'];
       if (t === 'details') return ['Photos help', 'A couple of photos usually get you an exact price instead of a range.'];
@@ -590,16 +605,20 @@
     }
     function menuHtml() {
       // The owner's order and which options show (tiles.order / tiles.off). Without one: Call first while open.
-      var ALL = ['book', 'quote', 'text', 'call'], tiles = T.tiles || {};
+      var SP = split(), ALL = SP ? ['estimate', 'book', 'quote', 'text', 'call'] : ['book', 'quote', 'text', 'call'], tiles = T.tiles || {};
       var mine = Array.isArray(tiles.order) ? tiles.order.filter(function (k) { return ALL.indexOf(k) > -1 && T.tiles[k]; }) : null;
-      var order = mine && mine.length ? mine.concat(ALL.filter(function (k) { return mine.indexOf(k) < 0; })) : (OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call']);
-      var off = Array.isArray(tiles.off) ? tiles.off : [];
+      if (SP && mine && mine.length && mine.indexOf('estimate') < 0) mine.unshift('estimate');
+      var order = mine && mine.length ? mine.concat(ALL.filter(function (k) { return mine.indexOf(k) < 0; })) : SP ? (OPEN ? ['call', 'estimate', 'book', 'quote', 'text'] : ['estimate', 'book', 'quote', 'text', 'call']) : (OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call']);
+      var off = Array.isArray(tiles.off) ? tiles.off.slice() : [];
+      // With a free-estimate option, "get a price by text" says the same thing twice: off unless the owner turned it on.
+      if (SP && !(mine && mine.length) && off.indexOf('quote') < 0) off.push('quote');
       var hidden = EDITT ? order.filter(function (k) { return off.indexOf(k) > -1 && T.tiles[k]; }) : [];
       order = order.filter(function (k) { return off.indexOf(k) < 0 && T.tiles[k]; });
       if (!order.length) order = ['book'];
       if (EDITT) order = order.concat(hidden);
       return (EDITB && !EDITT ? '<div class="next-note">The buttons customers tap come next</div>' : '') + '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
+        if (k === 'book' && SP && !t.custom) { title = 'Book a service'; desc = 'Pick a service and a time.'; }
         if (k === 'book' && t.priced && !t.custom && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
         if (k === 'call' && !t.custom) { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
         var pic = (B.tileImg && B.tileImg[k]) || IMG[k], ipos = /^\d{1,3}% \d{1,3}%$/.test(t.imgPos || '') ? ' style="object-position:' + t.imgPos + '"' : '';
@@ -662,11 +681,12 @@
       var call = '<a class="callus" href="tel:+1' + B.phoneDigits + '">' + ic('phone') + 'Call us</a>';
       // The Demo tag only shows on a standalone demo link; previews inside our own pages leave it out.
       var pow = '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by Dialbridge</a>' + (B.demo && window.top === window.self ? '<span class="demo" title="Demo: requests are not sent anywhere">Demo</span>' : '') + '</div>';
-      if (S.done) return '<footer class="ft"><span></span><div class="ft-r"><button type="button" class="btn" data-act="' + (CLOSABLE ? 'close' : 'restart') + '">' + (CLOSABLE ? 'Close' : 'Start over') + '</button></div></footer>' + pow;
+      // Booked: no "start over". On their own site the popup closes; on the booking link it goes back to their website.
+      if (S.done) return '<footer class="ft"><span></span><div class="ft-r">' + (CLOSABLE ? '<button type="button" class="btn" data-act="close">' + (VIA === 'hosted' && B.website ? 'Back to ' + esc(B.name) : 'Close') + '</button>' : '') + '</div></footer>' + pow;
       if (!S.path) return '<footer class="ft">' + call + '</footer>' + pow;
       var sc = curScreen(), last = S.idx === screens().length - 1, t = stepDef(sc[0]).type;
       var label = 'Continue';
-      if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? esc(T.estimateSubmit || 'Request walkthrough') : 'Send booking request') : 'Send price request';
+      if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? esc(T.estimateSubmit || 'Book my free estimate') : 'Send booking request') : 'Send price request';
       if (t === 'message') label = 'Send message';
       if (t === 'callback') label = 'Request a call back';
       var next = t === 'call' ? '' : '<button type="button" class="btn" id="next" data-act="next"' + (screenValid(sc) ? '' : ' disabled') + '>' + label + (label === 'Continue' ? ic('arrow-right', 'arr') : '') + '</button>';
@@ -793,7 +813,7 @@
         name: S.name.trim(), phone: digits(), zip: S.zip || undefined, address: S.addr.trim() || undefined,
         details: S.details.trim() || undefined, message: notes.join('\n') || undefined,
         start: timed ? S.time : undefined,
-        source: VIA === 'site' ? 'website' : 'booking page', page: PG.slice(0, 300), ref: REF.slice(0, 300), pg: PG.slice(0, 300),
+        source: VIA === 'site' ? 'website' : 'booking page', test: params.get('test') === '1' || undefined, page: PG.slice(0, 300), ref: REF.slice(0, 300), pg: PG.slice(0, 300),
         idempotencyKey: reqId, company_fax: hp ? hp.value : undefined, elapsed: Date.now() - LOAD_AT
       };
     }
@@ -887,7 +907,12 @@
       var el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
       var act = el.getAttribute('data-act'), v = el.getAttribute('data-v');
       var sel = function (a) { return '[data-act="' + a + '"][data-v="' + (window.CSS && CSS.escape ? CSS.escape(v || '') : v) + '"]'; };
-      if (act === 'start') { S.path = v === 'call' ? (OPEN ? 'call' : 'callback') : v; S.idx = 0; NAV = 'fwd'; liveEvent('open'); render(); }
+      if (act === 'start') {
+        S.lane = v === 'estimate' ? 'estimate' : v === 'book' && split() ? 'service' : null;
+        S.path = v === 'call' ? (OPEN ? 'call' : 'callback') : v === 'estimate' ? 'book' : v; S.idx = 0; NAV = 'fwd';
+        var one = oneEst(); if (one) { S.svcs = [one.id]; S.svc = combined(); S.ans = {}; S.addons = {}; slotsFor(); }
+        liveEvent('open'); render();
+      }
       else if (act === 'svc') {
         var before = S.svc ? S.svc.mode : null;
         if (T.multiService) { var at = S.svcs.indexOf(v); if (at > -1) S.svcs.splice(at, 1); else S.svcs.push(v); }
@@ -906,7 +931,7 @@
       else if (act === 'cb') { S.cb = v; JUST = sel('cb'); render(); }
       else if (act === 'callback') { S.path = 'callback'; S.idx = 0; NAV = 'fwd'; render(); }
       else if (act === 'next') { if (screenValid(curScreen())) advance(); }
-      else if (act === 'back') { if (S.idx === 0) { S.path = null; S.svc = null; S.svcs = []; S.ans = {}; } else S.idx--; NAV = 'back'; render(); }
+      else if (act === 'back') { if (S.idx === 0) { S.path = null; S.lane = null; S.svc = null; S.svcs = []; S.ans = {}; } else S.idx--; NAV = 'back'; render(); }
       else if (act === 'qty') { var qd = stepDef(el.getAttribute('data-s')), qid = el.getAttribute('data-s'); var cur = qtyOf(qd, S.ans[qid]); S.ans[qid] = qtyOf(qd, (cur === null ? (qd.minQty || 0) : cur) + (+v) * (qd.stepBy || 1)); render(); }
       else if (act === 'photos') { var f = document.getElementById('ph'); if (f) f.click(); }
       else if (act === 'restart') { fresh(); NAV = 'back'; render(); }
@@ -935,7 +960,8 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && CLOSABLE) { post('dbw:close'); if (S.done) { fresh(); render(); } } });
 
     var st0 = params.get('start');
-    if (/^(book|quote|text)$/.test(st0 || '')) S.path = st0;
+    if (st0 === 'estimate' && split()) { S.path = 'book'; S.lane = 'estimate'; var one0 = oneEst(); if (one0) { S.svcs = [one0.id]; S.svc = combined(); } }
+    else if (/^(book|quote|text)$/.test(st0 || '')) { S.path = st0; if (st0 === 'book' && split()) S.lane = 'service'; }
     else if (st0 === 'call') S.path = OPEN ? 'call' : 'callback';
     render();
     post('dbw:ready');
