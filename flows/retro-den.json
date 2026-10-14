@@ -23,8 +23,7 @@
   "tagline": "Lamp repair and restoration in Virginia Beach",
   "images": {
     "side": "https://matviykorsunskiy.me/dialbridge-widget/img/demo/retro-den/bench.webp",
-    "tile-book": "https://matviykorsunskiy.me/dialbridge-widget/img/demo/retro-den/r-antique.webp",
-    "tile-quote": "https://matviykorsunskiy.me/dialbridge-widget/img/demo/retro-den/r-table.webp"
+    "tile-book": "https://matviykorsunskiy.me/dialbridge-widget/img/demo/retro-den/r-antique.webp"
   },
   "template": {
     "trade": "Lamp repair",
@@ -50,7 +49,7 @@
     "tiles": {
       "book": {
         "title": "Book a repair",
-        "desc": "Tell Tim what's wrong and pick a time to bring it in.",
+        "desc": "Tell Tim what's wrong, add a photo, and pick a time to bring it in.",
         "icon": "wrench"
       },
       "quote": {
@@ -67,7 +66,15 @@
         "title": "Call the shop",
         "desc": "",
         "icon": "phone"
-      }
+      },
+      "order": [
+        "book",
+        "text",
+        "call"
+      ],
+      "off": [
+        "quote"
+      ]
     },
     "services": [
       {
