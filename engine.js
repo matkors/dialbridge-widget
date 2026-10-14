@@ -595,7 +595,7 @@
       order = order.filter(function (k) { return off.indexOf(k) < 0 && T.tiles[k]; });
       if (!order.length) order = ['book'];
       if (EDITT) order = order.concat(hidden);
-      return (EDITB && !EDITT ? '<div class="next-note">The four options are the next step</div>' : '') + '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
+      return (EDITB && !EDITT ? '<div class="next-note">The buttons customers tap come next</div>' : '') + '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
         if (k === 'book' && t.priced && !t.custom && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
         if (k === 'call' && !t.custom) { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
