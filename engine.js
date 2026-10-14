@@ -427,7 +427,9 @@
       return '<header class="hd' + (B.logo && !lightLogo() ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
         (CLOSABLE ? '<button class="x" data-act="close" aria-label="Close">' + ic('x') + '</button>' : '') + '</header>' +
         // The owner hasn't finished the builder yet: say so, so nobody mistakes the starter template for their real page.
-        (B.templateOnly && !EDIT ? '<div class="tpl-note"><b>Starter template.</b> This page is not set up yet. <a href="https://app.matviykorsunskiy.me/booking-page/1" target="_top">Finish setting it up</a></div>' : '');
+        (B.templateOnly && !EDIT ? '<div class="tpl-note"><b>Starter template.</b> This page is not set up yet. <a href="https://app.matviykorsunskiy.me/booking-page/1" target="_top">Finish setting it up</a></div>'
+          // Built but the free trial hasn't started: it's a preview, and bookings can't be sent yet. Say so up front.
+          : B.notLive && !EDIT ? '<div class="tpl-note"><b>Preview.</b> This booking page isn\'t live yet, so bookings can\'t be sent. <a href="https://app.matviykorsunskiy.me/booking-page/8" target="_top">Owner? Start your free trial to go live</a></div>' : '');
     }
     // A thin progress bar (like Avenue's): the first screen counts as a step, and the done screen fills it.
     // It starts at the last screen's width and grows to the new one, so every step change animates.
