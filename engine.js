@@ -680,7 +680,7 @@
     function footHtml() {
       var call = '<a class="callus" href="tel:+1' + B.phoneDigits + '">' + ic('phone') + 'Call us</a>';
       // The Demo tag only shows on a standalone demo link; previews inside our own pages leave it out.
-      var pow = '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by Dialbridge</a>' + (B.demo && window.top === window.self ? '<span class="demo" title="Demo: requests are not sent anywhere">Demo</span>' : '') + '</div>';
+      var pow = params.get('pw') === '0' ? '' : '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by Dialbridge</a>' + (B.demo && window.top === window.self ? '<span class="demo" title="Demo: requests are not sent anywhere">Demo</span>' : '') + '</div>';
       // Booked: no "start over". On their own site the popup closes; on the booking link it goes back to their website.
       if (S.done) return '<footer class="ft"><span></span><div class="ft-r">' + (CLOSABLE ? '<button type="button" class="btn" data-act="close">' + (VIA === 'hosted' && B.website ? 'Back to ' + esc(B.name) : 'Close') + '</button>' : '') + '</div></footer>' + pow;
       if (!S.path) return '<footer class="ft">' + call + '</footer>' + pow;

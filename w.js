@@ -24,6 +24,8 @@
   var noIcon = s.getAttribute('data-icon') === 'none';
   // data-style="flat": a plain button that matches a site's own buttons (solid color, no gloss or glow); data-radius in px.
   var flat = s.getAttribute('data-style') === 'flat';
+  // data-powered="off": no "Powered by Dialbridge" line, under the button or inside the popup.
+  var noPow = s.getAttribute('data-powered') === 'off';
   var radius = Math.min(40, Math.max(0, parseInt(s.getAttribute('data-radius'), 10) || 0));
   var font = (s.getAttribute('data-font') || '').replace(/[^\w ]/g, '');   // a font the page already loads, e.g. Manrope
   var bubble = (s.getAttribute('data-bubble') || '').replace(/[<>&"]/g, '').slice(0, 80);
@@ -36,6 +38,7 @@
   // w.js?v=<release>: the popup page gets the same tag, so a normal refresh picks up a new release (no stale cached copy).
   var ver = (s.src.match(/[?&]v=([\w.-]+)/) || [])[1];
   if (ver) src += '&v=' + ver;
+  if (noPow) src += '&pw=0';
   // Traffic for the owner's dashboard (live businesses only). One 'visit' per page load of their site, sent to our
   // API without cookies or anything saved in the browser, so their visitors never see a consent box. The booking
   // form gets the same referrer and page, so it knows how this visitor found them (Google, Facebook, direct...).
@@ -134,7 +137,7 @@
     '<div class="w">' + (bubble ? '<div class="bwrap"><button type="button" class="bb" aria-haspopup="dialog">' + (avatar ? '<img src="' + avatar + '" alt="">' : '') + '<span>' + bubble + '</span></button>' +
       '<button type="button" class="bx" aria-label="Hide this message"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>' : '') +
     '<div class="row"><button type="button" class="go' + (noIcon ? ' ni' : '') + '" aria-haspopup="dialog">' + (noIcon ? '' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>') +
-    label.replace(/[<>&]/g, '') + '</button>' + (phone ? '<a class="call" href="tel:' + phone + '" aria-label="Call us"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg></a>' : '') + '</div><span class="pw"><i></i>Powered by Dialbridge</span></div>' +
+    label.replace(/[<>&]/g, '') + '</button>' + (phone ? '<a class="call" href="tel:' + phone + '" aria-label="Call us"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg></a>' : '') + '</div>' + (noPow ? '' : '<span class="pw"><i></i>Powered by Dialbridge</span>') + '</div>' +
     '<div class="ov" role="presentation"><div class="pn" role="dialog" aria-modal="true" aria-label="Book online"><div class="gr" aria-hidden="true"></div>' +
     '<div class="sk" aria-hidden="true"><i class="h"></i><i class="t"></i><i class="r"></i><i class="r"></i><i class="r"></i></div></div></div>';
 
