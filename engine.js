@@ -260,6 +260,7 @@
     function ownPrice(s) {
       var n = function (v) { return typeof v === 'number' && isFinite(v) && v >= 0 ? Math.round(v) : null; };
       if (s.pricing === 'fixed' && n(s.fixed) !== null) return { lo: n(s.fixed), hi: n(s.fixed) };
+      if (s.pricing === 'monthly' && n(s.fixed) !== null) return { lo: n(s.fixed), hi: n(s.fixed), month: true };
       if (s.pricing === 'from' && n(s.from) !== null) return { lo: n(s.from), hi: null };
       if (s.pricing === 'range' && s.range && n(s.range[0]) !== null && n(s.range[1]) !== null) return { lo: n(s.range[0]), hi: Math.max(n(s.range[0]), n(s.range[1])) };
       if (s.pricing === 'none') return { none: true };
@@ -268,7 +269,7 @@
     function priceText(lo, hi) { return hi === null ? 'From $' + lo : lo === hi ? '$' + lo : '$' + lo + ' to $' + hi; }
     function svcTag(s) {
       if (s.mode === 'estimate') return 'Free estimate';
-      var o = ownPrice(s); if (o) return o.none ? '' : priceText(o.lo, o.hi);
+      var o = ownPrice(s); if (o) return o.none ? '' : priceText(o.lo, o.hi) + (o.month ? '/month' : '');
       return s.fixed ? '$' + s.fixed : s.fee ? '$' + s.fee + ' visit' : s.heavy ? 'By weight' : '';
     }
     function priceInfo() {
@@ -287,8 +288,8 @@
       if (own.every(Boolean)) {
         if (own.some(function (x) { return x.none; })) return null;
         var L = own.reduce(function (a, x) { return a + x.lo; }, 0) + alo, open = own.some(function (x) { return x.hi === null; });
-        var H = open ? null : own.reduce(function (a, x) { return a + x.hi; }, 0) + ahi;
-        return { text: priceText(L, H), note: T.priceNote || 'Final price confirmed before we start.' };
+        var H = open ? null : own.reduce(function (a, x) { return a + x.hi; }, 0) + ahi, mo = own.every(function (x) { return x.month; });
+        return { text: priceText(L, H) + (mo ? '/month' : ''), note: mo ? 'Billed monthly. Final price confirmed before we start.' : T.priceNote || 'Final price confirmed before we start.' };
       }
       if (base > 0) { lo += base; hi += base; has = true; }
       if (!has) {
@@ -518,7 +519,7 @@
       }
       if (d.type === 'time') {
         h += '<div class="tabs"><button type="button" class="' + (S.tmode === 'first' ? 'on' : '') + '" data-act="tmode" data-v="first">First available</button><button type="button" class="' + (S.tmode === 'day' ? 'on' : '') + '" data-act="tmode" data-v="day">Pick a day</button></div>';
-        h += '<p class="meta">' + ic('globe') + ({ 'America/Chicago': 'Central', 'America/Denver': 'Mountain', 'America/Phoenix': 'Arizona', 'America/Los_Angeles': 'Pacific' }[B.tz] || 'Eastern') + ' Time. ' + (B.timeMode === 'slots' ? 'Pick a start time.' : (S.svc && S.svc.mode === 'book' ? 'Pick when we can arrive.' : 'Pick an arrival window; we text to confirm.')) + '</p>';
+        h += '<p class="meta">' + ic('globe') + ({ 'America/Chicago': 'Central', 'America/Denver': 'Mountain', 'America/Phoenix': 'Arizona', 'America/Los_Angeles': 'Pacific' }[B.tz] || 'Eastern') + ' Time. ' + (B.timeMode === 'slots' ? 'Pick a start time.' : (S.svc && S.svc.mode === 'book' ? 'Pick when we can arrive.' : 'Pick an arrival window. We confirm it with you.')) + '</p>';
         if (S.tmode === 'first') {
           h += '<div class="radios">' + firstAvailable().map(function (r) { var on = S.day === r.day.key && S.time === r.w.id; return '<button type="button" class="radio' + (on ? ' on' : '') + '" data-act="slot" data-d="' + esc(r.day.key) + '" data-v="' + esc(r.w.id) + '"><span class="rb"></span>' + dayLabel(r.day) + ', ' + r.w.label + '</button>'; }).join('') + '</div>';
         } else {
@@ -556,7 +557,7 @@
     function sideCopy() {
       var area = B.area && B.area !== 'your area' ? B.area : '';
       var first = [B.tagline || (T.trade + (area ? ' in ' + area : ', booked online')), T.sideLine || 'Tell us what you need, see your price and pick a time.'];
-      if (S.done) return ['You\'re all set', S.path === 'book' && S.svc && S.svc.mode === 'book' && S.time ? B.name + ' has you on the calendar. Watch for a reminder text from ' + B.phone + '.' : B.name + ' has your request. Watch for a text from ' + B.phone + '.'];
+      if (S.done) return ['You\'re all set', S.path === 'book' && S.svc && S.svc.mode === 'book' && S.time ? B.name + ' has you on the calendar and will reach out if anything changes.' : B.name + ' has your request and will reach out to confirm.'];
       var sc = curScreen(); if (!sc) return first;
       var t = stepDef(sc[0]).type;
       if (t === 'zip') return ['We come to you', area ? B.name + ' serves ' + area + '. Your ZIP tells us you\'re covered.' : 'Your ZIP tells us ' + B.name + ' covers your address.'];
@@ -581,7 +582,7 @@
           : B.logo ? '<span class="slogo' + (lightLogo() ? ' dark' : '') + '"><img src="' + esc(B.logo) + '" alt=""></span>' : '<span class="sname"><span class="smark">' + esc((B.name || 'B').trim().charAt(0).toUpperCase()) + '</span>' + esc(B.name) + '</span>') +
         '<div class="scopy"><h2>' + esc(c[0]) + '</h2><p>' + esc(c[1]) + '</p></div></div>' +
         '<div class="sinfo"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span>' +
-        '<span>Replies by text</span>' +
+        '<span>Book online in about a minute</span>' +
         (EDITB ? '<button type="button" class="slot slot-srate' + (B.rating ? ' has' : '') + '" data-edit="rating">' + (B.rating ? '<b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews<span class="sl-tip">Change</span>' : '<span class="sl-plus">+</span>Show your Google rating') + '</button>'
           : B.rating ? '<span><b class="stars">★</b> <b>' + esc(B.rating) + '</b> from ' + esc(B.reviews) + ' Google reviews</span>' : '') + '</div></div></aside>';
     }
@@ -608,18 +609,18 @@
         return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
       }).join('') + '</div>' +
         // Phones don't show the side panel, so its open-now and reply-time line goes under the options.
-        '<p class="mtrust"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span><span>Replies by text</span></p>';
+        '<p class="mtrust"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span><span>Book online in about a minute</span></p>';
     }
 
     function doneHtml() {
       var who = esc(S.name.trim().split(' ')[0] || 'there'), ph = esc(prettyPhone());
-      var title, text, foot = OPEN ? 'Expect a text soon.' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect a text after that.';
+      var title, text, foot = OPEN ? '' : 'The office opens at ' + fmt(mins(B.open)) + '. They\'ll get back to you after that.';
       var byCall = T.confirmBy === 'call', instant = S.path === 'book' && S.svc.mode === 'book' && !!S.time;
       if (S.path === 'book') {
         title = S.svc.mode === 'estimate' ? esc(T.estimateDone || 'Walkthrough requested') : instant ? 'You\'re booked' : 'Request sent';
         if (instant) foot = '';
-        text = instant ? esc(B.name) + ' will text ' + ph + ' a reminder before the visit. Need to change something? Just reply to the text.'
-          : byCall ? esc(B.name) + ' will call ' + ph + ' to confirm the time and details.' : esc(B.name) + ' will text ' + ph + ' to confirm. Need to change something? Just reply to the text.';
+        text = instant ? esc(B.name) + ' has you down. If anything changes, they\'ll reach out to you at ' + ph + '.'
+          : byCall ? esc(B.name) + ' will call you at ' + ph + ' to confirm the time and details.' : esc(B.name) + ' will reach out to you at ' + ph + ' to confirm the time.';
       }
       else if (S.path === 'quote') { title = 'Price request sent'; text = esc(B.name) + ' will text your price to ' + ph + '.'; foot = 'Photos usually get you an exact number instead of a range.'; }
       else if (S.path === 'text') { title = 'Message sent'; text = esc(B.name) + ' will reply to ' + ph + ' by text.'; }
