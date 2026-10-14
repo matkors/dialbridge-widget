@@ -1018,7 +1018,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
         <span class="tag">Already have a site you like</span>
         <h3 style="margin-top:16px">Booking Widget</h3>
         <div class="amt">$99<small>/month</small></div>
-        <div style="color:var(--mute);font-size:14px">Free for 14 days. Cancel anytime.</div>
+        <div style="color:var(--mute);font-size:14px">Free to set up. 14 days free once you go live.</div>
         <ul>
           <li><svg><use href="#chk"/></svg>Book online button on your current website</li>
           <li><svg><use href="#chk"/></svg>Your services, photos and price ranges</li>
@@ -1026,7 +1026,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           <li><svg><use href="#chk"/></svg>Every request in your inbox, with an email alert</li>
           <li><svg><use href="#chk"/></svg>Set it up yourself in about 10 minutes</li>
         </ul>
-        <a class="btn ghost" href="https://app.matviykorsunskiy.me/signup?plan=widget" data-signup="widget">Start my free trial <svg class="arw"><use href="#arw"/></svg></a>
+        <a class="btn ghost" href="https://app.matviykorsunskiy.me/signup?plan=widget" data-signup="widget">Start free <svg class="arw"><use href="#arw"/></svg></a>
       </div>
       <div class="plan main">
         <span class="tag">Most owners pick this</span>
@@ -1666,12 +1666,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'].forEach(function (k) { if (A[k]) q.set(k, A[k]); });
     if (A.fbc_at) q.set('fbc_at', A.fbc_at);
     var plan = a.getAttribute('data-signup'); if (plan) q.set('plan', plan);
-    // Checkout comes first now: open it right here in the popup (plan picker, or straight to that plan's checkout).
-    if (window.DialBridge && window.DialBridge.open) { e.preventDefault(); e.stopPropagation(); window.DialBridge.open(plan === 'widget' || plan === 'full' ? plan : 'plan'); return; }
+    // Account first (Oct 14): straight to sign-up with the plan they picked; they build free and add a card to go live.
     a.href = 'https://app.matviykorsunskiy.me/signup' + (q.toString() ? '?' + q.toString() : '');
   }, true);
 </script>
 <!-- Try it: our own start funnel (free trial, a demo call, or a message) in the same popup our customers' sites get -->
-<script async src="../w.js?v=20261014b" data-page="try.html" data-color="#f35427" data-label="Try it" data-icon="none" data-font="Manrope" data-bubble="Start free, or book a quick demo" data-avatar="../img/try-face.webp"></script>
+<script async src="../w.js?v=20261014c" data-page="try.html" data-color="#f35427" data-label="Try it" data-icon="none" data-font="Manrope" data-bubble="Start free, or book a quick demo" data-avatar="../img/try-face.webp"></script>
 </body>
 </html>

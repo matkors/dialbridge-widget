@@ -255,12 +255,12 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
 
   function screen() {
     if (cur === 'start') return '<h1>How do you want to start?</h1><p class="lede">Pick one. It takes about a minute.</p><div class="tiles three">' +
-      tile('trial', 'rocket', 'Start free trial', '14 days free on the Booking Widget', 'See plans') + tile('demo', 'cal', 'Book a demo', 'A free 20-minute call with us', 'Pick a time') + tile('msg', 'msg', 'Send a message', 'Questions, pricing or anything else', 'Write to us') + '</div>' +
+      tile('trial', 'rocket', 'Start free', 'Set up your booking page, free', 'See plans') + tile('demo', 'cal', 'Book a demo', 'A free 20-minute call with us', 'Pick a time') + tile('msg', 'msg', 'Send a message', 'Questions, pricing or anything else', 'Write to us') + '</div>' +
       '<p class="below">Already have an account? <a href="' + APP + 'login" target="_top">Log in</a></p>';
     if (cur === 'plan') return '<h1>Pick your plan</h1><p class="lede">Month to month. No setup fee.</p><div class="plans">' +
-      '<div class="plan"><span class="tag">Have a website you like</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">$0 today. 14 days free, then $99/month. Cancel anytime.</p><ul>' +
+      '<div class="plan"><span class="tag">Have a website you like</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">Free to set up. Your 14-day free trial starts when you go live, then $99/month. Cancel anytime.</p><ul>' +
         li('Book online button for your website') + li('Booking page for Google, Facebook and Instagram') + li('A text and an inbox entry for every booking') + li('Set it up yourself in about 10 minutes') +
-        '</ul><button class="btn full" type="button" data-buy="widget">Start free trial ' + I('arw') + '</button></div>' +
+        '</ul><button class="btn full" type="button" data-buy="widget">Start free ' + I('arw') + '</button></div>' +
       '<div class="plan main"><span class="tag">We build it for you</span><h3>Website + Reviews + Booking Widget</h3><div class="amt">$199<small> /month</small></div><p class="note">$0 today. Charged only after your website is built and live.</p><ul>' +
         li('A new website built to book jobs') + li('Automatic Google review requests') + li('Everything in Booking Widget') + li('We build it with you on a 30-minute call') +
         '</ul><button class="btn dark full" type="button" data-buy="full">Get started ' + I('arw') + '</button></div></div>';
@@ -451,7 +451,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     if (t.id === 'close' || t.hasAttribute('data-close')) { post('dbw:close'); return; }
     if (t.id === 'back') { back(); return; }
     if (t.hasAttribute('data-go')) { post('dbw:submit', { path: 'plan', plan: t.getAttribute('data-go') }); return; }
-    if (t.hasAttribute('data-buy')) { S.plan = t.getAttribute('data-buy'); post('dbw:submit', { path: 'plan', plan: S.plan }); go('checkout'); return; }
+    if (t.hasAttribute('data-buy')) { S.plan = t.getAttribute('data-buy'); post('dbw:submit', { path: 'plan', plan: S.plan }); toSignup(S.plan); return; }
     if (t.hasAttribute('data-path')) {
       var p = t.getAttribute('data-path'); e.preventDefault();
       if (p === 'demo' || p === 'website') { if (S.kind !== p) { S.kind = p; S.time = ''; } if (p === 'website') CallBook.prefetch('website'); }
@@ -484,11 +484,20 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') post('dbw:close'); });
 
+  // Account first (Oct 14): sign up free and build the page; the card and the free trial come when they go live.
+  function toSignup(plan) {
+    var A = {}; try { A = JSON.parse(localStorage.getItem('dbx_attr') || '{}'); } catch (x) { }
+    var q = new URLSearchParams();
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'].forEach(function (k) { if (A[k]) q.set(k, A[k]); });
+    if (A.fbc_at) q.set('fbc_at', A.fbc_at);
+    if (plan) q.set('plan', plan);
+    setTimeout(function () { window.top.location.href = APP + 'signup' + (q.toString() ? '?' + q.toString() : ''); }, 250);
+  }
   var st = params.get('start');
   if (st === 'plan') { S.path = ['start']; cur = 'plan'; }
   else if (st === 'demo') { S.path = ['start']; cur = 'interests'; }
   else if (st === 'message') { S.path = ['start']; cur = 'topic'; }
-  else if (st === 'widget' || st === 'full') { S.plan = st; S.path = ['start', 'plan']; cur = 'checkout'; }
+  else if (st === 'widget' || st === 'full') { S.plan = st; S.path = ['start', 'plan']; cur = 'plan'; toSignup(st); }
   render();
   post('dbw:ready', { light: true });
   CallBook.prefetch('demo');   // demo times load while they read the first screens
