@@ -26,6 +26,8 @@
   var flat = s.getAttribute('data-style') === 'flat';
   // data-powered="off": no "Powered by Dialbridge" line, under the button or inside the popup.
   var noPow = s.getAttribute('data-powered') === 'off';
+  // data-call="desktop": the round call button only on computers (phones get just Book online).
+  var callDesk = s.getAttribute('data-call') === 'desktop';
   var radius = Math.min(40, Math.max(0, parseInt(s.getAttribute('data-radius'), 10) || 0));
   var font = (s.getAttribute('data-font') || '').replace(/[^\w ]/g, '');   // a font the page already loads, e.g. Manrope
   var bubble = (s.getAttribute('data-bubble') || '').replace(/[<>&"]/g, '').slice(0, 80);
@@ -133,6 +135,7 @@
     (flat ? '.go,.call{background:' + color + ';border:0;box-shadow:0 8px 22px rgba(20,14,10,.28)}.go{border-radius:' + radius + 'px}.call{border-radius:' + radius + 'px;background:#fff;color:#1a1d21;box-shadow:0 0 0 1px rgba(20,14,10,.12),0 8px 22px rgba(20,14,10,.2)}' +
       '.go:hover,.call:hover{filter:brightness(.92);box-shadow:0 10px 26px rgba(20,14,10,.32)}.call:hover{filter:none;background:#f3efe8}' : '') +
     '.go,.call,.bb{touch-action:manipulation}' +
+    (callDesk ? '@media (max-width:640px){.call{display:none}}' : '') +
     '@media (hover:none){.go:hover,.call:hover,.bb:hover{transform:none;filter:none}.go:hover svg,.call:hover svg{transform:none}}' +
     '@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}' +
     '</style>' +
