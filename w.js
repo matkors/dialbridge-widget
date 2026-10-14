@@ -1,7 +1,7 @@
 /* Dialbridge widget loader. Install with one line:
    <script async src="https://matviykorsunskiy.me/dialbridge-widget/w.js" data-business="harbor-haul" data-color="#0E6650"></script>
    Optional: data-label="Book a pickup", data-position="left", data-config="<base64url>" (demo generator),
-   data-icon="none" (label only), data-bubble="Skip the call and book online" + data-avatar="<image url>" (a speech
+   data-icon="none" (label only), data-style="flat" + data-radius="4" (a plain button matching the site), data-bubble="Skip the call and book online" + data-avatar="<image url>" (a speech
    bubble above the button on desktop; closing it hides it until the next page load). Pages with their own bottom bar can lift the
    button: document.dispatchEvent(new CustomEvent('dialbridge:lift', { detail: { px: 70 } })).
    Inline mode for builders that block floating buttons: <div data-dialbridge-inline="harbor-haul"></div>
@@ -22,6 +22,9 @@
   var left = s.getAttribute('data-position') === 'left';
   var phone = (s.getAttribute('data-phone') || '').replace(/[^\d+]/g, '');   // optional: adds a round call button next to Book online
   var noIcon = s.getAttribute('data-icon') === 'none';
+  // data-style="flat": a plain button that matches a site's own buttons (solid color, no gloss or glow); data-radius in px.
+  var flat = s.getAttribute('data-style') === 'flat';
+  var radius = Math.min(40, Math.max(0, parseInt(s.getAttribute('data-radius'), 10) || 0));
   var font = (s.getAttribute('data-font') || '').replace(/[^\w ]/g, '');   // a font the page already loads, e.g. Manrope
   var bubble = (s.getAttribute('data-bubble') || '').replace(/[<>&"]/g, '').slice(0, 80);
   var avatar = (s.getAttribute('data-avatar') || '').replace(/["'()<>\s]/g, '');
@@ -124,6 +127,8 @@
     '.gr::before{content:"";width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.55)}' +
     '.pn.light .gr::before{background:#d3d7dc}' +
     '.w{bottom:calc(16px + var(--lift,0px));' + (left ? 'left' : 'right') + ':16px}.go{height:52px;font-size:16px;padding:0 22px 0 18px}.call{width:52px;height:52px}.pw{padding-' + (left ? 'left' : 'right') + ':' + (phone ? '62px' : '0') + '}}' +
+    (flat ? '.go,.call{background:' + color + ';border:0;box-shadow:0 8px 22px rgba(20,14,10,.28)}.go{border-radius:' + radius + 'px}.call{border-radius:' + radius + 'px;background:#fff;color:#1a1d21;box-shadow:0 0 0 1px rgba(20,14,10,.12),0 8px 22px rgba(20,14,10,.2)}' +
+      '.go:hover,.call:hover{filter:brightness(.92);box-shadow:0 10px 26px rgba(20,14,10,.32)}.call:hover{filter:none;background:#f3efe8}' : '') +
     '@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}' +
     '</style>' +
     '<div class="w">' + (bubble ? '<div class="bwrap"><button type="button" class="bb" aria-haspopup="dialog">' + (avatar ? '<img src="' + avatar + '" alt="">' : '') + '<span>' + bubble + '</span></button>' +

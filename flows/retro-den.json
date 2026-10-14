@@ -1,0 +1,154 @@
+{
+  "trade": "general",
+  "tradeLabel": "Lamp repair",
+  "name": "The Retro Den",
+  "phone": "(757) 451-9148",
+  "brand": "#d22b21",
+  "area": "Virginia Beach",
+  "zips": [],
+  "rating": "5.0",
+  "reviews": 205,
+  "open": "10:00",
+  "close": "18:00",
+  "days": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "tz": "America/New_York",
+  "tagline": "Lamp repair and restoration in Virginia Beach",
+  "images": {
+    "side": "https://matviykorsunskiy.me/dialbridge-widget/img/demo/retro-den/bench.webp",
+    "tile-book": "https://matviykorsunskiy.me/dialbridge-widget/img/demo/retro-den/r-antique.webp",
+    "tile-quote": "https://matviykorsunskiy.me/dialbridge-widget/img/demo/retro-den/r-table.webp"
+  },
+  "template": {
+    "trade": "Lamp repair",
+    "noun": "repair",
+    "sideLine": "Tell Tim what's wrong and pick a time to bring it in.",
+    "illustration": "clipboard",
+    "defaults": {
+      "open": "10:00",
+      "close": "18:00",
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "replyMins": 15,
+      "showPrices": false,
+      "timeMode": "window"
+    },
+    "tiles": {
+      "book": {
+        "title": "Book a repair",
+        "desc": "Tell Tim what's wrong and pick a time to bring it in.",
+        "icon": "wrench"
+      },
+      "quote": {
+        "title": "Send a photo for a price",
+        "desc": "The quickest way to a quote.",
+        "icon": "camera"
+      },
+      "text": {
+        "title": "Text Tim a question",
+        "desc": "He replies by text.",
+        "icon": "message-square-text"
+      },
+      "call": {
+        "title": "Call the shop",
+        "desc": "",
+        "icon": "phone"
+      }
+    },
+    "services": [
+      {
+        "id": "repair",
+        "label": "Lamp repair",
+        "hint": "Flickers, dead switch, cracked cord, loose socket",
+        "icon": "lamp",
+        "mode": "estimate"
+      },
+      {
+        "id": "antique",
+        "label": "Antique or heirloom",
+        "hint": "Restored with the original look kept",
+        "icon": "gem",
+        "mode": "estimate"
+      },
+      {
+        "id": "fixture",
+        "label": "Chandelier or hanging lamp",
+        "hint": "Swag lamps, chandeliers, big floor lamps",
+        "icon": "lamp-ceiling",
+        "mode": "estimate"
+      },
+      {
+        "id": "custom",
+        "label": "Turn something into a lamp",
+        "hint": "A vase, an instrument, a family piece",
+        "icon": "lightbulb",
+        "mode": "estimate"
+      }
+    ],
+    "flows": {
+      "book": [
+        "service",
+        "details",
+        "time",
+        "contact"
+      ],
+      "quote": [
+        "service",
+        "details",
+        "contact"
+      ]
+    },
+    "steps": {
+      "service": {
+        "type": "service",
+        "title": "What does your lamp need?"
+      },
+      "details": {
+        "type": "details",
+        "title": "Tell Tim about it",
+        "showIf": [
+          "estimate"
+        ],
+        "placeholder": "Brass table lamp from my grandmother. It flickers and the switch is loose.",
+        "photos": true
+      },
+      "time": {
+        "type": "time",
+        "title": "When can you bring it in?",
+        "estimateTitle": "When can you bring it in?"
+      },
+      "contact": {
+        "type": "contact",
+        "title": "Where should Tim text you?",
+        "askAddress": false
+      }
+    },
+    "estimateSubmit": "Send to Tim",
+    "estimateDone": "Sent to Tim"
+  },
+  "site": {
+    "mark": "R",
+    "illustration": "lamp",
+    "h1": "Lamp repair and one-of-a-kind lamps in Virginia Beach.",
+    "lede": "Rewiring, new sockets and switches, chandeliers, and custom lamps made from whatever you bring in. Send a photo and we reply with a price.",
+    "label": "Request a repair",
+    "strip": [
+      "Inside The Lazy Daisy, 4001 Virginia Beach Blvd, Unit B",
+      "Mon to Sat 10 to 6, Sun 11 to 5"
+    ]
+  }
+}
