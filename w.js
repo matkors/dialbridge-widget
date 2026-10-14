@@ -1,5 +1,7 @@
 /* Dialbridge widget loader. Install with one line:
    <script async src="https://matviykorsunskiy.me/dialbridge-widget/w.js" data-business="harbor-haul" data-color="#0E6650"></script>
+   Shows a bar along the bottom of the screen: Book online (and Call, when the business has a phone number).
+   data-style="float" (or "flat") keeps the older floating button in the corner instead.
    Optional: data-label="Book a pickup", data-position="left", data-config="<base64url>" (demo generator),
    data-icon="none" (label only), data-style="flat" + data-radius="4" (a plain button matching the site), data-bubble="Skip the call and book online" + data-avatar="<image url>" (a speech
    bubble above the button on desktop; closing it hides it until the next page load). Pages with their own bottom bar can lift the
@@ -24,7 +26,7 @@
   var noIcon = s.getAttribute('data-icon') === 'none';
   // data-style="flat": a plain button that matches a site's own buttons (solid color, no gloss or glow); data-radius in px.
   var flat = s.getAttribute('data-style') === 'flat';
-  // data-powered="off": no "Powered by Dialbridge" line, under the button or inside the popup.
+  // data-powered="off": no "Powered by Dialbridge" line inside the popup either (the button never shows one).
   var noPow = s.getAttribute('data-powered') === 'off';
   // data-call="desktop": the round call button only on computers (phones get just Book online).
   var callDesk = s.getAttribute('data-call') === 'desktop';
@@ -36,11 +38,15 @@
   var q = (cfg ? 'c=' + cfg : 'b=' + (slug || 'harbor-haul') + live);
   // data-page="try.html": open one of our own pages instead of a business's booking page (the Try it popup on our site).
   var page = (s.getAttribute('data-page') || '').replace(/[^a-z0-9.-]/g, '');
+  // The bottom bar is the default for a business. Our own Try it button (data-page) and data-style float/flat keep the corner button.
+  var bar = !page && !flat && s.getAttribute('data-style') !== 'float';
   var src = page ? base + page + '?embed=1' : base + 'book.html?embed=1&' + q;
   // w.js?v=<release>: the popup page gets the same tag, so a normal refresh picks up a new release (no stale cached copy).
   var ver = (s.src.match(/[?&]v=([\w.-]+)/) || [])[1];
   if (ver) src += '&v=' + ver;
   if (noPow) src += '&pw=0';
+  // Local testing only: a page on this computer can point the popup at a local API too (data-api).
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(s.getAttribute('data-api') || '')) src += '&api=' + encodeURIComponent(s.getAttribute('data-api'));
   // Traffic for the owner's dashboard (live businesses only). One 'visit' per page load of their site, sent to our
   // API without cookies or anything saved in the browser, so their visitors never see a consent box. The booking
   // form gets the same referrer and page, so it knows how this visitor found them (Google, Facebook, direct...).
@@ -66,6 +72,9 @@
     return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2] > 0.45 ? '#1A1D21' : '#FFFFFF';
   }
   var fg = onBrand(color);
+  function prettyPhone(p) { var d = String(p || '').replace(/\D/g, '').replace(/^1(?=\d{10}$)/, ''); return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : ''; }
+  var PHONE_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg>';
+  var CAL_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
 
   // Everything lives in one shadow root so the host site's CSS can't restyle it.
   var host = document.createElement('div');
@@ -135,14 +144,34 @@
     (flat ? '.go,.call{background:' + color + ';border:0;box-shadow:0 8px 22px rgba(20,14,10,.28)}.go{border-radius:' + radius + 'px}.call{border-radius:' + radius + 'px;background:#fff;color:#1a1d21;box-shadow:0 0 0 1px rgba(20,14,10,.12),0 8px 22px rgba(20,14,10,.2)}' +
       '.go:hover,.call:hover{filter:brightness(.92);box-shadow:0 10px 26px rgba(20,14,10,.32)}.call:hover{filter:none;background:#f3efe8}' : '') +
     '.go,.call,.bb{touch-action:manipulation}' +
+    // The bottom bar: full width, attached to the bottom edge. Phones: Call + Book online. Computers: the business
+    // name on the left, the number written out on the Call button (a computer can't dial it), Book online on the right.
+    (bar ? '[hidden]{display:none!important}' +
+      '.w.bar{left:0;right:0;bottom:var(--lift,0px);display:block;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid rgba(16,24,40,.08);box-shadow:0 -8px 28px rgba(16,24,40,.08)}' +
+      '.bi{display:flex;align-items:center;gap:10px;width:100%;max-width:1120px;margin:0 auto}' +
+      '.bt{display:none}' +
+      '.bar .go,.bar .bc{height:52px;border-radius:12px;font-family:inherit;font-size:16.5px;font-weight:650;line-height:1;letter-spacing:-.01em;touch-action:manipulation;-webkit-tap-highlight-color:transparent}' +
+      '.bar .go{flex:1;gap:10px;padding:0 20px;border:0;background:' + color + ';color:' + fg + ';box-shadow:inset 0 -2px 0 rgba(0,0,0,.12);transition:filter .15s,transform .15s}' +
+      '.bar .go:hover{transform:none;filter:brightness(1.07);box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}.bar .go:hover svg{transform:none}' +
+      '.bc{display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;padding:0 18px;border:1.5px solid #d6dadf;background:#fff;color:#1a1d21;text-decoration:none;transition:border-color .15s,background .15s}' +
+      '.bc:hover{border-color:#aeb4bb;background:#f7f8f9}.bc svg{color:' + color + '}' +
+      '.bar .go:active,.bc:active{transform:scale(.98)}' +
+      '.bar .go:focus-visible,.bc:focus-visible{outline:3px solid ' + color + ';outline-offset:3px}' +
+      '.bcn{display:none}' +
+      '@media (min-width:641px){.w.bar{padding:12px 24px}.bt{display:flex;flex-direction:column;gap:3px;min-width:0;margin-right:auto;color:#5d646d;font-size:14px;line-height:1.3}' +
+        '.bt b{color:#14171a;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bt b:empty{display:none}' +
+        '.bar .go{flex:0 0 auto;min-width:200px;padding:0 28px}.bcl{display:none}.bcn{display:inline}}' : '') +
     (callDesk ? '@media (max-width:640px){.call{display:none}}' : '') +
     '@media (hover:none){.go:hover,.call:hover,.bb:hover{transform:none;filter:none}.go:hover svg,.call:hover svg{transform:none}}' +
     '@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}' +
     '</style>' +
+    (bar ? '<div class="w bar"><div class="bi"><span class="bt"><b class="bn"></b><span>' + (bubble || 'Book online in about a minute') + '</span></span>' +
+      '<a class="bc" href="tel:' + phone + '"' + (phone ? '' : ' hidden') + '>' + PHONE_SVG + '<span class="bcl">Call</span><span class="bcn">' + prettyPhone(phone) + '</span></a>' +
+      '<button type="button" class="go" aria-haspopup="dialog">' + (noIcon ? '' : CAL_SVG) + label.replace(/[<>&]/g, '') + '</button></div></div>' :
     '<div class="w">' + (bubble ? '<div class="bwrap"><button type="button" class="bb" aria-haspopup="dialog">' + (avatar ? '<img src="' + avatar + '" alt="">' : '') + '<span>' + bubble + '</span></button>' +
       '<button type="button" class="bx" aria-label="Hide this message"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>' : '') +
     '<div class="row"><button type="button" class="go' + (noIcon ? ' ni' : '') + '" aria-haspopup="dialog">' + (noIcon ? '' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>') +
-    label.replace(/[<>&]/g, '') + '</button>' + (phone ? '<a class="call" href="tel:' + phone + '" aria-label="Call us"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg></a>' : '') + '</div>' + (noPow ? '' : '<span class="pw"><i></i>Powered by Dialbridge</span>') + '</div>' +
+    label.replace(/[<>&]/g, '') + '</button>' + (phone ? '<a class="call" href="tel:' + phone + '" aria-label="Call us"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.6 14.4l-2.2 2.2a14 14 0 0 1-6-6l2.2-2.2a1 1 0 0 0 .2-1.1L8.6 4.6a1 1 0 0 0-1.1-.6L4.9 4.6a1 1 0 0 0-.8 1C4.6 14 10 19.4 18.4 19.9a1 1 0 0 0 1-.8l.6-2.6a1 1 0 0 0-.6-1.1l-2.7-1.2a1 1 0 0 0-1.1.2z"/></svg></a>' : '') + '</div></div>') +
     '<div class="ov" role="presentation"><div class="pn" role="dialog" aria-modal="true" aria-label="Book online"><div class="gr" aria-hidden="true"></div>' +
     '<div class="sk" aria-hidden="true"><i class="h"></i><i class="t"></i><i class="r"></i><i class="r"></i><i class="r"></i></div></div></div>';
 
@@ -152,6 +181,19 @@
   // every time, so it never resumes something else and never disturbs the floating button's place.
   var home = null, task = null, cur = null, frame = null, isOpen = false, lastFocus = null, prefetched = false, wantH = 0, focusOn = false, closeT = null;
 
+  // The bar shows the business name and its Call button. A live business brings both from our API (public facts, any site).
+  if (bar && live && slug && !cfg) {
+    try {
+      var bapi = 'https://dialbridge-booking-api.dialbridge-booking-api.workers.dev';
+      if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(s.getAttribute('data-api') || '')) bapi = s.getAttribute('data-api');
+      fetch(bapi + '/v1/w/' + slug + '/button').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+        if (!j) return;
+        var bn = root.querySelector('.bn'); if (bn && j.name) bn.textContent = j.name;
+        var d = String(j.phone || '').replace(/[^\d+]/g, ''), bc = root.querySelector('.bc');
+        if (bc && d && !phone) { bc.href = 'tel:' + d; bc.querySelector('.bcn').textContent = prettyPhone(d); bc.hidden = false; }
+      }).catch(function () { });
+    } catch (e) { }
+  }
   function mobile() { return window.matchMedia('(max-width: 640px)').matches; }
   function prefetch() {
     if (prefetched) return; prefetched = true;
@@ -263,6 +305,8 @@
 
   function mount() {
     document.body.appendChild(host);
+    // Room at the end of their page, so the bar never covers the bottom of their footer.
+    if (bar) { var sp = document.createElement('div'); sp.setAttribute('data-dialbridge-space', ''); sp.setAttribute('aria-hidden', 'true'); sp.style.cssText = 'height:calc(76px + env(safe-area-inset-bottom, 0px))'; document.body.appendChild(sp); }
     Array.prototype.forEach.call(document.querySelectorAll('[data-dialbridge-inline]'), function (el) {
       var b = (el.getAttribute('data-dialbridge-inline') || slug).replace(/[^a-z0-9-]/g, '');
       var f = document.createElement('iframe');

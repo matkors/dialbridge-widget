@@ -104,8 +104,8 @@
       var T0 = build({ slug: c.slug, trade: c.trade, template: c.template, name: c.name, phone: prettyUs(c.phone), brand: c.brand, area: c.area || 'your area',
         zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false, templateOnly: c.setupDone === false,
         logo: c.logo || null, website: c.website || null, images: c.images || {}, rating: c.rating || null, reviews: c.reviews || null });
-      // Photos can't be sent through the API yet, so don't offer an upload we would drop (details and the truck step).
-      Object.keys(T0.steps).forEach(function (k) { if (T0.steps[k].type === 'details' || T0.steps[k].photos) T0.steps[k].photos = false; });
+      // Photos go to the API right after the booking (resized here first), so the details step always offers them.
+      Object.keys(T0.steps).forEach(function (k) { if (T0.steps[k].type === 'details') T0.steps[k].photos = true; });
       return T0;
     });
   }
@@ -177,7 +177,7 @@
     if (B.api) liveEvent('view');
 
     var S;
-    function fresh() { S = { path: null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', msg: '', cb: null, done: null }; }
+    function fresh() { S = { path: null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], files: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', msg: '', cb: null, done: null }; }
     fresh();
     // ?builder=1: the product page's widget builder (same origin) can try a color and an uploaded logo live.
     // An uploaded logo arrives as a data: image and is only ever shown in an <img>, never saved from here.
@@ -217,6 +217,7 @@
         var d = stepDef(id);
         if (d.forSvc && d.forSvc.length && !S.svcs.some(function (x) { return d.forSvc.indexOf(x) > -1; })) return false;
         if (d.type === 'service' && oneEst()) return false;   // the estimate option with one service: already picked
+        if (d.type === 'details' && S.path === 'quote') return true;   // "Send photos for a price": always the photo step
         if (!d.showIf) return true;
         if (!S.svc) return false;
         return d.showIf.indexOf(S.svc.mode) > -1;
@@ -278,6 +279,7 @@
       if (s.pricing === 'none') return { none: true };
       return null;
     }
+    function ownPriced() { var parts = S.svc ? (S.svc.parts || [S.svc]) : []; return parts.length > 0 && parts.every(function (x) { var p = ownPrice(x); return p && !p.none; }); }
     function priceText(lo, hi) { return hi === null ? 'From $' + lo : lo === hi ? '$' + lo : '$' + lo + ' to $' + hi; }
     function svcTag(s) {
       if (s.mode === 'estimate') return 'Free estimate';
@@ -287,10 +289,10 @@
     function priceInfo() {
       if (!B.showPrices || !S.svc) return null;
       if (S.svc.mode === 'estimate') return { text: 'Free estimate', note: 'Priced after a quick walkthrough' };
-      var lo = 0, hi = 0, has = false, m = S.svc.mult || 1, alo = 0, ahi = 0;
+      var lo = 0, hi = 0, has = false, m = S.svc.mult || 1, alo = 0, ahi = 0, clo = 0, chi = 0, xs = [];
       visible().forEach(function (id) {
         var d = stepDef(id);
-        if (d.type === 'choice') { var o = optOf(id); if (o && o.price) { lo += o.price[0]; hi += o.price[1]; has = true; } if (o && o.mult > 0) m *= o.mult; }
+        if (d.type === 'choice') { var o = optOf(id); if (o && o.price) { lo += o.price[0]; hi += o.price[1]; if (d.own) { clo += o.price[0]; chi += o.price[1]; xs.push((o.short || o.label) + ' +$' + (o.price[0] === o.price[1] ? o.price[0] : o.price[0] + '-' + o.price[1])); } has = true; } if (o && o.mult > 0) m *= o.mult; }
         if (d.type === 'qty' && d.rate > 0) { var q = qtyOf(d, S.ans[id]); if (q !== null) { lo += q * d.rate; hi += q * d.rate; has = true; } }
         if (d.type === 'addons') d.options.forEach(function (o) { if (S.addons[o.id] && o.add) { alo += o.add[0]; ahi += o.add[1]; } });
       });
@@ -299,9 +301,10 @@
       var own = (S.svc.parts || [S.svc]).map(ownPrice);
       if (own.every(Boolean)) {
         if (own.some(function (x) { return x.none; })) return null;
-        var L = own.reduce(function (a, x) { return a + x.lo; }, 0) + alo, open = own.some(function (x) { return x.hi === null; });
-        var H = open ? null : own.reduce(function (a, x) { return a + x.hi; }, 0) + ahi, mo = own.every(function (x) { return x.month; });
-        return { text: priceText(L, H) + (mo ? '/month' : ''), note: mo ? 'Billed monthly. Final price confirmed before we start.' : T.priceNote || 'Final price confirmed before we start.' };
+        // An answer with its own price ("Today, it's urgent" +$75) comes on top of the owner's price. Same as the server.
+        var L = own.reduce(function (a, x) { return a + x.lo; }, 0) + alo + clo, open = own.some(function (x) { return x.hi === null; });
+        var H = open ? null : own.reduce(function (a, x) { return a + x.hi; }, 0) + ahi + chi, mo = own.every(function (x) { return x.month; });
+        return { text: priceText(L, H) + (mo ? '/month' : ''), note: mo ? 'Billed monthly. Final price confirmed before we start.' : xs.length ? 'Includes ' + xs.join(', ') + '. Final price confirmed before we start.' : T.priceNote || 'Final price confirmed before we start.' };
       }
       if (base > 0) { lo += base; hi += base; has = true; }
       if (!has) {
@@ -332,10 +335,15 @@
     // A day with no open times shows as closed. Times come straight from /slots, so they can actually be booked.
     // Each service can take its own time: ask the API for open times that fit the picked ones.
     function svcKey() { if (S.svc && S.svc.mode === 'estimate') return ''; var ids = S.svcs.slice().sort(); return ids.some(function (id) { return (svcById(id) || {}).duration > 0; }) ? ids.join(',') : ''; }
-    function slotsUrl() { var k = svcKey(); return B.api + '/slots?days=14' + (k ? '&svc=' + encodeURIComponent(k) : ''); }
+    // A same-day answer ("Today, it's urgent", "Same day", "ASAP"): today's times count, with a short notice (the API's soon=1).
+    // Same words as the server (api/src/pricing.js isSoonOption); an owner can set sameDay on an answer either way.
+    var SOON_WORDS = /\b(same[ -]?day|today|asap|urgent|emergency)\b/i;
+    function soonOpt(o) { return !!o && (o.sameDay === true || (o.sameDay !== false && SOON_WORDS.test((o.short || '') + ' ' + (o.label || '')))); }
+    function soon() { return S.path === 'book' && visible().some(function (id) { return stepDef(id).type === 'choice' && soonOpt(optOf(id)); }); }
+    function slotsUrl() { var k = svcKey(); return B.api + '/slots?days=14' + (k ? '&svc=' + encodeURIComponent(k) : '') + (soon() ? '&soon=1' : ''); }
     function slotsFor() {
-      if (!B.api) return; var k = svcKey(); if ((B.slotKey || '') === k) return; B.slotKey = k;
-      getJSON(slotsUrl()).then(function (r) { if ((B.slotKey || '') !== k) return; B.apiSlots = r.slots || []; var sc = curScreen(); if (sc && sc.indexOf('time') > -1) render(); }).catch(function () { });
+      if (!B.api) return; var k = svcKey() + (soon() ? '|soon' : ''); if ((B.slotKey || '') === k) return; B.slotKey = k;
+      getJSON(slotsUrl()).then(function (r) { if ((B.slotKey || '') !== k) return; if (S.day && S.time && !(r.slots || []).some(function (x) { return x.start === S.time; })) S.time = null; B.apiSlots = r.slots || []; var sc = curScreen(); if (sc && sc.indexOf('time') > -1) render(); }).catch(function () { });
     }
     function liveDays() {
       var have = {}; B.apiSlots.forEach(function (s) { have[s.day] = 1; });
@@ -479,6 +487,7 @@
       var d = stepDef(id), h = '';
       var title = d.title || '';
       if (d.type === 'time' && S.svc && S.svc.mode === 'estimate') title = d.estimateTitle || title;
+      if (d.type === 'contact' && T.confirmBy === 'call') title = title.replace(/\btext you\b/i, 'call you');
       if (d.type === 'zip') {
         h += '<div class="center">' + pinArt() + '<h3>' + esc(title) + '</h3><p class="lede">Enter your ZIP code so we can check that ' + esc(B.name) + ' comes to you.</p></div>' +
           '<label class="fld narrow"><span>ZIP code <em>*</em></span><span class="inwrap"><input data-in="zip" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"><span class="ok" id="zok"' + (zipOk() ? '' : ' hidden') + '>' + ic('circle-check') + '</span></span></label>' +
@@ -500,9 +509,11 @@
         }).join('') + '</div>';
       }
       if (d.type === 'choice') {
-        var o = optOf(id);
+        var o = optOf(id), extra = B.showPrices && d.own && ownPriced();
         h += '<div class="chips' + (d.ui === 'list' ? ' col' : '') + '">' + d.options.map(function (x) {
-          return '<button type="button" class="chip' + (S.ans[id] === x.id ? ' on' : '') + '" data-act="opt" data-s="' + esc(id) + '" data-v="' + esc(x.id) + '">' + esc(d.ui === 'grid' ? x.label : (x.short && d.ui === 'truck' ? x.label : x.label)) + (x.badge ? '<span class="save">' + esc(x.badge) + '</span>' : '') + '</button>';
+          // On an owner-priced service an answer's price is an extra ("Today, it's urgent  +$75"), so it shows on the answer.
+          var add = extra && x.price && x.price[1] > 0 ? '<span class="amt">+$' + esc(x.price[0] === x.price[1] ? x.price[0] : x.price[0] + '-' + x.price[1]) + '</span>' : '';
+          return '<button type="button" class="chip' + (S.ans[id] === x.id ? ' on' : '') + (add ? ' priced' : '') + '" data-act="opt" data-s="' + esc(id) + '" data-v="' + esc(x.id) + '">' + esc(x.label) + add + (x.badge ? '<span class="save">' + esc(x.badge) + '</span>' : '') + '</button>';
         }).join('') + '</div>';
         if (o && o.urgent) h += '<div class="alert">' + ic('triangle-alert') + '<span>No heat or no cooling right now? Calling is fastest.</span><a href="tel:+1' + B.phoneDigits + '">Call now</a></div>';
         if (d.ui === 'truck' && o) {
@@ -536,6 +547,11 @@
       if (d.type === 'time') {
         h += '<div class="tabs"><button type="button" class="' + (S.tmode === 'first' ? 'on' : '') + '" data-act="tmode" data-v="first">First available</button><button type="button" class="' + (S.tmode === 'day' ? 'on' : '') + '" data-act="tmode" data-v="day">Pick a day</button></div>';
         h += '<p class="meta">' + ic('globe') + ({ 'America/Chicago': 'Central', 'America/Denver': 'Mountain', 'America/Phoenix': 'Arizona', 'America/Los_Angeles': 'Pacific' }[B.tz] || 'Eastern') + ' Time. ' + (B.timeMode === 'slots' ? 'Pick a start time.' : (S.svc && S.svc.mode === 'book' ? 'Pick when we can arrive.' : 'Pick an arrival window. We confirm it with you.')) + '</p>';
+        if (soon() && B.api) {
+          var d0 = dayList()[0];
+          h += d0 && d0.today && !d0.off ? '<p class="soonnote">' + ic('zap') + '<span><b>Same-day visit.</b> These are the times left today.</span></p>'
+            : '<p class="warn">No same-day times left today.' + (B.phoneDigits ? ' For something urgent, call <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a>.' : '') + ' Or pick the first time below.</p>';
+        }
         if (S.tmode === 'first') {
           h += '<div class="radios">' + firstAvailable().map(function (r) { var on = S.day === r.day.key && S.time === r.w.id; return '<button type="button" class="radio' + (on ? ' on' : '') + '" data-act="slot" data-d="' + esc(r.day.key) + '" data-v="' + esc(r.w.id) + '"><span class="rb"></span>' + dayLabel(r.day) + ', ' + r.w.label + '</button>'; }).join('') + '</div>';
         } else {
@@ -550,7 +566,7 @@
       }
       if (d.type === 'contact') {
         h += nameFields(1) + (d.askAddress ? '<label class="fld"><span>' + esc(d.addressLabel || 'Address of the job') + ' <em>*</em></span><input data-in="addr" autocomplete="street-address" placeholder="123 Main St" value="' + esc(S.addr) + '"></label>' : '') + (contactNeedsZip() ? '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>' : '') +
-          '<p class="fine">By sending, you agree that ' + esc(B.name) + ' may text you about this request. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>';
+          '<p class="fine">By sending, you agree that ' + esc(B.name) + ' may ' + (T.confirmBy === 'call' ? 'call or text' : 'text') + ' you about this request. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>';
       }
       if (d.type === 'message') {
         h += '<label class="fld"><span>Your question <em>*</em></span><textarea data-in="msg" rows="4" placeholder="Do you take old hot tubs?">' + esc(S.msg) + '</textarea></label>' + nameFields(2) +
@@ -614,6 +630,11 @@
       if (SP && !(mine && mine.length) && off.indexOf('quote') < 0) off.push('quote');
       var hidden = EDITT ? order.filter(function (k) { return off.indexOf(k) > -1 && T.tiles[k]; }) : [];
       order = order.filter(function (k) { return off.indexOf(k) < 0 && T.tiles[k]; });
+      // Calling isn't a form, so it isn't a tile: a slim row under the options, with the number written out
+      // (a computer can't dial, so people there need to see it).
+      var callOn = order.indexOf('call') > -1 && !!B.phoneDigits, callHidden = EDITT && hidden.indexOf('call') > -1;
+      order = order.filter(function (k) { return k !== 'call'; });
+      hidden = hidden.filter(function (k) { return k !== 'call'; });
       if (!order.length) order = ['book'];
       if (EDITT) order = order.concat(hidden);
       return (EDITB && !EDITT ? '<div class="next-note">The buttons customers tap come next</div>' : '') + '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
@@ -628,24 +649,33 @@
             '<span class="sl-drag" title="Drag to move">&#8942;&#8942;</span><span class="sl-edit">' + (isOff ? 'Hidden. Click to show' : 'Edit') + '</span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></div>';
         }
         return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
-      }).join('') + '</div>' +
+      }).join('') + '</div>' + callRow(callOn || callHidden, callHidden) +
         // Phones don't show the side panel, so its open-now and reply-time line goes under the options.
         '<p class="mtrust"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span><span>Book online in about a minute</span></p>';
     }
 
+    function callRow(show, hiddenInEditor) {
+      if (!show) return '';
+      var t = T.tiles.call || {}, title = t.custom && t.title ? t.title : OPEN ? 'Rather talk? Call us' : 'Get a call back';
+      var sub = OPEN ? esc(B.phone) + ' <span class="dot">·</span> Open until ' + fmt(mins(B.close)) : 'Closed now. Calls from ' + fmt(mins(B.open)) + '. ' + esc(B.phone);
+      var inner = ic(OPEN ? 'phone' : 'phone-incoming', 'cr-ic') + '<span class="cr-t"><b>' + esc(title) + '</b><small>' + sub + '</small></span>' + ic('chevron-right', 'cr-go');
+      if (EDITT) return '<div class="callrow slot slot-tile' + (hiddenInEditor ? ' off' : '') + '" data-edit="tile" data-k="call" role="button" tabindex="0">' + inner + '<span class="sl-edit">' + (hiddenInEditor ? 'Hidden. Click to show' : 'Edit') + '</span></div>';
+      return OPEN ? '<a class="callrow" href="tel:+1' + B.phoneDigits + '">' + inner + '</a>' : '<button type="button" class="callrow" data-act="start" data-v="call">' + inner + '</button>';
+    }
     function doneHtml() {
-      var who = esc(S.name.trim().split(' ')[0] || 'there'), ph = esc(prettyPhone());
-      var title, text, foot = OPEN ? '' : 'The office opens at ' + fmt(mins(B.open)) + '. They\'ll get back to you after that.';
-      var byCall = T.confirmBy === 'call', instant = S.path === 'book' && S.svc.mode === 'book' && !!S.time;
+      var who = esc(S.name.trim().split(' ')[0] || 'there'), ph = esc(prettyPhone()), biz = esc(B.name), bp = esc(B.phone);
+      // How they'll hear back: the owner's choice (call or text), from the business's own number when we have it.
+      var byCall = T.confirmBy === 'call', instant = S.path === 'book' && S.svc && S.svc.mode === 'book' && !!S.time;
+      var title, text, how = null, foot = OPEN || instant ? '' : 'The office opens at ' + fmt(mins(B.open)) + '. Expect to hear back after that.';
       if (S.path === 'book') {
         title = S.svc.mode === 'estimate' ? esc(T.estimateDone || 'Walkthrough requested') : instant ? 'You\'re booked' : 'Request sent';
-        if (instant) foot = '';
-        text = instant ? esc(B.name) + ' has you down. If anything changes, they\'ll reach out to you at ' + ph + '.'
-          : byCall ? esc(B.name) + ' will call you at ' + ph + ' to confirm the time and details.' : esc(B.name) + ' will reach out to you at ' + ph + ' to confirm the time.';
+        text = instant ? biz + ' has you down' + (whenText() ? ' for ' + esc(whenText()) : '') + '.'
+          : biz + ' will ' + (byCall ? 'call' : 'text') + ' you to confirm the time.';
+        how = instant ? ['message-square-text', 'If anything changes, they\'ll text you'] : byCall ? ['phone-incoming', 'They\'ll call you'] : ['message-square-text', 'They\'ll text you'];
       }
-      else if (S.path === 'quote') { title = 'Price request sent'; text = esc(B.name) + ' will text your price to ' + ph + '.'; foot = 'Photos usually get you an exact number instead of a range.'; }
-      else if (S.path === 'text') { title = 'Message sent'; text = esc(B.name) + ' will reply to ' + ph + ' by text.'; }
-      else { title = 'Call back requested'; text = esc(B.name) + ' will call ' + ph + ' ' + esc((S.cb || 'soon').toLowerCase()) + '.'; foot = 'Save ' + esc(B.phone) + ' so you know it is them.'; }
+      else if (S.path === 'quote') { title = 'Price request sent'; text = biz + ' will look it over and send you a price.'; how = byCall ? ['phone-incoming', 'They\'ll call you'] : ['message-square-text', 'Your price comes by text']; }
+      else if (S.path === 'text') { title = 'Message sent'; text = 'Your question went straight to ' + biz + '.'; how = ['message-square-text', 'The reply comes by text']; }
+      else { title = 'Call back requested'; text = biz + ' will call you ' + esc((S.cb || 'soon').toLowerCase()) + '.'; how = ['phone-incoming', 'They\'ll call you']; }
       var rows = [];
       if (S.svc) rows.push([S.svcs.length > 1 ? 'Items' : 'Service', S.svc.label]);
       visible().forEach(function (id) { var dd = stepDef(id); if (dd.type === 'choice') { var o = optOf(id); if (o) rows.push([dd.sum || dd.title, o.short || o.label]); }
@@ -654,12 +684,17 @@
       var extras = T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [];
       if (extras.length) rows.push(['Extras', extras.join(', ')]);
       if (S.details.trim()) rows.push(['Details', S.details.trim().length > 70 ? S.details.trim().slice(0, 67) + '...' : S.details.trim()]);
-      if (S.photos.length) rows.push(['Photos', S.photos.length + ' attached']);
+      if (S.photos.length) rows.push(['Photos', S.done.photosSent === false ? 'Could not be sent' : S.photos.length + ' sent']);
       if (whenText()) rows.push(['When', whenText()]);
-      var p = priceInfo(); if (p && (S.path === 'book' || S.path === 'quote')) rows.push(['Estimate', p.text]);
-      var h = '<div class="donehd"><span class="okc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="draw" pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><h3>' + title + ', ' + who + '</h3><p class="lede">' + text + '</p></div></div>';
-      if (rows.length) h += '<dl class="receipt"><div class="rh"><span>' + (instant ? 'Booking' : 'Request') + ' #' + esc(S.done.id) + '</span><span>' + (instant ? 'Confirmed' : 'Waiting for confirmation') + '</span></div>' + rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
-      return h + (foot ? '<p class="meta">' + foot + '</p>' : '');
+      var p = priceInfo(); if (p && (S.path === 'book' || S.path === 'quote')) rows.push(['Price', p.text]);
+      if (ph) rows.push(['Your phone', ph]);
+      var h = '<div class="donehd"><span class="okc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="draw" pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>' +
+        '<h3>' + title + ', ' + who + '</h3><p class="lede">' + text + '</p></div>';
+      // The number they'll hear from, so a call or text from it isn't ignored as spam.
+      if (how) h += '<div class="from">' + ic(how[0], 'from-ic') + '<div><b>' + how[1] + (bp ? ' from <span class="fnum">' + bp + '</span>' : '') + '</b>' +
+        '<span>' + (bp ? 'Save it so you know it\'s ' + biz + '.' : 'Keep your phone close.') + '</span></div></div>';
+      if (rows.length) h += '<dl class="receipt"><div class="rh"><span>' + (instant ? 'Booking' : 'Request') + ' #' + esc(S.done.id) + '</span><span class="rstate' + (instant ? ' ok' : '') + '">' + (instant ? 'Confirmed' : 'Waiting to confirm') + '</span></div>' + rows.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>';
+      return h + (foot ? '<p class="meta done-foot">' + foot + '</p>' : '');
     }
 
     function bodyHtml() {
@@ -678,12 +713,12 @@
     }
 
     function footHtml() {
-      var call = '<a class="callus" href="tel:+1' + B.phoneDigits + '">' + ic('phone') + 'Call us</a>';
+      var call = B.phoneDigits ? '<a class="callus" href="tel:+1' + B.phoneDigits + '" aria-label="Call ' + esc(B.phone) + '">' + ic('phone') + '<span class="cu-w">Call</span><span class="cu-n">' + esc(B.phone) + '</span></a>' : '<span></span>';
       // The Demo tag only shows on a standalone demo link; previews inside our own pages leave it out.
       var pow = params.get('pw') === '0' ? '' : '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by Dialbridge</a>' + (B.demo && window.top === window.self ? '<span class="demo" title="Demo: requests are not sent anywhere">Demo</span>' : '') + '</div>';
       // Booked: no "start over". On their own site the popup closes; on the booking link it goes back to their website.
       if (S.done) return '<footer class="ft"><span></span><div class="ft-r">' + (CLOSABLE ? '<button type="button" class="btn" data-act="close">' + (VIA === 'hosted' && B.website ? 'Back to ' + esc(B.name) : 'Close') + '</button>' : '') + '</div></footer>' + pow;
-      if (!S.path) return '<footer class="ft">' + call + '</footer>' + pow;
+      if (!S.path) return pow;
       var sc = curScreen(), last = S.idx === screens().length - 1, t = stepDef(sc[0]).type;
       var label = 'Continue';
       if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? esc(T.estimateSubmit || 'Book my free estimate') : 'Send booking request') : 'Send price request';
@@ -814,7 +849,7 @@
         details: S.details.trim() || undefined, message: notes.join('\n') || undefined,
         start: timed ? S.time : undefined,
         source: VIA === 'site' ? 'website' : 'booking page', test: params.get('test') === '1' || undefined, page: PG.slice(0, 300), ref: REF.slice(0, 300), pg: PG.slice(0, 300),
-        idempotencyKey: reqId, company_fax: hp ? hp.value : undefined, elapsed: Date.now() - LOAD_AT
+        idempotencyKey: reqId, company_fax: hp ? hp.value : undefined, elapsed: Date.now() - LOAD_AT, photos: S.files.length || undefined
       };
     }
     function sendLive(reqId, ok) {
@@ -833,7 +868,12 @@
         .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
         .then(function (x) {
           clearTimeout(timer);
-          if (x.ok) { booked = true; liveEvent('submit'); return ok(x.j.booking && x.j.booking.ref); }
+          if (x.ok) {
+            booked = true; liveEvent('submit');
+            var ref = x.j.booking && x.j.booking.ref;
+            if (x.j.photoKey && x.j.booking && S.files.length) return sendPhotos(x.j.booking.id, x.j.photoKey, btn).then(function (all) { PHOTOS_OK = all; ok(ref); });
+            return ok(ref);
+          }
           if (x.status === 409) {
             // Someone took that time a moment ago: reload real times and send them back to pick again.
             S.time = null;
@@ -853,10 +893,43 @@
         })
         .catch(function () { clearTimeout(timer); fail('That did not go through. Check your connection and try again.'); });
     }
+    // Job photos: each one shrunk here (longest side 1600 px, JPEG, under ~290 KB), then sent one at a time with the
+    // one-time key the booking answer gave us. The booking is already saved, so a failed photo never loses it.
+    var PHOTOS_OK;
+    function shrink(file) {
+      return new Promise(function (res, rej) {
+        var img = new Image(), u = URL.createObjectURL(file);
+        img.onload = function () {
+          var scale = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight)), q = .82, out = '';
+          for (var i = 0; i < 6; i++) {
+            var c = document.createElement('canvas');
+            c.width = Math.max(1, Math.round(img.naturalWidth * scale)); c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+            var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+            out = c.toDataURL('image/jpeg', q);
+            if (out.length * .75 < 290 * 1024) break;
+            if (q > .55) q -= .12; else scale *= .75;
+          }
+          URL.revokeObjectURL(u); res(out);
+        };
+        img.onerror = function () { URL.revokeObjectURL(u); rej(new Error('image')); };
+        img.src = u;
+      });
+    }
+    function sendPhotos(id, key, btn) {
+      var all = true, n = S.files.length;
+      return S.files.reduce(function (chain, f, i) {
+        return chain.then(function () {
+          if (btn) btn.innerHTML = '<span class="spin" aria-hidden="true"></span>Sending photo ' + (i + 1) + ' of ' + n;
+          return shrink(f).then(function (data) {
+            return fetch(B.api + '/bookings/' + encodeURIComponent(id) + '/photos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: key, image: data }) });
+          }).then(function (r) { if (!r.ok) all = false; }).catch(function () { all = false; });
+        });
+      }, Promise.resolve()).then(function () { return all; });
+    }
     function finish() {
       var reqId =(B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000);
       var done = function () {
-        S.done = { id: reqId }; NAV = 'done'; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id });
+        S.done = { id: reqId, photosSent: PHOTOS_OK }; NAV = 'done'; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id });
         // Demo only: hand the booking to the Dialbridge dashboard demo on the same site, so it shows up in the owner inbox.
         if (B.demo) { try { var q = JSON.parse(localStorage.getItem('dbx_inbox_queue') || '[]'); q.push(payload(reqId)); localStorage.setItem('dbx_inbox_queue', JSON.stringify(q.slice(-20))); } catch (e) { } }
         render();
@@ -923,7 +996,7 @@
         JUST = sel('svc');
         render(T.multiService ? 'service' : nextBlockAfter('service'));
       }
-      else if (act === 'opt') { var sid = el.getAttribute('data-s'); var first = !S.ans[sid]; S.ans[sid] = v; JUST = sel('opt') + '[data-s="' + sid + '"]'; render(first ? nextBlockAfter(sid) || sid : sid); }
+      else if (act === 'opt') { var sid = el.getAttribute('data-s'); var first = !S.ans[sid]; S.ans[sid] = v; slotsFor(); JUST = sel('opt') + '[data-s="' + sid + '"]'; render(first ? nextBlockAfter(sid) || sid : sid); }
       else if (act === 'addon') { S.addons[v] = !S.addons[v]; JUST = sel('addon'); render('addons'); }
       else if (act === 'tmode') { S.tmode = v; render(); }
       else if (act === 'day') { S.day = v; S.time = null; JUST = sel('day'); render(); }
@@ -951,7 +1024,8 @@
     });
     app.addEventListener('change', function (e) {
       if (e.target.id !== 'ph') return;
-      Array.prototype.slice.call(e.target.files || [], 0, 10 - S.photos.length).forEach(function (f) { S.photos.push(URL.createObjectURL(f)); });
+      Array.prototype.slice.call(e.target.files || [], 0, 5 - S.photos.length).filter(function (f) { return /^image\//.test(f.type || 'image/'); }).forEach(function (f) { S.photos.push(URL.createObjectURL(f)); S.files.push(f); });
+      e.target.value = '';
       render();
     });
     app.addEventListener('focusin', function (e) { if (e.target.matches('input,textarea')) post('dbw:focus', { on: true }); });
