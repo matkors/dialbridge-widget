@@ -132,6 +132,8 @@
     '.w{bottom:calc(16px + var(--lift,0px));' + (left ? 'left' : 'right') + ':16px}.go{height:52px;font-size:16px;padding:0 22px 0 18px}.call{width:52px;height:52px}.pw{padding-' + (left ? 'left' : 'right') + ':' + (phone ? '62px' : '0') + '}}' +
     (flat ? '.go,.call{background:' + color + ';border:0;box-shadow:0 8px 22px rgba(20,14,10,.28)}.go{border-radius:' + radius + 'px}.call{border-radius:' + radius + 'px;background:#fff;color:#1a1d21;box-shadow:0 0 0 1px rgba(20,14,10,.12),0 8px 22px rgba(20,14,10,.2)}' +
       '.go:hover,.call:hover{filter:brightness(.92);box-shadow:0 10px 26px rgba(20,14,10,.32)}.call:hover{filter:none;background:#f3efe8}' : '') +
+    '.go,.call,.bb{touch-action:manipulation}' +
+    '@media (hover:none){.go:hover,.call:hover,.bb:hover{transform:none;filter:none}.go:hover svg,.call:hover svg{transform:none}}' +
     '@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}' +
     '</style>' +
     '<div class="w">' + (bubble ? '<div class="bwrap"><button type="button" class="bb" aria-haspopup="dialog">' + (avatar ? '<img src="' + avatar + '" alt="">' : '') + '<span>' + bubble + '</span></button>' +
@@ -251,7 +253,8 @@
   // Closing the bubble hides it on this page view only; it comes back on the next visit.
   if (bx) bx.addEventListener('click', function () { root.querySelector('.bwrap').classList.add('gone'); });
   document.addEventListener('dialbridge:lift', function (e) { var d = e.detail || {}, px = +d.px; wrap.style.setProperty('--lift', (px > 0 ? Math.min(px, 200) : 0) + 'px'); wrap.classList.toggle('hid', d.hide === true); });
-  btn.addEventListener('mouseenter', prefetch);
+  var mouse = window.matchMedia && matchMedia('(hover: hover)').matches;
+  if (mouse) btn.addEventListener('mouseenter', prefetch);
   btn.addEventListener('touchstart', prefetch, { passive: true });
   setTimeout(prefetch, 3000);
 
