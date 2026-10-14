@@ -37,6 +37,9 @@ button,input,select{font-family:inherit;color:inherit}
 .links{display:flex;gap:4px;font-size:15px;font-weight:500}
 .links a{text-decoration:none;color:var(--ink2);padding:7px 12px;border-radius:8px;transition:background-color .15s,color .15s}
 .links a:hover{background:rgba(32,37,31,.06);color:var(--ink)}
+.nav-r{display:flex;align-items:center;gap:8px}
+.nav-login{text-decoration:none;color:var(--ink2);font-size:15px;font-weight:600;padding:7px 12px;border-radius:8px;transition:background-color .15s,color .15s}
+.nav-login:hover{background:rgba(32,37,31,.06);color:var(--ink)}
 
 /* buttons: the arrow's line draws in and its head slides on hover */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px 0 22px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:600 15.5px/1 Manrope,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(32,37,31,.16),inset 0 1px 0 rgba(255,255,255,.2);transition:background-color .15s,transform .12s var(--ease)}
@@ -662,7 +665,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .fban p{margin:2px 0 0}
 }
 /* phones: centered logo, full-width plan buttons */
-@media (max-width:640px){ .nav .wrap{justify-content:center} .plan .btn{display:flex;width:100%;justify-content:center;height:54px;font-size:16.5px} }
+@media (max-width:640px){ .nav .wrap{justify-content:space-between} .plan .btn{display:flex;width:100%;justify-content:center;height:54px;font-size:16.5px} }
 /* hero side cards (wide screens only): a 10:42 PM booking text and the booking card it came from */
 .hfl{display:none}
 .quick.solo .btn.ghost{display:none}
@@ -760,7 +763,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   <div class="wrap">
     <a class="logo" href="#">dialbridge<span>.</span>ai</a>
     <nav class="links" aria-label="Sections"><a href="#demo">How it works</a><a href="#google">Google</a><a href="#texts">Reminders</a><a href="#reviews">Reviews</a><a href="#dashboard">Dashboard</a><a href="#pricing">Pricing</a></nav>
-    <a class="btn dark sm" href="https://app.matviykorsunskiy.me/signup" data-signup>Build my booking page <svg class="arw"><use href="#arw"/></svg></a>
+    <div class="nav-r"><a class="nav-login" href="https://app.matviykorsunskiy.me/login">Log in</a><a class="btn dark sm" href="https://app.matviykorsunskiy.me/signup" data-signup>Build my booking page <svg class="arw"><use href="#arw"/></svg></a></div>
   </div>
 </header>
 
