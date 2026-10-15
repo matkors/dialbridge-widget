@@ -1,6 +1,556 @@
 /* Trade templates. A business = one template + its own overrides (name, color, phone, hours, area, prices).
    Steps are shown or skipped with showIf against the chosen service's mode: book | request | estimate. */
 window.DBW_TEMPLATES = {
+  // Pre-built niche (Oct 15): carpet, upholstery, rugs, tile and grout, dryer vents. Same engine as exterior.
+  carpet: {
+    "preset": true,
+    "trade": "Carpet and upholstery cleaning",
+    "noun": "cleaning",
+    "priceNote": "Based on what you told us. Final price confirmed on arrival, before we start.",
+    "illustration": "clipboard",
+    "defaults": {
+      "open": "08:00",
+      "close": "18:00",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "replyMins": 15,
+      "showPrices": true,
+      "timeMode": "windows"
+    },
+    "tiles": {
+      "book": {
+        "title": "See my price and book",
+        "desc": "Carpet, upholstery, rugs, tile, dryer vents",
+        "icon": "clipboard-list",
+        "custom": true
+      },
+      "quote": {
+        "title": "Send photos for a quote",
+        "desc": "Commercial, water damage, big jobs",
+        "icon": "camera",
+        "custom": true
+      },
+      "text": {
+        "title": "Text a question",
+        "desc": "Replies come by text.",
+        "icon": "message-square-text",
+        "custom": true
+      },
+      "call": {
+        "title": "Call us",
+        "desc": "",
+        "icon": "phone"
+      },
+      "order": [
+        "book",
+        "quote",
+        "text",
+        "call"
+      ],
+      "off": []
+    },
+    "svcSet": true,
+    "multiService": false,
+    "services": [
+      {
+        "id": "visit",
+        "label": "Free estimate visit",
+        "hint": "We come out, look at the job and give you a price",
+        "icon": "wrench",
+        "mode": "estimate",
+        "custom": true,
+        "pricing": "none",
+        "visit": true
+      },
+      {
+        "id": "rooms",
+        "label": "Carpet cleaning",
+        "hint": "Hot water extraction. Up to 2 rooms included.",
+        "icon": "layout-grid",
+        "mode": "book",
+        "custom": true,
+        "duration": 120,
+        "pricing": "fixed",
+        "fixed": 129
+      },
+      {
+        "id": "upholstery",
+        "label": "Upholstery cleaning",
+        "hint": "Sofas, sectionals, chairs and loveseats",
+        "icon": "sofa",
+        "mode": "book",
+        "custom": true,
+        "duration": 90,
+        "pricing": "fixed",
+        "fixed": 99
+      },
+      {
+        "id": "stairs",
+        "label": "Stairs only",
+        "hint": "One flight, landing included",
+        "icon": "footprints",
+        "mode": "book",
+        "custom": true,
+        "duration": 45,
+        "pricing": "fixed",
+        "fixed": 79
+      },
+      {
+        "id": "rugs",
+        "label": "Area rug cleaning",
+        "hint": "Cleaned on site, both sides",
+        "icon": "rectangle-horizontal",
+        "mode": "book",
+        "custom": true,
+        "duration": 45,
+        "pricing": "fixed",
+        "fixed": 59
+      },
+      {
+        "id": "tile",
+        "label": "Tile and grout",
+        "hint": "Scrubbed, steamed, sealer optional",
+        "icon": "grid-3x3",
+        "mode": "book",
+        "custom": true,
+        "duration": 120,
+        "pricing": "fixed",
+        "fixed": 149
+      },
+      {
+        "id": "dryer",
+        "label": "Dryer vent cleaning",
+        "hint": "Lint cleared from dryer to outside",
+        "icon": "wind",
+        "mode": "book",
+        "custom": true,
+        "duration": 60,
+        "pricing": "fixed",
+        "fixed": 139
+      },
+      {
+        "id": "commercial",
+        "label": "Commercial carpet",
+        "hint": "Offices, stores and rentals",
+        "icon": "building-2",
+        "mode": "estimate",
+        "custom": true,
+        "duration": 60,
+        "pricing": "none"
+      }
+    ],
+    "flows": {
+      "book": [
+        "zip",
+        "service",
+        "details",
+        "qrooms",
+        "qstairs",
+        "qfurn",
+        "qrug",
+        "qtile",
+        "qvent",
+        "qpet",
+        "addons",
+        "time",
+        "contact"
+      ],
+      "quote": [
+        "zip",
+        "details",
+        "qrooms",
+        "qstairs",
+        "qfurn",
+        "qrug",
+        "qtile",
+        "qvent",
+        "qpet",
+        "addons",
+        "contact"
+      ]
+    },
+    "steps": {
+      "zip": {
+        "type": "zip",
+        "title": "Where is the job?"
+      },
+      "service": {
+        "type": "service",
+        "title": "What do you need?"
+      },
+      "details": {
+        "type": "details",
+        "title": "Tell us about it",
+        "showIf": [
+          "estimate"
+        ],
+        "placeholder": "What needs doing, roughly how big, and anything we should know",
+        "photos": true
+      },
+      "time": {
+        "type": "time",
+        "title": "When works for you?",
+        "estimateTitle": "When would you like us to come by?"
+      },
+      "contact": {
+        "type": "contact",
+        "title": "Where should we text you?",
+        "askAddress": true
+      },
+      "qrooms": {
+        "type": "choice",
+        "title": "How many rooms?",
+        "own": true,
+        "sum": "Rooms",
+        "forSvc": [
+          "rooms"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "c0",
+            "label": "1 or 2 rooms",
+            "price": [
+              0,
+              0
+            ],
+            "short": "1-2 rooms"
+          },
+          {
+            "id": "c1",
+            "label": "3 rooms",
+            "price": [
+              45,
+              45
+            ]
+          },
+          {
+            "id": "c2",
+            "label": "4 rooms",
+            "price": [
+              90,
+              90
+            ]
+          },
+          {
+            "id": "c3",
+            "label": "5 rooms",
+            "price": [
+              135,
+              135
+            ]
+          },
+          {
+            "id": "c4",
+            "label": "6 or more",
+            "price": [
+              190,
+              190
+            ],
+            "short": "6+ rooms"
+          }
+        ]
+      },
+      "qstairs": {
+        "type": "choice",
+        "title": "Any stairs too?",
+        "own": true,
+        "sum": "Stairs",
+        "forSvc": [
+          "rooms"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "c5",
+            "label": "No stairs",
+            "price": [
+              0,
+              0
+            ]
+          },
+          {
+            "id": "c6",
+            "label": "1 flight",
+            "price": [
+              49,
+              49
+            ]
+          },
+          {
+            "id": "c7",
+            "label": "2 flights",
+            "price": [
+              98,
+              98
+            ]
+          }
+        ]
+      },
+      "qfurn": {
+        "type": "choice",
+        "title": "What needs cleaning?",
+        "own": true,
+        "sum": "Furniture",
+        "forSvc": [
+          "upholstery"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "c8",
+            "label": "A chair or loveseat",
+            "price": [
+              0,
+              0
+            ],
+            "short": "Chair or loveseat"
+          },
+          {
+            "id": "c9",
+            "label": "A sofa",
+            "price": [
+              40,
+              40
+            ],
+            "short": "Sofa"
+          },
+          {
+            "id": "ca",
+            "label": "A sectional",
+            "price": [
+              120,
+              120
+            ],
+            "short": "Sectional"
+          },
+          {
+            "id": "cb",
+            "label": "Several pieces",
+            "price": [
+              180,
+              180
+            ]
+          }
+        ]
+      },
+      "qrug": {
+        "type": "choice",
+        "title": "How big is the rug?",
+        "own": true,
+        "sum": "Rug size",
+        "forSvc": [
+          "rugs"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "cc",
+            "label": "Small (under 5x8)",
+            "price": [
+              0,
+              0
+            ],
+            "short": "Small rug"
+          },
+          {
+            "id": "cd",
+            "label": "Medium (5x8 to 8x10)",
+            "price": [
+              40,
+              40
+            ],
+            "short": "Medium rug"
+          },
+          {
+            "id": "ce",
+            "label": "Large (over 8x10)",
+            "price": [
+              90,
+              90
+            ],
+            "short": "Large rug"
+          }
+        ]
+      },
+      "qtile": {
+        "type": "choice",
+        "title": "About how big is the area?",
+        "own": true,
+        "sum": "Area",
+        "forSvc": [
+          "tile"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "cf",
+            "label": "A kitchen or bathroom",
+            "price": [
+              0,
+              0
+            ],
+            "short": "Kitchen or bath"
+          },
+          {
+            "id": "cg",
+            "label": "A few rooms (300 to 600 sq ft)",
+            "price": [
+              90,
+              90
+            ],
+            "short": "300-600 sq ft"
+          },
+          {
+            "id": "ch",
+            "label": "Most of the floor (600+ sq ft)",
+            "price": [
+              190,
+              190
+            ],
+            "short": "600+ sq ft"
+          }
+        ]
+      },
+      "qvent": {
+        "type": "choice",
+        "title": "Where does the vent come out?",
+        "own": true,
+        "sum": "Vent",
+        "forSvc": [
+          "dryer"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "ci",
+            "label": "A wall on the first floor",
+            "price": [
+              0,
+              0
+            ],
+            "short": "First floor wall"
+          },
+          {
+            "id": "cj",
+            "label": "A wall on the second floor",
+            "price": [
+              40,
+              40
+            ],
+            "short": "Second floor wall"
+          },
+          {
+            "id": "ck",
+            "label": "The roof",
+            "price": [
+              90,
+              90
+            ],
+            "short": "Roof"
+          }
+        ]
+      },
+      "qpet": {
+        "type": "choice",
+        "title": "Any pet stains or odors?",
+        "own": true,
+        "sum": "Pet stains",
+        "forSvc": [
+          "rooms",
+          "upholstery",
+          "stairs",
+          "rugs"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "cl",
+            "label": "No",
+            "price": [
+              0,
+              0
+            ],
+            "short": "No pet stains"
+          },
+          {
+            "id": "cm",
+            "label": "A few spots",
+            "price": [
+              39,
+              39
+            ],
+            "short": "A few pet spots"
+          },
+          {
+            "id": "cn",
+            "label": "Many spots or a strong odor",
+            "price": [
+              89,
+              89
+            ],
+            "short": "Heavy pet odor"
+          }
+        ]
+      },
+      "addons": {
+        "type": "addons",
+        "title": "Anything to add?",
+        "own": true,
+        "forSvc": [
+          "rooms",
+          "upholstery",
+          "stairs",
+          "rugs"
+        ],
+        "options": [
+          {
+            "id": "xprot",
+            "label": "Stain protector",
+            "add": [
+              49,
+              49
+            ]
+          },
+          {
+            "id": "xdeo",
+            "label": "Deodorizer",
+            "add": [
+              29,
+              29
+            ]
+          },
+          {
+            "id": "xmove",
+            "label": "Move large furniture",
+            "add": [
+              39,
+              39
+            ]
+          },
+          {
+            "id": "xdryer",
+            "label": "Dryer vent cleaning",
+            "add": [
+              99,
+              99
+            ]
+          }
+        ],
+        "optional": true
+      }
+    },
+    "tagline": "See your price and book in a minute",
+    "sideLine": "Carpet, upholstery and rug cleaning. See your exact price before anyone comes out.",
+    "heroImg": "img/side/cleaning-1.webp"
+  },
+
   // Pre-built niche (Oct 15): residential window cleaning and exterior washing. Everything comes switched on with prices,
   // so a new owner in this trade starts with a finished page and only adjusts. Steps are owner-style (own, forSvc).
   exterior: {
