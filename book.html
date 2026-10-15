@@ -150,6 +150,8 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
 .tile.it.on .tbox{background:var(--tint)}
 /* A short list of services (4 or fewer, no photos): full-width rows with the price on the right, easier to scan than a sparse grid */
 .tiles.rows{grid-template-columns:minmax(0,1fr);gap:8px}
+.tiles .tile.visit{grid-column:1 / -1}
+.tiles .tsep{grid-column:1 / -1;height:1px;background:#e4e4de;margin:6px 0}
 .tiles.rows .tile.it .tbox{display:grid;grid-template-columns:44px minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:14px;row-gap:2px;align-items:center;justify-items:start;min-height:0;padding:13px 16px;text-align:left}
 .tiles.rows .tile.it .tico{grid-row:1 / 3;grid-column:1}
 .tiles.rows .tile.it .tl{grid-column:2;grid-row:1;align-self:end;padding:0;font-size:14.5px}
@@ -295,6 +297,7 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
 .mtile.noimg:hover{background:color-mix(in srgb,var(--brand) 11%,#fff)}
 .edit-brand .callrow{filter:blur(3px);opacity:.35;pointer-events:none}
 .noside .side{display:none!important}
+.dimmain .main>:not(.hd){filter:blur(5px);opacity:.5;pointer-events:none;user-select:none;transition:filter .2s,opacity .2s}
 .locked button,.locked a,.locked input,.locked textarea,.locked label{cursor:default!important}
 .locked .mtile:hover::after{opacity:0}.locked .mtile:hover .mimg img{transform:none}.locked .mtile.noimg:hover{background:color-mix(in srgb,var(--brand) 7%,#fff)}
 .pickable .mtile{cursor:pointer!important}
@@ -490,7 +493,7 @@ html.editing .side .sb::after{content:"";position:absolute;inset:14px;border-rad
 <body>
 <div class="page"><div class="hostline" id="hostline"></div><div class="card" id="app"><div class="err">Loading…</div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js" integrity="sha384-0v3Wh0ZtiQBYCYywQoeMDA5mAw5Z01p0lhorqy0BlwFrcN6u3lmN7K0U/e1uezmr" crossorigin="anonymous"></script>
-<script src="templates.js?v=20261014s"></script>
-<script src="engine.js?v=20261014s"></script>
+<script src="templates.js?v=20261014t"></script>
+<script src="engine.js?v=20261014t"></script>
 </body>
 </html>

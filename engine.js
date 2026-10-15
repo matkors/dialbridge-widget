@@ -190,6 +190,8 @@
     if (EDIT) document.documentElement.classList.add('editing');
     // ?side=0 (builder only): no brand panel on the left, for steps that are about the buttons and services.
     if (params.get('builder') === '1' && params.get('side') === '0') document.documentElement.classList.add('noside');
+    // ?dim=1 (builder only, the Brand step): the buttons in the middle blur, so the owner looks at the brand panel they're editing.
+    if (params.get('builder') === '1' && params.get('dim') === '1') document.documentElement.classList.add('dimmain');
     // ?lock=1 (builder only): a picture of the page to look at; taps and typing do nothing, scrolling still works.
     if (params.get('builder') === '1' && params.get('lock') === '1') {
       document.documentElement.classList.add('locked');
@@ -229,9 +231,16 @@
       if (path === 'book' || path === 'quote') return T.flows[path];
       return { text: ['message'], call: ['call'], callback: ['callback'] }[path] || [];
     }
-    var BUILTIN = { message: 'What would you like to ask?', call: 'Call ' + B.name, callback: OPEN ? 'When should we call you?' : 'We are closed right now. When should we call you?' };
+    var BUILTIN = { details: 'Tell us about the job', message: 'What would you like to ask?', call: 'Call ' + B.name, callback: OPEN ? 'When should we call you?' : 'We are closed right now. When should we call you?' };
     function stepDef(id) { return T.steps[id] || { type: id, title: BUILTIN[id] || '' }; }
+    // The free estimate visit (svcs[].visit): no questions, no time. They describe the job, leave their info, the owner calls.
+    function visitPicked() { return S.path === 'book' && S.svcs.some(function (id) { var s = svcById(id); return !!(s && s.visit); }); }
     function visible() {
+      if (visitPicked()) {
+        var fl = flowFor('book'), out = fl.filter(function (id) { var t = stepDef(id).type; return t === 'zip' || t === 'service' || t === 'contact'; });
+        var dt = function (id) { return stepDef(id).type === 'details'; }, di = fl.filter(dt)[0] || (T.flows.quote || []).filter(dt)[0] || 'details';
+        var at = out.map(function (id) { return stepDef(id).type; }).indexOf('service'); out.splice(at + 1, 0, di); return out;
+      }
       return flowFor(S.path).filter(function (id) {
         var d = stepDef(id);
         if (d.forSvc && d.forSvc.length && !S.svcs.some(function (x) { return d.forSvc.indexOf(x) > -1; })) return false;
@@ -453,6 +462,7 @@
       if (d.type === 'contact') return contactOk() && (!d.askAddress || S.addr.trim().length > 4) && (!contactNeedsZip() || zipOk());
       if (d.type === 'message') return contactOk() && S.msg.trim().length >= 3;
       if (d.type === 'callback') return contactOk() && !!S.cb;
+      if (d.type === 'details' && visitPicked()) return S.details.trim().length >= 3;
       if (d.type === 'call') return false;
       return true;
     }
@@ -526,17 +536,19 @@
         return h;
       }
       if (d.type === 'service' && S.lane === 'estimate') title = 'What should we look at?';
+      if (d.type === 'details' && visitPicked()) title = 'Tell us about the job';
       h += '<h3>' + esc(title) + '</h3>';
       if (d.type === 'service') {
         if (T.multiService && d.multiHint) h += '<p class="lede">' + esc(d.multiHint) + '</p>';
-        var L = laneSvcs(), pics = L.some(function (x) { return x.image; });
+        var L = laneSvcs().slice().sort(function (a, b) { return (b.visit ? 1 : 0) - (a.visit ? 1 : 0); }), pics = L.some(function (x) { return x.image; });
         h += '<div class="tiles' + (pics ? '' : ' icons') + (!pics && L.length <= 4 ? ' rows' : '') + '" style="--n:' + (L.length <= 6 ? L.length : 5) + '">' + L.map(function (s) {
           var on = S.svcs.indexOf(s.id) > -1;
           var tag = svcTag(s);
           var tick = on ? '<span class="tick">' + ic('check') + '</span>' : '', tt = tag && B.showPrices ? '<span class="tt">' + esc(tag) + '</span>' : '';
           // Photo tiles: picture with the label underneath. Icon tiles: one card with the icon, label and tag inside.
           if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>';
-          return '<button type="button" class="tile it' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.icon) + '</span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + tt + '</span></button>';
+          return '<button type="button" class="tile it' + (on ? ' on' : '') + (s.visit ? ' visit' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.visit ? 'clipboard-list' : s.icon) + '</span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + (s.visit ? '' : tt) + '</span></button>' +
+            (s.visit && L.length > 1 ? '<div class="tsep" role="separator"></div>' : '');
         }).join('') + '</div>';
       }
       if (d.type === 'choice') {
