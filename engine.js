@@ -335,7 +335,7 @@
         var d = stepDef(id);
         if (d.type === 'choice') { var o = optOf(id); if (o && o.price) { lo += o.price[0]; hi += o.price[1]; if (d.own) { clo += o.price[0]; chi += o.price[1]; xs.push((o.short || o.label) + ' +$' + (o.price[0] === o.price[1] ? o.price[0] : o.price[0] + '-' + o.price[1])); } has = true; } if (o && o.mult > 0) m *= o.mult; }
         if (d.type === 'qty' && d.rate > 0) { var q = qtyOf(d, S.ans[id]); if (q !== null) { lo += q * d.rate; hi += q * d.rate; has = true; } }
-        if (d.type === 'addons') d.options.forEach(function (o) { if (S.addons[o.id] && o.add) { alo += o.add[0]; ahi += o.add[1]; } });
+        if (d.type === 'addons') d.options.forEach(function (o) { if (S.addons[o.id] && o.add) { alo += o.add[0]; ahi += o.add[1]; xs.push(o.label + ' +$' + (o.add[0] === o.add[1] ? o.add[0] : o.add[0] + '-' + o.add[1])); } });
       });
       var parts = S.svc.parts || [S.svc];
       var base = parts.reduce(function (a, x) { return a + (x.base > 0 ? x.base : 0); }, 0), floor = parts.reduce(function (a, x) { return Math.max(a, x.minPrice > 0 ? x.minPrice : 0); }, 0);
@@ -552,7 +552,7 @@
           // Photo tiles: picture with the label underneath. Icon tiles: one card with the icon, label and tag inside.
           if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>' +
             (L.indexOf(s) === lastFree && lastFree < L.length - 1 ? '<div class="tsep" role="separator"></div>' : '');
-          return '<button type="button" class="tile it' + (on ? ' on' : '') + (isVisit(s) ? ' visit' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.icon || 'clipboard-list') + '</span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + (isVisit(s) ? '' : tt) + '</span></button>' +
+          return '<button type="button" class="tile it' + (on ? ' on' : '') + (isVisit(s) ? ' visit' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(isVisit(s) ? 'clipboard-check' : s.icon || 'clipboard-list') + '</span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + (isVisit(s) ? '' : tt) + '</span></button>' +
             (L.indexOf(s) === lastFree && lastFree < L.length - 1 ? '<div class="tsep" role="separator"></div>' : '');
         }).join('') + '</div>';
       }
@@ -634,7 +634,9 @@
     var TRADE = { junk: 'junk', cleaning: 'cleaning', detailing: 'detailing', hvac: 'hvac', general: 'general', appointments: 'appointments' }[B.trade] || 'junk';
     // An owner's page (live, or their own preview in the builder) shows plain cards until they add photos; our demos use stock ones.
     var PLAIN = !B.demo || !!B.owner;
-    var IMG = { estimate: 'img/tiles/quote.webp', book: 'img/tiles/' + TRADE + '-book.webp', quote: 'img/tiles/quote.webp', text: 'img/tiles/text.webp', call: 'img/tiles/call.webp' };
+    // Pre-built niches without their own tile photo use one of the side photos of their trade.
+    var NICHE_BOOK = { exterior: 'img/side/pressure-2.webp', carpet: 'img/side/cleaning-1.webp' }[B.trade];
+    var IMG = { estimate: 'img/tiles/quote.webp', book: NICHE_BOOK || 'img/tiles/' + TRADE + '-book.webp', quote: 'img/tiles/quote.webp', text: 'img/tiles/text.webp', call: 'img/tiles/call.webp' };
     // The brand panel follows the customer: one short line for the screen they are on (wide layout only).
     function sideCopy() {
       var area = B.area && B.area !== 'your area' ? B.area : '';
