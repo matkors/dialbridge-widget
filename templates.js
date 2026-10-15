@@ -1,6 +1,452 @@
 /* Trade templates. A business = one template + its own overrides (name, color, phone, hours, area, prices).
    Steps are shown or skipped with showIf against the chosen service's mode: book | request | estimate. */
 window.DBW_TEMPLATES = {
+  // Pre-built niche (Oct 15): residential window cleaning and exterior washing. Everything comes switched on with prices,
+  // so a new owner in this trade starts with a finished page and only adjusts. Steps are owner-style (own, forSvc).
+  exterior: {
+    "preset": true,
+    "trade": "Window cleaning and exterior washing",
+    "noun": "job",
+    "priceNote": "Based on what you told us. Final price confirmed on arrival, before we start.",
+    "illustration": "clipboard",
+    "defaults": {
+      "open": "08:00",
+      "close": "18:00",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "replyMins": 15,
+      "showPrices": true,
+      "timeMode": "windows"
+    },
+    "tiles": {
+      "book": {
+        "title": "See my price and book",
+        "desc": "Windows, house wash, driveways, gutters",
+        "icon": "clipboard-list",
+        "custom": true
+      },
+      "quote": {
+        "title": "Send photos for a quote",
+        "desc": "Commercial, roofs and bigger jobs",
+        "icon": "camera",
+        "custom": true
+      },
+      "text": {
+        "title": "Text a question",
+        "desc": "Replies come by text.",
+        "icon": "message-square-text",
+        "custom": true
+      },
+      "call": {
+        "title": "Call us",
+        "desc": "",
+        "icon": "phone"
+      },
+      "order": [
+        "book",
+        "quote",
+        "text",
+        "call"
+      ],
+      "off": []
+    },
+    "svcSet": true,
+    "multiService": false,
+    "services": [
+      {
+        "id": "visit",
+        "label": "Free estimate visit",
+        "hint": "We come out, look at the job and give you a price",
+        "icon": "wrench",
+        "mode": "estimate",
+        "custom": true,
+        "pricing": "none",
+        "visit": true
+      },
+      {
+        "id": "win",
+        "label": "Window cleaning",
+        "hint": "Glass, frames and sills. Screens wiped.",
+        "icon": "app-window",
+        "mode": "book",
+        "custom": true,
+        "duration": 180,
+        "pricing": "fixed",
+        "fixed": 189
+      },
+      {
+        "id": "wash",
+        "label": "House soft wash",
+        "hint": "Siding, soffits and trim, low pressure",
+        "icon": "house",
+        "mode": "book",
+        "custom": true,
+        "duration": 180,
+        "pricing": "fixed",
+        "fixed": 279
+      },
+      {
+        "id": "combo",
+        "label": "Windows + house wash",
+        "hint": "Both in one visit. Save $39.",
+        "icon": "sparkles",
+        "mode": "book",
+        "custom": true,
+        "duration": 300,
+        "pricing": "fixed",
+        "fixed": 429
+      },
+      {
+        "id": "drive",
+        "label": "Driveway and walkway",
+        "hint": "Concrete or pavers, oil and algae spots",
+        "icon": "car-front",
+        "mode": "book",
+        "custom": true,
+        "duration": 90,
+        "pricing": "fixed",
+        "fixed": 149
+      },
+      {
+        "id": "gutter",
+        "label": "Gutter cleaning",
+        "hint": "Cleared, bagged and downspouts flushed",
+        "icon": "cloud-rain",
+        "mode": "book",
+        "custom": true,
+        "duration": 90,
+        "pricing": "fixed",
+        "fixed": 129
+      },
+      {
+        "id": "lights",
+        "label": "Holiday light installation",
+        "hint": "Designed, installed, taken down in January",
+        "icon": "lightbulb",
+        "mode": "estimate",
+        "custom": true,
+        "duration": 60,
+        "pricing": "none"
+      }
+    ],
+    "flows": {
+      "book": [
+        "zip",
+        "service",
+        "details",
+        "qwin",
+        "qin",
+        "qsize",
+        "qstory",
+        "qdrive",
+        "addons",
+        "time",
+        "contact"
+      ],
+      "quote": [
+        "zip",
+        "details",
+        "qwin",
+        "qin",
+        "qsize",
+        "qstory",
+        "qdrive",
+        "addons",
+        "contact"
+      ]
+    },
+    "steps": {
+      "zip": {
+        "type": "zip",
+        "title": "Where is the job?"
+      },
+      "service": {
+        "type": "service",
+        "title": "What do you need?"
+      },
+      "details": {
+        "type": "details",
+        "title": "Tell us about it",
+        "showIf": [
+          "estimate"
+        ],
+        "placeholder": "What needs doing, roughly how big, and anything we should know",
+        "photos": true
+      },
+      "time": {
+        "type": "time",
+        "title": "When works for you?",
+        "estimateTitle": "When would you like us to come by?"
+      },
+      "contact": {
+        "type": "contact",
+        "title": "Where should we text you?",
+        "askAddress": true
+      },
+      "qwin": {
+        "type": "choice",
+        "title": "About how many windows?",
+        "own": true,
+        "sum": "Windows",
+        "forSvc": [
+          "win",
+          "combo"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "ob7rvc",
+            "label": "Up to 15",
+            "price": [
+              0,
+              0
+            ],
+            "short": "Up to 15 windows"
+          },
+          {
+            "id": "otb8qt",
+            "label": "16 to 25",
+            "price": [
+              70,
+              70
+            ],
+            "short": "16-25 windows"
+          },
+          {
+            "id": "op65so",
+            "label": "26 to 35",
+            "price": [
+              140,
+              140
+            ],
+            "short": "26-35 windows"
+          },
+          {
+            "id": "omozgv",
+            "label": "36 or more",
+            "price": [
+              220,
+              220
+            ],
+            "short": "36+ windows"
+          }
+        ]
+      },
+      "qin": {
+        "type": "choice",
+        "title": "Inside and outside, or just outside?",
+        "own": true,
+        "sum": "Sides",
+        "forSvc": [
+          "win",
+          "combo"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "o2rn9o",
+            "label": "Outside only",
+            "price": [
+              0,
+              0
+            ]
+          },
+          {
+            "id": "o2rxkk",
+            "label": "Inside and outside",
+            "price": [
+              90,
+              90
+            ]
+          }
+        ]
+      },
+      "qsize": {
+        "type": "choice",
+        "title": "How big is the home?",
+        "own": true,
+        "sum": "Home size",
+        "forSvc": [
+          "wash",
+          "combo"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "ovjh76",
+            "label": "Small (2 bedrooms or fewer)",
+            "price": [
+              0,
+              0
+            ],
+            "short": "Small home"
+          },
+          {
+            "id": "od5iue",
+            "label": "Medium (3 to 4 bedrooms)",
+            "price": [
+              80,
+              80
+            ],
+            "short": "Medium home"
+          },
+          {
+            "id": "ooem77",
+            "label": "Large (5+ bedrooms)",
+            "price": [
+              170,
+              170
+            ],
+            "short": "Large home"
+          },
+          {
+            "id": "o06fkf",
+            "label": "Very large or estate",
+            "price": [
+              260,
+              260
+            ],
+            "short": "Very large home"
+          }
+        ]
+      },
+      "qstory": {
+        "type": "choice",
+        "title": "How many stories?",
+        "own": true,
+        "sum": "Stories",
+        "forSvc": [
+          "win",
+          "wash",
+          "combo",
+          "gutter"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "othth6",
+            "label": "1 story",
+            "price": [
+              0,
+              0
+            ]
+          },
+          {
+            "id": "owe0c5",
+            "label": "2 stories",
+            "price": [
+              40,
+              40
+            ]
+          },
+          {
+            "id": "ojb6es",
+            "label": "3 stories",
+            "price": [
+              90,
+              90
+            ]
+          }
+        ]
+      },
+      "qdrive": {
+        "type": "choice",
+        "title": "How big is the driveway?",
+        "own": true,
+        "sum": "Driveway",
+        "forSvc": [
+          "drive"
+        ],
+        "ui": "list",
+        "options": [
+          {
+            "id": "oiypec",
+            "label": "1 to 2 cars",
+            "price": [
+              0,
+              0
+            ],
+            "short": "1-2 car driveway"
+          },
+          {
+            "id": "oucuv2",
+            "label": "3 to 4 cars",
+            "price": [
+              60,
+              60
+            ],
+            "short": "3-4 car driveway"
+          },
+          {
+            "id": "olwrs5",
+            "label": "Long or circular",
+            "price": [
+              130,
+              130
+            ],
+            "short": "Long driveway"
+          }
+        ]
+      },
+      "addons": {
+        "type": "addons",
+        "title": "Anything to add?",
+        "own": true,
+        "forSvc": [
+          "win",
+          "wash",
+          "combo",
+          "drive",
+          "gutter"
+        ],
+        "options": [
+          {
+            "id": "xscr",
+            "label": "Screens washed and dried",
+            "add": [
+              35,
+              35
+            ]
+          },
+          {
+            "id": "xwalk",
+            "label": "Walkway and front steps",
+            "add": [
+              49,
+              49
+            ]
+          },
+          {
+            "id": "xdeck",
+            "label": "Patio or deck wash",
+            "add": [
+              99,
+              99
+            ]
+          },
+          {
+            "id": "xgut",
+            "label": "Gutter face brightening",
+            "add": [
+              79,
+              79
+            ]
+          }
+        ],
+        "optional": true
+      }
+    },
+    "tagline": "See your price and book in a minute",
+    "sideLine": "Window cleaning, house washing, driveways and gutters. See your exact price before anyone comes out.",
+    "heroImg": "img/side/pressure-1.webp"
+  },
+
   detailing: {
     trade: 'Mobile detailing',
     noun: 'detail',
