@@ -193,8 +193,14 @@
     // ?lock=1 (builder only): a picture of the page to look at; taps and typing do nothing, scrolling still works.
     if (params.get('builder') === '1' && params.get('lock') === '1') {
       document.documentElement.classList.add('locked');
+      // ?pick=1: a tap on a start option tells the builder which one, so it can open that button's row.
+      var PICK = params.get('pick') === '1';
+      if (PICK) document.documentElement.classList.add('pickable');
       ['click', 'pointerdown', 'mousedown', 'touchend', 'keydown', 'focusin'].forEach(function (t) {
-        document.addEventListener(t, function (e) { if (t === 'focusin' && e.target && e.target.blur) e.target.blur(); if (t !== 'focusin' && t !== 'pointerdown') { e.preventDefault(); } e.stopPropagation(); }, true);
+        document.addEventListener(t, function (e) {
+          if (t === 'click' && PICK) { var tl = e.target.closest && e.target.closest('.mtile[data-v]'); if (tl) post('dbw:pick', { k: tl.getAttribute('data-v') }); }
+          if (t === 'focusin' && e.target && e.target.blur) e.target.blur(); if (t !== 'focusin' && t !== 'pointerdown') { e.preventDefault(); } e.stopPropagation();
+        }, true);
       });
     }
     // Brand step: the middle (the four options) is the next step, so it fades back and says so.
@@ -210,6 +216,7 @@
       if (e.data.tiles && typeof e.data.tiles === 'object') ['estimate', 'book', 'quote', 'text', 'call', 'order', 'off'].forEach(function (k) { if (e.data.tiles[k] !== undefined) T.tiles[k] = e.data.tiles[k]; });
       if (e.data.rating !== undefined) { B.rating = e.data.rating || null; B.reviews = e.data.reviews || null; }
       if (e.data.logoTone !== undefined) T.logoTone = e.data.logoTone === 'light' ? 'light' : '';
+      if (e.data.sel !== undefined) T.selTile = typeof e.data.sel === 'string' ? e.data.sel : null;
       if (e.data.heroPos !== undefined) T.heroPos = /^\d{1,3}% \d{1,3}%$/.test(e.data.heroPos || '') ? e.data.heroPos : '';
       if (typeof e.data.name === 'string' && e.data.name.trim()) B.name = e.data.name.trim().slice(0, 80);
       render();
@@ -663,8 +670,8 @@
           return '<div class="mtile slot slot-tile' + (isOff ? ' off' : '') + '" draggable="true" data-edit="tile" data-k="' + k + '" role="button" tabindex="0"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span>' +
             '<span class="sl-drag" title="Drag to move">&#8942;&#8942;</span><span class="sl-edit">' + (isOff ? 'Hidden. Click to show' : 'Edit') + '</span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></div>';
         }
-        if (!pic) return '<button type="button" class="mtile noimg" data-act="start" data-v="' + k + '"><span class="mico">' + ic(icon || 'clipboard-list') + '</span><span class="mt"><b>' + esc(title) + '</b>' + (desc ? '<span>' + esc(desc) + '</span>' : '') + '</span></button>';
-        return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
+        if (!pic) return '<button type="button" class="mtile noimg' + (T.selTile === k ? ' sel' : '') + '" data-act="start" data-v="' + k + '"><span class="mico">' + ic(icon || 'clipboard-list') + '</span><span class="mt"><b>' + esc(title) + '</b>' + (desc ? '<span>' + esc(desc) + '</span>' : '') + '</span></button>';
+        return '<button type="button" class="mtile' + (T.selTile === k ? ' sel' : '') + '" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
       }).join('') + '</div>' + callRow(callOn || callHidden, callHidden) +
         // Phones don't show the side panel, so its open-now and reply-time line goes under the options.
         '<p class="mtrust"><span class="sopen' + (OPEN ? ' on' : '') + '"><i></i>' + (OPEN ? 'Open now' : 'Closed now, book anyway') + '</span><span>Book online in about a minute</span></p>';
