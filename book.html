@@ -260,7 +260,8 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
 .callrow{display:flex;align-items:center;gap:12px;width:100%;margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font:inherit;text-align:left;text-decoration:none;cursor:pointer;box-shadow:var(--sh-1);transition:border-color .15s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
 .callrow:hover{border-color:var(--hover-line);box-shadow:var(--sh-2)}
 .callrow:active{transform:scale(.99)}
-.callrow .cr-ic{width:36px;height:36px;padding:8px;border-radius:50%;background:var(--tint);color:var(--brand);flex-shrink:0}
+.callrow .cr-ic{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--tint);color:var(--brand);flex-shrink:0}
+.callrow .cr-ic svg{width:19px;height:19px;flex-shrink:0;overflow:visible}
 .cr-t{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
 .cr-t b{font-size:15px;font-weight:600}
 .cr-t small{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
@@ -493,7 +494,7 @@ html.editing .side .sb::after{content:"";position:absolute;inset:14px;border-rad
 <body>
 <div class="page"><div class="hostline" id="hostline"></div><div class="card" id="app"><div class="err">Loading…</div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js" integrity="sha384-0v3Wh0ZtiQBYCYywQoeMDA5mAw5Z01p0lhorqy0BlwFrcN6u3lmN7K0U/e1uezmr" crossorigin="anonymous"></script>
-<script src="templates.js?v=20261014t"></script>
-<script src="engine.js?v=20261014t"></script>
+<script src="templates.js?v=20261015a"></script>
+<script src="engine.js?v=20261015a"></script>
 </body>
 </html>

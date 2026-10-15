@@ -234,7 +234,8 @@
     var BUILTIN = { details: 'Tell us about the job', message: 'What would you like to ask?', call: 'Call ' + B.name, callback: OPEN ? 'When should we call you?' : 'We are closed right now. When should we call you?' };
     function stepDef(id) { return T.steps[id] || { type: id, title: BUILTIN[id] || '' }; }
     // The free estimate visit (svcs[].visit): no questions, no time. They describe the job, leave their info, the owner calls.
-    function visitPicked() { return S.path === 'book' && S.svcs.some(function (id) { var s = svcById(id); return !!(s && s.visit); }); }
+    function isVisit(s) { return !!(s && (s.visit || (isEst(s) && /^free (estimate|quote|inspection)/i.test(s.label || '')))); }
+    function visitPicked() { return S.path === 'book' && S.svcs.some(function (id) { return isVisit(svcById(id)); }); }
     function visible() {
       if (visitPicked()) {
         var fl = flowFor('book'), out = fl.filter(function (id) { var t = stepDef(id).type; return t === 'zip' || t === 'service' || t === 'contact'; });
@@ -328,7 +329,7 @@
     }
     function priceInfo() {
       if (!B.showPrices || !S.svc) return null;
-      if (S.svc.mode === 'estimate') return { text: 'Free quote', note: 'You get a price after they see the job.' };
+      if (S.svc.mode === 'estimate') return { text: 'Free quote', note: 'You get a price after we see the job.' };
       var lo = 0, hi = 0, has = false, m = S.svc.mult || 1, alo = 0, ahi = 0, clo = 0, chi = 0, xs = [];
       visible().forEach(function (id) {
         var d = stepDef(id);
@@ -540,15 +541,19 @@
       h += '<h3>' + esc(title) + '</h3>';
       if (d.type === 'service') {
         if (T.multiService && d.multiHint) h += '<p class="lede">' + esc(d.multiHint) + '</p>';
-        var L = laneSvcs().slice().sort(function (a, b) { return (b.visit ? 1 : 0) - (a.visit ? 1 : 0); }), pics = L.some(function (x) { return x.image; });
-        h += '<div class="tiles' + (pics ? '' : ' icons') + (!pics && L.length <= 4 ? ' rows' : '') + '" style="--n:' + (L.length <= 6 ? L.length : 5) + '">' + L.map(function (s) {
+        // Free ones first (the estimate visit, then anything priced after seeing it), a line, then the ones with a price.
+        var free = function (x) { return isVisit(x) ? 2 : isEst(x) ? 1 : 0; };
+        var L = laneSvcs().map(function (x, i) { return [x, i]; }).sort(function (a, b) { return free(b[0]) - free(a[0]) || a[1] - b[1]; }).map(function (p) { return p[0]; }), pics = L.some(function (x) { return x.image; });
+        var lastFree = -1; L.forEach(function (x, i) { if (free(x)) lastFree = i; });
+        h += '<div class="tiles' + (pics ? '' : ' icons') + (!pics ? ' rows' : '') + '" style="--n:' + (L.length <= 6 ? L.length : 5) + '">' + L.map(function (s) {
           var on = S.svcs.indexOf(s.id) > -1;
           var tag = svcTag(s);
           var tick = on ? '<span class="tick">' + ic('check') + '</span>' : '', tt = tag && B.showPrices ? '<span class="tt">' + esc(tag) + '</span>' : '';
           // Photo tiles: picture with the label underneath. Icon tiles: one card with the icon, label and tag inside.
-          if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>';
-          return '<button type="button" class="tile it' + (on ? ' on' : '') + (s.visit ? ' visit' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.visit ? 'clipboard-list' : s.icon) + '</span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + (s.visit ? '' : tt) + '</span></button>' +
-            (s.visit && L.length > 1 ? '<div class="tsep" role="separator"></div>' : '');
+          if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>' +
+            (L.indexOf(s) === lastFree && lastFree < L.length - 1 ? '<div class="tsep" role="separator"></div>' : '');
+          return '<button type="button" class="tile it' + (on ? ' on' : '') + (isVisit(s) ? ' visit' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(s.icon || 'clipboard-list') + '</span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + (isVisit(s) ? '' : tt) + '</span></button>' +
+            (L.indexOf(s) === lastFree && lastFree < L.length - 1 ? '<div class="tsep" role="separator"></div>' : '');
         }).join('') + '</div>';
       }
       if (d.type === 'choice') {
@@ -709,7 +714,7 @@
       if (!show) return '';
       var t = T.tiles.call || {}, title = t.custom && t.title ? t.title : OPEN ? 'Rather talk? Call us' : 'Get a call back';
       var sub = OPEN ? esc(B.phone) + ' <span class="dot">·</span> Open until ' + fmt(mins(B.close)) : 'Closed now. Calls from ' + fmt(mins(B.open)) + '. ' + esc(B.phone);
-      var inner = ic(OPEN ? 'phone' : 'phone-incoming', 'cr-ic') + '<span class="cr-t"><b>' + esc(title) + '</b><small>' + sub + '</small></span>' + ic('chevron-right', 'cr-go');
+      var inner = '<span class="cr-ic">' + ic(OPEN ? 'phone' : 'phone-incoming') + '</span><span class="cr-t"><b>' + esc(title) + '</b><small>' + sub + '</small></span>' + ic('chevron-right', 'cr-go');
       if (EDITT) return '<div class="callrow slot slot-tile' + (hiddenInEditor ? ' off' : '') + '" data-edit="tile" data-k="call" role="button" tabindex="0">' + inner + '<span class="sl-edit">' + (hiddenInEditor ? 'Hidden. Click to show' : 'Edit') + '</span></div>';
       return OPEN ? '<a class="callrow" href="tel:+1' + B.phoneDigits + '">' + inner + '</a>' : '<button type="button" class="callrow" data-act="start" data-v="call">' + inner + '</button>';
     }
@@ -760,7 +765,8 @@
       }
       var hasTruck = sc.some(function (id) { return stepDef(id).ui === 'truck'; });
       var p = priceInfo();
-      if (p && (sc.indexOf('service') > -1 || isQScreen(sc)) && !hasTruck) h += '<div class="pricebox simple"><div><b>' + esc(p.text) + '</b><span>' + esc(p.note) + '</span></div></div>';
+      // No price box for a free estimate: there's no price to show yet.
+      if (p && (sc.indexOf('service') > -1 || isQScreen(sc)) && !hasTruck && !(S.svc && S.svc.mode === 'estimate')) h += '<div class="pricebox simple"><div><b>' + esc(p.text) + '</b><span>' + esc(p.note) + '</span></div></div>';
       return h;
     }
 
