@@ -236,7 +236,7 @@
     // A page with priced services AND free-estimate services gets two start options: "Book a free estimate" (estimate
     // services only, straight to the questions when there is one) and "Book a service" (the priced ones).
     function isEst(s) { return s.mode === 'estimate'; }
-    function split() { return !!T.svcSet && T.services.some(isEst) && T.services.some(function (s) { return !isEst(s); }); }
+    function split() { return !!T.svcSet && T.services.some(isEst) && (T.services.some(function (s) { return !isEst(s); }) || !!(T.tiles && Array.isArray(T.tiles.order) && T.tiles.order.indexOf('estimate') > -1)); }
     function laneSvcs() { return !S.lane ? T.services : T.services.filter(function (s) { return isEst(s) === (S.lane === 'estimate'); }); }
     function oneEst() { var l = S.lane === 'estimate' ? laneSvcs() : []; return l.length === 1 ? l[0] : null; }
     function estTile() {
@@ -584,6 +584,8 @@
 
     // Photos for the first screen (free Unsplash licence, files in img/tiles, credits in img/tiles/CREDITS.json).
     var TRADE = { junk: 'junk', cleaning: 'cleaning', detailing: 'detailing', hvac: 'hvac', general: 'general', appointments: 'appointments' }[B.trade] || 'junk';
+    // An owner's page (live, or their own preview in the builder) shows plain cards until they add photos; our demos use stock ones.
+    var PLAIN = !B.demo || !!B.owner;
     var IMG = { estimate: 'img/tiles/quote.webp', book: 'img/tiles/' + TRADE + '-book.webp', quote: 'img/tiles/quote.webp', text: 'img/tiles/text.webp', call: 'img/tiles/call.webp' };
     // The brand panel follows the customer: one short line for the screen they are on (wide layout only).
     function sideCopy() {
@@ -630,6 +632,8 @@
       if (SP && !(mine && mine.length) && off.indexOf('quote') < 0) off.push('quote');
       var hidden = EDITT ? order.filter(function (k) { return off.indexOf(k) > -1 && T.tiles[k]; }) : [];
       order = order.filter(function (k) { return off.indexOf(k) < 0 && T.tiles[k]; });
+      // Only free-estimate services: no separate "Book a service" button with nothing behind it.
+      if (SP && !T.services.some(function (s) { return !isEst(s); })) order = order.filter(function (k) { return k !== 'book'; });
       // Calling isn't a form, so it isn't a tile: a slim row under the options, with the number written out
       // (a computer can't dial, so people there need to see it).
       var callOn = order.indexOf('call') > -1 && !!B.phoneDigits, callHidden = EDITT && hidden.indexOf('call') > -1;
@@ -637,17 +641,18 @@
       hidden = hidden.filter(function (k) { return k !== 'call'; });
       if (!order.length) order = ['book'];
       if (EDITT) order = order.concat(hidden);
-      return (EDITB && !EDITT ? '<div class="next-note">The buttons customers tap come next</div>' : '') + '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
+      return (EDITB && !EDITT ? '<div class="next-note">The buttons customers tap come next</div>' : '') + '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + (order.every(function (k) { return !((B.tileImg && B.tileImg[k]) || (!PLAIN && IMG[k])); }) ? ' plain' : '') + '">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
         if (k === 'book' && SP && !t.custom) { title = 'Book a service'; desc = 'Pick a service and a time.'; }
         if (k === 'book' && t.priced && !t.custom && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
         if (k === 'call' && !t.custom) { title = OPEN ? 'Call the office' : 'Get a call back'; desc = OPEN ? 'Open until ' + fmt(mins(B.close)) + ' today.' : 'Closed now. Calls from ' + fmt(mins(B.open)) + '.'; icon = OPEN ? 'phone' : 'phone-incoming'; }
-        var pic = (B.tileImg && B.tileImg[k]) || IMG[k], ipos = /^\d{1,3}% \d{1,3}%$/.test(t.imgPos || '') ? ' style="object-position:' + t.imgPos + '"' : '';
+        var pic = (B.tileImg && B.tileImg[k]) || (PLAIN ? '' : IMG[k]), ipos = /^\d{1,3}% \d{1,3}%$/.test(t.imgPos || '') ? ' style="object-position:' + t.imgPos + '"' : '';
         if (EDITT) {
           var isOff = off.indexOf(k) > -1;
           return '<div class="mtile slot slot-tile' + (isOff ? ' off' : '') + '" draggable="true" data-edit="tile" data-k="' + k + '" role="button" tabindex="0"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span>' +
             '<span class="sl-drag" title="Drag to move">&#8942;&#8942;</span><span class="sl-edit">' + (isOff ? 'Hidden. Click to show' : 'Edit') + '</span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></div>';
         }
+        if (!pic) return '<button type="button" class="mtile noimg" data-act="start" data-v="' + k + '"><span class="mico">' + ic(icon || 'clipboard-list') + '</span><span class="mt"><b>' + esc(title) + '</b>' + (desc ? '<span>' + esc(desc) + '</span>' : '') + '</span>' + ic('chevron-right', 'mgo') + '</button>';
         return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
       }).join('') + '</div>' + callRow(callOn || callHidden, callHidden) +
         // Phones don't show the side panel, so its open-now and reply-time line goes under the options.
@@ -1033,9 +1038,18 @@
     app.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('input[data-in]') && screenValid(curScreen())) { e.preventDefault(); advance(); } });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && CLOSABLE) { post('dbw:close'); if (S.done) { fresh(); render(); } } });
 
-    var st0 = params.get('start');
+    var st0 = params.get('start'), sv0 = params.get('builder') === '1' ? params.get('svc') : null;
     if (st0 === 'estimate' && split()) { S.path = 'book'; S.lane = 'estimate'; var one0 = oneEst(); if (one0) { S.svcs = [one0.id]; S.svc = combined(); } }
     else if (/^(book|quote|text)$/.test(st0 || '')) { S.path = st0; if (st0 === 'book' && split()) S.lane = 'service'; }
+    if (sv0 && S.path && svcById(sv0)) {
+      if (split()) S.lane = isEst(svcById(sv0)) ? 'estimate' : 'service';
+      S.svcs = [sv0]; S.svc = combined();
+    }
+    // The builder's preview of a layer opens on the services (and the picked service's questions), past the ZIP screen.
+    if (params.get('builder') === '1' && st0 && S.path) {
+      var at0 = screens().map(function (sc) { return sc.some(function (id) { var t = stepDef(id).type; return t === 'service' || t === 'choice' || t === 'qty' || t === 'ask' || t === 'addons'; }); }).indexOf(true);
+      if (at0 > 0) S.idx = at0;
+    }
     else if (st0 === 'call') S.path = OPEN ? 'call' : 'callback';
     render();
     post('dbw:ready');
