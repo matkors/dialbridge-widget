@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Online Booking for Window Cleaning and Exterior Cleaning | Dialbridge</title>
+<meta name="description" content="Customers pick a service, answer a few questions they actually know, see your price and book an arrival window. Pre-built for window cleaning, soft washing, gutters and holiday lights. $99/month, 14 days free.">
+<link rel="canonical" href="https://matviykorsunskiy.me/dialbridge-widget/for/exterior-cleaning/">
+<meta property="og:title" content="Online booking for window cleaning and exterior cleaning | Dialbridge">
+<meta property="og:description" content="Customers see their price and book without the back-and-forth. Pre-built for your trade. $99/month, 14 days free.">
+<meta property="og:url" content="https://matviykorsunskiy.me/dialbridge-widget/for/exterior-cleaning/">
+<meta property="og:image" content="https://matviykorsunskiy.me/dialbridge-widget/for/exterior-cleaning/demo-website.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Tokens, buttons, nav, FAQ and CTA band are copied from ../../product/index.html so the two pages match. */
+:root{
+  --bg:#f5f4ef; --paper:#fbfaf6; --white:#fff; --ink:#20251f; --ink2:#3b4238; --mute:#6a6e66; --line:#e4e2d9; --line2:#d8d5ca;
+  --accent:#f35427; --accent-ink:#cf4016; --deep:#232a22; --sage:#e6e9dc; --sage2:#d7dccb; --ok:#2f7d4f;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --ease:cubic-bezier(.23,1,.32,1);
+  --frame:0 0 0 1px rgba(32,37,31,.08),0 1px 2px rgba(32,37,31,.06),0 24px 48px -24px rgba(32,37,31,.28);
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+button{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:28px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid transparent;transition:border-color .2s}
+.nav.scrolled{border-bottom-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.logo{font-weight:800;font-size:21px;letter-spacing:-.02em;text-decoration:none}
+.logo span{color:var(--accent)}
+.links{display:flex;gap:4px;font-size:15px;font-weight:500}
+.links a{text-decoration:none;color:var(--ink2);padding:7px 12px;border-radius:8px;transition:background-color .15s,color .15s}
+.links a:hover{background:rgba(32,37,31,.06);color:var(--ink)}
+.nav-r{display:flex;align-items:center;gap:8px}
+.nav-login{text-decoration:none;color:var(--ink2);font-size:15px;font-weight:600;padding:7px 12px;border-radius:8px;transition:background-color .15s,color .15s}
+.nav-login:hover{background:rgba(32,37,31,.06);color:var(--ink)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:52px;padding:0 22px 0 24px;border-radius:12px;border:0;background:var(--accent);color:#fff;font:600 16px/1 Manrope,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(32,37,31,.16),inset 0 1px 0 rgba(255,255,255,.2);transition:background-color .15s,transform .12s var(--ease),box-shadow .15s}
+.btn:hover{background:var(--accent-ink)}
+.btn:active{transform:scale(.97)}
+.btn.dark{background:var(--deep)}
+.btn.dark:hover{background:#0f130e}
+.btn.ghost{background:var(--white);color:var(--ink);box-shadow:0 0 0 1px var(--line2),0 1px 2px rgba(32,37,31,.06)}
+.btn.ghost:hover{box-shadow:0 0 0 1px #b9b5a8,0 2px 6px rgba(32,37,31,.08)}
+.btn.sm{height:40px;padding:0 14px 0 16px;font-size:14.5px;border-radius:10px}
+.btn svg.play{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+.arw{width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.arw .ln{opacity:0;transition:opacity .15s}
+.arw .hd{transition:transform .2s var(--ease)}
+.btn:hover .arw .ln{opacity:1}
+.btn:hover .arw .hd{transform:translateX(3px)}
+
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:0}
+h1,h2,h3{letter-spacing:-.03em;line-height:1.04;margin:0;font-weight:700;text-wrap:balance}
+h2{font-size:clamp(32px,4vw,48px)}
+h3{font-size:20px;letter-spacing:-.02em;line-height:1.2}
+.lede{color:var(--ink2);margin:18px 0 0;font-size:17.5px;max-width:520px}
+.checks{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:14px;color:var(--mute)}
+.checks li{display:flex;align-items:center;gap:6px}
+.checks svg{width:15px;height:15px;color:var(--ok)}
+section.s{padding:104px 0}
+.shead{display:grid;grid-template-columns:1.15fr 1fr;gap:48px;align-items:end;margin-bottom:48px}
+.shead p{color:var(--ink2);margin:0;font-size:17px;max-width:470px}
+.shead .eyebrow{margin-bottom:16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tlink{font-weight:700;color:var(--accent-ink);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.tlink:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* phone frame around a real screenshot */
+.ph{position:relative;border:8px solid #1d1e20;border-radius:40px;background:#1d1e20;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.25),0 30px 50px -26px rgba(32,37,31,.55)}
+.ph img{width:100%;border-radius:31px}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:56px;align-items:center;padding:56px 0 88px}
+.hero .eyebrow{color:var(--accent-ink)}
+.hero h1{font-size:clamp(40px,5vw,64px);margin-top:18px;letter-spacing:-.04em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .sub{font-size:19px;color:var(--ink2);max-width:560px;margin:22px 0 0}
+.ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.hero-vis{position:relative;width:300px;max-width:100%;justify-self:center}
+.hero-vis .ph{transform:rotate(1.5deg)}
+.note{position:absolute;left:-112px;bottom:22px;width:258px;display:grid;grid-template-columns:34px 1fr;gap:10px;padding:12px 13px;border-radius:18px;background:rgba(255,255,255,.97);box-shadow:0 0 0 1px rgba(0,0,0,.05),0 22px 40px -18px rgba(32,37,31,.5);font-size:13px;line-height:1.38;color:#111}
+.note .app{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:linear-gradient(#5ff777,#1ec337)}
+.note .app svg{width:20px;height:20px;fill:#fff}
+.note .h{display:flex;justify-content:space-between;font-size:12.5px}.note .h b{font-weight:700}.note .h span{color:#8a8a8a}
+.note p{margin:2px 0 0}
+.js .note{opacity:0;transform:translateY(-10px) scale(.97);transition:opacity .4s var(--ease),transform .5s var(--ease)}
+.js .note.on{opacity:1;transform:none}
+.cap{margin:14px 0 0;text-align:center;font-size:13px;color:var(--mute)}
+
+/* ---------- steps ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;margin:0;padding:0;list-style:none}
+.step .ph{max-width:250px;margin:0 auto}
+.step .tx{display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:6px;margin-top:22px}
+.step .n{grid-row:span 2;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--mono);font-size:13px}
+.step h3{margin-top:5px;font-size:19px}
+.step p{margin:0;color:var(--ink2);font-size:15.5px;line-height:1.5}
+.steps-foot{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:44px;padding:22px 26px;border-radius:18px;background:var(--white);box-shadow:0 0 0 1px var(--line)}
+.steps-foot p{margin:0;color:var(--ink2);font-size:16px;max-width:640px}
+.steps-foot b{color:var(--ink)}
+.swipe{display:none}
+
+/* ---------- stat ---------- */
+.stat{background:var(--deep);color:#eef0e8;border-radius:24px;padding:44px 52px;display:grid;grid-template-columns:auto 1fr;gap:44px;align-items:center}
+.stat .big{font-size:clamp(68px,8vw,108px);font-weight:700;letter-spacing:-.05em;line-height:.9;color:#c9d6b8;font-variant-numeric:tabular-nums}
+.stat h2{font-size:clamp(24px,2.8vw,34px);line-height:1.15}
+.stat p{color:#b9c0af;margin:12px 0 0;font-size:14.5px}
+
+/* ---------- pre-built ---------- */
+.band{background:var(--sage);border-top:1px solid var(--sage2);border-bottom:1px solid var(--sage2)}
+.pre{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:64px;align-items:start}
+.setup{list-style:none;padding:0;margin:30px 0 0;counter-reset:s}
+.setup li{position:relative;padding:14px 0 14px 44px;border-top:1px solid #cdd2c0;font-size:16px;color:var(--ink2)}
+.setup li:last-child{border-bottom:1px solid #cdd2c0}
+.setup li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:14px;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--white);font-family:var(--mono);font-size:12px;color:var(--ink)}
+.setup b{color:var(--ink)}
+.sheet{background:var(--white);border-radius:20px;box-shadow:0 0 0 1px var(--sage2),0 24px 48px -32px rgba(32,37,31,.35);overflow:hidden}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid var(--line)}
+.sheet-h b{font-size:15.5px}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:var(--sage);border-radius:6px;padding:4px 8px;white-space:nowrap}
+.svc{width:100%;border-collapse:collapse;font-size:15.5px}
+.svc td{padding:13px 22px;border-bottom:1px solid #efede6;vertical-align:top}
+.svc td:last-child{text-align:right;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.svc small{display:block;color:var(--mute);font-size:13.5px;margin-top:2px}
+.svc .free{color:var(--ok)}
+.qs{padding:18px 22px 22px;background:var(--paper)}
+.qs > p{margin:0 0 12px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.q{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid #ecebe4;font-size:14.5px}
+.q:first-of-type{border-top:0}
+.q b{font-weight:700}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts span{padding:3px 10px;border-radius:999px;background:var(--white);box-shadow:0 0 0 1px var(--line2);font-size:13.5px;white-space:nowrap}
+.opts span i{font-style:normal;color:var(--mute);margin-left:4px;font-variant-numeric:tabular-nums}
+.sheet-f{margin:0;padding:14px 22px;border-top:1px solid var(--line);font-size:14px;color:var(--mute)}
+
+/* ---------- website + google ---------- */
+.where{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,.75fr);gap:40px;align-items:end}
+.browser{border-radius:14px;overflow:hidden;background:#fff;box-shadow:var(--frame)}
+.bchrome{display:flex;align-items:center;gap:6px;height:34px;padding:0 14px;background:#f1f0eb;border-bottom:1px solid var(--line)}
+.bchrome i{width:10px;height:10px;border-radius:50%;background:#d8d5ca}
+.bchrome span{margin-left:12px;padding:3px 12px;border-radius:7px;background:#fff;font-family:var(--mono);font-size:11px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.where .ph{max-width:270px;margin:0 auto}
+.wcap{margin-top:20px}
+.wcap h3{font-size:19px}
+.wcap p{margin:6px 0 10px;color:var(--ink2);font-size:15.5px}
+
+/* ---------- compare ---------- */
+.cmp-wrap{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:48px;align-items:start}
+.cmp{width:100%;border-collapse:separate;border-spacing:0;background:var(--white);border-radius:20px;box-shadow:0 0 0 1px var(--line);overflow:hidden;font-size:16px}
+.cmp th,.cmp td{padding:16px 22px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.cmp tr:last-child td{border-bottom:0}
+.cmp thead th{font-size:14px;font-weight:700;color:var(--ink2);background:var(--paper)}
+.cmp thead th.us{color:#fff;background:var(--ink)}
+.cmp td.us{font-weight:700;background:#fff8f5}
+.cmp tbody th{font-weight:600;color:var(--ink2);font-size:15px}
+.cmp td{font-variant-numeric:tabular-nums}
+.cmp-side p{margin:0 0 14px;color:var(--ink2);font-size:16px}
+.cmp-side small{display:block;color:var(--mute);font-size:13px;margin-top:6px}
+
+/* ---------- faq ---------- */
+.faq{display:grid;grid-template-columns:1fr 1.35fr;gap:56px}
+.qa{border-top:1px solid var(--line2)}
+.qa:last-child{border-bottom:1px solid var(--line2)}
+.qa button{display:flex;justify-content:space-between;align-items:center;gap:20px;width:100%;padding:20px 0;border:0;background:none;font-weight:600;font-size:17px;text-align:left;cursor:pointer}
+.qa button:hover{color:var(--accent-ink)}
+.qa .pm{position:relative;width:14px;height:14px;flex-shrink:0}
+.qa .pm::before,.qa .pm::after{content:"";position:absolute;left:0;right:0;top:6px;height:2px;border-radius:2px;background:currentColor;transition:transform .3s var(--ease)}
+.qa .pm::after{transform:rotate(90deg)}
+.qa[data-open] .pm::after{transform:rotate(0)}
+.qa .a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s var(--ease)}
+.qa[data-open] .a{grid-template-rows:1fr}
+.qa .a > div{overflow:hidden}
+.qa .a p{color:var(--ink2);margin:0 0 20px;font-size:16px;max-width:620px}
+
+/* ---------- final cta ---------- */
+.cta{background:var(--accent);color:#fff;padding:72px 0}
+.cta .wrap{display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}
+.cta h2{color:#fff;max-width:640px}
+.cta .eyebrow{color:#ffe1d6}
+.cta p.r{margin:14px 0 0;color:#ffe1d6;font-size:15px}
+.cta .ctas{margin-top:0}
+.cta .btn.ghost{background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7)}
+.cta .btn.ghost:hover{background:rgba(255,255,255,.12)}
+footer{background:var(--deep);color:#b9c0af;padding:36px 0;font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+footer a{color:#e0e5d6}
+
+.mbar{display:none}
+
+@media (max-width:1100px){
+  .note{left:-70px}
+}
+@media (max-width:1000px){
+  .links{display:none}
+  .hero,.pre,.where,.cmp-wrap,.faq,.shead{grid-template-columns:minmax(0,1fr)}
+  .hero{gap:48px}
+  .note{left:-60px}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:48px}
+  .where{gap:48px}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap{padding-inline:16px}
+  .nav .wrap{height:60px}
+  .nav-login{display:none}
+  .hero{padding:32px 0 64px;gap:40px}
+  .hero h1{font-size:clamp(32px,9.4vw,42px)}
+  .hero .sub{font-size:17px;margin-top:16px}
+  .ctas{flex-direction:column;gap:10px;margin-top:24px}
+  .ctas .btn{width:100%;height:54px}
+  .checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));font-size:13.5px;gap:6px 14px}
+  .hero-vis{width:250px}
+  .note{left:auto;right:-6px;bottom:auto;top:-22px;width:236px;font-size:12.5px}
+  section.s{padding:72px 0}
+  h2{font-size:31px}
+  .shead{gap:14px;margin-bottom:28px}
+  /* the four screens: swipe sideways inside the strip (the page itself never scrolls sideways) */
+  .steps{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:4px 16px 18px;scrollbar-width:none;overscroll-behavior-x:contain}
+  .steps::-webkit-scrollbar{display:none}
+  .step{flex:0 0 76%;scroll-snap-align:center}
+  .step .ph{max-width:none;border-width:7px;border-radius:34px}
+  .step .ph img{border-radius:27px}
+  .swipe{display:flex;align-items:center;gap:8px;margin:4px 0 0;font-size:13.5px;color:var(--mute)}
+  .swipe svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .steps-foot{padding:18px;margin-top:28px}
+  .steps-foot .btn{width:100%}
+  .stat{grid-template-columns:minmax(0,1fr);padding:30px 24px;gap:10px;border-radius:20px}
+  .sheet-h{padding:14px 16px}
+  .svc{font-size:14.5px}
+  .svc td{padding:12px 16px}
+  .qs{padding:16px}
+  .q{grid-template-columns:minmax(0,1fr);gap:6px}
+  .sheet-f{padding:12px 16px}
+  .where .ph{max-width:250px}
+  .bchrome span{margin-left:6px}
+  .cmp{font-size:14.5px}
+  .cmp th,.cmp td{padding:13px 12px}
+  .cmp thead th{font-size:13px}
+  .cmp tbody th{font-size:13.5px}
+  .faq{gap:20px}
+  .qa button{font-size:16px}
+  .cta{padding:56px 0 64px}
+  .cta .ctas{width:100%}
+  footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .mbar{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:45;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .3s var(--ease)}
+  .mbar.on{transform:none}
+  .mbar .btn{flex:1;height:48px;padding:0 12px;font-size:15.5px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}.js .note{opacity:1;transform:none}}
+</style>
+<script src="../../dbx.js"></script>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="arw" viewBox="0 0 16 16"><path class="ln" d="M2 8h10"/><path class="hd" d="M7.5 3.5 12 8l-4.5 4.5"/></symbol>
+  <symbol id="chk" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="bubble" viewBox="0 0 24 24"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.4 1.3 4.6 3.5 6.1-.2 1.4-.9 2.7-1.9 3.6 2.1-.1 3.9-.9 5.2-2 1 .2 2.1.3 3.2.3 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></symbol>
+  <symbol id="play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10.2 8.6v6.8l5.4-3.4z" fill="currentColor" stroke="none"/></symbol>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Dialbridge, back to top">dialbridge<span>.</span>ai</a>
+    <nav class="links" aria-label="Sections"><a href="#how">How it works</a><a href="#prebuilt">Your prices</a><a href="#where">Website and Google</a><a href="#compare">Cost</a><a href="#faq">Questions</a></nav>
+    <div class="nav-r"><a class="nav-login" href="https://app.matviykorsunskiy.me/login">Log in</a><a class="btn dark sm" href="https://app.matviykorsunskiy.me/signup?trade=window-cleaning" data-signup>Start free <svg class="arw"><use href="#arw"/></svg></a></div>
+  </div>
+</header>
+
+<main id="top">
+<div class="wrap">
+  <section class="hero" aria-labelledby="h1">
+    <div>
+      <p class="eyebrow">For window cleaning and exterior cleaning businesses</p>
+      <h1 id="h1">Customers see their price and book. <em>No quoting back and forth by text.</em></h1>
+      <p class="sub">They pick the service, tap about how many windows and how many stories, see your price and choose one of your open arrival windows. You get a text with the booked job.</p>
+      <div class="ctas" id="heroCtas">
+        <a class="btn" href="https://app.matviykorsunskiy.me/signup?trade=window-cleaning" data-signup>Start free <svg class="arw"><use href="#arw"/></svg></a>
+        <a class="btn ghost" href="https://app.matviykorsunskiy.me/b/shoreline-window-and-wash" target="_blank" rel="noopener" data-demo><svg class="play"><use href="#play"/></svg>Try the demo</a>
+      </div>
+      <ul class="checks">
+        <li><svg><use href="#chk"/></svg>14 days free</li>
+        <li><svg><use href="#chk"/></svg>Build your page free, no card</li>
+        <li><svg><use href="#chk"/></svg>No setup fee</li>
+        <li><svg><use href="#chk"/></svg>$99/month after</li>
+      </ul>
+    </div>
+    <div class="hero-vis">
+      <div class="ph"><img src="step-price.webp" alt="Booking screen for Shoreline Window and Wash: 2 stories and screens washed are picked, and the price shows $654, final price confirmed before we start" width="780" height="1560" fetchpriority="high"></div>
+      <div class="note" id="note" aria-hidden="true"><span class="app"><svg viewBox="0 0 24 24"><use href="#bubble"/></svg></span><div><div class="h"><b>Dialbridge</b><span>now</span></div><p><strong>New booking:</strong> Windows + house wash, 16 to 25 windows, 2 stories. Tue 8 to 11 AM. Shown $654.</p></div></div>
+      <p class="cap">Real screen from our demo business</p>
+    </div>
+  </section>
+</div>
+
+<section class="s" id="how" style="padding-top:0">
+  <div class="wrap">
+    <div class="shead">
+      <div><p class="eyebrow">What your customer sees</p><h2>Four taps from "how much?" to booked.</h2></div>
+      <p>These are real screens from Shoreline Window &amp; Wash, our demo business. Your page looks the same with your name, your color and your prices.</p>
+    </div>
+    <ol class="steps">
+      <li class="step">
+        <div class="ph"><img src="step-services.webp" alt="Step 1: list of services with prices: free estimate visit, holiday light installation free quote, window cleaning $189, house soft wash $279, windows plus house wash $429, driveway and walkway $149" width="780" height="1560" loading="lazy" decoding="async"></div>
+        <div class="tx"><span class="n">1</span><h3>They pick the job</h3><p>Your services with starting prices, right up front. Price shoppers see the number before they ever text you.</p></div>
+      </li>
+      <li class="step">
+        <div class="ph"><img src="step-questions.webp" alt="Step 2: questions: about how many windows (up to 15, 16 to 25 plus $70, 26 to 35 plus $140, 36 or more plus $220), inside and outside or just outside, how big is the home" width="780" height="1560" loading="lazy" decoding="async"></div>
+        <div class="tx"><span class="n">2</span><h3>They answer what they know</h3><p>About how many windows, inside or out, home size in bedrooms. Nobody has to measure square footage.</p></div>
+      </li>
+      <li class="step">
+        <div class="ph"><img src="step-price.webp" alt="Step 3: stories and add-ons picked, total shown as $654 with what it includes and a note that the final price is confirmed before work starts" width="780" height="1560" loading="lazy" decoding="async"></div>
+        <div class="tx"><span class="n">3</span><h3>They see the price</h3><p>Every answer adds the amount you set. The total says the final price is confirmed before you start.</p></div>
+      </li>
+      <li class="step">
+        <div class="ph"><img src="step-arrival.webp" alt="Step 4: when works for you, a list of open arrival windows such as Tuesday October 20, 8 to 11 AM" width="780" height="1560" loading="lazy" decoding="async"></div>
+        <div class="tx"><span class="n">4</span><h3>They pick an arrival window</h3><p>Only the windows you have open. They get a confirmation text and reminders before you show up.</p></div>
+      </li>
+    </ol>
+    <p class="swipe" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Swipe to see all four screens</p>
+    <div class="steps-foot">
+      <p><b>Then you get a text</b> with the job, the answers, the time and the price they saw. Every booking also lands in your leads dashboard and on your calendar.</p>
+      <a class="btn ghost" href="https://app.matviykorsunskiy.me/b/shoreline-window-and-wash" target="_blank" rel="noopener" data-demo><svg class="play"><use href="#play"/></svg>Click through it yourself</a>
+    </div>
+  </div>
+</section>
+
+<section class="s" style="padding-top:0">
+  <div class="wrap">
+    <div class="stat">
+      <div class="big">93%</div>
+      <div>
+        <h2>of homeowners say an instant estimate affects who they hire.</h2>
+        <p>Housecall Pro survey of 1,040 homeowners, October 2025.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="band" id="prebuilt">
+  <section class="s">
+    <div class="wrap pre">
+      <div>
+        <p class="eyebrow">Pre-built for your trade</p>
+        <h2 style="margin-top:16px">Your booking page is already filled in.</h2>
+        <p class="lede">When you sign up as a window cleaning or exterior cleaning business, the services, prices and questions are already there. You change the numbers to yours. Setup takes minutes.</p>
+        <ol class="setup">
+          <li><b>Sign up</b> and pick window cleaning.</li>
+          <li><b>Change the prices</b> to what you charge and set your arrival windows.</li>
+          <li><b>Add the button</b> to your website and the link to your Google profile.</li>
+        </ol>
+      </div>
+      <div class="sheet">
+        <div class="sheet-h"><b>On your page on day one</b><span class="tag">You set every price</span></div>
+        <table class="svc">
+          <tbody>
+            <tr><td>Window cleaning<small>Glass, frames and sills. Screens wiped.</small></td><td>$189</td></tr>
+            <tr><td>House soft wash<small>Siding, soffits and trim, low pressure</small></td><td>$279</td></tr>
+            <tr><td>Windows + house wash<small>Both in one visit</small></td><td>$429</td></tr>
+            <tr><td>Driveway and walkway<small>Concrete or pavers, oil and algae spots</small></td><td>$149</td></tr>
+            <tr><td>Gutter cleaning<small>Cleared, bagged and downspouts flushed</small></td><td>$129</td></tr>
+            <tr><td>Holiday light installation<small>Every roofline is different, so it's a quote</small></td><td class="free">Free quote</td></tr>
+            <tr><td>Free estimate visit<small>For anything that needs a look first</small></td><td class="free">Free</td></tr>
+          </tbody>
+        </table>
+        <div class="qs">
+          <p>Questions with prices, from Windows + house wash</p>
+          <div class="q"><b>About how many windows?</b><div class="opts"><span>Up to 15</span><span>16 to 25<i>+$70</i></span><span>26 to 35<i>+$140</i></span><span>36 or more<i>+$220</i></span></div></div>
+          <div class="q"><b>Inside or outside?</b><div class="opts"><span>Outside only</span><span>Inside and outside<i>+$90</i></span></div></div>
+          <div class="q"><b>How big is the home?</b><div class="opts"><span>2 bedrooms or fewer</span><span>3 to 4<i>+$80</i></span><span>5+<i>+$170</i></span><span>Estate<i>+$260</i></span></div></div>
+          <div class="q"><b>How many stories?</b><div class="opts"><span>1</span><span>2<i>+$40</i></span><span>3<i>+$90</i></span></div></div>
+          <div class="q"><b>Add-ons</b><div class="opts"><span>Screens washed<i>+$35</i></span><span>Walkway and steps<i>+$49</i></span><span>Patio or deck<i>+$99</i></span><span>Gutter face brightening<i>+$79</i></span></div></div>
+        </div>
+        <p class="sheet-f">Commercial, roofs and bigger jobs go to "Send photos for a quote", so you price those yourself.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="s" id="where">
+  <div class="wrap">
+    <div class="shead">
+      <div><p class="eyebrow">Where customers book</p><h2>On your website and on Google.</h2></div>
+      <p>Your website gets a Book online bar along the bottom. Your Google Business Profile gets a Book online button. Both open the same booking page. Works with WordPress, Wix, Squarespace, GoDaddy and most other sites.</p>
+    </div>
+    <div class="where">
+      <div>
+        <div class="browser"><div class="bchrome"><i></i><i></i><i></i><span>shorelinewindowandwash.com</span></div><img src="demo-website.webp" alt="Demo website for Shoreline Window and Wash with a Book online bar fixed along the bottom of the screen" width="1600" height="1000" loading="lazy" decoding="async"></div>
+        <div class="wcap"><h3>Your website</h3><p>One line of code adds the bar to every page. It stays out of the way until someone wants a price.</p><a class="tlink" href="https://matviykorsunskiy.me/dialbridge-widget/demo/shoreline/" target="_blank" rel="noopener">Open the demo website <svg class="arw"><use href="#arw"/></svg></a></div>
+      </div>
+      <div>
+        <div class="ph"><img src="demo-google.webp" alt="Demo Google Maps profile for Shoreline Window and Wash, 4.9 stars, with a blue Book online button" width="780" height="1560" loading="lazy" decoding="async"></div>
+        <div class="wcap"><h3>Your Google profile</h3><p>People who find you on Maps book without calling.</p><a class="tlink" href="https://matviykorsunskiy.me/dialbridge-widget/demo/shoreline/maps.html" target="_blank" rel="noopener">Open the Google profile demo <svg class="arw"><use href="#arw"/></svg></a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="compare" style="padding-top:0">
+  <div class="wrap">
+    <div class="shead">
+      <div><p class="eyebrow">Cost</p><h2>Less than half the cost in year one.</h2></div>
+      <p>Instant-quote tools built for this trade do the same basic job. Here is what they usually cost next to Dialbridge.</p>
+    </div>
+    <div class="cmp-wrap">
+      <table class="cmp">
+        <thead><tr><th scope="col"><span class="sr">What you pay</span></th><th scope="col" class="us">Dialbridge</th><th scope="col">Typical instant-quote tool</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Monthly</th><td class="us">$99</td><td>$179 to $299+</td></tr>
+          <tr><th scope="row">Setup fee</th><td class="us">$0</td><td>Often $400 to $700</td></tr>
+          <tr><th scope="row">First year</th><td class="us">$1,188</td><td>$2,548 to $4,288+</td></tr>
+          <tr><th scope="row">Customers see a price</th><td class="us">Yes</td><td>Yes</td></tr>
+        </tbody>
+      </table>
+      <div class="cmp-side">
+        <p><b>Already using Jobber or Housecall Pro?</b> Keep it. The $30 to $79 job apps are good for scheduling and invoices, but they don't show your customers a price calculator. Dialbridge does that part and works alongside them.</p>
+        <p>No contract. Cancel any time.</p>
+        <small>First year: 12 months of the monthly price plus the setup fee. Competitor prices are typical published prices as of October 2026.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="faq" style="padding-top:0">
+  <div class="wrap faq">
+    <div><p class="eyebrow">Questions</p><h2 style="margin-top:18px">What owners ask first.</h2></div>
+    <div id="faqList">
+      <div class="qa"><button type="button" aria-expanded="false">Does it work with Jobber or Housecall Pro?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>Yes, alongside them. Keep running your jobs, crew and invoices where you do now. Dialbridge handles the part before that: the customer seeing a price and booking. Each booking comes to you by text, in your leads dashboard and on your calendar.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">What if the job is bigger than they said?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>Every price on the page says the final price is confirmed before you start. If they picked up to 15 windows and the house has 30, you show them the difference on arrival, before any work. Jobs you'd rather see first can go to a free estimate visit or a photo quote instead of a set price.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Can I use it for commercial work?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>The pre-built prices are for homes. Commercial, roofs and bigger jobs go to "Send photos for a quote", so the customer sends details and photos and you price it yourself.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">How do holiday lights work?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>Holiday light installation is on the page as a free quote, because every roofline is different. The request comes to you the same way as a booking and you send the price.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">How long does setup take?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>Minutes. The services, prices and questions are already there. You change the numbers to yours, set your arrival windows and paste one line on your site.</p></div></div></div>
+      <div class="qa"><button type="button" aria-expanded="false">Can I cancel any time?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>Yes. It's month to month with no contract and no setup fee. The first 14 days are free.</p></div></div></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="cta">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Your price list is already built</p>
+      <h2 style="margin-top:12px">Change the numbers. Start taking bookings.</h2>
+      <p class="r">Build your page free. 14 days free when you go live. No setup fee. $99/month after.</p>
+    </div>
+    <div class="ctas">
+      <a class="btn dark" href="https://app.matviykorsunskiy.me/signup?trade=window-cleaning" data-signup>Start free <svg class="arw"><use href="#arw"/></svg></a>
+      <a class="btn ghost" href="https://app.matviykorsunskiy.me/b/shoreline-window-and-wash" target="_blank" rel="noopener" data-demo><svg class="play"><use href="#play"/></svg>Try the demo</a>
+    </div>
+  </div>
+</div>
+<footer><div class="wrap"><span>&copy; 2026 Dial Bridge LLC &middot; Mahwah, NJ</span><span><a href="../../product/">All trades</a></span></div></footer>
+
+<div class="mbar" id="mbar"><a class="btn" href="https://app.matviykorsunskiy.me/signup?trade=window-cleaning" data-signup>Start free</a><a class="btn ghost" href="https://app.matviykorsunskiy.me/b/shoreline-window-and-wash" target="_blank" rel="noopener" data-demo>Try the demo</a></div>
+
+<script>
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* nav hairline + phone CTA bar */
+  var nav = document.getElementById('nav'), mbar = document.getElementById('mbar'), hero = document.getElementById('heroCtas');
+  function onScroll() {
+    nav.classList.toggle('scrolled', scrollY > 8);
+    var on = hero.getBoundingClientRect().bottom < 0;
+    mbar.classList.toggle('on', on);
+    var hide = getComputedStyle(mbar).display !== 'none';   // phones: the hero and the bar already have Try the demo
+    if (hide !== onScroll.hide) { onScroll.hide = hide; document.dispatchEvent(new CustomEvent('dialbridge:lift', { detail: { hide: hide } })); }
+  }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  // w.js loads async, after the first call: tell it again once it's running
+  window.dbSync = function () { onScroll.hide = undefined; onScroll(); };
+  addEventListener('load', window.dbSync);
+
+  /* in-page links glide instead of jumping */
+  function glideTo(y) {
+    var from = scrollY, d = y - from, t0 = null, ms = reduce ? 0 : Math.min(1100, 450 + Math.abs(d) * 0.18);
+    if (!ms) { scrollTo(0, y); return; }
+    (function f(now) { if (t0 === null) t0 = now; var k = Math.min(1, (now - t0) / ms), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; scrollTo(0, from + d * e); if (k < 1) requestAnimationFrame(f); })(performance.now());
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href^="#"]'); if (!a) return;
+    var id = a.getAttribute('href').slice(1), el = document.getElementById(id);
+    if (!el) return;
+    e.preventDefault();
+    glideTo(id === 'top' ? 0 : el.getBoundingClientRect().top + scrollY - 76);
+  });
+
+  /* Try the demo: opens the real widget for the demo business. If the widget hasn't loaded, the link opens its booking page. */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-demo]'); if (!a) return;
+    if (window.DialBridgeWidget && typeof window.DialBridgeWidget.open === 'function') { e.preventDefault(); window.DialBridgeWidget.open(null, a); }
+  });
+
+  /* Start free: keep trade=window-cleaning and pass along the ad that brought them (first touch, saved by dbx.js) */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-signup]'); if (!a) return;
+    var A = {}; try { A = JSON.parse(localStorage.getItem('dbx_attr') || '{}'); } catch (x) { }
+    var q = new URLSearchParams({ trade: 'window-cleaning' });
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'].forEach(function (k) { if (A[k]) q.set(k, A[k]); });
+    if (A.fbc_at) q.set('fbc_at', A.fbc_at);
+    a.href = 'https://app.matviykorsunskiy.me/signup?' + q.toString();
+  }, true);
+
+  /* FAQ */
+  document.getElementById('faqList').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var qa = b.parentNode, open = qa.hasAttribute('data-open');
+    if (open) qa.removeAttribute('data-open'); else qa.setAttribute('data-open', '');
+    b.setAttribute('aria-expanded', open ? 'false' : 'true');
+  });
+
+  /* the one motion moment: the owner's booking text drops in next to the price screen */
+  setTimeout(function () { document.getElementById('note').classList.add('on'); }, reduce ? 0 : 900);
+})();
+</script>
+<!-- The real booking widget for the demo business. A small corner button on computers; phones use the page's own Try the demo buttons. -->
+<script async src="https://matviykorsunskiy.me/dialbridge-widget/w.js" data-business="shoreline-window-and-wash" data-live="1" data-color="#12507A" data-label="Try the demo" data-style="float" data-font="Manrope" onload="window.dbSync && window.dbSync()"></script>
+</body>
+</html>
