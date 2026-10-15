@@ -1051,7 +1051,7 @@
     }
     // The builder's preview of a layer opens on the services (and the picked service's questions), past the ZIP screen.
     if (params.get('builder') === '1' && st0 && S.path) {
-      var at0 = screens().map(function (sc) { return sc.some(function (id) { var t = stepDef(id).type; return t === 'service' || t === 'choice' || t === 'qty' || t === 'ask' || t === 'addons'; }); }).indexOf(true);
+      var at0 = screens().map(function (sc) { return stepDef(sc[0]).type !== 'zip'; }).indexOf(true);
       if (at0 > 0) S.idx = at0;
     }
     else if (st0 === 'call') S.path = OPEN ? 'call' : 'callback';
