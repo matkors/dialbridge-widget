@@ -188,6 +188,8 @@
     var EDIT = params.get('builder') === '1' && /^(1|brand|tiles)$/.test(params.get('edit') || '');
     var EDITB = EDIT && params.get('edit') !== 'tiles', EDITT = EDIT && params.get('edit') !== 'brand';
     if (EDIT) document.documentElement.classList.add('editing');
+    // ?side=0 (builder only): no brand panel on the left, for steps that are about the buttons and services.
+    if (params.get('builder') === '1' && params.get('side') === '0') document.documentElement.classList.add('noside');
     // Brand step: the middle (the four options) is the next step, so it fades back and says so.
     if (EDITB && !EDITT) document.documentElement.classList.add('edit-brand');
     var imgOk = function (u) { return /^data:image\/(png|jpeg|webp);base64,/.test(u || '') || srcOk(u); };
