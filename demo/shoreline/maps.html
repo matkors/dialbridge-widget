@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shoreline Window &amp; Wash on Maps (demo)</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="img/map-redbank.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23EA4335' d='M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z'/%3E%3Ccircle cx='12' cy='9' r='2.6' fill='%23B31412'/%3E%3C/svg%3E">
+<style>
+:root{
+  --txt:#202124; --txt-2:#3c4043; --grey:#70757a; --line:#e8eaed; --line-2:#dadce0;
+  --blue:#1a73e8; --blue-dk:#1765cc; --blue-tint:#e8f0fe; --green:#188038; --star:#fbbc04; --red:#ea4335;
+  --panel:408px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#e5e3df}
+body{font:400 14px/1.43 Roboto, Arial, sans-serif;color:var(--txt);-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+button{font:inherit;color:inherit}
+a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* the map canvas */
+.viewport{position:fixed;inset:0;overflow:hidden;touch-action:none;cursor:grab;background:#f2efe9}
+.viewport.dragging{cursor:grabbing}
+.map{position:absolute;left:0;top:0;width:2000px;height:1400px;transform-origin:0 0;will-change:transform}
+.map img{display:block;width:2000px;height:1400px;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.pin{position:absolute;left:1350px;top:870px;transform:translate(-50%,-100%);background:none;border:0;padding:0;cursor:pointer;display:block}
+.pin svg{display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.pin-label{position:absolute;left:calc(100% + 4px);top:8px;white-space:nowrap;font:700 15px/1.15 Roboto, Arial, sans-serif;color:#b31412;text-align:left;
+  text-shadow:-1.5px -1.5px 0 #fff,1.5px -1.5px 0 #fff,-1.5px 1.5px 0 #fff,1.5px 1.5px 0 #fff,0 0 3px #fff}
+.pin-label small{display:block;font:500 12px Roboto, Arial, sans-serif;color:var(--txt-2);margin-top:2px}
+.pin-label small b{color:var(--txt);font-weight:500}
+.pin-label small i{font-style:normal;color:#e37400}
+
+/* search box */
+.search{position:fixed;z-index:20;top:12px;left:12px;width:calc(var(--panel) - 24px);height:48px;background:#fff;border-radius:24px;
+  box-shadow:0 2px 4px rgba(0,0,0,.2),0 -1px 0 rgba(0,0,0,.02);display:flex;align-items:center;padding:0 4px 0 6px;gap:2px}
+.search .ic{width:40px;height:40px;display:grid;place-items:center;color:var(--txt-2);border-radius:50%;flex:none;text-decoration:none}
+.search a.ic:hover{background:#f1f3f4}
+.search .q{flex:1;min-width:0;font-size:15px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}
+.search .sep{width:1px;height:24px;background:var(--line-2);margin:0 2px}
+
+/* place panel: left column on desktop, bottom sheet on phones */
+.panel{position:fixed;z-index:10;left:0;top:0;bottom:0;width:var(--panel);background:#fff;box-shadow:0 0 20px rgba(0,0,0,.18);overflow-y:auto;overscroll-behavior:contain;padding-top:72px}
+.grab{display:none}
+.photos{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;gap:2px;height:236px;margin:0 0 0;}
+.photos .ph{position:relative;overflow:hidden;background:#ddd;border:0;padding:0;cursor:pointer}
+.photos .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.photos .ph:first-child{grid-row:span 2}
+.photos .more{position:absolute;left:8px;bottom:8px;background:rgba(32,33,36,.75);color:#fff;font-size:12.5px;font-weight:500;padding:4px 10px;border-radius:14px;display:flex;align-items:center;gap:6px}
+.hd{padding:18px 24px 6px}
+.hd h1{font:400 22px/28px Roboto, Arial, sans-serif;margin:0}
+.rate{display:flex;align-items:center;gap:6px;margin-top:4px;color:var(--txt-2)}
+.rate b{font-weight:400;color:var(--txt)}
+.stars{color:var(--star);letter-spacing:.5px;font-size:15px}
+.rate a{color:var(--blue);text-decoration:none}
+.cat{color:var(--grey);margin-top:2px}
+.cat button{background:none;border:0;padding:0;color:var(--grey);cursor:pointer}
+.openl{margin-top:4px;color:var(--txt-2)}
+.openl .o{color:var(--green);font-weight:500}
+
+.tabs{display:flex;border-bottom:1px solid var(--line);margin-top:12px;padding:0 12px}
+.tabs button{flex:1;background:none;border:0;border-bottom:3px solid transparent;min-height:48px;font-weight:500;color:var(--grey);cursor:pointer;font-size:14px}
+.tabs button[aria-selected="true"]{color:var(--blue-dk);border-bottom-color:var(--blue)}
+
+.book{padding:16px 24px 6px;display:grid;grid-template-columns:1.25fr 1fr;gap:8px}
+.bk{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:22px;border:1px solid var(--line-2);background:#fff;color:var(--blue-dk);font-weight:500;font-size:14px;cursor:pointer;text-decoration:none;padding:0 12px;white-space:nowrap}
+.bk:hover{background:#f6fafe;border-color:#d2e3fc}
+.bk.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-size:15px}
+.bk.primary:hover{background:var(--blue-dk);border-color:var(--blue-dk);box-shadow:0 1px 3px rgba(60,64,67,.3)}
+.bk-sub{grid-column:1 / -1;font-size:12px;color:var(--grey);padding:2px 4px 0}
+
+.acts{display:flex;justify-content:space-between;padding:14px 16px 16px;border-bottom:1px solid var(--line)}
+.act{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;cursor:pointer;color:var(--blue-dk);font-size:12px;font-weight:500;min-width:0}
+.act .c{width:40px;height:40px;border-radius:50%;border:1px solid var(--line-2);display:grid;place-items:center;color:var(--blue-dk);background:#fff;transition:background-color .15s}
+.act:hover .c{background:var(--blue-tint)}
+.act.fill .c{background:var(--blue);border-color:var(--blue);color:#fff}
+.act.on .c{background:var(--blue-tint)}
+.act span.l{white-space:nowrap}
+
+.rows{padding:6px 0;border-bottom:1px solid var(--line)}
+.row{display:flex;align-items:flex-start;gap:24px;padding:11px 24px;color:var(--txt);text-decoration:none;min-height:48px}
+a.row:hover,button.row:hover{background:#f8f9fa}
+button.row{width:100%;background:none;border:0;text-align:left;cursor:pointer}
+.row svg{flex:none;color:var(--blue);margin-top:1px}
+.row .t{flex:1;min-width:0}
+.row .t small{display:block;color:var(--grey);font-size:12.5px}
+.row .o{color:var(--green);font-weight:500}
+
+.sec{padding:18px 24px;border-bottom:1px solid var(--line)}
+.sec h2{font:500 16px/1.4 Roboto, Arial, sans-serif;margin:0 0 12px}
+.svcs{list-style:none;margin:0;padding:0}
+.svcs li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;color:var(--txt-2)}
+.svcs li span:last-child{color:var(--txt);white-space:nowrap}
+.svcs-more{margin-top:10px}
+.svcs-more a{color:var(--blue-dk);text-decoration:none;font-weight:500}
+
+.rsum{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.bars{display:grid;gap:4px}
+.bar{display:grid;grid-template-columns:10px 1fr;gap:8px;align-items:center;font-size:12px;color:var(--grey)}
+.bar i{display:block;height:8px;border-radius:4px;background:#e8eaed;overflow:hidden}
+.bar i b{display:block;height:100%;background:var(--star);border-radius:4px}
+.rbig{text-align:center}
+.rbig b{font:400 44px/1 Roboto, Arial, sans-serif;display:block}
+.rbig small{color:var(--grey)}
+.rv{display:grid;grid-template-columns:36px 1fr;gap:4px 12px;padding:14px 0 4px}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:500;font-size:15px}
+.rv .n{font-weight:500}
+.rv .n small{display:block;color:var(--grey);font-weight:400;font-size:12px}
+.rv .s{grid-column:2;display:flex;gap:8px;align-items:center;font-size:12px;color:var(--grey)}
+.rv p{grid-column:2;margin:4px 0 0;color:var(--txt-2)}
+.rv .own{grid-column:2;margin-top:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;font-size:13px;color:var(--txt-2)}
+.rv .own b{display:block;font-weight:500;color:var(--txt);font-size:12.5px}
+.foot{padding:16px 24px 28px;color:var(--grey);font-size:12px}
+.foot a{color:var(--blue-dk)}
+
+.note{position:fixed;z-index:15;right:12px;bottom:12px;background:rgba(255,255,255,.92);border-radius:4px;padding:4px 8px;font-size:11px;color:var(--txt-2);box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.note b{font-weight:500;color:var(--txt)}
+
+.toast{position:fixed;z-index:60;left:50%;bottom:24px;transform:translate(-50%,20px);background:#323232;color:#fff;padding:12px 18px;border-radius:4px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* full view booking overlay */
+.ov{position:fixed;inset:0;z-index:50;background:rgba(32,33,36,.55);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+.ov.on{display:flex}
+.ov.show{opacity:1}
+.sheet{width:min(760px,calc(100vw - 48px));height:min(920px,calc(100vh - 48px));background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.3);transform:translateY(16px) scale(.985);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.ov.show .sheet{transform:none}
+.sh-top{flex:none;display:flex;align-items:center;gap:6px;height:60px;padding:0 8px 0 4px;border-bottom:1px solid var(--line)}
+.sh-x{width:48px;height:48px;border-radius:50%;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--txt-2);flex:none}
+.sh-x:hover{background:#f1f3f4}
+.sh-t{flex:1;min-width:0}
+.sh-t b{display:block;font-weight:500;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-t small{display:block;color:var(--grey);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-body{flex:1;position:relative;background:#fff}
+.sh-body iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.sh-load{position:absolute;inset:0;display:grid;place-items:center;color:var(--grey);font-size:14px}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid #e8eaed;border-top-color:var(--blue);animation:sp 0.8s linear infinite;margin:0 auto 10px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* phones: map on top, place details in a bottom sheet */
+@media (max-width:760px){
+  .search{left:12px;right:12px;width:auto;top:max(10px, env(safe-area-inset-top))}
+  .panel{top:auto;width:auto;right:0;height:56vh;height:56dvh;border-radius:16px 16px 0 0;padding-top:0;box-shadow:0 -2px 12px rgba(0,0,0,.22);transition:height .3s cubic-bezier(.2,.8,.2,1);padding-bottom:env(safe-area-inset-bottom)}
+  .panel.full ~ .note{display:none}
+  .panel.full{height:calc(100vh - 70px);height:calc(100dvh - 70px)}
+  .grab{display:block;position:sticky;top:0;z-index:2;width:100%;height:28px;background:#fff;border:0;cursor:pointer;padding:0}
+  .grab::after{content:"";display:block;width:36px;height:4px;border-radius:2px;background:#dadce0;margin:10px auto 0}
+  .m-order{display:flex;flex-direction:column}
+  .hd{order:1;padding:0 16px 4px}
+  .book{order:2;padding:12px 16px 4px}
+  .acts{order:3;padding:12px 4px 14px;overflow-x:auto}
+  .photos{order:4;height:150px;margin:12px 16px 0;grid-template-columns:repeat(4, 42%);grid-template-rows:1fr;overflow-x:auto;gap:6px;border-radius:8px;scrollbar-width:none}
+  .photos::-webkit-scrollbar{display:none}
+  .photos .ph{border-radius:8px}
+  .photos .ph:first-child{grid-row:auto}
+  .tabs{order:5}
+  .rest{order:6}
+  .act{font-size:11.5px}
+  .row{padding:11px 16px;gap:20px}
+  .sec{padding:16px}
+  .foot{padding:16px 16px 24px}
+  .note{right:auto;left:12px;bottom:auto;top:calc(max(10px, env(safe-area-inset-top)) + 56px)}
+  .ov{background:#fff}
+  .sheet{width:100%;height:100%;border-radius:0;box-shadow:none;transform:translateY(24px)}
+  .sh-top{padding-top:env(safe-area-inset-top);height:calc(60px + env(safe-area-inset-top))}
+  .sh-body{padding-bottom:env(safe-area-inset-bottom)}
+}
+@media (min-width:761px){ .m-order{display:block} .photos .ph:nth-child(4){display:none} .photos .ph{min-height:0} }
+@media (prefers-reduced-motion:reduce){ .ov,.sheet,.panel,.toast{transition:none} }
+</style>
+</head>
+<body>
+
+<div class="viewport" id="vp" aria-label="Map of Red Bank, New Jersey">
+  <div class="map" id="map">
+    <img src="img/map-redbank.webp" width="2000" height="1400" alt="" draggable="false">
+    <button class="pin" id="pin" type="button" aria-label="Shoreline Window and Wash, book online">
+      <svg width="27" height="43" viewBox="0 0 27 43" aria-hidden="true"><path fill="#EA4335" stroke="#B31412" stroke-width="1" d="M13.5 1C6.6 1 1 6.6 1 13.5c0 9.4 12.5 28 12.5 28S26 22.9 26 13.5C26 6.6 20.4 1 13.5 1z"/><circle cx="13.5" cy="13.5" r="4.6" fill="#B31412"/></svg>
+      <span class="pin-label">Shoreline Window &amp; Wash<small><b>4.9</b> <i>★</i> (127) · Book online</small></span>
+    </button>
+  </div>
+</div>
+
+<div class="search" role="search">
+  <a class="ic" href="./" aria-label="Back to the Shoreline website"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+  <div class="q">Shoreline Window &amp; Wash</div>
+  <span class="ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg></span>
+</div>
+
+<aside class="panel" id="panel" aria-label="Shoreline Window and Wash">
+  <button class="grab" id="grab" type="button" aria-label="Show more details"></button>
+  <div class="m-order">
+    <div class="photos" id="photos">
+      <button class="ph" type="button" data-toast="Photos: real jobs from the business website"><img src="img/hero-m.webp" alt="Window cleaning with a water-fed pole"><span class="more"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z"/></svg>86 photos</span></button>
+      <button class="ph" type="button" data-toast="Photos: real jobs from the business website"><img src="img/shore-house.webp" alt="Cedar shingle house after a soft wash" loading="lazy"></button>
+      <button class="ph" type="button" data-toast="Photos: real jobs from the business website"><img src="img/driveway.webp" alt="Driveway pressure washing" loading="lazy"></button>
+      <button class="ph" type="button" data-toast="Photos: real jobs from the business website"><img src="img/gutter.webp" alt="Clean gutter and downspout" loading="lazy"></button>
+    </div>
+
+    <div class="hd">
+      <h1>Shoreline Window &amp; Wash</h1>
+      <div class="rate"><b>4.9</b><span class="stars" aria-label="4.9 stars">★★★★★</span><a href="#reviews" data-go="reviews">(127)</a></div>
+      <div class="cat">Pressure washing service</div>
+      <div class="openl"><span class="o">Open</span> · Closes 6 PM</div>
+    </div>
+
+    <div class="book">
+      <a class="bk primary" data-book href="#">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+        Book online</a>
+      <a class="bk" data-book href="#">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg>
+        Get online quote</a>
+      <div class="bk-sub">See prices and open times. Usually books in about a minute.</div>
+    </div>
+
+    <div class="acts">
+      <button class="act fill" type="button" data-toast="Directions are turned off in this demo"><span class="c"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.7 11.3l-9-9a1 1 0 0 0-1.4 0l-9 9a1 1 0 0 0 0 1.4l9 9a1 1 0 0 0 1.4 0l9-9a1 1 0 0 0 0-1.4zM14 14.5V12h-4v3H8v-4a1 1 0 0 1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/></svg></span><span class="l">Directions</span></button>
+      <button class="act" type="button" id="save" aria-pressed="false"><span class="c"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg></span><span class="l">Save</span></button>
+      <button class="act" type="button" data-toast="Nearby search is turned off in this demo"><span class="c"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></span><span class="l">Nearby</span></button>
+      <button class="act" type="button" data-toast="Send to phone is turned off in this demo"><span class="c"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2"/><path d="M10.5 18.5h3"/></svg></span><span class="l">Send to phone</span></button>
+      <button class="act" type="button" id="share"><span class="c"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg></span><span class="l">Share</span></button>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-go="top">Overview</button>
+      <button type="button" role="tab" aria-selected="false" data-go="reviews">Reviews</button>
+      <button type="button" role="tab" aria-selected="false" data-go="about">About</button>
+    </div>
+
+    <div class="rest">
+      <div class="rows">
+        <div class="row"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><div class="t">214 Branch Ave, Red Bank, NJ 07701</div></div>
+        <div class="row"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div class="t"><span class="o">Open</span> · Closes 6 PM<small>Monday to Saturday, 8 AM to 6 PM</small></div></div>
+        <div class="row"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/><circle cx="12" cy="12" r="9"/></svg><div class="t">Serves Red Bank and nearby areas<small>Middletown, Holmdel, Rumson, Little Silver, Colts Neck, Long Branch, Asbury Park</small></div></div>
+        <a class="row" href="./"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg><div class="t">Website<small>Shoreline Window &amp; Wash home page</small></div></a>
+        <a class="row" href="tel:+17325338997"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg><div class="t">(732) 533-8997</div></a>
+        <button class="row" type="button" data-book><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><div class="t">Book online<small>Pick a service, see your price, choose a day</small></div></button>
+      </div>
+
+      <div class="sec" id="about">
+        <h2>Services</h2>
+        <ul class="svcs">
+          <li><span>Window cleaning</span><span>from $189</span></li>
+          <li><span>House soft wash</span><span>from $279</span></li>
+          <li><span>Window + house wash combo</span><span>from $429</span></li>
+          <li><span>Driveway and walkway cleaning</span><span>from $149</span></li>
+          <li><span>Gutter cleaning</span><span>from $129</span></li>
+          <li><span>Holiday light installation</span><span>Free quote</span></li>
+        </ul>
+        <div class="svcs-more"><a data-book href="#">See all prices and book</a></div>
+      </div>
+
+      <div class="sec" id="reviews">
+        <h2>Review summary</h2>
+        <div class="rsum">
+          <div class="bars">
+            <div class="bar"><span>5</span><i><b style="width:92%"></b></i></div>
+            <div class="bar"><span>4</span><i><b style="width:6%"></b></i></div>
+            <div class="bar"><span>3</span><i><b style="width:1%"></b></i></div>
+            <div class="bar"><span>2</span><i><b style="width:0%"></b></i></div>
+            <div class="bar"><span>1</span><i><b style="width:1%"></b></i></div>
+          </div>
+          <div class="rbig"><b>4.9</b><span class="stars">★★★★★</span><br><small>127 reviews</small></div>
+        </div>
+        <div class="rv">
+          <div class="av" style="background:#7b1fa2">K</div>
+          <div class="n">Karen M.<small>Local Guide · 23 reviews</small></div>
+          <div class="s"><span class="stars" style="font-size:13px">★★★★★</span>2 weeks ago</div>
+          <p>Booked online at 10 at night. 31 windows inside and out, and the price on the site was the price on the bill.</p>
+          <div class="own"><b>Response from the owner</b>Thanks Karen, see you in the spring for the screens.</div>
+        </div>
+        <div class="rv">
+          <div class="av" style="background:#00796b">T</div>
+          <div class="n">Tom D.<small>4 reviews</small></div>
+          <div class="s"><span class="stars" style="font-size:13px">★★★★★</span>a month ago</div>
+          <p>Cedar shakes had green streaks for years. Gone in one morning, and they covered the hydrangeas first.</p>
+        </div>
+      </div>
+
+      <div class="foot">Demo listing made to show online booking from a Business Profile. Map data ©2026 Google. Booking by <a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Dialbridge</a>.</div>
+    </div>
+  </div>
+</aside>
+
+<div class="note"><b>Demo</b> · Map data ©2026 Google</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="Book online with Shoreline Window and Wash">
+  <div class="sheet">
+    <div class="sh-top">
+      <button class="sh-x" id="close" type="button" aria-label="Close booking"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="sh-t"><b>Book online</b><small>Shoreline Window &amp; Wash · Red Bank, NJ</small></div>
+    </div>
+    <div class="sh-body" id="shBody"><div class="sh-load"><div><div class="spin"></div>Loading booking</div></div></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  // The ONE place to change which Dialbridge business this demo books with.
+  var SLUG = 'shoreline-window-and-wash';
+
+  var HOSTED = 'https://app.matviykorsunskiy.me/b/' + SLUG;
+  // The hosted page (HOSTED) refuses to load inside a frame, so the full view frames the same booking
+  // form the website widget uses. Add ?hosted=1 to this page's URL to send Book online to HOSTED instead.
+  var FRAME = 'https://matviykorsunskiy.me/dialbridge-widget/book.html?embed=1&inline=1&live=1&b=' + SLUG;
+  var useHosted = /[?&]hosted=1/.test(location.search);
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var phone = function () { return window.matchMedia('(max-width: 760px)').matches; };
+
+  /* ---------- map placement and drag ---------- */
+  var vp = document.getElementById('vp'), map = document.getElementById('map'), panel = document.getElementById('panel');
+  var PX = 1350, PY = 850, W = 2000, H = 1400, tx = 0, ty = 0, sc = 1;
+  function clamp() {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    tx = Math.min(0, Math.max(vw - W * sc, tx));
+    ty = Math.min(0, Math.max(vh - H * sc, ty));
+  }
+  function apply() { map.style.transform = 'translate(' + Math.round(tx) + 'px,' + Math.round(ty) + 'px) scale(' + sc + ')'; }
+  function center() {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    sc = Math.max(1, vw / W, vh / H);
+    var cx, cy;
+    if (phone()) { cx = vw * 0.42; cy = (vh - panel.offsetHeight) * 0.5 + 40; }
+    else { var pw = panel.offsetWidth; cx = pw + (vw - pw) * 0.45; cy = vh * 0.48; }
+    tx = cx - PX * sc; ty = cy - PY * sc; clamp(); apply();
+  }
+  center();
+  window.addEventListener('resize', center);
+  var drag = null;
+  vp.addEventListener('pointerdown', function (e) {
+    if (e.target.closest('.pin')) return;
+    drag = { x: e.clientX, y: e.clientY, tx: tx, ty: ty, moved: false };
+    vp.classList.add('dragging'); vp.setPointerCapture(e.pointerId);
+  });
+  vp.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    tx = drag.tx + e.clientX - drag.x; ty = drag.ty + e.clientY - drag.y; clamp(); apply();
+  });
+  function endDrag() { drag = null; vp.classList.remove('dragging'); }
+  vp.addEventListener('pointerup', endDrag); vp.addEventListener('pointercancel', endDrag);
+
+  /* ---------- small helpers ---------- */
+  var toastEl = document.getElementById('toast'), toastT;
+  function toast(msg) {
+    toastEl.textContent = msg; toastEl.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+  }
+  document.querySelectorAll('[data-toast]').forEach(function (b) { b.addEventListener('click', function () { toast(b.getAttribute('data-toast')); }); });
+  var save = document.getElementById('save');
+  save.addEventListener('click', function () {
+    var on = save.getAttribute('aria-pressed') !== 'true';
+    save.setAttribute('aria-pressed', on ? 'true' : 'false'); save.classList.toggle('on', on);
+    save.querySelector('path').setAttribute('fill', on ? 'currentColor' : 'none');
+    save.querySelector('.l').textContent = on ? 'Saved' : 'Save';
+    toast(on ? 'Saved to your list' : 'Removed from your list');
+  });
+  document.getElementById('share').addEventListener('click', function () {
+    var url = location.href.split('#')[0];
+    if (navigator.share) { navigator.share({ title: 'Shoreline Window & Wash', url: url }).catch(function () { }); return; }
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { toast('Link copied'); }, function () { toast(url); });
+    else toast(url);
+  });
+
+  // Bottom sheet on phones: tap the handle to expand or shrink.
+  var grab = document.getElementById('grab');
+  grab.addEventListener('click', function () {
+    var full = panel.classList.toggle('full');
+    grab.setAttribute('aria-label', full ? 'Show less' : 'Show more details');
+    if (!full) panel.scrollTop = 0;
+  });
+  // Tabs and the review count scroll the panel to their section.
+  var tabs = document.querySelectorAll('.tabs [role=tab]');
+  document.querySelectorAll('[data-go]').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.preventDefault();
+      var id = b.getAttribute('data-go');
+      tabs.forEach(function (t) { t.setAttribute('aria-selected', t.getAttribute('data-go') === id ? 'true' : 'false'); });
+      if (phone()) panel.classList.add('full');
+      var target = id === 'top' ? 0 : document.getElementById(id).offsetTop - (phone() ? 30 : 72);
+      setTimeout(function () { panel.scrollTo({ top: target, behavior: reduce ? 'auto' : 'smooth' }); }, phone() ? 320 : 0);
+    });
+  });
+
+  /* ---------- full view booking ---------- */
+  var ov = document.getElementById('ov'), body = document.getElementById('shBody'), frame = null, lastFocus = null, isOpen = false, hideT;
+  function openBooking(start) {
+    if (useHosted) { location.href = HOSTED; return; }
+    if (isOpen) return;
+    isOpen = true; lastFocus = document.activeElement; clearTimeout(hideT);
+    if (!frame) {
+      frame = document.createElement('iframe');
+      frame.title = 'Book online with Shoreline Window and Wash';
+      frame.setAttribute('allow', 'camera');
+      frame.src = FRAME + (start ? '&start=' + start : '');
+      frame.addEventListener('load', function () { var l = body.querySelector('.sh-load'); if (l) l.remove(); });
+      body.appendChild(frame);
+    }
+    ov.classList.add('on');
+    requestAnimationFrame(function () { requestAnimationFrame(function () { ov.classList.add('show'); document.getElementById('close').focus(); }); });
+  }
+  function closeBooking() {
+    if (!isOpen) return;
+    isOpen = false; ov.classList.remove('show');
+    hideT = setTimeout(function () { ov.classList.remove('on'); }, reduce ? 0 : 220);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  document.getElementById('close').addEventListener('click', closeBooking);
+  ov.addEventListener('click', function (e) { if (e.target === ov) closeBooking(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeBooking(); });
+  window.addEventListener('message', function (e) { if (frame && e.source === frame.contentWindow && e.data && e.data.type === 'dbw:close') closeBooking(); });
+
+  document.querySelectorAll('[data-book]').forEach(function (b) {
+    if (b.tagName === 'A') b.setAttribute('href', HOSTED);
+    b.addEventListener('click', function (e) { e.preventDefault(); openBooking(null); });
+  });
+  document.getElementById('pin').addEventListener('click', function () { openBooking(null); });
+})();
+</script>
+</body>
+</html>

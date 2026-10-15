@@ -1,0 +1,15 @@
+Shoreline Window & Wash demo: photo sources
+All photos are from Unsplash under the free Unsplash License (no Unsplash+ / premium images).
+Resized, cropped and saved as WebP. Small clothing logos were painted out on hero and driveway.
+
+hero.webp, hero-m.webp   https://unsplash.com/photos/a-man-holding-a-large-metal-pole-in-front-of-a-house-J4i2xrPmcm0
+shore-house.webp         https://unsplash.com/photos/gray-wooden-house-178j8tJrNlc
+driveway.webp            https://unsplash.com/photos/a-man-in-a-blue-shirt-is-washing-a-driveway-kQHsQmLLV2I
+gutter.webp              https://unsplash.com/photos/a-blue-house-with-a-red-brick-chimney-gvt-wjGk4S4
+flag-house.webp          https://unsplash.com/photos/an-american-flag-on-a-pole-in-front-of-a-house-Cb8qeZiMZnk
+colonial.webp            https://unsplash.com/photos/a-large-white-colonial-house-with-columns-YuQMqAIdqWw
+victorian.webp           https://unsplash.com/photos/brown-and-white-concrete-house-near-green-trees-under-blue-sky-during-daytime-83qjCNdK48o
+walkway.webp             https://unsplash.com/photos/kLZs4yoR0uU   (copied from site/img/side/pressure-2.webp; spare, not used on the pages)
+
+map-redbank.webp         Screenshot of Google Maps, Red Bank NJ (https://www.google.com/maps/@40.3485,-74.0705,16z), map UI hidden.
+                         Map data (c)2026 Google. Credited on maps.html.
