@@ -623,7 +623,9 @@
     }
     function menuHtml() {
       // The owner's order and which options show (tiles.order / tiles.off). Without one: Call first while open.
-      var SP = split(), ALL = SP ? ['estimate', 'book', 'quote', 'text', 'call'] : ['book', 'quote', 'text', 'call'], tiles = T.tiles || {};
+      // The free estimate option shows with priced services next to it, or when the owner picked it in the builder.
+      var SP = split(), estPicked = !!(T.tiles && T.tiles.estimate && Array.isArray(T.tiles.order) && T.tiles.order.indexOf('estimate') > -1 && (T.tiles.off || []).indexOf('estimate') < 0);
+      var ALL = SP || estPicked ? ['estimate', 'book', 'quote', 'text', 'call'] : ['book', 'quote', 'text', 'call'], tiles = T.tiles || {};
       var mine = Array.isArray(tiles.order) ? tiles.order.filter(function (k) { return ALL.indexOf(k) > -1 && T.tiles[k]; }) : null;
       if (SP && mine && mine.length && mine.indexOf('estimate') < 0) mine.unshift('estimate');
       var order = mine && mine.length ? mine.concat(ALL.filter(function (k) { return mine.indexOf(k) < 0; })) : SP ? (OPEN ? ['call', 'estimate', 'book', 'quote', 'text'] : ['estimate', 'book', 'quote', 'text', 'call']) : (OPEN ? ['call', 'book', 'quote', 'text'] : ['book', 'quote', 'text', 'call']);
@@ -641,7 +643,7 @@
       hidden = hidden.filter(function (k) { return k !== 'call'; });
       if (!order.length) order = ['book'];
       if (EDITT) order = order.concat(hidden);
-      return (EDITB && !EDITT ? '<div class="next-note">The buttons customers tap come next</div>' : '') + '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + (order.every(function (k) { return !((B.tileImg && B.tileImg[k]) || (!PLAIN && IMG[k])); }) ? ' plain' : '') + '">' + order.map(function (k) {
+      return (EDITB && !EDITT ? '<div class="next-note">The buttons customers tap come next</div>' : '') + '<div class="mhead"><h3>How can we help?</h3><p class="lede">Pick one. It takes about a minute.</p></div><div class="menu tiles2' + (order.length === 3 ? ' n3' : order.length < 3 ? ' n' + order.length : '') + '">' + order.map(function (k) {
         var t = T.tiles[k], title = t.title, desc = t.desc, icon = t.icon;
         if (k === 'book' && SP && !t.custom) { title = 'Book a service'; desc = 'Pick a service and a time.'; }
         if (k === 'book' && t.priced && !t.custom && B.showPrices) { var rg = bookRange(); if (rg) desc = rg[2] ? 'From $' + rg[0] + '. See your price as you pick.' : t.priced.replace('{min}', '$' + rg[0]).replace('{max}', '$' + rg[1]); }
@@ -652,7 +654,7 @@
           return '<div class="mtile slot slot-tile' + (isOff ? ' off' : '') + '" draggable="true" data-edit="tile" data-k="' + k + '" role="button" tabindex="0"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span>' +
             '<span class="sl-drag" title="Drag to move">&#8942;&#8942;</span><span class="sl-edit">' + (isOff ? 'Hidden. Click to show' : 'Edit') + '</span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></div>';
         }
-        if (!pic) return '<button type="button" class="mtile noimg" data-act="start" data-v="' + k + '"><span class="mico">' + ic(icon || 'clipboard-list') + '</span><span class="mt"><b>' + esc(title) + '</b>' + (desc ? '<span>' + esc(desc) + '</span>' : '') + '</span>' + ic('chevron-right', 'mgo') + '</button>';
+        if (!pic) return '<button type="button" class="mtile noimg" data-act="start" data-v="' + k + '"><span class="mico">' + ic(icon || 'clipboard-list') + '</span><span class="mt"><b>' + esc(title) + '</b>' + (desc ? '<span>' + esc(desc) + '</span>' : '') + '</span></button>';
         return '<button type="button" class="mtile" data-act="start" data-v="' + k + '"><span class="mimg"><img alt="" src="' + esc(pic) + '"' + ipos + '></span><span class="mt"><b>' + esc(title) + '</b><span>' + esc(desc) + '</span></span></button>';
       }).join('') + '</div>' + callRow(callOn || callHidden, callHidden) +
         // Phones don't show the side panel, so its open-now and reply-time line goes under the options.
