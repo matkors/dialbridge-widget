@@ -1,0 +1,266 @@
+[
+  {
+    "file": "hvac-1.webp",
+    "trade": "hvac",
+    "alt": "Hands removing a ceiling air vent cover",
+    "credit": "https://unsplash.com/photos/WwzK2S0h6zU"
+  },
+  {
+    "file": "hvac-2.webp",
+    "trade": "hvac",
+    "alt": "Ductless mini split air conditioner in a bright living room",
+    "credit": "https://unsplash.com/photos/BsHycOlU6Bg"
+  },
+  {
+    "file": "hvac-3.webp",
+    "trade": "hvac",
+    "alt": "Hand adjusting a wall thermostat",
+    "credit": "https://unsplash.com/photos/3_nf1qKJGf4"
+  },
+  {
+    "file": "hvac-4.webp",
+    "trade": "hvac",
+    "alt": "Outdoor air conditioner unit beside a teal wall",
+    "credit": "https://unsplash.com/photos/_7huNth8Y2s"
+  },
+  {
+    "file": "plumbing-1.webp",
+    "trade": "plumbing",
+    "alt": "Plumber with a toolbox working on pipes in a bathroom",
+    "credit": "https://unsplash.com/photos/jaP5ClBdIyU"
+  },
+  {
+    "file": "plumbing-2.webp",
+    "trade": "plumbing",
+    "alt": "Plumber fixing the drain trap under a sink",
+    "credit": "https://unsplash.com/photos/wzIjLL4KB-4"
+  },
+  {
+    "file": "plumbing-3.webp",
+    "trade": "plumbing",
+    "alt": "Hand tightening a drain pipe under a sink",
+    "credit": "https://unsplash.com/photos/c314Gh8dXAo"
+  },
+  {
+    "file": "plumbing-4.webp",
+    "trade": "plumbing",
+    "alt": "Pipes, valves and gauges in a utility room",
+    "credit": "https://unsplash.com/photos/U0jpGKtMtWE"
+  },
+  {
+    "file": "electrical-1.webp",
+    "trade": "electrical",
+    "alt": "Electrician in a hard hat installing wiring",
+    "credit": "https://unsplash.com/photos/_2AlIm-F6pw"
+  },
+  {
+    "file": "electrical-2.webp",
+    "trade": "electrical",
+    "alt": "Electrician in protective gear testing an electrical panel",
+    "credit": "https://unsplash.com/photos/LMb98OOtoYU"
+  },
+  {
+    "file": "electrical-3.webp",
+    "trade": "electrical",
+    "alt": "Electrician on a ladder installing ceiling lights",
+    "credit": "https://unsplash.com/photos/TVPI5pHpNFw"
+  },
+  {
+    "file": "cleaning-1.webp",
+    "trade": "cleaning",
+    "alt": "Cleaner vacuuming an upholstered ottoman",
+    "credit": "https://unsplash.com/photos/5TXz228u4eo"
+  },
+  {
+    "file": "cleaning-2.webp",
+    "trade": "cleaning",
+    "alt": "Cleaner carrying a caddy and broom up the stairs of a home",
+    "credit": "https://unsplash.com/photos/FhsFUo-Wfc0"
+  },
+  {
+    "file": "cleaning-3.webp",
+    "trade": "cleaning",
+    "alt": "Cleaner mopping a hardwood hallway",
+    "credit": "https://unsplash.com/photos/jjrXvzbqC5E"
+  },
+  {
+    "file": "cleaning-4.webp",
+    "trade": "cleaning",
+    "alt": "Cleaner washing a window in a home",
+    "credit": "https://unsplash.com/photos/VRpjDw3WqqI"
+  },
+  {
+    "file": "junk-1.webp",
+    "trade": "junk",
+    "alt": "Pile of old furniture waiting to be hauled away",
+    "credit": "https://unsplash.com/photos/xovDqCD6EOw"
+  },
+  {
+    "file": "junk-2.webp",
+    "trade": "junk",
+    "alt": "Old sofa and armchair left outside a brick building",
+    "credit": "https://unsplash.com/photos/f-HVbwmeE7c"
+  },
+  {
+    "file": "junk-3.webp",
+    "trade": "junk",
+    "alt": "Old armchair and furniture left on a lawn for pickup",
+    "credit": "https://unsplash.com/photos/F8-bNnxuRKo"
+  },
+  {
+    "file": "lawn-1.webp",
+    "trade": "lawn",
+    "alt": "Landscaper trimming grass along a flower bed",
+    "credit": "https://unsplash.com/photos/xWAsrLw_1hk"
+  },
+  {
+    "file": "lawn-2.webp",
+    "trade": "lawn",
+    "alt": "Landscaper using a string trimmer in a garden",
+    "credit": "https://unsplash.com/photos/5H0swzTVzrY"
+  },
+  {
+    "file": "lawn-3.webp",
+    "trade": "lawn",
+    "alt": "Push mower cutting a backyard lawn",
+    "credit": "https://unsplash.com/photos/YhxOrHGrQQc"
+  },
+  {
+    "file": "pressure-1.webp",
+    "trade": "pressure",
+    "alt": "Man pressure washing a residential driveway",
+    "credit": "https://unsplash.com/photos/DyYMrJYXE84"
+  },
+  {
+    "file": "pressure-2.webp",
+    "trade": "pressure",
+    "alt": "Pressure washing a walkway with a surface cleaner",
+    "credit": "https://unsplash.com/photos/kLZs4yoR0uU"
+  },
+  {
+    "file": "painting-1.webp",
+    "trade": "painting",
+    "alt": "Painter on a ladder prepping a white house exterior",
+    "credit": "https://unsplash.com/photos/ioOlenqfMqA"
+  },
+  {
+    "file": "painting-2.webp",
+    "trade": "painting",
+    "alt": "Painters on ladders painting a building front",
+    "credit": "https://unsplash.com/photos/ITbGTRdErO0"
+  },
+  {
+    "file": "painting-3.webp",
+    "trade": "painting",
+    "alt": "Paint roller resting in a tray of white paint",
+    "credit": "https://unsplash.com/photos/jo4CWjIw4Wc"
+  },
+  {
+    "file": "handyman-1.webp",
+    "trade": "handyman",
+    "alt": "Handyman cutting trim with a miter saw in a home",
+    "credit": "https://unsplash.com/photos/WEWTGkPUVT0"
+  },
+  {
+    "file": "handyman-2.webp",
+    "trade": "handyman",
+    "alt": "Measuring and marking a board with a tape measure",
+    "credit": "https://unsplash.com/photos/cfNchb3VAI8"
+  },
+  {
+    "file": "handyman-3.webp",
+    "trade": "handyman",
+    "alt": "Handyman on a ladder drilling into a ceiling",
+    "credit": "https://unsplash.com/photos/4hcTkOw-EKE"
+  },
+  {
+    "file": "roofing-1.webp",
+    "trade": "roofing",
+    "alt": "Roofer in a safety harness working on a shingle roof",
+    "credit": "https://unsplash.com/photos/Scaj0T40nFI"
+  },
+  {
+    "file": "roofing-2.webp",
+    "trade": "roofing",
+    "alt": "Roofer standing on a house roof during a tear off",
+    "credit": "https://unsplash.com/photos/-1l0iZaM8ms"
+  },
+  {
+    "file": "roofing-3.webp",
+    "trade": "roofing",
+    "alt": "Roofer sealing shingles with a caulk gun",
+    "credit": "https://unsplash.com/photos/eFOkg4ZMiBs"
+  },
+  {
+    "file": "pest-1.webp",
+    "trade": "pest",
+    "alt": "Technician spraying along the foundation of a house",
+    "credit": "https://unsplash.com/photos/UjGSnzfDUl8"
+  },
+  {
+    "file": "detailing-1.webp",
+    "trade": "detailing",
+    "alt": "Detailer washing a car door with a sponge",
+    "credit": "https://unsplash.com/photos/phP5Qa0CauQ"
+  },
+  {
+    "file": "detailing-2.webp",
+    "trade": "detailing",
+    "alt": "Detailer polishing a headlight with a foam pad",
+    "credit": "https://unsplash.com/photos/9-muyFk7RC4"
+  },
+  {
+    "file": "detailing-3.webp",
+    "trade": "detailing",
+    "alt": "Detailer brushing a car dashboard clean",
+    "credit": "https://unsplash.com/photos/5SmPnmCjwcU"
+  },
+  {
+    "file": "moving-1.webp",
+    "trade": "moving",
+    "alt": "Mover wheeling stacked boxes on a hand truck",
+    "credit": "https://unsplash.com/photos/GgmZ23grWNY"
+  },
+  {
+    "file": "moving-2.webp",
+    "trade": "moving",
+    "alt": "Packing moving boxes in a living room",
+    "credit": "https://unsplash.com/photos/wS40ELZROLE"
+  },
+  {
+    "file": "garage-1.webp",
+    "trade": "garage",
+    "alt": "Double garage doors on a brick family home",
+    "credit": "https://unsplash.com/photos/3Ignkeds3w8"
+  },
+  {
+    "file": "garage-2.webp",
+    "trade": "garage",
+    "alt": "Cedar plank garage door on a shingled house",
+    "credit": "https://unsplash.com/photos/YISYuVvEUVg"
+  },
+  {
+    "file": "garage-3.webp",
+    "trade": "garage",
+    "alt": "Garage door spring cable drum close up",
+    "credit": "https://unsplash.com/photos/Q1YidHY5xdg"
+  },
+  {
+    "file": "salon-1.webp",
+    "trade": "salon",
+    "alt": "Barber trimming a man's beard with scissors",
+    "credit": "https://unsplash.com/photos/4k60yfGy7fU"
+  },
+  {
+    "file": "salon-2.webp",
+    "trade": "salon",
+    "alt": "Stylist blow drying a client's hair with a round brush",
+    "credit": "https://unsplash.com/photos/FkAZqQJTbXM"
+  },
+  {
+    "file": "salon-3.webp",
+    "trade": "salon",
+    "alt": "Stylist blow drying a client's hair in a salon",
+    "credit": "https://unsplash.com/photos/WXmHwPcFamo"
+  }
+]

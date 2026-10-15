@@ -216,6 +216,9 @@
       if (e.data.tiles && typeof e.data.tiles === 'object') ['estimate', 'book', 'quote', 'text', 'call', 'order', 'off'].forEach(function (k) { if (e.data.tiles[k] !== undefined) T.tiles[k] = e.data.tiles[k]; });
       if (e.data.rating !== undefined) { B.rating = e.data.rating || null; B.reviews = e.data.reviews || null; }
       if (e.data.logoTone !== undefined) T.logoTone = e.data.logoTone === 'light' ? 'light' : '';
+      if (typeof e.data.tagline === 'string') T.tagline = e.data.tagline.slice(0, 60);
+      if (typeof e.data.sideLine === 'string') T.sideLine = e.data.sideLine.slice(0, 120);
+      if (typeof e.data.heroImg === 'string') T.heroImg = e.data.heroImg;
       if (e.data.sel !== undefined) T.selTile = typeof e.data.sel === 'string' ? e.data.sel : null;
       if (e.data.heroPos !== undefined) T.heroPos = /^\d{1,3}% \d{1,3}%$/.test(e.data.heroPos || '') ? e.data.heroPos : '';
       if (typeof e.data.name === 'string' && e.data.name.trim()) B.name = e.data.name.trim().slice(0, 80);
@@ -241,18 +244,30 @@
     }
     // Questions after the service picker share its screen; everything else starts a new screen.
     var STARTS = { zip: 1, service: 1, details: 1, time: 1, contact: 1, message: 1, call: 1, callback: 1 };
+    var QTYPES = { choice: 1, qty: 1, ask: 1, addons: 1 };
     function screens() {
-      var out = [];
-      visible().forEach(function (id) { var t = stepDef(id).type; if (!out.length || STARTS[t]) out.push([id]); else out[out.length - 1].push(id); });
+      var out = [], ids = visible(), si = -1;
+      // Questions asked after the service is picked move up to right after it, ahead of "describe the job" and the time,
+      // so they get their own page ("You picked X. Answer these to continue.").
+      ids.forEach(function (id, i) { if (si < 0 && stepDef(id).type === 'service') si = i; });
+      if (si > -1) { var qq = ids.filter(function (id, i) { return i > si && QTYPES[stepDef(id).type]; });
+        if (qq.length) ids = ids.slice(0, si + 1).concat(qq, ids.slice(si + 1).filter(function (id) { return qq.indexOf(id) < 0; })); }
+      ids.forEach(function (id) {
+        var t = stepDef(id).type, last = out[out.length - 1];
+        // The questions for a picked service come on the next screen, not under the list of services.
+        var afterSvc = last && QTYPES[t] && stepDef(last[0]).type === 'service';
+        if (!out.length || STARTS[t] || afterSvc) out.push([id]); else last.push(id);
+      });
       return out;
     }
+    function isQScreen(sc) { return !!sc && !!QTYPES[stepDef(sc[0]).type]; }
     function curScreen() { if (!S.path || S.done) return null; return screens()[S.idx] || null; }
 
     function svcById(id) { return T.services.filter(function (s) { return s.id === id; })[0]; }
     // A page with priced services AND free-estimate services gets two start options: "Book a free estimate" (estimate
     // services only, straight to the questions when there is one) and "Book a service" (the priced ones).
     function isEst(s) { return s.mode === 'estimate'; }
-    function split() { return !!T.svcSet && T.services.some(isEst) && (T.services.some(function (s) { return !isEst(s); }) || !!(T.tiles && Array.isArray(T.tiles.order) && T.tiles.order.indexOf('estimate') > -1)); }
+    function split() { var tl = T.tiles || {}; return !!T.svcSet && T.services.some(isEst) && Array.isArray(tl.order) && tl.order.indexOf('estimate') > -1 && (tl.off || []).indexOf('estimate') < 0; }
     function laneSvcs() { return !S.lane ? T.services : T.services.filter(function (s) { return isEst(s) === (S.lane === 'estimate'); }); }
     function oneEst() { var l = S.lane === 'estimate' ? laneSvcs() : []; return l.length === 1 ? l[0] : null; }
     function estTile() {
@@ -298,13 +313,13 @@
     function ownPriced() { var parts = S.svc ? (S.svc.parts || [S.svc]) : []; return parts.length > 0 && parts.every(function (x) { var p = ownPrice(x); return p && !p.none; }); }
     function priceText(lo, hi) { return hi === null ? 'From $' + lo : lo === hi ? '$' + lo : '$' + lo + ' to $' + hi; }
     function svcTag(s) {
-      if (s.mode === 'estimate') return 'Free estimate';
+      if (s.mode === 'estimate') return 'Free quote';
       var o = ownPrice(s); if (o) return o.none ? '' : priceText(o.lo, o.hi) + (o.month ? '/month' : '');
       return s.fixed ? '$' + s.fixed : s.fee ? '$' + s.fee + ' visit' : s.heavy ? 'By weight' : '';
     }
     function priceInfo() {
       if (!B.showPrices || !S.svc) return null;
-      if (S.svc.mode === 'estimate') return { text: 'Free estimate', note: 'Priced after a quick walkthrough' };
+      if (S.svc.mode === 'estimate') return { text: 'Free quote', note: 'You get a price after they see the job.' };
       var lo = 0, hi = 0, has = false, m = S.svc.mult || 1, alo = 0, ahi = 0, clo = 0, chi = 0, xs = [];
       visible().forEach(function (id) {
         var d = stepDef(id);
@@ -606,7 +621,7 @@
     // The brand panel follows the customer: one short line for the screen they are on (wide layout only).
     function sideCopy() {
       var area = B.area && B.area !== 'your area' ? B.area : '';
-      var first = [B.tagline || (T.trade + (area ? ' in ' + area : ', booked online')), T.sideLine || 'Tell us what you need, see your price and pick a time.'];
+      var first = [T.tagline || B.tagline || (T.trade + (area ? ' in ' + area : ', booked online')), T.sideLine || 'Tell us what you need, see your price and pick a time.'];
       if (S.done) return ['You\'re all set', S.path === 'book' && S.svc && S.svc.mode === 'book' && S.time ? B.name + ' has you on the calendar and will reach out if anything changes.' : B.name + ' has your request and will reach out to confirm.'];
       var sc = curScreen(); if (!sc) return first;
       var t = stepDef(sc[0]).type;
@@ -623,7 +638,8 @@
       return first;
     }
     function sideHtml() {
-      var photo = imgOk(B.hero) ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
+      // Their pick from our stock photos (img/side), else an older upload, else the trade's default.
+      var photo = /^img\/side\/[a-z0-9-]+\.webp$/.test(T.heroImg || '') ? T.heroImg : imgOk(B.hero) ? B.hero : (TRADE === 'junk' ? 'img/tiles/junk-hero.webp' : IMG.book);
       var c = sideCopy();
       var pos = /^\d{1,3}% \d{1,3}%$/.test(T.heroPos || '') && imgOk(B.hero) ? ' style="object-position:' + T.heroPos + '"' : '';
       return '<aside class="side' + (imgOk(B.hero) ? ' own' : '') + '"' + (EDITB ? '' : ' aria-hidden="true"') + '><div class="sb"><img alt="" src="' + esc(photo) + '"' + pos + '>' +
@@ -724,6 +740,7 @@
       if (S.done) return doneHtml();
       if (!S.path) return menuHtml();
       var sc = curScreen(), h = '';
+      if (isQScreen(sc) && S.svc) h += '<div class="qs-head"><span>You picked</span><b>' + esc(S.svc.label) + '</b><p class="lede">A few quick questions so ' + esc(B.name) + ' can get it right.</p></div>';
       for (var i = 0; i < sc.length; i++) {
         h += '<section class="blk" id="blk-' + esc(sc[i]) + '">' + blockHtml(sc[i]) + '</section>';
         var t = stepDef(sc[i]).type;
@@ -731,7 +748,7 @@
       }
       var hasTruck = sc.some(function (id) { return stepDef(id).ui === 'truck'; });
       var p = priceInfo();
-      if (p && sc.indexOf('service') > -1 && !hasTruck) h += '<div class="pricebox simple"><div><b>' + esc(p.text) + '</b><span>' + esc(p.note) + '</span></div></div>';
+      if (p && (sc.indexOf('service') > -1 || isQScreen(sc)) && !hasTruck) h += '<div class="pricebox simple"><div><b>' + esc(p.text) + '</b><span>' + esc(p.note) + '</span></div></div>';
       return h;
     }
 
@@ -1066,6 +1083,7 @@
     // The builder's preview of a layer opens on the services (and the picked service's questions), past the ZIP screen.
     if (params.get('builder') === '1' && st0 && S.path) {
       var at0 = screens().map(function (sc) { return stepDef(sc[0]).type !== 'zip'; }).indexOf(true);
+      if (params.get('qs') === '1' && S.svc) { var aq = screens().map(isQScreen).indexOf(true); if (aq > -1) at0 = aq; }
       if (at0 > 0) S.idx = at0;
     }
     else if (st0 === 'call') S.path = OPEN ? 'call' : 'callback';
