@@ -286,7 +286,9 @@ h3{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balan
 .done-foot{justify-content:center;text-align:center}
 /* start options without photos (an owner's page before they add any): the same boxes, a soft brand tint, the icon on top */
 .mtile.noimg{background:color-mix(in srgb,var(--brand) 7%,#fff);box-shadow:0 0 0 1px color-mix(in srgb,var(--brand) 16%,#e1e4e8),var(--sh-1)}
-.mtile.noimg .mico{position:absolute;top:14px;left:14px;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--brand);color:var(--on-brand)}
+.mtile.noimg{display:flex;flex-direction:column;justify-content:space-between;gap:12px;padding:14px}
+.mtile.noimg .mt{position:static}
+.mtile.noimg .mico{position:static;flex-shrink:0;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--brand);color:var(--on-brand)}
 .mtile.noimg .mico svg{width:21px;height:21px}
 .mtile.noimg .mt{color:var(--ink)}
 .mtile.noimg .mt span{color:var(--mute)}
@@ -481,7 +483,7 @@ html.editing .side .sb::after{content:"";position:absolute;inset:14px;border-rad
 <body>
 <div class="page"><div class="hostline" id="hostline"></div><div class="card" id="app"><div class="err">Loading…</div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.453.0/dist/umd/lucide.min.js" integrity="sha384-0v3Wh0ZtiQBYCYywQoeMDA5mAw5Z01p0lhorqy0BlwFrcN6u3lmN7K0U/e1uezmr" crossorigin="anonymous"></script>
-<script src="templates.js?v=20261014p"></script>
-<script src="engine.js?v=20261014p"></script>
+<script src="templates.js?v=20261014q"></script>
+<script src="engine.js?v=20261014q"></script>
 </body>
 </html>
