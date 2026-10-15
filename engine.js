@@ -190,6 +190,13 @@
     if (EDIT) document.documentElement.classList.add('editing');
     // ?side=0 (builder only): no brand panel on the left, for steps that are about the buttons and services.
     if (params.get('builder') === '1' && params.get('side') === '0') document.documentElement.classList.add('noside');
+    // ?lock=1 (builder only): a picture of the page to look at; taps and typing do nothing, scrolling still works.
+    if (params.get('builder') === '1' && params.get('lock') === '1') {
+      document.documentElement.classList.add('locked');
+      ['click', 'pointerdown', 'mousedown', 'touchend', 'keydown', 'focusin'].forEach(function (t) {
+        document.addEventListener(t, function (e) { if (t === 'focusin' && e.target && e.target.blur) e.target.blur(); if (t !== 'focusin' && t !== 'pointerdown') { e.preventDefault(); } e.stopPropagation(); }, true);
+      });
+    }
     // Brand step: the middle (the four options) is the next step, so it fades back and says so.
     if (EDITB && !EDITT) document.documentElement.classList.add('edit-brand');
     var imgOk = function (u) { return /^data:image\/(png|jpeg|webp);base64,/.test(u || '') || srcOk(u); };
