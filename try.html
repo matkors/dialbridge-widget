@@ -228,7 +228,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
 
   // Every screen: its path, the brand panel words, and how far along the bar is.
   var STEPS = {
-    start: { pct: 12, side: ['Get booked online, even at 10 PM', 'Customers see your price and book in under a minute. You get a text.', ['14 days free on the Booking Widget', 'Set it up yourself in about 10 minutes', 'Cancel anytime']] },
+    start: { pct: 12, side: ['Get booked online, even at 10 PM', 'Customers see your price and book in under a minute. You get a text.', ['Free until it books you 3 jobs', 'Set it up yourself in about 10 minutes', 'Cancel anytime']] },
     plan: { pct: 55, side: ['Pick what fits', 'Like your website? Add the Booking Widget. Want a new one? We build it for you.', ['No setup fee', 'Month to month']] },
     interests: { pct: 30, side: ['See it on your business', 'A free 20-minute call with Matviy or Alan. We show you the booking page and answer your questions.', ['No pressure, no hard sell']] },
     time: { pct: 55, side: ['Pick a time that works', 'We send a calendar invite and text you a reminder before the call.', ['20 minutes', 'Zoom or Google Meet']] },
@@ -236,7 +236,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
     details: { pct: 80, side: ['Almost done', 'Tell us who you are so we can look at your business before the call.', ['We never share your number']] },
     topic: { pct: 35, side: ['Ask us anything', 'We\'re a small team and answer every message, usually within a few hours.', []] },
     message: { pct: 75, side: ['Ask us anything', 'Your message goes straight to the founders. We reply by email.', []] },
-    checkout: { pct: 68, side: ['Almost there', 'Your card is saved with Stripe, the same checkout big companies use. We never see your card number.', ['14 days free on the Booking Widget', 'Cancel anytime from your dashboard']] },
+    checkout: { pct: 68, side: ['Almost there', 'Your card is saved with Stripe, the same checkout big companies use. We never see your card number.', ['Free until it books you 3 jobs', 'Cancel anytime from your dashboard']] },
     card: { pct: 84, side: ['Almost there', 'Your card is saved with Stripe, the same checkout big companies use. We never see your card number.', ['$0 today', 'Cancel anytime from your dashboard']] },
     booked: { pct: 100, side: ['Talk soon', 'Thanks for booking. Bring any questions, and we\'ll show you how it works for your business.', []] },
     sent: { pct: 100, side: ['Talk soon', 'We read every message and reply by email, usually within a few hours.', []] }
@@ -258,7 +258,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       tile('trial', 'rocket', 'Start free', 'Set up your booking page, free', 'See plans') + tile('demo', 'cal', 'Book a demo', 'A free 20-minute call with us', 'Pick a time') + tile('msg', 'msg', 'Send a message', 'Questions, pricing or anything else', 'Write to us') + '</div>' +
       '<p class="below">Already have an account? <a href="' + APP + 'login" target="_top">Log in</a></p>';
     if (cur === 'plan') return '<h1>Pick your plan</h1><p class="lede">Month to month. No setup fee.</p><div class="plans">' +
-      '<div class="plan"><span class="tag">Have a website you like</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">Free to set up. Your 14-day free trial starts when you go live, then $99/month. Cancel anytime.</p><ul>' +
+      '<div class="plan"><span class="tag">Have a website you like</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">Free to set up. Free until it books you 3 jobs, then $99/month. Cancel anytime.</p><ul>' +
         li('Book online button for your website') + li('Booking page for Google, Facebook and Instagram') + li('A text and an inbox entry for every booking') + li('Set it up yourself in about 10 minutes') +
         '</ul><button class="btn full" type="button" data-buy="widget">Start free ' + I('arw') + '</button></div>' +
       '<div class="plan main"><span class="tag">We build it for you</span><h3>Website + Reviews + Booking Widget</h3><div class="amt">$199<small> /month</small></div><p class="note">$0 today. Charged only after your website is built and live.</p><ul>' +
@@ -279,10 +279,10 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
       '<label class="fld"><span>How can we help? <em>*</em></span><textarea data-f="msg" rows="4" placeholder="Tell us a little about your business and your question">' + esc(S.f.msg) + '</textarea></label>' +
       '<div class="f2">' + fld('first', 'First name', 'given-name', 'text', true) + fld('email', 'Email', 'email', 'email', true) + '</div>' + fld('business', 'Business name', 'organization', 'text') +
       '</div><div class="hp" aria-hidden="true"><input id="hp" tabindex="-1" autocomplete="off"></div><p class="err" id="err" hidden></p>';
-    if (cur === 'checkout') return '<h1>Complete your checkout</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. We only charge once your new website is live.' : 'You won\'t be charged today. Your 14-day free trial starts now.') + '</p>' + sumBox() +
+    if (cur === 'checkout') return '<h1>Complete your checkout</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. We only charge once your new website is live.' : 'You won\'t be charged today. It\'s free until your page books you 3 jobs.') + '</p>' + sumBox() +
       '<div class="fields">' + fld('email', 'Email', 'email', 'email', true) + fld('phone', 'Phone number', 'tel', 'tel', true) + fld('business', 'Business name', 'organization', 'text', true) +
       '<p class="fine">By continuing, you agree to get texts from Dialbridge about your account. Msg &amp; data rates may apply. Reply STOP to opt out. <a href="https://dialbridge.ai/privacy" target="_blank" rel="noopener">Privacy Policy</a></p></div><p class="err" id="err" hidden></p>';
-    if (cur === 'card') return '<h1>Add your card</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. Your card is only charged after we meet, build your website and it goes live.' : 'You won\'t be charged today. Your first $99 payment is on ' + md(Date.now() + 14 * 864e5) + ', after your 14-day free trial.') + '</p>' + sumBox() +
+    if (cur === 'card') return '<h1>Add your card</h1><p class="lede">' + (S.plan === 'full' ? 'You won\'t be charged today. Your card is only charged after we meet, build your website and it goes live.' : 'You won\'t be charged today. Your first $99 payment comes when your page books you its 3rd job.') + '</p>' + sumBox() +
       '<div class="paybox"><div id="xco"></div><div class="or" id="xcoOr" hidden>Or pay with a card</div><div id="pe"><div class="paywait"><span class="spin dark"></span>Loading secure checkout</div></div></div>' +
       '<p class="secure">' + I('lock') + 'Secured by Stripe. We never see your card number.</p><p class="err" id="err" hidden></p>';
     if (cur === 'booked') return '<div class="done"><span class="okc">' + I('chk') + '</span><h1>You\'re booked, ' + esc(S.f.first) + '</h1><p>We emailed a calendar invite to ' + esc(S.f.email) + ' and we\'ll text you a reminder before the call.</p><span class="when">' + esc(CallBook.when(S.booked)) + '</span></div>';
