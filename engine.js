@@ -59,6 +59,12 @@
       var opt = st && st.options && st.options.filter(function (o) { return o.id === parts[1]; })[0];
       if (opt) opt.price = p.prices[k];
     });
+    // Add-on prices the same way ("step.option": [low, high]): the builder preview of a pre-built niche sends only what changed.
+    if (p.addPrices) Object.keys(p.addPrices).forEach(function (k) {
+      var parts = k.split('.'), st = t.steps[parts[0]], v = p.addPrices[k];
+      var opt = st && st.options && st.options.filter(function (o) { return o.id === parts[1]; })[0];
+      if (opt && Array.isArray(v) && v.length === 2) opt.add = [+v[0] || 0, +v[1] || 0];
+    });
     if (p.serviceImages && typeof p.serviceImages === 'object') t.services.forEach(function (x) { var u = p.serviceImages[x.id]; if (typeof u === 'string' && /^https:\/\//.test(u)) x.image = u; });
     if (Array.isArray(p.hideServices) && p.hideServices.length) {
       var keep = t.services.filter(function (x) { return p.hideServices.indexOf(x.id) < 0; });
@@ -103,7 +109,7 @@
       var c = r[0], h = hoursOf(c.hours);
       var T0 = build({ slug: c.slug, trade: c.trade, template: c.template, name: c.name, phone: prettyUs(c.phone), brand: c.brand, area: c.area || 'your area',
         zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false, templateOnly: c.setupDone === false,
-        logo: c.logo || null, website: c.website || null, images: c.images || {}, rating: c.rating || null, reviews: c.reviews || null });
+        logo: c.logo || null, website: c.website || null, images: c.images || {}, rating: c.rating || null, reviews: c.reviews || null, saveLeads: !!c.saveLeads });
       // Photos go to the API right after the booking (resized here first), so the details step always offers them.
       Object.keys(T0.steps).forEach(function (k) { if (T0.steps[k].type === 'details') T0.steps[k].photos = true; });
       return T0;
@@ -500,6 +506,7 @@
       return true;
     }
     function screenValid(sc) { return !!sc && sc.every(valid); }
+    function pickedAddons() { var out = []; visible().forEach(function (id) { var d = stepDef(id); if (d.type === 'addons') (d.options || []).forEach(function (o) { if (S.addons[o.id]) out.push(o); }); }); return out; }
     function leadFirst() { return visible().some(function (id) { return stepDef(id).type === 'lead'; }); }
 
     /* ---------- render ---------- */
@@ -805,7 +812,7 @@
       visible().forEach(function (id) { var dd = stepDef(id); if (dd.type === 'choice') { var o = optOf(id); if (o) rows.push([dd.sum || dd.title, o.short || o.label]); }
         if (dd.type === 'qty' && qtyOf(dd, S.ans[id])) rows.push([dd.sum || dd.title, qtyOf(dd, S.ans[id]) + unitFor(dd, qtyOf(dd, S.ans[id]))]);
         if (dd.type === 'ask' && String(S.ans[id] || '').trim()) rows.push([dd.sum || dd.title, String(S.ans[id]).trim().slice(0, 70)]); });
-      var extras = T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [];
+      var extras = pickedAddons().map(function (o) { return o.label; });
       if (extras.length) rows.push(['Extras', extras.join(', ')]);
       if (S.details.trim()) rows.push(['Details', S.details.trim().length > 70 ? S.details.trim().slice(0, 67) + '...' : S.details.trim()]);
       if (S.photos.length) rows.push(['Photos', S.done.photosSent === false ? 'Could not be sent' : S.photos.length + ' sent']);
@@ -966,7 +973,7 @@
       return {
         requestId: reqId, business: B.slug || B.name, businessName: B.name, path: S.path,
         service: S.svc ? S.svc.label : null, services: S.svcs.map(function (id) { var x = svcById(id); return x ? x.label : id; }), mode: S.svc ? S.svc.mode : null, answers: answers,
-        extras: T.steps.addons ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.label; }) : [],
+        extras: pickedAddons().map(function (o) { return o.label; }),
         details: S.details.trim() || null, message: S.msg.trim() || null, callbackTime: S.cb,
         day: S.day, window: S.time, when: whenText() || null, priceShown: p ? p.text : null,
         name: S.name.trim(), phone: digits(), zip: S.zip || null, address: S.addr.trim() || null, photosCount: S.photos.length,
@@ -981,7 +988,7 @@
         if (t === 'choice' && S.ans[id]) answers[id] = S.ans[id];
         if (t === 'qty' && qtyOf(stepDef(id), S.ans[id]) !== null) answers[id] = qtyOf(stepDef(id), S.ans[id]);
         if (t === 'ask' && String(S.ans[id] || '').trim()) answers[id] = String(S.ans[id]).trim().slice(0, 300); });
-      var addons = T.steps.addons && T.steps.addons.options ? T.steps.addons.options.filter(function (o) { return S.addons[o.id]; }).map(function (o) { return o.id; }) : [];
+      var addons = pickedAddons().map(function (o) { return o.id; });
       var timed = S.path === 'book' && S.time && /T\d{2}:\d{2}/.test(S.time);
       var notes = [];
       if (S.msg.trim()) notes.push(S.msg.trim());

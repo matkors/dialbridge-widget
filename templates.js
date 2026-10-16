@@ -1,6 +1,1402 @@
 /* Trade templates. A business = one template + its own overrides (name, color, phone, hours, area, prices).
    Steps are shown or skipped with showIf against the chosen service's mode: book | request | estimate. */
 window.DBW_TEMPLATES = {
+  // Garage door repair (Oct 16): THE niche. Same questions as the Shore Point demo (site/flows/shore-point-garage.json);
+  // owners edit prices on their "Your prices" screen, not the questions (when: branches would break).
+  garage: {
+    "trade": "Garage door repair",
+    "noun": "job",
+    "priceNote": "Parts and labor included. Your tech confirms the price before any work starts. No surprise fees.",
+    "illustration": "clipboard",
+    "defaults": {
+      "open": "07:00",
+      "close": "19:00",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "replyMins": 10,
+      "showPrices": true,
+      "timeMode": "window",
+      "layout": "top",
+      "winMinutes": 120
+    },
+    "tiles": {
+      "book": {
+        "title": "Book a repair",
+        "desc": "Pick what's wrong, see your price, choose a time. Same-day available.",
+        "icon": "wrench"
+      },
+      "quote": {
+        "title": "Send a photo",
+        "desc": "Not sure what's wrong? Send a photo and we'll text you a price.",
+        "icon": "camera"
+      },
+      "text": {
+        "title": "Text us",
+        "desc": "Replies come by text.",
+        "icon": "message-square-text"
+      },
+      "call": {
+        "title": "Door stuck? Call now",
+        "desc": "",
+        "icon": "phone"
+      }
+    },
+    "services": [
+      {
+        "id": "repair",
+        "label": "Fix my garage door",
+        "hint": "Broken spring, opener, off track, noisy",
+        "icon": "wrench",
+        "mode": "request",
+        "image": "img/garage/repair.webp"
+      },
+      {
+        "id": "newopener",
+        "label": "New opener",
+        "hint": "Installed, old one hauled away",
+        "icon": "plug-zap",
+        "mode": "request",
+        "image": "img/garage/opener.webp"
+      },
+      {
+        "id": "tuneup",
+        "label": "Tune-up",
+        "hint": "Lube, balance, 25-point safety check",
+        "icon": "shield-check",
+        "mode": "request",
+        "image": "img/garage/tuneup.webp"
+      },
+      {
+        "id": "newdoor",
+        "label": "New garage door",
+        "hint": "Free estimate. Most doors $1,000 to $3,500",
+        "icon": "warehouse",
+        "mode": "estimate",
+        "visit": true,
+        "image": "img/garage/newdoor.webp"
+      }
+    ],
+    "flows": {
+      "book": [
+        "zip",
+        "service",
+        "issue",
+        "gapcheck1",
+        "gapcheck2",
+        "partcheck",
+        "other",
+        "panelcount",
+        "springtype",
+        "doorcount",
+        "doorsize",
+        "springup",
+        "openerage",
+        "doorsize2",
+        "openertype",
+        "openerextras",
+        "tucount",
+        "tuextra",
+        "ndproject",
+        "ndcount",
+        "ndsize",
+        "ndstyle",
+        "ndinsul",
+        "ndopener",
+        "ndwhen",
+        "stuck",
+        "lead",
+        "time",
+        "contact"
+      ],
+      "quote": [
+        "zip",
+        "details",
+        "contact"
+      ]
+    },
+    "steps": {
+      "zip": {
+        "type": "zip",
+        "title": "Where's the garage?"
+      },
+      "service": {
+        "type": "service",
+        "title": "How can we help?"
+      },
+      "issue": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "What's wrong with the door?",
+        "sum": "Problem",
+        "forSvc": [
+          "repair"
+        ],
+        "options": [
+          {
+            "id": "wontmove",
+            "label": "Won't open or close at all",
+            "hint": "Button does nothing, or it won't lift by hand",
+            "tag": "From $129",
+            "img": "img/garage/i-wontmove.svg",
+            "short": "Won't open or close"
+          },
+          {
+            "id": "hums",
+            "label": "Motor runs, but the door doesn't move",
+            "hint": "You hear the opener, nothing happens",
+            "tag": "From $125",
+            "img": "img/garage/i-hums.svg",
+            "short": "Motor runs, door stuck"
+          },
+          {
+            "id": "offtrack",
+            "label": "Crooked or off its tracks",
+            "hint": "Tilted, stuck or came off the rollers",
+            "price": [
+              150,
+              350
+            ],
+            "img": "img/garage/i-offtrack.svg",
+            "short": "Off track"
+          },
+          {
+            "id": "broken",
+            "label": "I can see a broken part",
+            "hint": "A spring with a gap, or a loose cable",
+            "tag": "From $150",
+            "img": "img/garage/i-spring.svg",
+            "short": "Broken part"
+          },
+          {
+            "id": "reverses",
+            "label": "Closes partway, then goes back up",
+            "hint": "Often the safety sensors near the floor",
+            "price": [
+              89,
+              200
+            ],
+            "img": "img/garage/i-reverse.svg",
+            "short": "Goes back up"
+          },
+          {
+            "id": "panel",
+            "label": "Dents or damage to the panels",
+            "hint": "Hit by a car, cracked or bent sections",
+            "img": "img/garage/i-panel.svg",
+            "short": "Panel damage",
+            "tag": "From $250"
+          },
+          {
+            "id": "other",
+            "label": "Something else",
+            "hint": "Noisy, drafty, remote not working, or not sure",
+            "tag": "From $79",
+            "img": "img/garage/i-notsure.svg",
+            "wide": true,
+            "short": "Something else"
+          }
+        ],
+        "ownerTitle": "Quick repairs"
+      },
+      "gapcheck1": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Look at the spring above the door. Do you see a gap in it?",
+        "sum": "Spring",
+        "forSvc": [
+          "repair"
+        ],
+        "when": {
+          "step": "issue",
+          "is": [
+            "wontmove"
+          ]
+        },
+        "options": [
+          {
+            "id": "gap",
+            "label": "Yes, there's a gap",
+            "hint": "The spring snapped. Don't try to lift the door.",
+            "img": "img/garage/i-spring.svg",
+            "short": "Spring has a gap"
+          },
+          {
+            "id": "whole",
+            "label": "No, it looks whole",
+            "hint": "Your tech checks the opener, tracks and cables.",
+            "img": "img/garage/torsion.svg",
+            "price": [
+              129,
+              349
+            ],
+            "short": "Spring looks fine"
+          },
+          {
+            "id": "cant",
+            "label": "I can't tell",
+            "hint": "Your tech checks both on arrival",
+            "img": "img/garage/unsure.svg",
+            "price": [
+              129,
+              499
+            ],
+            "short": "Spring not checked"
+          }
+        ],
+        "ownerTitle": "Won't open or close, spring not broken"
+      },
+      "gapcheck2": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Look at the spring above the door. Do you see a gap in it?",
+        "sum": "Spring",
+        "forSvc": [
+          "repair"
+        ],
+        "when": {
+          "step": "issue",
+          "is": [
+            "hums"
+          ]
+        },
+        "options": [
+          {
+            "id": "gap",
+            "label": "Yes, there's a gap",
+            "hint": "The spring snapped. Don't try to lift the door.",
+            "img": "img/garage/i-spring.svg",
+            "short": "Spring has a gap"
+          },
+          {
+            "id": "whole",
+            "label": "No, it looks whole",
+            "hint": "Likely a stripped gear, or the opener came unhooked from the door.",
+            "img": "img/garage/torsion.svg",
+            "price": [
+              125,
+              250
+            ],
+            "short": "Spring looks fine"
+          },
+          {
+            "id": "cant",
+            "label": "I can't tell",
+            "hint": "Your tech checks both on arrival",
+            "img": "img/garage/unsure.svg",
+            "price": [
+              125,
+              499
+            ],
+            "short": "Spring not checked"
+          }
+        ],
+        "ownerTitle": "Motor runs but the door doesn't move, spring not broken"
+      },
+      "partcheck": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Which part is broken?",
+        "sum": "Broken part",
+        "forSvc": [
+          "repair"
+        ],
+        "when": {
+          "step": "issue",
+          "is": [
+            "broken"
+          ]
+        },
+        "options": [
+          {
+            "id": "spring",
+            "label": "A spring",
+            "hint": "Gap in the coil, or it hangs loose",
+            "img": "img/garage/i-spring.svg"
+          },
+          {
+            "id": "cable",
+            "label": "A cable",
+            "hint": "Hanging loose, door sits uneven",
+            "img": "img/garage/i-cable.svg",
+            "price": [
+              150,
+              300
+            ]
+          },
+          {
+            "id": "unsure",
+            "label": "Not sure which",
+            "hint": "Your tech checks on arrival",
+            "img": "img/garage/unsure.svg",
+            "price": [
+              150,
+              499
+            ]
+          }
+        ],
+        "noSum": true,
+        "ownerTitle": "Broken part"
+      },
+      "other": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "What's going on with the door?",
+        "sum": "Problem",
+        "forSvc": [
+          "repair"
+        ],
+        "when": {
+          "step": "issue",
+          "is": [
+            "other"
+          ]
+        },
+        "options": [
+          {
+            "id": "noisy",
+            "label": "Noisy or shaky",
+            "hint": "Grinding or squeaking, worn rollers",
+            "img": "img/garage/i-noisy.svg",
+            "price": [
+              150,
+              275
+            ]
+          },
+          {
+            "id": "weather",
+            "label": "Drafts or water under the door",
+            "hint": "New bottom seal and weatherstripping",
+            "img": "img/garage/i-drafts.svg",
+            "price": [
+              125,
+              225
+            ]
+          },
+          {
+            "id": "remote",
+            "label": "Remote or keypad stopped working",
+            "hint": "The wall button still works",
+            "img": "img/garage/i-opener.svg",
+            "price": [
+              79,
+              149
+            ]
+          },
+          {
+            "id": "notsure",
+            "label": "Not sure, send a tech",
+            "hint": "The visit fee is credited toward the repair",
+            "img": "img/garage/unsure.svg",
+            "price": [
+              89,
+              89
+            ]
+          }
+        ],
+        "ownerTitle": "Other problems"
+      },
+      "panelcount": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "How many sections are damaged?",
+        "lede": "A door is made of 4 or 5 horizontal sections.",
+        "sum": "Damaged sections",
+        "forSvc": [
+          "repair"
+        ],
+        "when": {
+          "step": "issue",
+          "is": [
+            "panel"
+          ]
+        },
+        "options": [
+          {
+            "id": "one",
+            "label": "One section",
+            "hint": "A new matching section, installed",
+            "img": "img/garage/panels-1.svg",
+            "price": [
+              250,
+              450
+            ],
+            "short": "1 section"
+          },
+          {
+            "id": "two",
+            "label": "Two sections",
+            "hint": "Both replaced and lined up",
+            "img": "img/garage/panels-2.svg",
+            "price": [
+              450,
+              800
+            ],
+            "short": "2 sections"
+          },
+          {
+            "id": "three",
+            "label": "Three or more",
+            "hint": "A new door is often close in price. We quote both.",
+            "img": "img/garage/panels-3.svg",
+            "price": [
+              700,
+              1200
+            ],
+            "short": "3+ sections"
+          },
+          {
+            "id": "unsure",
+            "label": "Not sure",
+            "hint": "Your tech checks on arrival",
+            "img": "img/garage/unsure.svg",
+            "price": [
+              250,
+              1200
+            ],
+            "short": "Sections not sure"
+          }
+        ],
+        "ownerTitle": "Panel sections"
+      },
+      "springtype": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Where is the broken spring?",
+        "sum": "Springs",
+        "forSvc": [
+          "repair"
+        ],
+        "when": [
+          {
+            "step": "gapcheck1",
+            "is": [
+              "gap"
+            ]
+          },
+          {
+            "step": "gapcheck2",
+            "is": [
+              "gap"
+            ]
+          },
+          {
+            "step": "partcheck",
+            "is": [
+              "spring"
+            ]
+          }
+        ],
+        "options": [
+          {
+            "id": "torsion",
+            "label": "On a bar above the door",
+            "hint": "Both springs replaced together, door balanced",
+            "img": "img/garage/torsion.svg",
+            "price": [
+              249,
+              399
+            ],
+            "badge": "Most common",
+            "short": "Torsion springs"
+          },
+          {
+            "id": "extension",
+            "label": "Along the sides, by the tracks",
+            "hint": "Both springs replaced, safety cables checked",
+            "img": "img/garage/extension.svg",
+            "price": [
+              150,
+              250
+            ],
+            "short": "Extension springs"
+          },
+          {
+            "id": "unsure",
+            "label": "Not sure",
+            "hint": "Your tech checks on arrival",
+            "img": "img/garage/unsure.svg",
+            "price": [
+              150,
+              399
+            ],
+            "short": "Spring type not sure"
+          }
+        ],
+        "ownerTitle": "Spring replacement (one door, both springs)"
+      },
+      "doorcount": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "How many doors need fixing?",
+        "sum": "Doors",
+        "forSvc": [
+          "repair"
+        ],
+        "when": [
+          {
+            "step": "gapcheck1",
+            "is": [
+              "gap"
+            ]
+          },
+          {
+            "step": "gapcheck2",
+            "is": [
+              "gap"
+            ]
+          },
+          {
+            "step": "partcheck",
+            "is": [
+              "spring"
+            ]
+          },
+          {
+            "step": "gapcheck1",
+            "is": [
+              "whole",
+              "cant"
+            ]
+          },
+          {
+            "step": "gapcheck2",
+            "is": [
+              "whole",
+              "cant"
+            ]
+          },
+          {
+            "step": "partcheck",
+            "is": [
+              "cable",
+              "unsure"
+            ]
+          },
+          {
+            "step": "other",
+            "is": [
+              "noisy",
+              "weather",
+              "notsure"
+            ]
+          },
+          {
+            "step": "panelcount",
+            "is": [
+              "one",
+              "two",
+              "three",
+              "unsure"
+            ]
+          }
+        ],
+        "options": [
+          {
+            "id": "one",
+            "label": "One door",
+            "hint": "Just the one with the problem",
+            "img": "img/garage/doors-1.svg",
+            "short": "1 door"
+          },
+          {
+            "id": "two",
+            "label": "Two doors",
+            "hint": "Both fixed in the same visit, second one for less",
+            "img": "img/garage/doors-2.svg",
+            "mult": 1.8,
+            "short": "2 doors"
+          }
+        ]
+      },
+      "doorsize": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "How big is the door?",
+        "sum": "Door size",
+        "forSvc": [
+          "repair"
+        ],
+        "when": [
+          {
+            "step": "gapcheck1",
+            "is": [
+              "gap"
+            ]
+          },
+          {
+            "step": "gapcheck2",
+            "is": [
+              "gap"
+            ]
+          },
+          {
+            "step": "partcheck",
+            "is": [
+              "spring"
+            ]
+          }
+        ],
+        "options": [
+          {
+            "id": "single",
+            "label": "Single, one car",
+            "hint": "About 8 to 10 feet wide",
+            "img": "img/garage/door-single.svg",
+            "price": [
+              0,
+              0
+            ],
+            "short": "Single door"
+          },
+          {
+            "id": "double",
+            "label": "Double, two cars",
+            "hint": "About 16 feet wide. Bigger springs.",
+            "img": "img/garage/door-double.svg",
+            "price": [
+              80,
+              150
+            ],
+            "short": "Double door",
+            "badge": "Most common"
+          },
+          {
+            "id": "big",
+            "label": "Extra large or heavy",
+            "hint": "3-car, real wood, or taller than 7 feet",
+            "img": "img/garage/door-big.svg",
+            "price": [
+              200,
+              300
+            ],
+            "short": "Large or heavy door"
+          },
+          {
+            "id": "unsure",
+            "label": "Not sure",
+            "hint": "Your tech measures on arrival",
+            "img": "img/garage/unsure.svg",
+            "price": [
+              0,
+              150
+            ],
+            "short": "Size not sure"
+          }
+        ],
+        "ownerTitle": "Extra for a bigger door (spring jobs)"
+      },
+      "springup": {
+        "type": "addons",
+        "title": "Want springs that last longer?",
+        "optional": true,
+        "forSvc": [
+          "repair"
+        ],
+        "when": [
+          {
+            "step": "gapcheck1",
+            "is": [
+              "gap"
+            ]
+          },
+          {
+            "step": "gapcheck2",
+            "is": [
+              "gap"
+            ]
+          },
+          {
+            "step": "partcheck",
+            "is": [
+              "spring"
+            ]
+          }
+        ],
+        "options": [
+          {
+            "id": "hicycle",
+            "label": "High-cycle springs",
+            "add": [
+              75,
+              75
+            ],
+            "hint": "About 4x the life of standard springs",
+            "img": "img/garage/torsion.svg"
+          }
+        ],
+        "ownerTitle": "Spring upgrade"
+      },
+      "openerage": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "How old is the opener?",
+        "sum": "Opener age",
+        "forSvc": [
+          "repair"
+        ],
+        "when": [
+          {
+            "step": "gapcheck1",
+            "is": [
+              "whole",
+              "cant"
+            ]
+          },
+          {
+            "step": "gapcheck2",
+            "is": [
+              "whole",
+              "cant"
+            ]
+          },
+          {
+            "step": "issue",
+            "is": [
+              "reverses"
+            ]
+          },
+          {
+            "step": "other",
+            "is": [
+              "remote"
+            ]
+          }
+        ],
+        "options": [
+          {
+            "id": "new",
+            "label": "Under 10 years",
+            "hint": "Usually worth repairing",
+            "icon": "badge-check",
+            "short": "Opener under 10 yrs"
+          },
+          {
+            "id": "mid",
+            "label": "10 to 15 years",
+            "hint": "Your tech checks the motor and gears",
+            "icon": "clock",
+            "short": "Opener 10-15 yrs"
+          },
+          {
+            "id": "old",
+            "label": "Over 15 years",
+            "hint": "A new one is often the smarter buy. You get both prices.",
+            "icon": "hourglass",
+            "short": "Opener 15+ yrs"
+          },
+          {
+            "id": "none",
+            "label": "No opener",
+            "hint": "I lift the door by hand",
+            "icon": "hand",
+            "short": "No opener"
+          },
+          {
+            "id": "unsure",
+            "label": "Not sure",
+            "hint": "Your tech checks the label",
+            "icon": "circle-help",
+            "short": "Opener age not sure"
+          }
+        ]
+      },
+      "doorsize2": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "How big is the door?",
+        "sum": "Door size",
+        "forSvc": [
+          "repair"
+        ],
+        "when": [
+          {
+            "step": "issue",
+            "is": [
+              "offtrack"
+            ]
+          },
+          {
+            "step": "gapcheck1",
+            "is": [
+              "whole",
+              "cant"
+            ]
+          },
+          {
+            "step": "gapcheck2",
+            "is": [
+              "whole",
+              "cant"
+            ]
+          },
+          {
+            "step": "partcheck",
+            "is": [
+              "cable",
+              "unsure"
+            ]
+          },
+          {
+            "step": "other",
+            "is": [
+              "noisy",
+              "weather",
+              "notsure"
+            ]
+          },
+          {
+            "step": "panelcount",
+            "is": [
+              "one",
+              "two",
+              "three",
+              "unsure"
+            ]
+          }
+        ],
+        "options": [
+          {
+            "id": "single",
+            "label": "Single, one car",
+            "hint": "About 8 to 10 feet wide",
+            "img": "img/garage/door-single.svg",
+            "short": "Single door"
+          },
+          {
+            "id": "double",
+            "label": "Double, two cars",
+            "hint": "About 16 feet wide",
+            "img": "img/garage/door-double.svg",
+            "short": "Double door",
+            "badge": "Most common"
+          },
+          {
+            "id": "big",
+            "label": "Extra large or heavy",
+            "hint": "3-car, real wood, or taller than 7 feet",
+            "img": "img/garage/door-big.svg",
+            "short": "Large or heavy door"
+          },
+          {
+            "id": "unsure",
+            "label": "Not sure",
+            "hint": "Your tech measures on arrival",
+            "img": "img/garage/unsure.svg",
+            "short": "Size not sure"
+          }
+        ]
+      },
+      "openertype": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Which opener do you want?",
+        "sum": "Opener",
+        "forSvc": [
+          "newopener"
+        ],
+        "options": [
+          {
+            "id": "chain",
+            "label": "Chain drive",
+            "hint": "Strong, budget friendly, a bit louder",
+            "img": "img/garage/chain.svg",
+            "price": [
+              350,
+              550
+            ]
+          },
+          {
+            "id": "belt",
+            "label": "Belt drive",
+            "hint": "Near-silent, opens from your phone",
+            "img": "img/garage/belt.svg",
+            "price": [
+              450,
+              750
+            ],
+            "badge": "Most popular"
+          },
+          {
+            "id": "wall",
+            "label": "Wall-mount",
+            "hint": "Beside the door, frees the ceiling",
+            "img": "img/garage/wallmount.svg",
+            "price": [
+              850,
+              1300
+            ]
+          },
+          {
+            "id": "help",
+            "label": "Not sure, help me choose",
+            "hint": "Your tech recommends one on site",
+            "img": "img/garage/opener-unsure.svg",
+            "price": [
+              350,
+              1300
+            ]
+          }
+        ],
+        "ownerTitle": "New opener, installed"
+      },
+      "openerextras": {
+        "type": "addons",
+        "title": "Add-ons for your new opener",
+        "optional": true,
+        "forSvc": [
+          "newopener"
+        ],
+        "options": [
+          {
+            "id": "remote",
+            "label": "Extra remote",
+            "icon": "radio",
+            "add": [
+              45,
+              45
+            ],
+            "hint": "For a second car"
+          },
+          {
+            "id": "keypad",
+            "label": "Outside keypad",
+            "icon": "grid-3x3",
+            "add": [
+              79,
+              79
+            ],
+            "hint": "Open the door with a code"
+          },
+          {
+            "id": "battery",
+            "label": "Battery backup for power outages",
+            "icon": "battery-charging",
+            "add": [
+              99,
+              99
+            ],
+            "hint": "Works when the power is out"
+          }
+        ],
+        "ownerTitle": "Opener add-ons"
+      },
+      "tucount": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "How many garage doors?",
+        "sum": "Doors",
+        "forSvc": [
+          "tuneup"
+        ],
+        "options": [
+          {
+            "id": "one",
+            "label": "One door",
+            "hint": "The 25-point safety check on one door",
+            "price": [
+              99,
+              99
+            ],
+            "img": "img/garage/doors-1.svg"
+          },
+          {
+            "id": "two",
+            "label": "Two doors",
+            "hint": "Both doors done in the same visit",
+            "price": [
+              169,
+              169
+            ],
+            "img": "img/garage/doors-2.svg",
+            "badge": "Most homes"
+          },
+          {
+            "id": "three",
+            "label": "Three or more",
+            "hint": "Every door, one visit",
+            "price": [
+              229,
+              229
+            ],
+            "img": "img/garage/doors-3.svg"
+          }
+        ],
+        "lede": "Every tune-up: lube all moving parts, balance the springs, tighten the hardware, and test the sensors and auto-reverse.",
+        "ownerTitle": "Tune-up"
+      },
+      "tuextra": {
+        "type": "addons",
+        "title": "Anything bugging you about the door?",
+        "lede": "Add a fix to the same visit. Skip it if the door is fine.",
+        "optional": true,
+        "forSvc": [
+          "tuneup"
+        ],
+        "options": [
+          {
+            "id": "rollers",
+            "label": "Quiet nylon rollers",
+            "hint": "For a loud or rattling door",
+            "img": "img/garage/i-noisy.svg",
+            "add": [
+              149,
+              149
+            ]
+          },
+          {
+            "id": "seal",
+            "label": "New bottom seal",
+            "hint": "Stops drafts, water and light under the door",
+            "img": "img/garage/i-drafts.svg",
+            "add": [
+              129,
+              129
+            ]
+          },
+          {
+            "id": "opnchk",
+            "label": "Check my opener too",
+            "hint": "If you have one and it's slow, loud or old. No extra charge",
+            "img": "img/garage/i-opener.svg"
+          }
+        ],
+        "ownerTitle": "Tune-up add-ons"
+      },
+      "ndproject": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "What's the project?",
+        "sum": "Project",
+        "forSvc": [
+          "newdoor"
+        ],
+        "options": [
+          {
+            "id": "replace",
+            "label": "Replacing my current door",
+            "hint": "Old, worn out or ugly",
+            "icon": "refresh-cw"
+          },
+          {
+            "id": "build",
+            "label": "New build or remodel",
+            "hint": "Building or renovating a home",
+            "icon": "hammer"
+          },
+          {
+            "id": "damage",
+            "label": "Damaged door",
+            "hint": "Hit by a car or a storm",
+            "icon": "shield-alert"
+          },
+          {
+            "id": "rental",
+            "label": "Rental or property I manage",
+            "hint": "One or more units",
+            "icon": "building-2"
+          }
+        ]
+      },
+      "ndcount": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "How many doors?",
+        "sum": "Doors",
+        "forSvc": [
+          "newdoor"
+        ],
+        "options": [
+          {
+            "id": "one",
+            "label": "One door",
+            "icon": "square"
+          },
+          {
+            "id": "two",
+            "label": "Two doors",
+            "icon": "columns-2"
+          },
+          {
+            "id": "three",
+            "label": "Three or more",
+            "icon": "columns-3"
+          }
+        ]
+      },
+      "ndsize": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "What size?",
+        "sum": "Size",
+        "forSvc": [
+          "newdoor"
+        ],
+        "options": [
+          {
+            "id": "single",
+            "label": "Single, one car",
+            "hint": "About 8 to 10 feet wide",
+            "img": "img/garage/door-single.svg"
+          },
+          {
+            "id": "double",
+            "label": "Double, two cars",
+            "hint": "About 16 feet wide",
+            "img": "img/garage/door-double.svg"
+          },
+          {
+            "id": "mix",
+            "label": "Some of each",
+            "hint": "A double and a single",
+            "img": "img/garage/door-mix.svg"
+          },
+          {
+            "id": "unsure",
+            "label": "Not sure",
+            "hint": "We measure at the visit",
+            "img": "img/garage/unsure.svg"
+          }
+        ]
+      },
+      "ndstyle": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Which style do you like?",
+        "sum": "Style",
+        "forSvc": [
+          "newdoor"
+        ],
+        "options": [
+          {
+            "id": "traditional",
+            "label": "Traditional",
+            "hint": "Raised panels, the classic look",
+            "img": "img/garage/style-traditional.svg",
+            "badge": "Most popular"
+          },
+          {
+            "id": "carriage",
+            "label": "Carriage house",
+            "hint": "Barn-style boards, windows on top",
+            "img": "img/garage/style-carriage.svg"
+          },
+          {
+            "id": "modern",
+            "label": "Modern glass",
+            "hint": "Aluminum and glass, clean lines",
+            "img": "img/garage/style-modern.svg"
+          },
+          {
+            "id": "help",
+            "label": "Help me choose",
+            "hint": "We bring samples and photos",
+            "img": "img/garage/unsure.svg"
+          }
+        ]
+      },
+      "ndinsul": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Do you want it insulated?",
+        "sum": "Insulation",
+        "forSvc": [
+          "newdoor"
+        ],
+        "options": [
+          {
+            "id": "yes",
+            "label": "Yes, insulated",
+            "hint": "Warmer garage, quieter, stronger. Best for attached garages.",
+            "icon": "thermometer",
+            "badge": "Most popular"
+          },
+          {
+            "id": "no",
+            "label": "No, basic is fine",
+            "hint": "Lowest price",
+            "icon": "square"
+          },
+          {
+            "id": "unsure",
+            "label": "Not sure",
+            "hint": "We explain the options at the visit",
+            "icon": "circle-help"
+          }
+        ]
+      },
+      "ndopener": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "New opener with it?",
+        "sum": "Opener",
+        "forSvc": [
+          "newdoor"
+        ],
+        "options": [
+          {
+            "id": "yes",
+            "label": "Yes, add a new opener",
+            "hint": "Quiet, opens from your phone",
+            "icon": "plug-zap"
+          },
+          {
+            "id": "keep",
+            "label": "No, keep my current one",
+            "hint": "We reconnect it to the new door",
+            "icon": "check"
+          },
+          {
+            "id": "none",
+            "label": "No opener",
+            "hint": "I'll open the door by hand",
+            "icon": "hand"
+          },
+          {
+            "id": "unsure",
+            "label": "Not sure",
+            "hint": "We talk it over at the visit",
+            "icon": "circle-help"
+          }
+        ]
+      },
+      "ndwhen": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "When do you need it?",
+        "sum": "Timeline",
+        "forSvc": [
+          "newdoor"
+        ],
+        "options": [
+          {
+            "id": "asap",
+            "label": "As soon as possible",
+            "icon": "zap"
+          },
+          {
+            "id": "month",
+            "label": "Within a month",
+            "icon": "calendar"
+          },
+          {
+            "id": "later",
+            "label": "In 1 to 3 months",
+            "icon": "calendar-range"
+          },
+          {
+            "id": "pricing",
+            "label": "Just getting prices",
+            "icon": "search"
+          }
+        ]
+      },
+      "stuck": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Is a car stuck inside?",
+        "sum": "Car stuck",
+        "forSvc": [
+          "repair"
+        ],
+        "when": {
+          "step": "issue",
+          "is": [
+            "wontmove",
+            "hums",
+            "offtrack",
+            "broken"
+          ]
+        },
+        "options": [
+          {
+            "id": "yes",
+            "label": "Yes, I need it today",
+            "hint": "We'll send the first available tech",
+            "icon": "car"
+          },
+          {
+            "id": "no",
+            "label": "No, soonest time is fine",
+            "hint": "Pick any window that works",
+            "icon": "calendar-check"
+          }
+        ],
+        "noSum": true
+      },
+      "lead": {
+        "type": "lead",
+        "title": "Your estimate is ready",
+        "lede": "Add your name and phone number to see your estimate. We'll text you a copy too.",
+        "submit": "See my estimate"
+      },
+      "time": {
+        "type": "time",
+        "title": "Pick a time to book it",
+        "estimateTitle": "Pick a time for your free estimate"
+      },
+      "contact": {
+        "type": "contact",
+        "title": "Where should we text your confirmation?",
+        "askAddress": true,
+        "addressLabel": "Address of the garage",
+        "titleAfterLead": "Last step: where's the garage?",
+        "submit": "Book my appointment",
+        "photos": true,
+        "photoLabel": "Photo of the door (optional)",
+        "photoButton": "Add a photo",
+        "photoHint": "A photo of the springs above the door helps your tech bring the right parts."
+      },
+      "extras": {
+        "type": "addons",
+        "title": "Anything else?",
+        "optional": true,
+        "forSvc": [
+          "repair"
+        ],
+        "options": [
+          {
+            "id": "tune",
+            "label": "Add a tune-up while you're here",
+            "icon": "shield-check",
+            "add": [
+              49,
+              49
+            ]
+          }
+        ]
+      },
+      "details": {
+        "type": "details",
+        "title": "Send us a photo of the door",
+        "placeholder": "What's happening, how old the door is, anything that sounds or looks off",
+        "photos": true,
+        "optional": true,
+        "visitTitle": "Anything else we should know?",
+        "visitPlaceholder": "Colors you like, windows, anything about the opening or the house"
+      }
+    },
+    "startPath": "book",
+    "estimatesLast": true,
+    "autoNext": true,
+    "includes": [
+      "Parts and labor included",
+      "Full safety check of the door",
+      "The quote is the price. No surprise fees",
+      "No extra charge for evenings or weekends"
+    ],
+    "priceShort": "Your tech confirms the price before any work starts. No surprise fees.",
+    "priceGate": "after",
+    "gateNote": "Shows on the next step. No obligation.",
+    "summary": false,
+    "altPhoto": false,
+    "preset": true
+  },
   // Pre-built niche (Oct 15): carpet, upholstery, rugs, tile and grout, dryer vents. Same engine as exterior.
   carpet: {
     "preset": true,
