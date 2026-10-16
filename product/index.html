@@ -744,6 +744,40 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .dsh-shot{padding:26px 0 0;max-height:430px;-webkit-mask-image:linear-gradient(180deg,#000 72%,transparent 100%);mask-image:linear-gradient(180deg,#000 72%,transparent 100%)}
   .dsh-shot img{width:min(300px,78vw);border:8px solid #1d1e20;border-bottom:0;border-radius:40px 40px 0 0;box-shadow:0 0 0 1px rgba(0,0,0,.25),0 30px 50px -24px rgba(0,0,0,.45)}
 }
+
+/* Phones (Oct 17): a bigger headline on three short lines, one main button with the demo as a light link under it,
+   the two dashboard cards from the desktop hero side by side, and no "Three steps" line under How it works. */
+.hfm{display:none}
+@media (max-width:640px){
+  .hero{padding-top:28px}
+  .badge{height:30px;padding:0 12px;font-size:13px}
+  .hero h1{font-size:clamp(34px,10.4vw,42px);line-height:1.04;margin-top:18px}
+  .hero h1 .ln{white-space:normal}
+  .hero h1 .ln > span{text-wrap:balance}
+  .hero .sub{font-size:16.5px;line-height:1.5;max-width:32ch;margin:14px auto 0;color:var(--ink2)}
+  .quick.solo{margin-top:24px;gap:4px}
+  .quick.solo .btn:not(.ghost){height:54px;font-size:17px;border-radius:14px}
+  .quick.solo .btn.ghost{height:44px;background:none!important;box-shadow:none;border:0;color:var(--ink);font-size:15.5px;font-weight:600}
+  .quick.solo .btn.ghost svg{width:17px;height:17px}
+  .checks{margin-top:10px}
+  .hfm{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:26px -4px 0;text-align:left}
+  .hfm-c{padding:12px 12px 11px;border-radius:16px;background:#fff;color:#1a1d19;box-shadow:0 0 0 1px rgba(32,37,31,.06),0 1px 2px rgba(0,0,0,.04),0 22px 40px -24px rgba(32,37,31,.45)}
+  .hfm .hfl-k{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#3b4238;white-space:nowrap}
+  .hfm .hfl-ki{display:grid;place-items:center;width:20px;height:20px;border-radius:6px;flex-shrink:0}
+  .hfm .hfl-ki svg{width:12px;height:12px}
+  .hfm .hfl-ki.moon{background:#1d2420}.hfm .hfl-ki.moon svg{fill:#f6c453}
+  .hfm .hfl-ki.up{background:#e8f3ec}.hfm .hfl-ki.up svg{fill:none;stroke:#2f7d4f;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .hfm .hfl-big{display:flex;align-items:baseline;gap:5px;margin-top:8px}
+  .hfm .hfl-big b{font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+  .hfm .hfl-big span{font-size:11px;color:#6a6e66;font-weight:600}
+  .hfm .hfl-sub,.hfm .hfl-leg,.hfm .hfl-rows{display:none}
+  .hfm .hfl-bars{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;align-items:end;height:38px;margin-top:10px}
+  .hfm .hfl-bars i{display:flex;flex-direction:column-reverse;border-radius:4px;overflow:hidden;height:100%}
+  .hfm .hfl-bars b{display:block;background:#1d221c}.hfm .hfl-bars b.hfl-ah{background:#f35427;border-radius:4px 4px 0 0}
+  .hfm .hfl-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:4px;font-size:9px;font-weight:600;color:#9a9d94;text-align:center}
+  .hfm .hfl-spark{display:block;width:100%;height:52px;margin-top:10px}
+  .how3-sub{display:none}
+}
 </style>
 <link rel="stylesheet" href="build.css">
 <script src="../dbx.js"></script>
@@ -791,6 +825,19 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
       <li><svg><use href="#chk"/></svg><span class="lg">Free until it books you 3 jobs</span><span class="sm">Free until 3 jobs</span></li>
       <li><svg><use href="#chk"/></svg><span class="lg">Cancel anytime</span><span class="sm">Cancel anytime</span></li>
     </ul>
+    <div class="hfm" aria-hidden="true"><div class="hfm-c">
+      <div class="hfl-k"><span class="hfl-ki moon"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span>Booked after hours</div>
+      <div class="hfl-big"><b data-count="14">14</b><span>this month</span></div>
+      <p class="hfl-sub">Broken springs at 9 PM, while the phone would have gone to voicemail.</p>
+      <div class="hfl-bars"><i><b style="height:38%"></b><b class="hfl-ah" style="height:22%"></b></i><i><b style="height:30%"></b><b class="hfl-ah" style="height:30%"></b></i><i><b style="height:46%"></b><b class="hfl-ah" style="height:16%"></b></i><i><b style="height:34%"></b><b class="hfl-ah" style="height:28%"></b></i><i><b style="height:40%"></b><b class="hfl-ah" style="height:36%"></b></i><i><b style="height:20%"></b><b class="hfl-ah" style="height:44%"></b></i><i><b style="height:14%"></b><b class="hfl-ah" style="height:40%"></b></i></div>
+      <div class="hfl-days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+      <div class="hfl-leg"><i></i>Booked outside business hours</div>
+    </div><div class="hfm-c">
+      <div class="hfl-k"><span class="hfl-ki up"><svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-7"/><path d="M15 8h5v5"/></svg></span>Jobs booked online</div>
+      <div class="hfl-big"><b data-count="3870" data-money="1">$3,870</b><span>last 30 days</span></div>
+      <svg class="hfl-spark" viewBox="0 0 240 46" preserveAspectRatio="none"><defs><linearGradient id="hflg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f7d4f" stop-opacity=".22"/><stop offset="1" stop-color="#2f7d4f" stop-opacity="0"/></linearGradient></defs><path d="M0 38 L30 35 L60 36 L90 29 L120 30 L150 22 L180 19 L210 12 L240 6 L240 46 L0 46 Z" fill="url(#hflg2)"/><path d="M0 38 L30 35 L60 36 L90 29 L120 30 L150 22 L180 19 L210 12 L240 6" fill="none" stroke="#2f7d4f" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="240" cy="6" r="3.5" fill="#2f7d4f"/></svg>
+      <div class="hfl-rows"><div><b data-count="23">23</b><span>bookings</span></div><div><b class="ok">+9</b><span>vs last month</span></div></div>
+    </div></div>
 
     <div class="how3" id="demo">
       <h2 class="how3-k">How it works</h2>
@@ -1089,7 +1136,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     mbar.classList.toggle('on', on);
     // phones: the Get started button sits at the top right (data-mobile="top") and only shows once the visitor has
     // scrolled past the hero, which has its own buttons. Computers keep it in the corner the whole time.
-    var hide = getComputedStyle(mbar).display !== 'none' && !on;
+    var hfm = document.querySelector('.hfm'), heroEnd = hfm && hfm.offsetParent ? hfm.getBoundingClientRect().bottom < 0 : on;
+    var hide = getComputedStyle(mbar).display !== 'none' && !heroEnd;
     document.documentElement.toggleAttribute('data-dialbridge-hide', hide);
     if (hide !== onScroll.hide) { onScroll.hide = hide; document.dispatchEvent(new CustomEvent('dialbridge:lift', { detail: { hide: hide } })); }
   }
@@ -1691,7 +1739,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .tdm-box iframe{display:block;width:100%;height:100%;border:0}
 .tdm-tag{position:absolute;left:50%;bottom:-38px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.92);font-size:12.5px;color:#3b4238;white-space:nowrap}
 @keyframes tdmIn{from{opacity:0;transform:translateY(16px) scale(.97)}}
-@media (max-width:640px){.quick.solo{flex-direction:column;align-items:stretch;gap:10px;max-width:340px}.quick.solo .btn{flex:none}.quick.solo .btn.ghost{display:inline-flex;height:52px;font-size:16px;background:rgba(255,255,255,.85);color:var(--ink)}.quick.solo .btn.ghost svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}.tdm{padding:0}.tdm-box{width:100%;height:100dvh;border-radius:0}.tdm-tag{display:none}}
+@media (max-width:640px){.quick.solo{flex-direction:column;align-items:stretch;gap:10px;max-width:340px}.quick.solo .btn{flex:none}.quick.solo .btn.ghost{display:inline-flex;height:44px;font-size:15.5px;font-weight:600;background:none;box-shadow:none;border:0;color:var(--ink)}.quick.solo .btn.ghost svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}.tdm{padding:0}.tdm-box{width:100%;height:100dvh;border-radius:0}.tdm-tag{display:none}}
 </style>
 <div class="tdm" id="tdm" role="dialog" aria-modal="true" aria-label="Live demo booking page"><div class="tdm-box" id="tdmBox"></div></div>
 <script>
