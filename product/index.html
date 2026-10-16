@@ -811,7 +811,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   <section class="hero" aria-labelledby="h1">
     <span class="badge"><i></i>Online booking for garage door companies</span>
     <h1 id="h1"><span class="ln"><span>Let customers book online.</span></span><span class="ln"><span><em>Even at 10 PM.</em></span></span></h1>
-    <p class="sub">You pay nothing until it books you 3 jobs.<span class="sub-x"> Cancel anytime.</span></p>
+    <p class="sub">No card needed. You pay nothing until it books you 3 jobs.<span class="sub-x"> Cancel anytime.</span></p>
     <div class="quick solo" id="quick"><a class="btn" href="https://app.matviykorsunskiy.me/signup" data-signup>Build my booking page <svg class="arw"><use href="#arw"/></svg></a><a class="btn ghost" href="../book.html?b=shore-point-garage" data-trydemo><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10.2 8.6v6.8l5.4-3.4z" fill="currentColor" stroke="none"/></svg>Try the live demo</a></div>
     <div class="hfl hfl-l" aria-hidden="true"><div class="hfl-in">
       <div class="hfl-k"><span class="hfl-ki moon"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span>Booked after hours</div>
@@ -960,7 +960,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   </div>
 </section>
 
-<section class="tdband"><div class="wrap"><div class="tdb rv"><div><h3>See what your customers see</h3><p>Tap through the real booking page of a sample garage door company. Nothing gets sent.</p></div><a class="btn" href="../book.html?b=shore-point-garage" data-trydemo><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10.2 8.6v6.8l5.4-3.4z" fill="currentColor" stroke="none"/></svg>See the demo live</a></div></div></section>
+<section class="tdband"><div class="wrap"><div class="tdb rv"><div class="tdb-tx"><p class="tdb-k">Live demo</p><h3>See what your customers see</h3><p>Tap through the real booking page of a sample garage door company: what's wrong with the door, the price, a time.</p><div class="tdb-go"><a class="btn" href="../book.html?b=shore-point-garage" data-trydemo><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10.2 8.6v6.8l5.4-3.4z" fill="currentColor" stroke="none"/></svg>See the demo live</a><span class="tdb-n">No sign-up. Nothing gets sent.</span></div></div><a class="tdb-pv" href="../book.html?b=shore-point-garage" data-trydemo aria-label="Open the live demo"><img src="../img/try-shot-garage.webp" alt="" width="390" height="606" loading="lazy" decoding="async"></a></div></div></section>
 
 <section class="s" id="owner">
   <div class="wrap">
@@ -1063,11 +1063,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 <section class="s" id="pricing" style="padding-top:0">
   <div class="wrap">
     <div class="shead rv" style="margin-bottom:28px"><div><p class="eyebrow">Pricing</p><h2 style="margin-top:4px">Your first 3 jobs are free.<br>No card required.</h2></div></div>
-    <ol class="free3 rv">
-      <li><b>Go live free</b><span>No card. Your booking page takes bookings the same day.</span></li>
-      <li><b>Jobs 1, 2 and 3 are on us</b><span>Customers book, you get the work, you pay nothing.</span></li>
-      <li><b>Keep it after job 3</b><span>Add a card for $99/month. Cancel anytime. No card, and it just pauses.</span></li>
-    </ol>
     <div class="price rv">
       <div class="plan">
         <span class="tag">Founding price</span>
@@ -1746,6 +1741,28 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .tdm-tag{position:absolute;left:50%;bottom:-38px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.92);font-size:12.5px;color:#3b4238;white-space:nowrap}
 @keyframes tdmIn{from{opacity:0;transform:translateY(16px) scale(.97)}}
 @media (max-width:640px){.quick.solo{flex-direction:column;align-items:stretch;gap:10px;max-width:340px}.quick.solo .btn{flex:none}.quick.solo .btn.ghost{display:inline-flex;height:52px;font-size:16px;font-weight:600;background:var(--white);box-shadow:0 0 0 1px var(--line2),0 1px 2px rgba(32,37,31,.06);border:0;border-radius:14px;color:var(--ink)}.quick.solo .btn.ghost svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}.tdm{padding:0}.tdm-box{width:100%;height:100dvh;border-radius:0}.tdm-tag{display:none}}
+
+/* "See what your customers see" (Oct 17): on computers a dark band with the real booking screen in a phone frame on the right */
+.tdb-k,.tdb-n,.tdb-pv{display:none}
+.tdb-go{flex-shrink:0}
+@media (min-width:761px){
+  .tdband{padding:24px 0 8px}
+  .tdb{position:relative;max-width:1080px;min-height:280px;padding:44px 380px 44px 52px;align-items:flex-start;border-radius:28px;overflow:hidden;
+    background:radial-gradient(120% 140% at 85% 110%,rgba(243,84,39,.38),rgba(243,84,39,0) 55%),var(--deep);color:#f3f1ea;box-shadow:0 30px 60px -32px rgba(20,24,19,.55)}
+  .tdb-tx{max-width:520px}
+  .tdb .tdb-k{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.08);color:#ffb59e;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .tdb-k::before{content:"";width:7px;height:7px;border-radius:50%;background:#f35427;box-shadow:0 0 0 3px rgba(243,84,39,.25);animation:tdbPulse 2s ease-in-out infinite}
+  .tdb h3{font-size:32px;line-height:1.12;letter-spacing:-.025em;color:#fff}
+  .tdb .tdb-tx > p:not(.tdb-k){margin:12px 0 0;font-size:17px;line-height:1.5;color:rgba(243,241,234,.72)}
+  .tdb-go{display:flex;align-items:center;gap:18px;margin-top:26px}
+  .tdb-n{display:inline;font-size:14px;color:rgba(243,241,234,.6)}
+  .tdb .btn{box-shadow:0 12px 28px -10px rgba(243,84,39,.7)}
+  .tdb-pv{display:block;position:absolute;right:56px;top:34px;width:280px;padding:9px;border-radius:38px;background:#121512;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 40px 70px -20px rgba(0,0,0,.6);transform:rotate(4deg);transition:transform .5s var(--ease)}
+  .tdb-pv img{display:block;width:100%;height:auto;border-radius:30px}
+  .tdb-pv:hover{transform:rotate(2deg) translateY(-6px)}
+}
+@keyframes tdbPulse{50%{box-shadow:0 0 0 6px rgba(243,84,39,0)}}
+@media (prefers-reduced-motion:reduce){.tdb-k::before{animation:none}.tdb-pv{transition:none}}
 </style>
 <div class="tdm" id="tdm" role="dialog" aria-modal="true" aria-label="Live demo booking page"><div class="tdm-box" id="tdmBox"></div></div>
 <script>
