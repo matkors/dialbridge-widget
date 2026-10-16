@@ -158,6 +158,18 @@
       root.setProperty('--on-brand', lum > 0.45 ? '#1A1D21' : '#FFFFFF');
     }
     setBrand(B.brand);
+    // layout 'top' (Oct 16, garage doors): no brand panel on the left. One narrow column with the business name in a
+    // slim bar at the top and the phone on the right, the same on a computer and a phone.
+    var TOP = B.layout === 'top';
+    if (TOP) document.documentElement.classList.add('ltop');
+    var GATE = /^(open|teaser|after)$/.test(params.get('price') || '') ? params.get('price') : /^(teaser|after)$/.test(T.priceGate || '') ? T.priceGate : 'open';
+    if (GATE !== 'open') document.documentElement.classList.add('pgate', 'pgate-' + GATE);
+    function gated() {
+      if (GATE === 'open' || (S && S.done)) return false;
+      if (!S || !S.leadOk) return true;
+      var sc = curScreen(); return !(sc && sc.some(function (id) { var t = stepDef(id).type; return t === 'time' || t === 'contact'; }));
+    }
+    function teaseTag(t) { var m = String(t || '').match(/\$([\d,]+)/); return m ? 'From $' + m[1] : ''; }
     var hostLine = document.getElementById('hostline');
     if (hostLine && !EMBED) hostLine.innerHTML = '<b>' + esc(B.name) + '</b><span>Serving ' + esc(B.area) + ' · <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a></span>';
     // Live traffic for the owner's dashboard: no cookies and nothing stored on the visitor's device, so no consent
@@ -177,7 +189,7 @@
     if (B.api) liveEvent('view');
 
     var S;
-    function fresh() { S = { path: null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], files: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', msg: '', cb: null, done: null }; }
+    function fresh() { S = { path: T.startPath === 'book' && !EDIT ? 'book' : null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], files: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', msg: '', cb: null, done: null }; }
     fresh();
     // ?builder=1: the product page's widget builder (same origin) can try a color and an uploaded logo live.
     // An uploaded logo arrives as a data: image and is only ever shown in an <img>, never saved from here.
@@ -236,15 +248,21 @@
     // The free estimate visit (svcs[].visit): no questions, no time. They describe the job, leave their info, the owner calls.
     function isVisit(s) { return !!(s && (s.visit || (isEst(s) && /^free (estimate|quote|inspection)/i.test(s.label || '')))); }
     function visitPicked() { return S.path === 'book' && S.svcs.some(function (id) { return isVisit(svcById(id)); }); }
+    // A follow-up shows only while the answer it depends on is still showing (going back and changing an answer hides it).
+    function shown(id, n) { var d = stepDef(id); n = n || 0;
+      if (d.forSvc && d.forSvc.length && !S.svcs.some(function (x) { return d.forSvc.indexOf(x) > -1; })) return false;
+      return !d.when || n > 5 || [].concat(d.when).some(function (w) { return w && w.step && (w.is || []).indexOf(S.ans[w.step]) > -1 && shown(w.step, n + 1); }); }
     function visible() {
       if (visitPicked()) {
-        var fl = flowFor('book'), out = fl.filter(function (id) { var t = stepDef(id).type; return t === 'zip' || t === 'service' || t === 'contact'; });
+        var fl = flowFor('book'), out = fl.filter(function (id) { var d = stepDef(id), t = d.type; return t === 'zip' || t === 'service' || t === 'contact' || (QTYPES[t] && d.forSvc && d.forSvc.length && shown(id)); });
         var dt = function (id) { return stepDef(id).type === 'details'; }, di = fl.filter(dt)[0] || (T.flows.quote || []).filter(dt)[0] || 'details';
         var at = out.map(function (id) { return stepDef(id).type; }).indexOf('service'); out.splice(at + 1, 0, di); return out;
       }
       return flowFor(S.path).filter(function (id) {
         var d = stepDef(id);
         if (d.forSvc && d.forSvc.length && !S.svcs.some(function (x) { return d.forSvc.indexOf(x) > -1; })) return false;
+        // when: {step, is[]} or a list of them (shows if any one matches)
+        if (d.when && !shown(id)) return false;
         if (d.type === 'service' && oneEst()) return false;   // the estimate option with one service: already picked
         if (d.type === 'details' && S.path === 'quote') return true;   // "Send photos for a price": always the photo step
         if (!d.showIf) return true;
@@ -253,7 +271,7 @@
       });
     }
     // Questions after the service picker share its screen; everything else starts a new screen.
-    var STARTS = { zip: 1, service: 1, details: 1, time: 1, contact: 1, message: 1, call: 1, callback: 1 };
+    var STARTS = { zip: 1, service: 1, details: 1, time: 1, contact: 1, lead: 1, message: 1, call: 1, callback: 1 };
     var QTYPES = { choice: 1, qty: 1, ask: 1, addons: 1 };
     function screens() {
       var out = [], ids = visible(), si = -1;
@@ -322,9 +340,15 @@
     }
     function ownPriced() { var parts = S.svc ? (S.svc.parts || [S.svc]) : []; return parts.length > 0 && parts.every(function (x) { var p = ownPrice(x); return p && !p.none; }); }
     function priceText(lo, hi) { return hi === null ? 'From $' + lo : lo === hi ? '$' + lo : '$' + lo + ' to $' + hi; }
-    function svcTag(s) {
+    function svcTag(s) { var t0 = svcTag0(s); return !gated() || /^Free/.test(t0) ? t0 : GATE === 'teaser' ? teaseTag(t0) : ''; }
+    function svcTag0(s) {
       if (s.mode === 'estimate') return 'Free quote';
       var o = ownPrice(s); if (o) return o.none ? '' : priceText(o.lo, o.hi) + (o.month ? '/month' : '');
+      if (!s.fixed && !s.fee && !s.heavy) {
+        var lows = [];
+        Object.keys(T.steps).forEach(function (k) { var d = T.steps[k]; if (d && d.type === 'choice' && d.forSvc && d.forSvc.indexOf(s.id) > -1 && d.options) d.options.forEach(function (o) { if (o.price) lows.push(o.price[0]); }); });
+        if (lows.length) return 'From $' + Math.min.apply(null, lows);
+      }
       return s.fixed ? '$' + s.fixed : s.fee ? '$' + s.fee + ' visit' : s.heavy ? 'By weight' : '';
     }
     function priceInfo() {
@@ -367,7 +391,10 @@
       }
       if (own.some(Boolean)) return null;
       var floors = T.services.filter(function (s) { return s.mode !== 'estimate' && (s.minPrice > 0 || s.base > 0); }).map(function (s) { return Math.max(s.minPrice || 0, s.base || 0); });
-      T.flows.book.forEach(function (id) { var d = T.steps[id]; if (!d || d.type !== 'choice' || lo !== null) return; d.options.forEach(function (o) { if (!o.price) return; lo = lo === null ? o.price[0] : Math.min(lo, o.price[0]); hi = hi === null ? o.price[1] : Math.max(hi, o.price[1]); }); });
+      // The first priced question sets the range. Questions shown only for one service (forSvc) are alternatives,
+      // e.g. junk "how many items" vs "how much of the truck", so each of them widens it.
+      var seen = false;
+      T.flows.book.forEach(function (id) { var d = T.steps[id], alt = d && d.forSvc && d.forSvc.length; if (!d || d.type !== 'choice' || (seen && !alt)) return; if (!alt) seen = true; d.options.forEach(function (o) { if (!o.price) return; lo = lo === null ? o.price[0] : Math.min(lo, o.price[0]); hi = hi === null ? o.price[1] : Math.max(hi, o.price[1]); }); });
       if (lo === null && floors.length) return [Math.min.apply(null, floors), null, true];
       return lo === null ? null : [lo, hi];
     }
@@ -421,6 +448,10 @@
         list = [];
         for (var t = Math.max(o, 8 * 60); t <= c - 120; t += 120) list.push({ id: fmt(t), label: fmt(t), start: t });
         list.forEach(function (x) { x.full = hash(day.key + x.start) % 7 === 0; });
+      } else if (B.winHours > 0) {
+        // Demo pages with set arrival windows (garage doors: 2 hours, like every booking page we looked at).
+        list = []; var wl = Math.round(B.winHours * 60);
+        for (var w0 = o; w0 + wl <= c; w0 += wl) list.push({ id: fmt(w0) + ' to ' + fmt(w0 + wl), label: fmt(w0) + ' to ' + fmt(w0 + wl), start: w0 });
       } else {
         list = [
           { id: 'Morning', label: fmt(o) + ' to 11 AM', start: o },
@@ -459,15 +490,17 @@
       if (d.type === 'qty') return d.optional || qtyOf(d, S.ans[id]) !== null;
       if (d.type === 'ask') return d.optional || String(S.ans[id] || '').trim().length > 0;
       if (d.type === 'time') return !!(S.day && S.time);
+      if (d.type === 'lead') return contactOk();
       if (d.type === 'zip') return zipOk();
       if (d.type === 'contact') return contactOk() && (!d.askAddress || S.addr.trim().length > 4) && (!contactNeedsZip() || zipOk());
       if (d.type === 'message') return contactOk() && S.msg.trim().length >= 3;
       if (d.type === 'callback') return contactOk() && !!S.cb;
-      if (d.type === 'details' && visitPicked()) return S.details.trim().length >= 3;
+      if (d.type === 'details' && visitPicked()) return !!d.optional || S.details.trim().length >= 3;
       if (d.type === 'call') return false;
       return true;
     }
     function screenValid(sc) { return !!sc && sc.every(valid); }
+    function leadFirst() { return visible().some(function (id) { return stepDef(id).type === 'lead'; }); }
 
     /* ---------- render ---------- */
     function stars() { return '<span class="stars" aria-hidden="true">' + new Array(6).join('★') + '</span>'; }
@@ -486,7 +519,8 @@
       if (EDITB) brand = '<button type="button" class="slot slot-logo' + (B.logo ? ' has' : '') + '" data-edit="logo">' + (B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span>Upload logo</span>') + '</button>';
       var sub = 'Book online' + (B.rating ? ' <span class="dot">·</span> ' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ' reviews)' : '');
       if (EDITB) sub = 'Book online ' + (B.rating ? '<button type="button" class="slot slot-rate has" data-edit="rating">' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ')<span class="sl-tip">Change</span></button>' : '<button type="button" class="slot slot-rate" data-edit="rating"><span class="sl-plus">+</span>Add your Google rating</button>');
-      return '<header class="hd' + (B.logo && !lightLogo() ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' +
+      var hcall = TOP && B.phoneDigits ? '<a class="hd-call" href="tel:+1' + B.phoneDigits + '">' + ic('phone') + '<span>' + esc(B.phone) + '</span></a>' : '';
+      return '<header class="hd' + (B.logo && !lightLogo() ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' + hcall +
         (CLOSABLE ? '<button class="x" data-act="close" aria-label="Close">' + ic('x') + '</button>' : '') + '</header>' +
         // The owner hasn't finished the builder yet: say so, so nobody mistakes the starter template for their real page.
         (B.templateOnly && !EDIT ? '<div class="tpl-note"><b>Starter template.</b> This page is not set up yet. <a href="https://app.matviykorsunskiy.me/booking-page/1" target="_top">Finish setting it up</a></div>'
@@ -520,7 +554,7 @@
     }
     function nameFields(n) {
       return '<div class="f2"><label class="fld"><span>Name <em>*</em></span><input data-in="name" autocomplete="name" placeholder="Jordan Lee" value="' + esc(S.name) + '"></label>' +
-        '<label class="fld"><span>Mobile <em>*</em></span><input data-in="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(201) 555-0123" value="' + esc(S.phone) + '"></label></div>' +
+        '<label class="fld"><span>Phone number <em>*</em></span><input data-in="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(201) 555-0123" value="' + esc(S.phone) + '"></label></div>' +
         // Spam trap: hidden from people and screen readers; bots that fill every field give themselves away.
         '<div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Company fax<input id="hpf" name="company_fax" tabindex="-1" autocomplete="off"></label></div>';
     }
@@ -530,34 +564,48 @@
       var title = d.title || '';
       if (d.type === 'time' && S.svc && S.svc.mode === 'estimate') title = d.estimateTitle || title;
       if (d.type === 'contact' && T.confirmBy === 'call') title = title.replace(/\btext you\b/i, 'call you');
+      if (d.type === 'contact' && d.titleAfterLead && leadFirst()) title = d.titleAfterLead;
       if (d.type === 'zip') {
         h += '<div class="center">' + pinArt() + '<h3>' + esc(title) + '</h3><p class="lede">Enter your ZIP code so we can check that ' + esc(B.name) + ' comes to you.</p></div>' +
-          '<label class="fld narrow"><span>ZIP code <em>*</em></span><span class="inwrap"><input data-in="zip" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"><span class="ok" id="zok"' + (zipOk() ? '' : ' hidden') + '>' + ic('circle-check') + '</span></span></label>' +
+          '<label class="fld narrow"><span>ZIP code <em>*</em></span><span class="inwrap"><input data-in="zip" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="' + esc(/^[0-9]{5}$/.test(String(B.zipHint || '')) ? B.zipHint : '07430') + '" value="' + esc(S.zip) + '"><span class="ok" id="zok"' + (zipOk() ? '' : ' hidden') + '>' + ic('circle-check') + '</span></span></label>' +
           '<p class="warn narrow" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>We don\'t cover that ZIP yet. ' + esc(B.name) + ' serves ' + esc(B.area) + '. <a href="tel:+1' + B.phoneDigits + '">Call to ask</a></p>';
         return h;
       }
       if (d.type === 'service' && S.lane === 'estimate') title = 'What should we look at?';
-      if (d.type === 'details' && visitPicked()) title = 'Tell us about the job';
+      if (d.type === 'details' && visitPicked()) title = d.visitTitle || 'Tell us about the job';
       h += '<h3>' + esc(title) + '</h3>';
+      if (d.lede) h += '<p class="lede">' + esc(d.lede) + '</p>';
       if (d.type === 'service') {
         if (T.multiService && d.multiHint) h += '<p class="lede">' + esc(d.multiHint) + '</p>';
         // Free ones first (the estimate visit, then anything priced after seeing it), a line, then the ones with a price.
         var free = function (x) { return isVisit(x) ? 2 : isEst(x) ? 1 : 0; };
-        var L = laneSvcs().map(function (x, i) { return [x, i]; }).sort(function (a, b) { return free(b[0]) - free(a[0]) || a[1] - b[1]; }).map(function (p) { return p[0]; }), pics = L.some(function (x) { return x.image; });
-        var lastFree = -1; L.forEach(function (x, i) { if (free(x)) lastFree = i; });
+        // estimatesLast (garage doors): repairs people book right away come first, the free estimate after the line.
+        var dir = T.estimatesLast ? -1 : 1;
+        var L = laneSvcs().map(function (x, i) { return [x, i]; }).sort(function (a, b) { return dir * (free(b[0]) - free(a[0])) || a[1] - b[1]; }).map(function (p) { return p[0]; }), pics = L.some(function (x) { return x.image; });
+        var lastFree = -1; L.forEach(function (x, i) { if (T.estimatesLast ? !free(x) : free(x)) lastFree = i; });
         h += '<div class="tiles' + (pics ? '' : ' icons') + (!pics ? ' rows' : '') + '" style="--n:' + (L.length <= 6 ? L.length : 5) + '">' + L.map(function (s) {
           var on = S.svcs.indexOf(s.id) > -1;
           var tag = svcTag(s);
           var tick = on ? '<span class="tick">' + ic('check') + '</span>' : '', tt = tag && B.showPrices ? '<span class="tt">' + esc(tag) + '</span>' : '';
           // Photo tiles: picture with the label underneath. Icon tiles: one card with the icon, label and tag inside.
-          if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + tt + '</button>' +
+          if (s.image) return '<button type="button" class="tile' + (on ? ' on' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<img alt="" src="' + esc(s.image) + '"></span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + tt + '</button>' +
             (L.indexOf(s) === lastFree && lastFree < L.length - 1 ? '<div class="tsep" role="separator"></div>' : '');
-          return '<button type="button" class="tile it' + (on ? ' on' : '') + (isVisit(s) ? ' visit' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(isVisit(s) ? 'clipboard-check' : s.icon || 'clipboard-list') + '</span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + (isVisit(s) ? '' : tt) + '</span></button>' +
+          return '<button type="button" class="tile it' + (on ? ' on' : '') + (isVisit(s) ? ' visit' : '') + '" data-act="svc" data-v="' + esc(s.id) + '" aria-pressed="' + !!on + '"><span class="tbox">' + tick + '<span class="tico">' + ic(isVisit(s) && !(T.estimatesLast && s.icon) ? 'clipboard-check' : s.icon || 'clipboard-list') + '</span><span class="tl">' + esc(s.label) + '</span>' + (s.hint ? '<span class="th">' + esc(s.hint) + '</span>' : '') + (isVisit(s) ? '' : tt) + '</span></button>' +
             (L.indexOf(s) === lastFree && lastFree < L.length - 1 ? '<div class="tsep" role="separator"></div>' : '');
         }).join('') + '</div>';
       }
       if (d.type === 'choice') {
         var o = optOf(id), extra = B.showPrices && d.own && ownPriced();
+        if (d.ui === 'pics') {
+          h += '<div class="pcards imgs n' + d.options.length + '">' + d.options.map(function (x) {
+            var on = S.ans[id] === x.id, pt = B.showPrices && (x.price || x.tag) ? (x.price ? priceText(x.price[0], x.price[1]) : x.tag) : '';
+            if (pt && gated()) pt = GATE === 'teaser' ? teaseTag(pt) : '';
+            var pr = pt ? '<span class="ptag">' + esc(pt) + '</span>' : '';
+            var pic = x.img ? '<span class="pimg"><img alt="" src="' + esc(x.img) + '"></span>' : '<span class="pimg pic-ic">' + ic(x.icon || 'circle') + '</span>';
+            return '<button type="button" class="pcard' + (on ? ' on' : '') + (x.wide ? ' wide' : '') + '" data-act="opt" data-s="' + esc(id) + '" data-v="' + esc(x.id) + '" aria-pressed="' + on + '">' + pic +
+              '<span class="pbody"><b>' + esc(x.label) + '</b>' + (x.hint ? '<span>' + esc(x.hint) + '</span>' : '') + '</span>' + pr + (x.badge ? '<span class="save">' + esc(x.badge) + '</span>' : '') + '</button>';
+          }).join('') + '</div>';
+        } else
         h += '<div class="chips' + (d.ui === 'list' ? ' col' : '') + '">' + d.options.map(function (x) {
           // On an owner-priced service an answer's price is an extra ("Today, it's urgent  +$75"), so it shows on the answer.
           var add = extra && x.price && x.price[1] > 0 ? '<span class="amt">+$' + esc(x.price[0] === x.price[1] ? x.price[0] : x.price[0] + '-' + x.price[1]) + '</span>' : '';
@@ -586,13 +634,25 @@
         h += d.long ? '<label class="fld"><textarea data-q="' + esc(id) + '" rows="3" placeholder="' + esc(d.placeholder || '') + '">' + esc(S.ans[id] || '') + '</textarea></label>'
           : '<label class="fld"><input data-q="' + esc(id) + '" placeholder="' + esc(d.placeholder || '') + '" value="' + esc(S.ans[id] || '') + '"></label>';
       }
-      if (d.type === 'addons') {
-        h += '<div class="chips">' + d.options.map(function (x) { var on = !!S.addons[x.id]; return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-act="addon" data-v="' + esc(x.id) + '" aria-pressed="' + on + '">' + (on ? ic('check', 'ci') : ic('plus', 'ci')) + esc(x.label) + (B.showPrices && x.add ? ' <span class="amt">+$' + esc(x.add[0]) + '</span>' : '') + '</button>'; }).join('') + '</div>';
+      if (d.type === 'addons' && (TOP || d.ui === 'pics')) {
+        h += '<div class="pcards imgs addc n' + d.options.length + '">' + d.options.map(function (x) {
+          var on = !!S.addons[x.id], amt = B.showPrices && x.add && x.add[1] > 0 && GATE !== 'after' ? '+$' + x.add[0] : '';
+          var pic = x.img ? '<span class="pimg"><img alt="" src="' + esc(x.img) + '"></span>' : '<span class="pimg pic-ic">' + ic(x.icon || 'plus') + '</span>';
+          return '<button type="button" class="pcard' + (on ? ' on' : '') + '" data-act="addon" data-v="' + esc(x.id) + '" aria-pressed="' + on + '">' + pic +
+            '<span class="pbody"><b>' + esc(x.label) + '</b>' + (x.hint ? '<span>' + esc(x.hint) + '</span>' : '') + '</span>' + (amt ? '<span class="ptag">' + esc(amt) + '</span>' : '') +
+            '<span class="pchk" aria-hidden="true">' + ic(on ? 'check' : 'plus') + '</span>' + (x.badge ? '<span class="save">' + esc(x.badge) + '</span>' : '') + '</button>';
+        }).join('') + '</div>';
+      } else if (d.type === 'addons') {
+        h += '<div class="chips">' + d.options.map(function (x) { var on = !!S.addons[x.id]; return '<button type="button" class="chip' + (on ? ' on' : '') + '" data-act="addon" data-v="' + esc(x.id) + '" aria-pressed="' + on + '">' + (on ? ic('check', 'ci') : ic('plus', 'ci')) + esc(x.label) + (B.showPrices && x.add && GATE !== 'after' ? ' <span class="amt">+$' + esc(x.add[0]) + '</span>' : '') + '</button>'; }).join('') + '</div>';
       }
       if (d.type === 'details') {
-        h += '<label class="fld"><span>Describe the job</span><textarea data-in="details" rows="4" placeholder="' + esc(d.placeholder || '') + '">' + esc(S.details) + '</textarea></label>' + (d.photos ? photosHtml('Upload photos') : '');
+        h += '<label class="fld"><span>' + (visitPicked() && d.optional ? 'Notes (optional)' : 'Describe the job') + '</span><textarea data-in="details" rows="4" placeholder="' + esc((visitPicked() && d.visitPlaceholder) || d.placeholder || '') + '">' + esc(S.details) + '</textarea></label>' + (d.photos ? photosHtml('Upload photos') : '');
       }
       if (d.type === 'time') {
+        var ep = S.leadOk && S.path === 'book' && !(S.svc && S.svc.mode === 'estimate') ? priceInfo() : null;
+        if (ep) { var pk = []; visible().forEach(function (id) { if (stepDef(id).type === 'choice') { var o = optOf(id); if (o && !stepDef(id).noSum) pk.push(o.short || o.label); } });
+          h = '<div class="estbox reveal"><span>' + esc((S.name.trim().split(' ')[0] ? S.name.trim().split(' ')[0] + ', your' : 'Your') + ' estimate') + '</span><b>' + esc(ep.text) + '</b>' +
+            '<em>' + esc([S.svc.label].concat(pk).join(' \u00b7 ')) + '</em><p>' + esc(T.priceShort || 'Your tech confirms the price before any work starts.') + '</p></div>' + h; }
         h += '<div class="tabs"><button type="button" class="' + (S.tmode === 'first' ? 'on' : '') + '" data-act="tmode" data-v="first">First available</button><button type="button" class="' + (S.tmode === 'day' ? 'on' : '') + '" data-act="tmode" data-v="day">Pick a day</button></div>';
         h += '<p class="meta">' + ic('globe') + ({ 'America/Chicago': 'Central', 'America/Denver': 'Mountain', 'America/Phoenix': 'Arizona', 'America/Los_Angeles': 'Pacific' }[B.tz] || 'Eastern') + ' Time. ' + (B.timeMode === 'slots' ? 'Pick a start time.' : (S.svc && S.svc.mode === 'book' ? 'Pick when we can arrive.' : 'Pick an arrival window. We confirm it with you.')) + '</p>';
         if (soon() && B.api) {
@@ -613,8 +673,14 @@
         }
       }
       if (d.type === 'contact') {
-        h += nameFields(1) + (d.askAddress ? '<label class="fld"><span>' + esc(d.addressLabel || 'Address of the job') + ' <em>*</em></span><input data-in="addr" autocomplete="street-address" placeholder="123 Main St" value="' + esc(S.addr) + '"></label>' : '') + (contactNeedsZip() ? '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="07430" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>' : '') +
-          '<p class="fine">By sending, you agree that ' + esc(B.name) + ' may ' + (T.confirmBy === 'call' ? 'call or text' : 'text') + ' you about this request. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>';
+        var lf = leadFirst();
+        h += (lf ? '' : nameFields(1)) + (d.askAddress ? '<label class="fld"><span>' + esc(d.addressLabel || 'Address of the job') + ' <em>*</em></span><input data-in="addr" autocomplete="street-address" placeholder="123 Main St" value="' + esc(S.addr) + '"></label>' : '') + (contactNeedsZip() ? '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="' + esc(/^[0-9]{5}$/.test(String(B.zipHint || '')) ? B.zipHint : '07430') + '" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>' : '') +
+          (d.photos && !visitPicked() ? '<div class="fld"><span>' + esc(d.photoLabel || 'Photos (optional)') + '</span>' + photosHtml(d.photoButton || 'Add a photo') + (d.photoHint ? '<p class="meta">' + esc(d.photoHint) + '</p>' : '') + '</div>' : '') +
+          (lf ? '' : '<p class="fine">By sending, you agree that ' + esc(B.name) + ' may ' + (T.confirmBy === 'call' ? 'call or text' : 'text') + ' you about this request. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>');
+      }
+      if (d.type === 'lead') {
+        h += nameFields(4) +
+          '<p class="fine">By continuing, you agree that ' + esc(B.name) + ' may ' + (T.confirmBy === 'call' ? 'call or text' : 'text') + ' you about this estimate. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>';
       }
       if (d.type === 'message') {
         h += '<label class="fld"><span>Your question <em>*</em></span><textarea data-in="msg" rows="4" placeholder="Do you take old hot tubs?">' + esc(S.msg) + '</textarea></label>' + nameFields(2) +
@@ -748,6 +814,7 @@
       if (ph) rows.push(['Your phone', ph]);
       var h = '<div class="donehd"><span class="okc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="draw" pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>' +
         '<h3>' + title + ', ' + who + '</h3><p class="lede">' + text + '</p></div>';
+      if (GATE !== 'open' && !leadFirst() && p && S.path === 'book' && !(S.svc && S.svc.mode === 'estimate')) h += '<div class="estbox"><span>Your estimate</span><b>' + esc(p.text) + '</b><p>' + esc(T.priceShort || 'Your tech confirms the price before any work starts.') + '</p></div>';
       // The number they'll hear from, so a call or text from it isn't ignored as spam.
       if (how) h += '<div class="from">' + ic(how[0], 'from-ic') + '<div><b>' + how[1] + (bp ? ' from <span class="fnum">' + bp + '</span>' : '') + '</b>' +
         '<span>' + (bp ? 'Save it so you know it\'s ' + biz + '.' : 'Keep your phone close.') + '</span></div></div>';
@@ -759,19 +826,34 @@
       if (S.done) return doneHtml();
       if (!S.path) return menuHtml();
       var sc = curScreen(), h = '';
-      if (isQScreen(sc) && S.svc) h += '<div class="qs-head"><span>You picked</span><b>' + esc(S.svc.label) + '</b><p class="lede">A few quick questions so ' + esc(B.name) + ' can get it right.</p></div>';
+      var altRow = T.startPath && S.path === 'book' && S.idx === 0 && !EDIT ? '<div class="alt-row">' +
+        (T.tiles && T.tiles.quote && T.altPhoto !== false ? '<button type="button" class="alt" data-act="start" data-v="quote">' + ic('camera') + '<span>' + esc(T.tiles.quote.title) + '</span></button>' : '') +
+        (B.phoneDigits ? '<a class="alt" href="tel:+1' + B.phoneDigits + '">' + ic('phone') + '<span>' + esc((T.tiles && T.tiles.call && T.tiles.call.title) || 'Call us') + '</span></a>' : '') + '</div>' : '';
+      if (isQScreen(sc) && S.svc && !TOP) h += '<div class="qs-head"><span>You picked</span><b>' + esc(S.svc.label) + '</b><p class="lede">A few quick questions so ' + esc(B.name) + ' can get it right.</p></div>';
       for (var i = 0; i < sc.length; i++) {
         h += '<section class="blk" id="blk-' + esc(sc[i]) + '">' + blockHtml(sc[i]) + '</section>';
         var t = stepDef(sc[i]).type;
         if ((t === 'service' || t === 'choice') && !valid(sc[i])) break; // reveal the next question only after this one is answered
       }
       var hasTruck = sc.some(function (id) { return stepDef(id).ui === 'truck'; });
+      // layout 'top': the questions on the left and a summary of the job on the right (a price bar on phones).
+      if (TOP && isQScreen(sc) && S.svc && T.summary !== false) return '<div class="qwrap"><div class="qmain">' + h + '</div>' + sumHtml() + '</div>' + altRow;
       var p = priceInfo();
       // No price box for a free estimate: there's no price to show yet.
-      if (p && (sc.indexOf('service') > -1 || isQScreen(sc)) && !hasTruck && !(S.svc && S.svc.mode === 'estimate')) h += '<div class="pricebox simple"><div><b>' + esc(p.text) + '</b><span>' + esc(p.note) + '</span></div></div>';
-      return h;
+      if (p && !gated() && (sc.indexOf('service') > -1 || isQScreen(sc)) && !hasTruck && !(S.svc && S.svc.mode === 'estimate')) h += '<div class="pricebox simple"><div><b>' + esc(p.text) + '</b><span>' + esc(p.note) + '</span></div></div>';
+      return h + altRow;
     }
 
+    function sumHtml() {
+      var p = priceInfo(), rows = '', picks = [];
+      visible().forEach(function (id) { var d = stepDef(id); if (d.type === 'choice') { var o = optOf(id); if (o) { rows += '<li><span>' + esc(d.sum || d.title) + '</span><b>' + esc(o.short || o.label) + '</b></li>'; picks.push(o.short || o.label); } } });
+      visible().forEach(function (id) { var d = stepDef(id); if (d.type === 'addons') d.options.forEach(function (o) { if (S.addons[o.id]) rows += '<li><span>Add-on</span><b>' + esc(o.label) + '</b></li>'; }); });
+      var inc = (Array.isArray(T.includes) ? T.includes : ['Parts and labor', 'Safety check of the whole door', 'Price confirmed before any work']).map(function (x) { return '<li>' + ic('check') + '<span>' + esc(x) + '</span></li>'; }).join('');
+      return '<aside class="qsum" aria-live="polite"><span class="qs-k">Your ' + esc(T.noun || 'job') + '</span><b class="qs-t">' + esc(S.svc.label) + '</b>' + (picks.length ? '<span class="qs-s">' + esc(picks.join(' · ')) + '</span>' : '') + (rows ? '<ul class="qs-l">' + rows + '</ul>' : '') +
+        (gated() ? '<div class="qs-p gate"><b>' + esc(T.gateTitle || 'Your estimate') + '</b><span>' + esc(T.gateNote || 'Shows right after you add your details. No obligation.') + '</span></div>'
+          : '<div class="qs-p"><b>' + esc(p ? p.text : 'Pick an option') + '</b><span>' + esc(p ? (T.priceShort || 'Your tech confirms the price before any work starts.') : 'Your price shows here.') + '</span></div>') +
+        '<ul class="qs-inc">' + inc + '</ul></aside>';
+    }
     function footHtml() {
       var call = B.phoneDigits ? '<a class="callus" href="tel:+1' + B.phoneDigits + '" aria-label="Call ' + esc(B.phone) + '">' + ic('phone') + '<span class="cu-w">Call</span><span class="cu-n">' + esc(B.phone) + '</span></a>' : '<span></span>';
       // The Demo tag only shows on a standalone demo link; previews inside our own pages leave it out.
@@ -781,11 +863,13 @@
       if (!S.path) return pow;
       var sc = curScreen(), last = S.idx === screens().length - 1, t = stepDef(sc[0]).type;
       var label = 'Continue';
-      if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? esc(T.estimateSubmit || 'Book my free estimate') : 'Send booking request') : 'Send price request';
+      if (last && t === 'contact') label = S.path === 'book' ? (S.svc && S.svc.mode === 'estimate' ? esc(T.estimateSubmit || 'Book my free estimate') : GATE !== 'open' ? 'Book and see my estimate' : 'Send booking request') : 'Send price request';
+      if (t === 'lead') label = esc(stepDef(sc[0]).submit || 'See my estimate');
+      if (last && t === 'contact' && leadFirst() && !(S.svc && S.svc.mode === 'estimate')) label = esc(stepDef(sc[0]).submit || 'Book my appointment');
       if (t === 'message') label = 'Send message';
       if (t === 'callback') label = 'Request a call back';
       var next = t === 'call' ? '' : '<button type="button" class="btn" id="next" data-act="next"' + (screenValid(sc) ? '' : ' disabled') + '>' + label + (label === 'Continue' ? ic('arrow-right', 'arr') : '') + '</button>';
-      return '<footer class="ft">' + (t === 'call' ? '<span></span>' : call) + '<div class="ft-r"><button type="button" class="btn-g" data-act="back">Back</button>' + next + '</div></footer>' + pow;
+      return '<footer class="ft">' + (t === 'call' ? '<span></span>' : call) + '<div class="ft-r">' + (S.idx === 0 && T.startPath && !EDIT && S.path === 'book' ? '' : '<button type="button" class="btn-g" data-act="back">Back</button>') + next + '</div></footer>' + pow;
     }
 
     // NAV = 'fwd' | 'back' | 'done' when the screen changes (slides the new screen in); null for taps inside a screen.
@@ -986,8 +1070,19 @@
         });
       }, Promise.resolve()).then(function () { return all; });
     }
+    var LEAD_ID = null;
+    function saveLead(stage) {
+      if (!contactOk()) return;
+      if (!LEAD_ID) LEAD_ID = (B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000);
+      var body = Object.assign(payload(LEAD_ID), { partial: true, stage: stage });
+      post('dbw:lead', { lead: body });
+      // Live: only once the API says it takes unfinished leads. Webhook configs get each update. Demos send nothing.
+      var url = B.api && B.saveLeads ? B.api + '/leads' : !B.api && B.submitUrl && /^https:\/\//.test(B.submitUrl) ? B.submitUrl : null;
+      if (B.api && B.saveLeads) { body = Object.assign(liveBody(LEAD_ID), { partial: true, stage: stage }); }
+      if (url) fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true, body: JSON.stringify(body) }).catch(function () { });
+    }
     function finish() {
-      var reqId =(B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000);
+      var reqId = LEAD_ID || ((B.name.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'DB') + '-' + (1000 + hash(S.phone + Date.now()) % 9000));
       var done = function () {
         S.done = { id: reqId, photosSent: PHOTOS_OK }; NAV = 'done'; post('dbw:submit', { path: S.path, service: S.svc && S.svc.id });
         // Demo only: hand the booking to the Dialbridge dashboard demo on the same site, so it shows up in the owner inbox.
@@ -1010,7 +1105,24 @@
           if (bd && !document.getElementById('sendErr')) bd.insertAdjacentHTML('beforeend', '<p class="warn" id="sendErr">That did not go through. Try again, or call ' + esc(B.name) + ' at <a href="tel:+1' + B.phoneDigits + '">' + esc(B.phone) + '</a>.</p>');
         });
     }
+    // T.autoNext: after a short beat (so the check mark or the picked card shows), go to the next screen.
+    var autoT = null;
+    function onlyType(t) { var sc = curScreen(); return !!sc && sc.length === 1 && stepDef(sc[0]).type === t; }
+    function autoGo(t) {
+      clearTimeout(autoT);
+      autoT = setTimeout(function () { if (onlyType(t) && screenValid(curScreen())) advance(); }, t === 'zip' ? 450 : 260);
+    }
+    function lastGo(id) {
+      if (!T.autoNext || (id && nextBlockAfter(id))) return;
+      var at = S.idx; clearTimeout(autoT);
+      // never the last screen: sending the booking always takes their tap
+      autoT = setTimeout(function () { if (S.idx === at && !S.done && S.idx < screens().length - 1 && (!id || !nextBlockAfter(id)) && screenValid(curScreen())) advance(); }, 480);
+    }
     function advance() {
+      clearTimeout(autoT);
+      var cur = curScreen() || [];
+      if (cur.some(function (id) { return stepDef(id).type === 'lead'; })) { S.leadOk = true; saveLead('estimate_shown'); }
+      else if (S.leadOk && S.idx < screens().length - 1) saveLead(stepDef(cur[0]).type === 'time' ? 'time_picked' : 'step');
       if (S.idx >= screens().length - 1) return finish();
       S.idx++; NAV = 'fwd'; render();
     }
@@ -1055,20 +1167,24 @@
         slotsFor();
         JUST = sel('svc');
         render(T.multiService ? 'service' : nextBlockAfter('service'));
+        if (T.autoNext && !T.multiService && onlyType('service')) autoGo('service');
       }
-      else if (act === 'opt') { var sid = el.getAttribute('data-s'); var first = !S.ans[sid]; S.ans[sid] = v; slotsFor(); JUST = sel('opt') + '[data-s="' + sid + '"]'; render(first ? nextBlockAfter(sid) || sid : sid); }
+      else if (act === 'opt') { var sid = el.getAttribute('data-s'); S.ans[sid] = v; slotsFor(); JUST = sel('opt') + '[data-s="' + sid + '"]'; render(nextBlockAfter(sid) || sid); lastGo(sid); }
       else if (act === 'addon') { S.addons[v] = !S.addons[v]; JUST = sel('addon'); render('addons'); }
       else if (act === 'tmode') { S.tmode = v; render(); }
       else if (act === 'day') { S.day = v; S.time = null; JUST = sel('day'); render(); }
-      else if (act === 'slot') { S.day = el.getAttribute('data-d'); S.time = v; JUST = sel('slot') + '[data-d="' + S.day + '"]'; render(); }
+      else if (act === 'slot') { S.day = el.getAttribute('data-d'); S.time = v; JUST = sel('slot') + '[data-d="' + S.day + '"]'; render(); if (onlyType('time')) lastGo(null); }
       else if (act === 'cb') { S.cb = v; JUST = sel('cb'); render(); }
       else if (act === 'callback') { S.path = 'callback'; S.idx = 0; NAV = 'fwd'; render(); }
       else if (act === 'next') { if (screenValid(curScreen())) advance(); }
-      else if (act === 'back') { if (S.idx === 0) { S.path = null; S.lane = null; S.svc = null; S.svcs = []; S.ans = {}; } else S.idx--; NAV = 'back'; render(); }
+      else if (act === 'back') { if (S.idx === 0 && T.startPath && !EDIT) { if (S.path === 'book') return; fresh(); NAV = 'back'; render(); return; } if (S.idx === 0) { S.path = null; S.lane = null; S.svc = null; S.svcs = []; S.ans = {}; } else S.idx--;
+        // Back on "How can we help?": start that choice fresh, nothing picked (their old pick and its answers are cleared)
+        var bs = curScreen(); if (bs && bs.some(function (id) { return stepDef(id).type === 'service'; }) && !T.multiService) { S.svc = null; S.svcs = []; S.ans = {}; S.addons = {}; }
+        NAV = 'back'; render(); }
       else if (act === 'qty') { var qd = stepDef(el.getAttribute('data-s')), qid = el.getAttribute('data-s'); var cur = qtyOf(qd, S.ans[qid]); S.ans[qid] = qtyOf(qd, (cur === null ? (qd.minQty || 0) : cur) + (+v) * (qd.stepBy || 1)); render(); }
       else if (act === 'photos') { var f = document.getElementById('ph'); if (f) f.click(); }
       else if (act === 'restart') { fresh(); NAV = 'back'; render(); }
-      else if (act === 'close') { if (sent.open && !booked) liveEvent('abandon'); post('dbw:close'); if (S.done) { fresh(); render(); } }
+      else if (act === 'close') { if (sent.open && !booked) liveEvent('abandon'); if (S.leadOk && !S.done) saveLead('left'); post('dbw:close'); if (S.done) { fresh(); render(); } }
     });
     app.addEventListener('input', function (e) {
       var qk = e.target.getAttribute('data-q');
@@ -1081,6 +1197,7 @@
       var k = e.target.getAttribute('data-in'); if (!k) return;
       S[k] = k === 'zip' ? e.target.value.replace(/\D/g, '').slice(0, 5) : e.target.value;
       refreshNav();
+      if (T.autoNext && k === 'zip' && zipOk() && onlyType('zip')) autoGo('zip');
     });
     app.addEventListener('change', function (e) {
       if (e.target.id !== 'ph') return;
