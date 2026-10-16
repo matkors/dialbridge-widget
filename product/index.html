@@ -1111,7 +1111,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 </div>
 <footer><div class="wrap"><span>&copy; 2026 Dial Bridge LLC &middot; Mahwah, NJ</span><span>Draft page. Not linked from dialbridge.ai.</span></div></footer>
 
-<div class="mbar" id="mbar"><a class="btn" href="https://app.matviykorsunskiy.me/signup" data-signup>Build my booking page <svg class="arw"><use href="#arw"/></svg></a></div>
+<div class="mbar" id="mbar"><a class="btn" href="https://app.matviykorsunskiy.me/signup" data-dialbridge-open>Get started <svg class="arw"><use href="#arw"/></svg></a></div>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Your booking page preview"><div class="box"><button class="close" type="button" id="mClose" aria-label="Close preview"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><iframe id="mFrame" title="Your booking page preview"></iframe></div></div>
 
@@ -1127,10 +1127,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     nav.classList.toggle('scrolled', scrollY > 8);
     var on = quick.getBoundingClientRect().bottom < 0;
     mbar.classList.toggle('on', on);
-    // phones: the Get started button sits at the top right (data-mobile="top") and only shows once the visitor has
-    // scrolled past the hero, which has its own buttons. Computers keep it in the corner the whole time.
-    var hfm = document.querySelector('.hfm'), heroEnd = hfm && hfm.offsetParent ? hfm.getBoundingClientRect().bottom < 0 : on;
-    var hide = getComputedStyle(mbar).display !== 'none' && !heroEnd;
+    // phones: the bottom bar is the Get started button (it opens the same popup), so the floating one stays hidden.
+    var hide = getComputedStyle(mbar).display !== 'none';
     document.documentElement.toggleAttribute('data-dialbridge-hide', hide);
     if (hide !== onScroll.hide) { onScroll.hide = hide; document.dispatchEvent(new CustomEvent('dialbridge:lift', { detail: { hide: hide } })); }
   }
@@ -1715,7 +1713,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   }, true);
 </script>
 <!-- Get started: our own start funnel (free trial, a demo call, or a message) in the same popup our customers' sites get -->
-<script async src="../w.js?v=20261017a" data-page="try.html" data-color="#f35427" data-label="Get started" data-mobile="top" data-mobile-top="70" data-icon="none" data-font="Manrope" data-bubble="Start free, or book a quick demo" data-avatar="../img/try-face.webp"></script>
+<script async src="../w.js?v=20261017b" data-page="try.html" data-color="#f35427" data-label="Get started" data-icon="none" data-font="Manrope" data-bubble="Start free, or book a quick demo" data-avatar="../img/try-face.webp"></script>
 
 <!-- Live demo: the real garage door booking page (Shore Point Garage Doors, sample data) in a popup -->
 <style>

@@ -8,6 +8,7 @@
    button: document.dispatchEvent(new CustomEvent('dialbridge:lift', { detail: { px: 70 } })).
    data-mobile="top" + data-mobile-top="70": on phones the corner button sits at the top right instead (70 px down,
    under the page's own menu bar). The page shows and hides it with the same event: { detail: { hide: true } }.
+   data-dialbridge-open on any element of the page opens the popup too.
    Inline mode for builders that block floating buttons: <div data-dialbridge-inline="harbor-haul"></div>
    Desktop opens a centered popup that grows out of the button; phones get a bottom sheet that fits each step.
    Closing keeps the half-filled form, so an accidental tap outside never loses a customer's answers. */
@@ -298,6 +299,8 @@
   });
 
   btn.addEventListener('click', function () { open(null, btn); });
+  // Any element on the page with data-dialbridge-open opens the same popup (e.g. a site's own sticky bar on phones).
+  document.addEventListener('click', function (e) { var t = e.target.closest && e.target.closest('[data-dialbridge-open]'); if (!t) return; e.preventDefault(); open(t.getAttribute('data-dialbridge-open') || null, btn); });
   // The page can open the popup itself, e.g. a pricing button: window.DialBridge.open('plan').
   window.DialBridge = { open: function (start) { open(start, btn); } };
   var bb = root.querySelector('.bb'), bx = root.querySelector('.bx');
