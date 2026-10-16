@@ -6,6 +6,8 @@
    data-icon="none" (label only), data-style="flat" + data-radius="4" (a plain button matching the site), data-bubble="Skip the call and book online" + data-avatar="<image url>" (a speech
    bubble above the button on desktop; closing it hides it until the next page load). Pages with their own bottom bar can lift the
    button: document.dispatchEvent(new CustomEvent('dialbridge:lift', { detail: { px: 70 } })).
+   data-mobile="top" + data-mobile-top="70": on phones the corner button sits at the top right instead (70 px down,
+   under the page's own menu bar). The page shows and hides it with the same event: { detail: { hide: true } }.
    Inline mode for builders that block floating buttons: <div data-dialbridge-inline="harbor-haul"></div>
    Desktop opens a centered popup that grows out of the button; phones get a bottom sheet that fits each step.
    Closing keeps the half-filled form, so an accidental tap outside never loses a customer's answers. */
@@ -30,6 +32,7 @@
   var noPow = s.getAttribute('data-powered') === 'off';
   // data-call="desktop": the round call button only on computers (phones get just Book online).
   var callDesk = s.getAttribute('data-call') === 'desktop';
+  var mTop = s.getAttribute('data-mobile') === 'top', mTopPx = Math.min(200, Math.max(0, parseInt(s.getAttribute('data-mobile-top'), 10) || 12));
   var radius = Math.min(40, Math.max(0, parseInt(s.getAttribute('data-radius'), 10) || 0));
   var font = (s.getAttribute('data-font') || '').replace(/[^\w ]/g, '');   // a font the page already loads, e.g. Manrope
   var bubble = (s.getAttribute('data-bubble') || '').replace(/[<>&"]/g, '').slice(0, 80);
@@ -162,6 +165,8 @@
         '.bt b{color:#14171a;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bt b:empty{display:none}' +
         '.bar .go{flex:0 0 auto;min-width:200px;padding:0 28px}.bcl{display:none}.bcn{display:inline}}' : '') +
     (callDesk ? '@media (max-width:640px){.call{display:none}}' : '') +
+    // data-mobile="top": a smaller button at the top right on phones; hidden, it slides up instead of down.
+    (mTop ? '@media (max-width:640px){.w{top:calc(env(safe-area-inset-top,0px) + ' + mTopPx + 'px);bottom:auto}.w.hid{transform:translateY(-10px)}.go{height:42px;font-size:15px;padding:0 16px}.pw{display:none}}' : '') +
     '@media (hover:none){.go:hover,.call:hover,.bb:hover{transform:none;filter:none}.go:hover svg,.call:hover svg{transform:none}}' +
     '@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}' +
     '</style>' +
@@ -176,6 +181,8 @@
     '<div class="sk" aria-hidden="true"><i class="h"></i><i class="t"></i><i class="r"></i><i class="r"></i><i class="r"></i></div></div></div>';
 
   var wrap = root.querySelector('.w'), btn = root.querySelector('.go'), ov = root.querySelector('.ov'), pn = root.querySelector('.pn'), grab = root.querySelector('.gr');
+  // The page can ask for the button hidden before this script loads (data-dialbridge-hide on <html>), e.g. until the visitor scrolls past its hero.
+  if (document.documentElement.hasAttribute('data-dialbridge-hide')) wrap.classList.add('hid');
   // Two frames. 'home' belongs to the floating button and keeps its place between opens (a half-filled form survives
   // an accidental close). 'task' is opened by the page for one job (a pricing button, ?book=quote) and starts fresh
   // every time, so it never resumes something else and never disturbs the floating button's place.

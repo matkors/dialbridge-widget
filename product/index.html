@@ -1088,8 +1088,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
     nav.classList.toggle('scrolled', scrollY > 8);
     var on = quick.getBoundingClientRect().bottom < 0;
     mbar.classList.toggle('on', on);
-    // phones: once the CTA bar shows, the Try it button steps aside so there is one button at the bottom
-    var hide = on && getComputedStyle(mbar).display !== 'none';
+    // phones: the Get started button sits at the top right (data-mobile="top") and only shows once the visitor has
+    // scrolled past the hero, which has its own buttons. Computers keep it in the corner the whole time.
+    var hide = getComputedStyle(mbar).display !== 'none' && !on;
+    document.documentElement.toggleAttribute('data-dialbridge-hide', hide);
     if (hide !== onScroll.hide) { onScroll.hide = hide; document.dispatchEvent(new CustomEvent('dialbridge:lift', { detail: { hide: hide } })); }
   }
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
@@ -1673,7 +1675,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   }, true);
 </script>
 <!-- Get started: our own start funnel (free trial, a demo call, or a message) in the same popup our customers' sites get -->
-<script async src="../w.js?v=20261016b" data-page="try.html" data-color="#f35427" data-label="Get started" data-icon="none" data-font="Manrope" data-bubble="Start free, or book a quick demo" data-avatar="../img/try-face.webp"></script>
+<script async src="../w.js?v=20261017a" data-page="try.html" data-color="#f35427" data-label="Get started" data-mobile="top" data-mobile-top="70" data-icon="none" data-font="Manrope" data-bubble="Start free, or book a quick demo" data-avatar="../img/try-face.webp"></script>
 
 <!-- Live demo: the real garage door booking page (Shore Point Garage Doors, sample data) in a popup -->
 <style>
