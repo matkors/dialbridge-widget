@@ -188,7 +188,7 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
   <symbol id="i-dots" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></symbol>
 </svg>
 <div class="page"><div class="card">
-  <aside class="side" aria-hidden="true"><div class="sc" id="sc"></div><div class="shot" id="shot"><img src="img/try-shot.webp" alt=""></div></aside>
+  <aside class="side" aria-hidden="true"><div class="sc" id="sc"></div><div class="shot" id="shot"><img src="img/try-shot-garage.webp" alt=""></div></aside>
   <div class="main" id="main">
     <div class="top"><button class="ib back hide" type="button" id="back" aria-label="Back"><svg><use href="#i-back"/></svg></button><div class="ptrack" role="progressbar" aria-label="Progress"><i id="pfill" style="width:12%"></i></div><button class="ib" type="button" id="close" aria-label="Close"><svg><use href="#i-x"/></svg></button></div>
     <div class="bd" id="bd"><div class="bdi" id="bdi"></div></div>
@@ -228,15 +228,15 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
 
   // Every screen: its path, the brand panel words, and how far along the bar is.
   var STEPS = {
-    start: { pct: 12, side: ['Get booked online, even at 10 PM', 'Customers see your price and book in under a minute. You get a text.', ['Free until it books you 3 jobs', 'Set it up yourself in about 10 minutes', 'Cancel anytime']] },
-    plan: { pct: 55, side: ['Pick what fits', 'Like your website? Add the Booking Widget. Want a new one? We build it for you.', ['No setup fee', 'Month to month']] },
+    start: { pct: 12, side: ['Your first 3 jobs are free', "Homeowners pick what's wrong with the door, see your price and book in under a minute. You get a text.", ['No card required', 'Jobs 1, 2 and 3 are on us', 'Set it up yourself in about 10 minutes']] },
+    plan: { pct: 55, side: ['Pick what fits', 'Like your website? Add the Booking Widget. Want a new one? We build it for you.', ['No card required to start', 'Your first 3 jobs are free', 'Month to month']] },
     interests: { pct: 30, side: ['See it on your business', 'A free 20-minute call with Matviy or Alan. We show you the booking page and answer your questions.', ['No pressure, no hard sell']] },
     time: { pct: 55, side: ['Pick a time that works', 'We send a calendar invite and text you a reminder before the call.', ['20 minutes', 'Zoom or Google Meet']] },
     wtime: { pct: 55, side: ['We build it with you', 'On a 30-minute call we go over your services, photos and area, then build your new website for you to approve.', ['No free trial: we do the setup work', 'Charged once your site is built']] },
     details: { pct: 80, side: ['Almost done', 'Tell us who you are so we can look at your business before the call.', ['We never share your number']] },
     topic: { pct: 35, side: ['Ask us anything', 'We\'re a small team and answer every message, usually within a few hours.', []] },
     message: { pct: 75, side: ['Ask us anything', 'Your message goes straight to the founders. We reply by email.', []] },
-    checkout: { pct: 68, side: ['Almost there', 'Your card is saved with Stripe, the same checkout big companies use. We never see your card number.', ['Free until it books you 3 jobs', 'Cancel anytime from your dashboard']] },
+    checkout: { pct: 68, side: ['Almost there', 'Your card is saved with Stripe, the same checkout big companies use. We never see your card number.', ['Your first 3 jobs are free', 'Cancel anytime from your dashboard']] },
     card: { pct: 84, side: ['Almost there', 'Your card is saved with Stripe, the same checkout big companies use. We never see your card number.', ['$0 today', 'Cancel anytime from your dashboard']] },
     booked: { pct: 100, side: ['Talk soon', 'Thanks for booking. Bring any questions, and we\'ll show you how it works for your business.', []] },
     sent: { pct: 100, side: ['Talk soon', 'We read every message and reply by email, usually within a few hours.', []] }
@@ -255,12 +255,12 @@ h1{margin:6px 0 4px;font-size:26px;line-height:1.15;letter-spacing:-.025em;text-
 
   function screen() {
     if (cur === 'start') return '<h1>How do you want to start?</h1><p class="lede">Pick one. It takes about a minute.</p><div class="tiles three">' +
-      tile('trial', 'rocket', 'Start free', 'Set up your booking page, free', 'See plans') + tile('demo', 'cal', 'Book a demo', 'A free 20-minute call with us', 'Pick a time') + tile('msg', 'msg', 'Send a message', 'Questions, pricing or anything else', 'Write to us') + '</div>' +
+      tile('trial', 'rocket', 'Get 3 jobs free', 'No card required. Set up in 10 minutes', 'See plans') + tile('demo', 'cal', 'Book a demo', 'A free 20-minute call with us', 'Pick a time') + tile('msg', 'msg', 'Send a message', 'Questions, pricing or anything else', 'Write to us') + '</div>' +
       '<p class="below">Already have an account? <a href="' + APP + 'login" target="_top">Log in</a></p>';
-    if (cur === 'plan') return '<h1>Pick your plan</h1><p class="lede">Month to month. No setup fee.</p><div class="plans">' +
-      '<div class="plan"><span class="tag">Have a website you like</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">Free to set up. Free until it books you 3 jobs, then $99/month. Cancel anytime.</p><ul>' +
+    if (cur === 'plan') return '<h1>Pick your plan</h1><p class="lede">Your first 3 booked jobs are free. No card required.</p><div class="plans">' +
+      '<div class="plan"><span class="tag">Founding price</span><h3>Booking Widget</h3><div class="amt">$99<small> /month</small></div><p class="note">Go live free, no card. Your first 3 booked jobs are free, then $99/month. Cancel anytime.</p><ul>' +
         li('Book online button for your website') + li('Booking page for Google, Facebook and Instagram') + li('A text and an inbox entry for every booking') + li('Set it up yourself in about 10 minutes') +
-        '</ul><button class="btn full" type="button" data-buy="widget">Start free ' + I('arw') + '</button></div>' +
+        '</ul><button class="btn full" type="button" data-buy="widget">Get 3 jobs free ' + I('arw') + '</button></div>' +
       '<div class="plan main"><span class="tag">We build it for you</span><h3>Website + Reviews + Booking Widget</h3><div class="amt">$199<small> /month</small></div><p class="note">$0 today. Charged only after your website is built and live.</p><ul>' +
         li('A new website built to book jobs') + li('Automatic Google review requests') + li('Everything in Booking Widget') + li('We build it with you on a 30-minute call') +
         '</ul><button class="btn dark full" type="button" data-buy="full">Get started ' + I('arw') + '</button></div></div>';

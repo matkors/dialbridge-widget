@@ -776,6 +776,14 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .how3-sub{display:none}
 }
 @media (max-width:640px){.hero .sub-x{display:none}}   /* phones: just the 3-jobs line */
+
+/* Pricing: how the free start works, 3 steps in a row (stacked on phones) */
+.free3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:980px;margin:0 auto 28px;padding:0;list-style:none;counter-reset:f3}
+.free3 li{position:relative;padding:18px 18px 18px 60px;border-radius:16px;background:var(--white);box-shadow:0 0 0 1px var(--line2);counter-increment:f3}
+.free3 li::before{content:counter(f3);position:absolute;left:18px;top:18px;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:14px}
+.free3 b{display:block;font-size:16px;color:var(--ink)}
+.free3 span{display:block;margin-top:3px;font-size:14px;line-height:1.45;color:var(--mute)}
+@media (max-width:760px){.free3{grid-template-columns:1fr;gap:10px}}
 </style>
 <link rel="stylesheet" href="build.css">
 <script src="../dbx.js"></script>
@@ -1054,13 +1062,18 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
 
 <section class="s" id="pricing" style="padding-top:0">
   <div class="wrap">
-    <div class="shead rv" style="margin-bottom:36px"><div><p class="eyebrow">Pricing <span class="tag">Draft</span></p><h2 style="margin-top:4px">Two plans. We set them up for you.</h2></div></div>
+    <div class="shead rv" style="margin-bottom:28px"><div><p class="eyebrow">Pricing</p><h2 style="margin-top:4px">Your first 3 jobs are free.<br>No card required.</h2></div></div>
+    <ol class="free3 rv">
+      <li><b>Go live free</b><span>No card. Your booking page takes bookings the same day.</span></li>
+      <li><b>Jobs 1, 2 and 3 are on us</b><span>Customers book, you get the work, you pay nothing.</span></li>
+      <li><b>Keep it after job 3</b><span>Add a card for $99/month. Cancel anytime. No card, and it just pauses.</span></li>
+    </ol>
     <div class="price rv">
       <div class="plan">
-        <span class="tag">Already have a site you like</span>
+        <span class="tag">Founding price</span>
         <h3 style="margin-top:16px">Booking Widget</h3>
         <div class="amt">$99<small>/month</small></div>
-        <div style="color:var(--mute);font-size:14px">Free to set up. Free until it books you 3 jobs.</div>
+        <div style="color:var(--mute);font-size:14px">Your first 3 booked jobs are free. No card required to start.</div>
         <ul>
           <li><svg><use href="#chk"/></svg>Book online button on your current website</li>
           <li><svg><use href="#chk"/></svg>Garage door services, pictures and price ranges, ready to go</li>
@@ -1068,7 +1081,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
           <li><svg><use href="#chk"/></svg>Every request in your inbox, with an email alert</li>
           <li><svg><use href="#chk"/></svg>Set it up yourself in about 10 minutes</li>
         </ul>
-        <a class="btn ghost" href="https://app.matviykorsunskiy.me/signup?plan=widget" data-signup="widget">Start free <svg class="arw"><use href="#arw"/></svg></a>
+        <a class="btn ghost" href="https://app.matviykorsunskiy.me/signup?plan=widget" data-signup="widget">Get 3 jobs free <svg class="arw"><use href="#arw"/></svg></a>
       </div>
       <div class="plan main">
         <span class="tag">Most owners pick this</span>
@@ -1093,6 +1106,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
   <div class="wrap faq">
     <div class="rv"><p class="eyebrow">Questions</p><h2 style="margin-top:18px">A few things owners ask.</h2></div>
     <div id="faqList" class="rv">
+      <div class="qa"><button type="button" aria-expanded="false">Do I need a card to start?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>No. You go live free, and your first 3 booked jobs are free. After the 3rd one we ask for a card to keep your page on, $99 a month, cancel anytime. If you don't add one, your page pauses and customers see your phone number instead.</p></div></div></div>
       <div class="qa"><button type="button" aria-expanded="false">Do I need a new website?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>No. The booking button works on the site you already have. If your site is slow or out of date, we can build you a new one as part of the plan.</p></div></div></div>
       <div class="qa"><button type="button" aria-expanded="false">What if a booking doesn't work for me?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>You can set any service to "request" instead of instant booking, so you approve it first. You can also change or cancel from your inbox and the customer is told by text.</p></div></div></div>
       <div class="qa"><button type="button" aria-expanded="false">Will customers see prices I don't want to commit to?<span class="pm" aria-hidden="true"></span></button><div class="a"><div><p>They see ranges you set, like $299 to $499 for torsion springs, with a note that your tech confirms the price before any work. New doors go to "free estimate" instead.</p></div></div></div>

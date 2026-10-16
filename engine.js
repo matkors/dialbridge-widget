@@ -108,7 +108,7 @@
     return Promise.all([getJSON(api + '/config'), getJSON(api + '/slots?days=14').catch(function () { return { slots: [] }; })]).then(function (r) {
       var c = r[0], h = hoursOf(c.hours);
       var T0 = build({ slug: c.slug, trade: c.trade, template: c.template, name: c.name, phone: prettyUs(c.phone), brand: c.brand, area: c.area || 'your area',
-        zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false, templateOnly: c.setupDone === false,
+        zips: c.zips || [], tz: c.timezone, days: h.days, open: h.open, close: h.close, timeMode: h.mode, demo: false, api: api, apiSlots: r[1].slots || [], notLive: c.live === false && !c.paused, paused: !!c.paused, templateOnly: c.setupDone === false,
         logo: c.logo || null, website: c.website || null, images: c.images || {}, rating: c.rating || null, reviews: c.reviews || null, saveLeads: !!c.saveLeads });
       // Photos go to the API right after the booking (resized here first), so the details step always offers them.
       Object.keys(T0.steps).forEach(function (k) { if (T0.steps[k].type === 'details') T0.steps[k].photos = true; });
@@ -532,7 +532,7 @@
         // The owner hasn't finished the builder yet: say so, so nobody mistakes the starter template for their real page.
         (B.templateOnly && !EDIT ? '<div class="tpl-note"><b>Starter template.</b> This page is not set up yet. <a href="https://app.matviykorsunskiy.me/booking-page/1" target="_top">Finish setting it up</a></div>'
           // Built but the free trial hasn't started: it's a preview, and bookings can't be sent yet. Say so up front.
-          : B.notLive && !EDIT ? '<div class="tpl-note"><b>Preview.</b> This booking page isn\'t live yet, so bookings can\'t be sent. <a href="https://app.matviykorsunskiy.me/booking-page/8" target="_top">Owner? Start your free trial to go live</a></div>' : '');
+          : B.notLive && !EDIT ? '<div class="tpl-note"><b>Preview.</b> This booking page isn\'t live yet, so bookings can\'t be sent. <a href="https://app.matviykorsunskiy.me/booking-page/8" target="_top">Owner? Go live free</a></div>' : '');
     }
     // A thin progress bar (like Avenue's): the first screen counts as a step, and the done screen fills it.
     // It starts at the last screen's width and grows to the new one, so every step change animates.
@@ -830,6 +830,9 @@
     }
 
     function bodyHtml() {
+      // Paused (the owner's free jobs are used and no card yet): no online booking, the phone number instead.
+      if (B.paused) return '<div class="center paused-c">' + pinArt() + '<h3>Book by phone</h3><p class="lede">' + esc(B.name) + ' is taking bookings by phone right now.</p>' +
+        (B.phoneDigits ? '<a class="btn" href="tel:+1' + B.phoneDigits + '">' + ic('phone') + 'Call ' + esc(B.phone) + '</a>' : '') + '</div>';
       if (S.done) return doneHtml();
       if (!S.path) return menuHtml();
       var sc = curScreen(), h = '';
@@ -862,6 +865,7 @@
         '<ul class="qs-inc">' + inc + '</ul></aside>';
     }
     function footHtml() {
+      if (B.paused) return params.get('pw') === '0' ? '' : '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by Dialbridge</a></div>';
       var call = B.phoneDigits ? '<a class="callus" href="tel:+1' + B.phoneDigits + '" aria-label="Call ' + esc(B.phone) + '">' + ic('phone') + '<span class="cu-w">Call</span><span class="cu-n">' + esc(B.phone) + '</span></a>' : '<span></span>';
       // The Demo tag only shows on a standalone demo link; previews inside our own pages leave it out.
       var pow = params.get('pw') === '0' ? '' : '<div class="pow"><a href="https://matviykorsunskiy.me/dialbridge-widget/" target="_blank" rel="noopener">Powered by Dialbridge</a>' + (B.demo && window.top === window.self ? '<span class="demo" title="Demo: requests are not sent anywhere">Demo</span>' : '') + '</div>';
