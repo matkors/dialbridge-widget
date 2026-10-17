@@ -195,7 +195,7 @@
     if (B.api) liveEvent('view');
 
     var S;
-    function fresh() { S = { path: T.startPath === 'book' && !EDIT ? 'book' : null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], files: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', msg: '', cb: null, done: null }; }
+    function fresh() { S = { path: T.startPath === 'book' && !EDIT ? 'book' : null, idx: 0, svc: null, svcs: [], ans: {}, addons: {}, details: '', photos: [], files: [], day: null, time: null, tmode: 'first', name: '', phone: '', zip: '', addr: '', email: '', biz: '', msg: '', cb: null, done: null }; }
     fresh();
     // ?builder=1: the product page's widget builder (same origin) can try a color and an uploaded logo live.
     // An uploaded logo arrives as a data: image and is only ever shown in an <img>, never saved from here.
@@ -498,7 +498,8 @@
       if (d.type === 'time') return !!(S.day && S.time);
       if (d.type === 'lead') return contactOk();
       if (d.type === 'zip') return zipOk();
-      if (d.type === 'contact') return contactOk() && (!d.askAddress || S.addr.trim().length > 4) && (!contactNeedsZip() || zipOk());
+      if (d.type === 'contact') return contactOk() && (!d.askAddress || S.addr.trim().length > 4) && (!contactNeedsZip() || zipOk()) && (!d.askBiz || S.biz.trim().length > 1) &&
+        (!S.email.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.email.trim()));
       if (d.type === 'message') return contactOk() && S.msg.trim().length >= 3;
       if (d.type === 'callback') return contactOk() && !!S.cb;
       if (d.type === 'details' && visitPicked()) return !!d.optional || S.details.trim().length >= 3;
@@ -524,7 +525,7 @@
     function headerHtml() {
       var brand = B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt="' + esc(B.name) + '">' : '<span class="wordmark">' + esc(B.name) + '</span>';
       if (EDITB) brand = '<button type="button" class="slot slot-logo' + (B.logo ? ' has' : '') + '" data-edit="logo">' + (B.logo ? '<img class="logo" src="' + esc(B.logo) + '" alt=""><span class="sl-tip">Change logo</span>' : '<span class="sl-plus">+</span><span>Upload logo</span>') + '</button>';
-      var sub = 'Book online' + (B.rating ? ' <span class="dot">·</span> ' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ' reviews)' : '');
+      var sub = esc(T.headSub || 'Book online') + (B.rating ? ' <span class="dot">·</span> ' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ' reviews)' : '');
       if (EDITB) sub = 'Book online ' + (B.rating ? '<button type="button" class="slot slot-rate has" data-edit="rating">' + stars() + ' ' + esc(B.rating) + ' (' + esc(B.reviews) + ')<span class="sl-tip">Change</span></button>' : '<button type="button" class="slot slot-rate" data-edit="rating"><span class="sl-plus">+</span>Add your Google rating</button>');
       var hcall = TOP && B.phoneDigits ? '<a class="hd-call" href="tel:+1' + B.phoneDigits + '">' + ic('phone') + '<span>' + esc(B.phone) + '</span></a>' : '';
       return '<header class="hd' + (B.logo && !lightLogo() ? ' light' : '') + '"><div class="hd-l">' + brand + '<span class="hd-sub">' + sub + '</span></div>' + hcall +
@@ -604,7 +605,7 @@
       if (d.type === 'choice') {
         var o = optOf(id), extra = B.showPrices && d.own && ownPriced();
         if (d.ui === 'pics') {
-          h += '<div class="pcards imgs n' + d.options.length + '">' + d.options.map(function (x) {
+          h += '<div class="pcards imgs n' + d.options.length + (d.compact ? ' compact' : '') + '">' + d.options.map(function (x) {
             var on = S.ans[id] === x.id, pt = B.showPrices && (x.price || x.tag) ? (x.price ? priceText(x.price[0], x.price[1]) : x.tag) : '';
             if (pt && gated()) pt = GATE === 'teaser' ? teaseTag(pt) : '';
             var pr = pt ? '<span class="ptag">' + esc(pt) + '</span>' : '';
@@ -681,13 +682,19 @@
       }
       if (d.type === 'contact') {
         var lf = leadFirst();
+        // A booked call (our own page): what they picked, the number we'll call, and what the call covers.
+        if (d.recap && lf) h += '<div class="recap"><div class="rc-r">' + ic('calendar-check') + '<div><b>' + esc(whenText()) + '</b><span>' + esc(S.svc ? S.svc.label : '') + (S.svc && S.svc.duration ? ', ' + S.svc.duration + ' minutes' : '') + '</span></div></div>' +
+          '<div class="rc-r">' + ic('phone') + '<div><b>We call ' + esc(prettyPhone()) + '</b><span>' + esc(S.name.trim()) + '</span></div></div>' +
+          (Array.isArray(T.includes) && T.includes.length ? '<ul class="rc-l">' + T.includes.map(function (x) { return '<li>' + ic('check') + '<span>' + esc(x) + '</span></li>'; }).join('') + '</ul>' : '') + '</div>';
+        if (d.askBiz) h += '<label class="fld"><span>Business name <em>*</em></span><input data-in="biz" autocomplete="organization" placeholder="' + esc(d.bizPlaceholder || 'Shore Point HVAC') + '" value="' + esc(S.biz) + '"></label>';
+        if (d.askEmail) h += '<label class="fld"><span>Email (optional)</span><input data-in="email" type="email" inputmode="email" autocomplete="email" placeholder="you@company.com" value="' + esc(S.email) + '"></label>';
         h += (lf ? '' : nameFields(1)) + (d.askAddress ? '<label class="fld"><span>' + esc(d.addressLabel || 'Address of the job') + ' <em>*</em></span><input data-in="addr" autocomplete="street-address" placeholder="123 Main St" value="' + esc(S.addr) + '"></label>' : '') + (contactNeedsZip() ? '<label class="fld narrow"><span>ZIP code <em>*</em></span><input data-in="zip" inputmode="numeric" maxlength="5" placeholder="' + esc(/^[0-9]{5}$/.test(String(B.zipHint || '')) ? B.zipHint : '07430') + '" value="' + esc(S.zip) + '"></label><p class="warn" id="oa"' + (/^\d{5}$/.test(S.zip) && !inArea() ? '' : ' hidden') + '>' + esc(B.name) + ' does not serve this ZIP yet.</p>' : '') +
           (d.photos && !visitPicked() ? '<div class="fld"><span>' + esc(d.photoLabel || 'Photos (optional)') + '</span>' + photosHtml(d.photoButton || 'Add a photo') + (d.photoHint ? '<p class="meta">' + esc(d.photoHint) + '</p>' : '') + '</div>' : '') +
           (lf ? '' : '<p class="fine">By sending, you agree that ' + esc(B.name) + ' may ' + (T.confirmBy === 'call' ? 'call or text' : 'text') + ' you about this request. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>');
       }
       if (d.type === 'lead') {
         h += nameFields(4) +
-          '<p class="fine">By continuing, you agree that ' + esc(B.name) + ' may ' + (T.confirmBy === 'call' ? 'call or text' : 'text') + ' you about this estimate. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>';
+          '<p class="fine">By continuing, you agree that ' + esc(B.name) + ' may ' + (T.confirmBy === 'call' ? 'call or text' : 'text') + ' you about ' + esc(T.leadAbout || 'this estimate') + '. Message and data rates may apply. Reply STOP to opt out. No account, no spam.</p>';
       }
       if (d.type === 'message') {
         h += '<label class="fld"><span>Your question <em>*</em></span><textarea data-in="msg" rows="4" placeholder="Do you take old hot tubs?">' + esc(S.msg) + '</textarea></label>' + nameFields(2) +
@@ -802,7 +809,7 @@
         title = S.svc.mode === 'estimate' ? esc(T.estimateDone || 'Walkthrough requested') : instant ? 'You\'re booked' : 'Request sent';
         text = instant ? biz + ' has you down' + (whenText() ? ' for ' + esc(whenText()) : '') + '.'
           : biz + ' will ' + (byCall ? 'call' : 'text') + ' you to confirm the time.';
-        how = instant ? ['message-square-text', 'If anything changes, they\'ll text you'] : byCall ? ['phone-incoming', 'They\'ll call you'] : ['message-square-text', 'They\'ll text you'];
+        how = instant && T.doneHow ? ['phone-incoming', esc(T.doneHow)] : instant ? ['message-square-text', 'If anything changes, they\'ll text you'] : byCall ? ['phone-incoming', 'They\'ll call you'] : ['message-square-text', 'They\'ll text you'];
       }
       else if (S.path === 'quote') { title = 'Price request sent'; text = biz + ' will look it over and send you a price.'; how = byCall ? ['phone-incoming', 'They\'ll call you'] : ['message-square-text', 'Your price comes by text']; }
       else if (S.path === 'text') { title = 'Message sent'; text = 'Your question went straight to ' + biz + '.'; how = ['message-square-text', 'The reply comes by text']; }
@@ -997,10 +1004,11 @@
       var notes = [];
       if (S.msg.trim()) notes.push(S.msg.trim());
       if (S.cb) notes.push('Best time to call back: ' + S.cb);
+      if (S.biz.trim()) notes.push('Business: ' + S.biz.trim().slice(0, 120));
       var hp = document.getElementById('hpf');
       return {
         path: S.path, services: S.svcs.length ? S.svcs.slice() : (S.svc ? [S.svc.id] : []), answers: answers, addons: addons,
-        name: S.name.trim(), phone: digits(), zip: S.zip || undefined, address: S.addr.trim() || undefined,
+        name: S.name.trim(), phone: digits(), zip: S.zip || undefined, address: S.addr.trim() || undefined, email: S.email.trim() || undefined,
         details: S.details.trim() || undefined, message: notes.join('\n') || undefined,
         start: timed ? S.time : undefined,
         source: VIA === 'site' ? 'website' : 'booking page', test: params.get('test') === '1' || undefined, page: PG.slice(0, 300), ref: REF.slice(0, 300), pg: PG.slice(0, 300),

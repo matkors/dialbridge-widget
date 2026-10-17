@@ -1,0 +1,308 @@
+{
+  "trade": "appointments",
+  "tradeLabel": "Free strategy call",
+  "name": "Dialbridge",
+  "phone": "",
+  "brand": "#f35427",
+  "area": "Home service businesses across the US",
+  "zips": [],
+  "tz": "America/New_York",
+  "open": "09:00",
+  "close": "17:00",
+  "days": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "timeMode": "slots",
+  "showPrices": false,
+  "layout": "top",
+  "template": {
+    "trade": "Growth Plan calls",
+    "noun": "call",
+    "tagline": "Free 20-minute call. We call you.",
+    "sideLine": "Pick a time that works. We call you at that time.",
+    "illustration": "calendar",
+    "defaults": {
+      "open": "09:00",
+      "close": "17:00",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "replyMins": 15,
+      "showPrices": false,
+      "timeMode": "slots",
+      "layout": "top"
+    },
+    "services": [
+      {
+        "id": "growth",
+        "label": "Get more booked jobs",
+        "hint": "Website, Google, missed calls and follow-up. We build it and run it for you.",
+        "icon": "trending-up",
+        "mode": "book",
+        "duration": 20,
+        "pricing": "none",
+        "custom": true,
+        "image": "img/tiles/hvac-book.webp"
+      },
+      {
+        "id": "widget",
+        "label": "Online booking for my website",
+        "hint": "Customers book and see a price online. Your first 3 jobs are free.",
+        "icon": "calendar-check",
+        "mode": "book",
+        "duration": 15,
+        "pricing": "none",
+        "custom": true,
+        "image": "img/tiles/booking-page.jpg"
+      }
+    ],
+    "flows": {
+      "book": [
+        "service",
+        "trade",
+        "trucks",
+        "leak",
+        "site",
+        "lead",
+        "time",
+        "contact"
+      ],
+      "quote": [
+        "details",
+        "contact"
+      ]
+    },
+    "startPath": "book",
+    "autoNext": true,
+    "summary": false,
+    "altPhoto": false,
+    "multiService": false,
+    "leadAbout": "your call",
+    "steps": {
+      "service": {
+        "type": "service",
+        "title": "What can we help you with?"
+      },
+      "trade": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "What's your trade?",
+        "sum": "Trade",
+        "options": [
+          {
+            "id": "hvac",
+            "label": "HVAC",
+            "icon": "thermometer-snowflake",
+            "short": "HVAC"
+          },
+          {
+            "id": "plumbing",
+            "label": "Plumbing",
+            "icon": "droplets",
+            "short": "Plumbing"
+          },
+          {
+            "id": "electrical",
+            "label": "Electrical",
+            "icon": "zap",
+            "short": "Electrical"
+          },
+          {
+            "id": "roofing",
+            "label": "Roofing",
+            "icon": "house",
+            "short": "Roofing"
+          },
+          {
+            "id": "garage",
+            "label": "Garage doors",
+            "icon": "warehouse",
+            "short": "Garage doors"
+          },
+          {
+            "id": "pest",
+            "label": "Pest control",
+            "icon": "bug",
+            "short": "Pest control"
+          },
+          {
+            "id": "landscaping",
+            "label": "Landscaping",
+            "icon": "trees",
+            "short": "Landscaping"
+          },
+          {
+            "id": "other",
+            "label": "Something else",
+            "hint": "Cleaning, junk removal and more",
+            "icon": "wrench",
+            "short": "Other trade"
+          }
+        ],
+        "compact": true
+      },
+      "trucks": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "How big is your team?",
+        "sum": "Team",
+        "forSvc": [
+          "growth"
+        ],
+        "options": [
+          {
+            "id": "solo",
+            "label": "Just me",
+            "hint": "One truck",
+            "icon": "user",
+            "short": "1 truck"
+          },
+          {
+            "id": "small",
+            "label": "2 to 4 trucks",
+            "hint": "A small crew",
+            "icon": "truck",
+            "short": "2 to 4 trucks"
+          },
+          {
+            "id": "big",
+            "label": "5 or more trucks",
+            "hint": "Office staff too",
+            "icon": "building-2",
+            "short": "5+ trucks"
+          }
+        ],
+        "compact": true
+      },
+      "leak": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Where do jobs slip away?",
+        "sum": "Biggest gap",
+        "forSvc": [
+          "growth"
+        ],
+        "options": [
+          {
+            "id": "calls",
+            "label": "Missed calls",
+            "hint": "We're on a job and can't pick up",
+            "icon": "phone-missed",
+            "short": "Missed calls"
+          },
+          {
+            "id": "website",
+            "label": "Our website",
+            "hint": "Old, slow, or it doesn't bring calls",
+            "icon": "monitor-smartphone",
+            "short": "Website"
+          },
+          {
+            "id": "google",
+            "label": "Google and reviews",
+            "hint": "Hard to find, or not enough reviews",
+            "icon": "star",
+            "short": "Google and reviews"
+          },
+          {
+            "id": "quotes",
+            "label": "Quotes go cold",
+            "hint": "No time to follow up",
+            "icon": "hourglass",
+            "short": "Quotes go cold"
+          },
+          {
+            "id": "quiet",
+            "label": "Not enough leads",
+            "hint": "The phone is too quiet",
+            "icon": "trending-down",
+            "short": "Not enough leads"
+          },
+          {
+            "id": "notsure",
+            "label": "Not sure",
+            "hint": "Show us where we're losing jobs",
+            "icon": "search",
+            "short": "Not sure"
+          }
+        ],
+        "compact": true
+      },
+      "site": {
+        "type": "choice",
+        "ui": "pics",
+        "title": "Do you have a website?",
+        "sum": "Website",
+        "forSvc": [
+          "widget"
+        ],
+        "options": [
+          {
+            "id": "yes",
+            "label": "Yes",
+            "hint": "We'll add a Book online button to it",
+            "icon": "globe",
+            "short": "Has a website"
+          },
+          {
+            "id": "no",
+            "label": "Not yet",
+            "hint": "You get a booking link to share",
+            "icon": "link",
+            "short": "No website"
+          },
+          {
+            "id": "google",
+            "label": "Just Google",
+            "hint": "Customers find us on Google Maps",
+            "icon": "map-pin",
+            "short": "Google only"
+          }
+        ],
+        "compact": true
+      },
+      "lead": {
+        "type": "lead",
+        "title": "Who should we call?",
+        "lede": "Add your name and number. We'll text you the call details.",
+        "submit": "Pick a time"
+      },
+      "time": {
+        "type": "time",
+        "title": "Pick a time for your call"
+      },
+      "contact": {
+        "type": "contact",
+        "title": "Last step: confirm your call",
+        "titleAfterLead": "Last step: confirm your call",
+        "lede": "A text with the details comes right away.",
+        "submit": "Book my call",
+        "recap": true,
+        "askBiz": true,
+        "askEmail": true,
+        "bizPlaceholder": "Shore Point HVAC"
+      },
+      "details": {
+        "type": "details",
+        "title": "What would you like to ask?",
+        "placeholder": "Your question",
+        "photos": false
+      }
+    },
+    "headSub": "Free 20-minute call. We call you.",
+    "includes": [
+      "Where your business is losing jobs right now",
+      "What we would fix first, and what it costs",
+      "No pressure. You decide after the call"
+    ],
+    "doneHow": "We call you at that time"
+  }
+}
